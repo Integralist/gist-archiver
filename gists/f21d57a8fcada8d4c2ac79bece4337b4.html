@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Cross Compile Binary] #go #golang #compile #crosscompile</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-cross-compile-binary-go-golang-compile-crosscompile">[Golang Cross Compile Binary] #go #golang #compile #crosscompile</h1>
+
+<h2 id="golang-cross-compile-binary-bash">Golang Cross Compile Binary.bash</h2>
+
+<pre><code class="language-shell">env GOOS=darwin  GOARCH=amd64 go build -o fastly     ./cmd/fastly/main.go
+env GOOS=windows GOARCH=amd64 go build -o fastly.exe ./cmd/fastly/main.go
+</code></pre>
+
+</div>
+</body>
+</html>

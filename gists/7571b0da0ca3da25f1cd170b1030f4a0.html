@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Enum Example] #python #python3 #enum</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-enum-example-python-python3-enum">[Python Enum Example] #python #python3 #enum</h1>
+
+<h2 id="enum-example-py">enum example.py</h2>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+the 'inherit from enum' class approach helps give structure to otherwise
+much more verbose constants.
+
+for example...
+
+RenderMode.HUMAN_READABLE
+RenderMode.STRUCTURED_JSON
+
+vs
+
+RENDER_MODE_HUMAN_READABLE
+RENDER_MODE_STRUCTURED_JSON
+&quot;&quot;&quot;
+
+class RenderMode(Enum):
+    HUMAN_READABLE = 1
+    STRUCTURED_JSON = 2
+    
+render_mode = RenderMode.STRUCTURED_JSON if settings.get('PRINT_STRUCTURED_JSON') else RenderMode.HUMAN_READABLE
+    
+if render_mode == RenderMode.HUMAN_READABLE:
+  # print data in human readable format
+else:
+  # print data for machine consumption
+</code></pre>
+
+</div>
+</body>
+</html>

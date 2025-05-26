@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Some basic examples of executing external commands within Vim's COMMAND-LINE mode</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="some-basic-examples-of-executing-external-commands-within-vim-s-command-line-mode">Some basic examples of executing external commands within Vim&rsquo;s COMMAND-LINE mode</h1>
+
+<h2 id="ext-vim">ext.vim</h2>
+
+<pre><code class="language-vim">&quot; run command
+&quot; no stdin
+&quot; output displayed in &quot;Press enter to continue&quot; style
+&quot; current buffer untouched
+:!uptime
+
+&quot; run command
+&quot; pipe range of text to command on stdin
+&quot; output replaces the range in the current buffer
+:RANGE!grep foo
+
+&quot; run command
+&quot; no stdin
+&quot; append output beneath the current line in the buffer
+:r!uptime
+
+&quot; run command
+&quot; no stdin
+&quot; append output beneath the last line in the range
+:RANGEr!uptime
+
+&quot; run command
+&quot; pipe whole buffer to command on stdin
+&quot; output displayed in &quot;Press enter to continue&quot; style
+&quot; current buffer untouched
+&quot; (the space between w and ! is important)
+:w !pbcopy
+
+&quot; run command
+&quot; pipe range to command on stdin
+&quot; output displayed in &quot;Press enter to continue&quot; style
+&quot; current buffer untouched
+&quot; (the space between w and ! is important)
+:RANGEw !pbcopy
+</code></pre>
+
+<h2 id="lol-markdown">lol.markdown</h2>
+
+<pre><code class="language-markdown">| command     | stdin      | stdout |
+|-------------|------------|--------|
+| `:!`        | none       | press enter to continue |
+| `:RANGE!`   | range      | replace range |
+| `:r!`       | none       | append below curent line |
+| `:RANGEr!`  | range      | append below last line in range |
+| `:w !`      | whole file | press enter to continue |
+| `:RANGEw !` | range      | press enter to continue |
+
+</code></pre>
+
+</div>
+</body>
+</html>

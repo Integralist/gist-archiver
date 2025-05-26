@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Valid URL Path] #URL #URI #path #valid #characters #RFC3986 #spec #specification</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="valid-url-path-url-uri-path-valid-characters-rfc3986-spec-specification">[Valid URL Path] #URL #URI #path #valid #characters #RFC3986 #spec #specification</h1>
+
+<h2 id="valid-url-path-md">valid url path.md</h2>
+
+<pre><code class="language-markdown">A [path segment](http://tools.ietf.org/html/rfc3986#section-3.3) (the parts in a path separated by `/`) in an absolute URI path can contain zero or more of _pchar_ that is defined as follows:
+
+</code></pre>
+
+<p>pchar       = unreserved / pct-encoded / sub-delims / &ldquo;:&rdquo; / &ldquo;@&rdquo;
+unreserved  = ALPHA / DIGIT / &ldquo;-&rdquo; / &ldquo;.&rdquo; / &ldquo;_&rdquo; / &ldquo;~&rdquo;
+pct-encoded = &ldquo;%&rdquo; HEXDIG HEXDIG
+sub-delims  = &ldquo;!&rdquo; / &ldquo;$&rdquo; / &ldquo;&amp;&rdquo; / &ldquo;&lsquo;&rdquo; / &ldquo;(&rdquo; / &ldquo;)&rdquo; / &ldquo;*&rdquo; / &ldquo;+&rdquo; / &ldquo;,&rdquo; / &ldquo;;&rdquo; / &ldquo;=&rdquo;</p>
+
+<pre><code>
+So it’s basically `A–Z`, `a–z`, `0–9`, `-`, `.`, `_`, `~`, `!`, `$`, `&amp;`, `'`, `(`, `)`, `*`, `+`, `,`, `;`, `=`, `:`, `@`, as well as `%` which must be followed by two hexadecimal digits (`0-9` and `A-F`). Any other character/byte needs to be encoded using the percent-encoding.
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mori.js Calendar Application (NodeJS) -> copied from the talk http://vimeo.com/96425437</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="mori-js-calendar-application-nodejs-copied-from-the-talk-http-vimeo-com-96425437">Mori.js Calendar Application (NodeJS) -&gt; copied from the talk <a href="http://vimeo.com/96425437" target="_blank">http://vimeo.com/96425437</a></h1>
+
+<h2 id="mori-calendar-js">Mori Calendar.js</h2>
+
+<pre><code class="language-javascript">var mori = require(&quot;mori&quot;);
+
+function Calendar(appointments, previousCalendar) {
+	appointments = appointments;
+
+  var cal = {};
+  
+  cal.add = function(appointment) {
+  	var withAppointments = mori.conj(appointments, appointment);
+    return Calendar(withAppointments, cal);
+  };
+  
+  cal.upcoming = function(start, n) {
+    var futureAppointments = mori.filter(function(a) {
+    	return a.date &gt;= start;
+    }, appointments);
+    
+    return mori.take(n, futureAppointments);
+  };
+  
+  cal.undo = function() {
+  	return previousCalendar || Calendar();
+  };
+  
+  return cal;
+}
+
+var myCalendar = Calendar().add({
+  title: 'X',
+  date: Date.parse('2014-07-11T18:00') // update this
+}).add({
+  title: 'Y',
+  date: Date.parse('2014-07-11T19:00') // update this
+}).add({
+  title: 'Z',
+  date: Date.parse('2014-07-11T20:00') // update this
+});
+
+var nextAppointments = myCalendar.upcoming(Date.now(), 2);
+
+console.log(
+  mori.map(function(a) {
+  	return a.title;
+  }, nextAppointments).toString() // we need to convert the Mori object some how (.toString for ease)
+); // =&gt; (&quot;Z&quot; &quot;Y&quot;)
+
+var previousCalendar = myCalendar.undo().undo();
+var appointments = previousCalendar.upcoming(Date.now(), 2);
+
+console.log(
+  mori.map(function(a) {
+  	return a.title;
+  }, appointments).toString()
+); // =&gt; (&quot;X&quot;)
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Thoughts re: UnCSS (a way to parse CSS files to see if all of the rules/selectors apply to a HTML page)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="thoughts-re-uncss-a-way-to-parse-css-files-to-see-if-all-of-the-rules-selectors-apply-to-a-html-page">Thoughts re: UnCSS (a way to parse CSS files to see if all of the rules/selectors apply to a HTML page)</h1>
+
+<h2 id="uncss-md">UnCSS.md</h2>
+
+<pre><code class="language-markdown">There are a couple of steps (and issues) that need to be considered for a solution to present itself...
+
+- Load CSS
+- Check each rule's list of selectors
+- If the selector is a `class` or an `id` then we can just see if it appears in the HTML markup
+- If it's neither a `class` or an `id` then we'll need to somehow parse the HTML and see if the CSS applies
+    - But how do we work around HTML that is post loaded via JavaScript?
+    - This is where using a headless browser would be required, and if that's the case we may as well go headless completely
+- We need to check each media query found and see if selectors within match at some point
+    - The same process as above needs to happen (if `class` or `id` then we can just check HTML markup)
+    - Otherwise we'll need to parse HTML to see if the CSS applies
+</code></pre>
+
+</div>
+</body>
+</html>

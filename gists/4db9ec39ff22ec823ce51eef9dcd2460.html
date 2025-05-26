@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[gnu sed alternation] #gnu #gsed #sed #alternation #regex</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="gnu-sed-alternation-gnu-gsed-sed-alternation-regex">[gnu sed alternation] #gnu #gsed #sed #alternation #regex</h1>
+
+<h2 id="gnu-sed-alternation">gnu sed alternation</h2>
+
+<pre><code class="language-text"># I wanted to strip lines ending with . followed by five possible values
+# I couldn't do this with macOS BSD sed so used gnu sed
+# But also needed to do some weird unexpected things like...
+#
+# 1. escape the capture group parentheses
+# 2. escape the alternator pipe character
+
+gsed 's/\.\(avg\|count\|median\|95percentile\|max\)$//'
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Awk insert before and after regex match</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="awk-insert-before-and-after-regex-match">Awk insert before and after regex match</h1>
+
+<h2 id="awk-insert-before-and-after-regex-match-sh">Awk insert before and after regex match.sh</h2>
+
+<pre><code class="language-shell">echo -e &quot;foo\nbar\nbaz&quot; | awk '/bar/ &amp;&amp; found == 0 {found = 1; print &quot;---&quot;; print; print &quot;---&quot;} {print}'
+
+# foo
+# ---
+# bar
+# ---
+# bar
+# baz
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Docker NGINX Plus] #nginx-plus #nginx #docker</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="docker-nginx-plus-nginx-plus-nginx-docker">[Docker NGINX Plus] #nginx-plus #nginx #docker</h1>
+
+<h2 id="debian-jessie-python-3xx-install-nginx-plus-md">Debian (Jessie) Python 3xx install NGINX Plus.md</h2>
+
+<pre><code class="language-markdown">```Dockerfile
+# https://www.nginx.com/resources/admin-guide/installing-nginx-plus/#install_debian_ubuntu
+FROM python:3.6.1-slim
+
+# Set the debconf frontend to Noninteractive
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+RUN apt-get update &amp;&amp; apt-get install -y -q wget curl apt-transport-https lsb-release ca-certificates
+RUN python3 --version &amp;&amp; pip3 --version
+
+COPY ./requirements.txt /app/
+RUN pip3 install -r /app/requirements.txt
+
+# See scripts/prebuild for details of where cert/key is pulled from
+ADD nginx-repo.crt /etc/ssl/nginx/
+ADD nginx-repo.key /etc/ssl/nginx/
+
+# Get other files required for installation
+RUN wget -q -O - http://nginx.org/keys/nginx_signing.key | apt-key add -
+RUN wget -q -O /etc/apt/apt.conf.d/90nginx https://cs.nginx.com/static/files/90nginx
+
+RUN printf &quot;deb https://plus-pkgs.nginx.com/debian `lsb_release -cs` nginx-plus\n&quot; &gt;/etc/apt/sources.list.d/nginx-plus.list
+
+# Install NGINX Plus (this will fail without above ^^ cert/key credentials)
+# To find latest version use: apt-cache policy nginx-plus
+# https://www.nginx.com/resources/admin-guide/nginx-plus-releases/
+RUN apt-get update &amp;&amp; apt-get install -y nginx-plus=1.13.4-1~jessie
+
+ADD . /app
+
+CMD python3 /app/template.py nginx.conf.j2 /nginx.conf &amp;&amp; nginx -c /nginx.conf
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

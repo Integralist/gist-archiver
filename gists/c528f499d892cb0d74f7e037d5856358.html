@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Go: httpx.WriteJSON #go #golang #http #json #api</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-httpx-writejson-go-golang-http-json-api">Go: httpx.WriteJSON #go #golang #http #json #api</h1>
+
+<h2 id="internal-httpx-write-go">internal-httpx-write.go</h2>
+
+<pre><code class="language-go">// EXAMPLES
+//
+// ERROR RESPONSE:
+//    response := ErrorResponse{Message: &quot;error reading request body&quot;, Details: err.Error()}
+//    httpx.WriteJSON(l, w, r, http.StatusBadRequest, response)
+//
+// SUCCESS RESPONSE:
+//    response := map[string]string{&quot;message&quot;: &quot;updated order status to trigger certificate issuance&quot;}
+//    httpx.WriteJSON(l, w, r, http.StatusOK, response)
+
+package httpx
+
+import (
+	&quot;bytes&quot;
+	&quot;encoding/json&quot;
+	&quot;fmt&quot;
+	&quot;log/slog&quot;
+	&quot;net/http&quot;
+)
+
+// WriteJSON encodes v as JSON and writes to w.
+// It ensures the correct status code is written even if JSON encoding fails.
+// Will write a [http.StatusInternalServerError] if there is an error.
+// Otherwise, it'll write the JSON response with specified code status.
+//
+// WARNING: The response status code is explicitly sent before the body.
+//
+// We have to do this because we don't want the first call to
+// [http.ResponseWriter.Write] to call `WriteHeader(http.StatusOK)`.
+//
+// This means there is the potential for the incorrect status code to be sent.
+// If, the call to [bytes.Buffer.WriteTo] fails, then we've already set the
+// response status code. We now can't change the status, as Go ignores
+// subsequent calls to [http.ResponseWriter.WriteHeader]. The best we can do is
+// catch and log the error.
+func WriteJSON(l *slog.Logger, w http.ResponseWriter, r *http.Request, code int, v any) {
+	ctx := r.Context()
+	w.Header().Set(&quot;Content-Type&quot;, &quot;application/json&quot;)
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&amp;buf).Encode(v); err != nil {
+		l.LogAttrs(ctx, slog.LevelError, &quot;encode_json_response&quot;, slog.Any(&quot;err&quot;, err))
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, `{&quot;error&quot;: %q}`, err)
+		return
+	}
+
+	w.WriteHeader(code)
+
+	if _, err := buf.WriteTo(w); err != nil {
+		l.LogAttrs(ctx, slog.LevelError, &quot;write_buffered_response&quot;, slog.Any(&quot;err&quot;, err))
+		fmt.Fprintf(w, `{&quot;error&quot;: %q}`, err)
+		return
+	}
+}
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby Decorator Design Pattern for BBC: with a little imagination you can see how we could store data in S3 instead of "printing" it to the screen AND also how we could have some models extend based on a whitelist (as some components you'll want to extend ALL formatters, and other components you'll only want to extend from one or two formatters)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-decorator-design-pattern-for-bbc-with-a-little-imagination-you-can-see-how-we-could-store-data-in-s3-instead-of-printing-it-to-the-screen-and-also-how-we-could-have-some-models-extend-based-on-a-whitelist-as-some-components-you-ll-want-to-extend-all-formatters-and-other-components-you-ll-only-want-to-extend-from-one-or-two-formatters">Ruby Decorator Design Pattern for BBC: with a little imagination you can see how we could store data in S3 instead of &ldquo;printing&rdquo; it to the screen AND also how we could have some models extend based on a whitelist (as some components you&rsquo;ll want to extend ALL formatters, and other components you&rsquo;ll only want to extend from one or two formatters)</h1>
+
+<h2 id="ruby-decorator-design-pattern-for-bbc-rb">Ruby Decorator Design Pattern for BBC.rb</h2>
+
+<pre><code class="language-ruby">require &quot;json&quot;
+
+module HtmlFormatter
+  def render
+    p &quot;&lt;p&gt;HTML content&lt;/p&gt;&quot;
+    super
+  end
+end
+
+module JsonFormatter
+  def render
+    p JSON.generate :foo =&gt; :bar
+    super
+  end
+end
+
+module EnvelopeFormatter
+  def render
+p &lt;&lt;EOF
+{
+  &quot;head&quot;: [
+    &quot;&lt;link ... /&gt;&quot;,
+    &quot;&lt;link ... /&gt;&quot;,
+    &quot;&lt;meta ... /&gt;,&quot;,
+    &quot;&lt;script ... /&gt;&quot;
+  ],
+  &quot;bodyInline&quot;: &quot;&lt;p&gt;Some HTML here&lt;/p&gt;&quot;,
+  &quot;bodyLast&quot;: [
+    &quot;&lt;script&gt;alert('script A');&lt;/script&gt;&quot;,
+    &quot;&lt;script&gt;alert('script B');&lt;/script&gt;&quot;
+  ]
+}
+EOF
+    super
+  end
+end
+
+class Model
+  def render
+    p &quot;Plain Text&quot;
+  end
+end
+
+component = Model.new
+
+component.extend(HtmlFormatter)
+component.extend(JsonFormatter)
+component.extend(EnvelopeFormatter)
+
+component.render
+
+=begin
+&quot;{\n  \&quot;head\&quot;: [\n    \&quot;&lt;link ... /&gt;\&quot;,\n    \&quot;&lt;link ... /&gt;\&quot;,\n    \&quot;&lt;meta ... /&gt;,\&quot;,\n    \&quot;&lt;script ... /&gt;\&quot;\n  ],\n  \&quot;bodyInline\&quot;: \&quot;&lt;p&gt;Some HTML here&lt;/p&gt;\&quot;,\n  \&quot;bodyLast\&quot;: [\n    \&quot;&lt;script&gt;alert('script A');&lt;/script&gt;\&quot;,\n    \&quot;&lt;script&gt;alert('script B');&lt;/script&gt;\&quot;\n  ]\n}\n&quot;
+&quot;{\&quot;foo\&quot;:\&quot;bar\&quot;}&quot;
+
+&quot;&lt;p&gt;HTML content&lt;/p&gt;&quot;
+
+&quot;Plain Text&quot;
+=end
+</code></pre>
+
+</div>
+</body>
+</html>

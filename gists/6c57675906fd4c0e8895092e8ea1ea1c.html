@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Bash rename multiple files extension] #bash #rename #extension</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="bash-rename-multiple-files-extension-bash-rename-extension">[Bash rename multiple files extension] #bash #rename #extension</h1>
+
+<h2 id="bash-rename-multiple-files-extension-bash">Bash rename multiple files extension.bash</h2>
+
+<pre><code class="language-shell">for f in *.markdown.tmpl; 
+do 
+  name=$(basename $f .markdown.tmpl) &amp;&amp; mv $f &quot;$name.md.tmpl&quot;; 
+done
+</code></pre>
+
+</div>
+</body>
+</html>

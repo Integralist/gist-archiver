@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Python Singleton</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-singleton">Python Singleton</h1>
+
+<h2 id="python-singleton-py">Python Singleton.py</h2>
+
+<pre><code class="language-python"># singleton.py
+
+instance = None
+
+
+class Foo():
+    def __new__(cls, arg):
+        global instance
+        if instance is not None:
+            return instance
+        instance = object.__new__(cls)
+        instance.foo = arg
+        return instance
+
+    def __init__(self, arg):
+        print(self.foo)  # __init__ called each time
+                         # but foo is set only once
+
+# consumer code within a separate module...
+
+f = Foo('a')
+f = Foo('b')
+f = Foo('c')
+
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Getting Go package documentation published] #go #pkg #docs</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="getting-go-package-documentation-published-go-pkg-docs">[Getting Go package documentation published] #go #pkg #docs</h1>
+
+<h2 id="getting-go-package-documentation-published-md">Getting Go package documentation published.md</h2>
+
+<pre><code class="language-markdown">- Run `tag=&quot;v1.0.0-beta.0&quot; &amp;&amp; git tag -s $tag -m $tag &amp;&amp; git push origin $tag`
+- Create a new 'release' https://github.com/fastly/fastly-go/releases
+- Run `GOPROXY=https://proxy.golang.org go get github.com/fastly/fastly-go@v1.0.0-beta.0`
+- Check https://proxy.golang.org/github.com/fastly/fastly-go/@v/v1.0.0-beta.0.info
+- Wait a bit and then check https://pkg.go.dev/github.com/fastly/fastly-go
+</code></pre>
+
+</div>
+</body>
+</html>

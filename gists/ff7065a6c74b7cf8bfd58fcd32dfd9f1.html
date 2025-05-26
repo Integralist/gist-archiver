@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Sed Replace Pattern with File Contents] #sed #bash #replace</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="sed-replace-pattern-with-file-contents-sed-bash-replace">[Sed Replace Pattern with File Contents] #sed #bash #replace</h1>
+
+<h2 id="sed-replace-pattern-with-file-contents-bash">Sed Replace Pattern with File Contents.bash</h2>
+
+<pre><code class="language-shell">cd -- &quot;$(mktemp -d)&quot; 
+printf '%s\n' 'nuts' 'bolts' &gt; first_file.txt
+printf '%s\n' 'foo' 'bar' 'baz' &gt; second_file.txt
+sed -e '/bar/r ./first_file.txt' second_file.txt
+
+### output...
+foo
+bar
+nuts
+bolts
+baz
+### ...notice 'bar' in second_file.txt has the contents from first_file.txt appended after it
+</code></pre>
+
+</div>
+</body>
+</html>

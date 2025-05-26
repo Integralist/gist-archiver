@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Simple JavaScript partial application function]</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="simple-javascript-partial-application-function">[Simple JavaScript partial application function]</h1>
+
+<h2 id="partial-js">partial.js</h2>
+
+<pre><code class="language-javascript">export const partial = (fn, arg) =&gt; {
+  return (...rest) =&gt; {
+    return fn(arg, ...rest)
+  }
+}
+</code></pre>
+
+</div>
+</body>
+</html>

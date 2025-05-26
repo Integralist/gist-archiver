@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Security Hashing] #python #security #hashing #hash</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-security-hashing-python-security-hashing-hash">[Python Security Hashing] #python #security #hashing #hash</h1>
+
+<h2 id="python-security-hashing-py">Python Security Hashing.py</h2>
+
+<pre><code class="language-python"># see also: https://docs.python.org/3.7/library/crypto.html
+
+from hashlib import blake2b
+
+h = blake2b(key=b'pseudorandom key', digest_size=16)
+h.update(b'message data')
+h.hexdigest()  # '3d363ff7401e02026f4a4687d4863ced'
+</code></pre>
+
+</div>
+</body>
+</html>

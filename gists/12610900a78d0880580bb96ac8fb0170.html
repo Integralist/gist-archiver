@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Datadog Python API] #datadog #python #api #metrics</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="datadog-python-api-datadog-python-api-metrics">[Datadog Python API] #datadog #python #api #metrics</h1>
+
+<h2 id="search-dashboards-and-monitors-for-metrics-py">search dashboards and monitors for metrics.py</h2>
+
+<pre><code class="language-python">import argparse
+import concurrent.futures
+import json
+import operator
+import re
+
+from datadog import api, initialize
+
+options = {
+    &quot;api_key&quot;: &quot;foo&quot;,
+    &quot;app_key&quot;: &quot;foo&quot;
+}
+
+initialize(**options)
+
+
+def pprint(o):
+    &quot;&quot;&quot;pretty print data structures.&quot;&quot;&quot;
+    print(json.dumps(o, indent=2, default=str), &quot;\n&quot;)
+
+
+def format_title(t):
+    &quot;&quot;&quot;print title in a format that makes it stand out visually.
+    example: &quot;my title&quot; &gt; &quot;\n########\nMY TITLE\n########\n&quot;
+    &quot;&quot;&quot;
+    hashes = &quot;#&quot; * len(t)
+    print(f&quot;\n{hashes}\n{t.upper()}\n{hashes}\n&quot;)
+
+
+parser = argparse.ArgumentParser(
+    description=&quot;Datadog Metric Searcher (searches dashboards and monitors)&quot;)
+
+parser.add_argument(
+    &quot;-p&quot;, &quot;--pattern&quot;, default=&quot;.&quot;,
+    help=&quot;regex pattern for filtering dashboard/monitor by name&quot;)
+
+parser.add_argument(
+    &quot;-m&quot;,
+    &quot;--metrics&quot;,
+    help=&quot;comma-separated list of metrics&quot;,
+    required=True)
+
+parser.add_argument(
+    &quot;-u&quot;,
+    &quot;--unused&quot;,
+    help=&quot;only display unused metrics&quot;,
+    action=&quot;store_true&quot;)
+
+args = parser.parse_args()
+
+metrics = [{&quot;name&quot;: metric, &quot;count&quot;: 0}
+           for metric in args.metrics.split(&quot;,&quot;) if metric]
+
+
+def find_graphs(
+        widgets,
+        dashboard_title,
+        dashboard_url,
+        metrics,
+        matches=None):
+    &quot;&quot;&quot;recursively search dashboard graphs for those referencing our metrics.
+
+    Note: widgets can be nested multiple times, so this is a recursive function.
+
+    because this function is run in isolation within its own process we pass in
+    the dashboard title/url so we can report back within the main/parent process
+    which dashboard the graphs are associated with (as the results are received
+    based on which process is quickest to complete). we also pass in a list of
+    metrics to be looked up in the dashboards/graphs, as we can't manipulate the
+    metric list (defined in the parent process) from within a child process.
+    &quot;&quot;&quot;
+
+    if not matches:
+        matches = {}
+
+    for widget in widgets:
+        definition = widget.get(&quot;definition&quot;)
+
+        if definition[&quot;type&quot;] != &quot;note&quot;:
+            requests = definition.get(&quot;requests&quot;)
+
+            &quot;&quot;&quot;
+            example data:
+            {
+              &quot;style&quot;: {
+                &quot;palette&quot;: &quot;green_to_orange&quot;,
+                &quot;palette_flip&quot;: false
+              },
+              &quot;group&quot;: [],
+              &quot;title&quot;: &quot;Hosts&quot;,
+              &quot;node_type&quot;: &quot;container&quot;,
+              &quot;no_metric_hosts&quot;: true,
+              &quot;scope&quot;: [
+                &quot;$cluster&quot;,
+                &quot;rig.service:user_auth_proxy&quot;
+              ],
+              &quot;requests&quot;: {
+                &quot;fill&quot;: {
+                  &quot;q&quot;: &quot;avg:process.stat.container.io.wbps{$cluster,rig.service:user_auth_proxy} by {host}&quot;
+                }
+              },
+              &quot;no_group_hosts&quot;: true,
+              &quot;type&quot;: &quot;hostmap&quot;
+            }
+            &quot;&quot;&quot;
+
+            if requests:
+                for request in requests:
+                    metric_query = None
+                    log_query = None
+                    process_query = None
+
+                    &quot;&quot;&quot;
+                    the following if statement catches 'hostmap' graphs
+                    whose requests key is a dict, not list[dict]
+                          &quot;requests&quot;: {
+                            &quot;fill&quot;: {
+                              &quot;q&quot;: &quot;...&quot;
+                            }
+                          }
+                    &quot;&quot;&quot;
+                    if isinstance(requests, dict) and request == &quot;fill&quot;:
+                        metric_query = requests.get(request, {}).get(&quot;q&quot;)
+                    else:
+                        try:
+                            metric_query = request.get(&quot;q&quot;)
+                        except AttributeError as err:
+                            continue
+
+                        log_query = request.get(
+                            &quot;log_query&quot;, {}).get(
+                            &quot;search&quot;, {}).get(&quot;query&quot;)
+                        process_query = request.get(
+                            &quot;process_query&quot;, {}).get(&quot;metric&quot;)
+
+                    if metric_query:
+                        query = metric_query
+                    elif log_query:
+                        query = log_query
+                    elif process_query:
+                        query = process_query
+                    else:
+                        query = None
+
+                    if not query:
+                        continue
+
+                    for metric in metrics:
+                        if metric[&quot;name&quot;] in query:
+                            metric[&quot;count&quot;] += 1
+
+                            graph_title = definition.get(&quot;title&quot;, &quot;N/A&quot;)
+                            match = matches.get(graph_title)
+
+                            if not match:
+                                matches[graph_title] = []
+                                match = matches[graph_title]
+
+                            match.append({
+                                &quot;metric&quot;: query,
+                                &quot;type&quot;: definition[&quot;type&quot;],
+                            })
+            else:
+                nested_widgets = definition.get(&quot;widgets&quot;, [])
+
+                # recurse and ignore the dashboard title/url and metrics
+                # as from this stage of the function we don't care about them
+                _, _, _, d = find_graphs(
+                    nested_widgets,
+                    dashboard_title,
+                    dashboard_url,
+                    metrics,
+                    matches
+                )
+
+                matches.update(d)
+
+    return dashboard_title, dashboard_url, metrics, matches
+
+
+def all_dashboards():
+    &quot;&quot;&quot;acquire all dashboards.&quot;&quot;&quot;
+
+    return api.Dashboard.get_all()
+
+
+def all_monitors():
+    &quot;&quot;&quot;acquire all monitors.&quot;&quot;&quot;
+
+    return api.Monitor.get_all()
+
+
+def dashboard_get(dashboard: dict):
+    &quot;&quot;&quot;acquire dashboard by the given ID.&quot;&quot;&quot;
+
+    return api.Dashboard.get(dashboard[&quot;id&quot;])
+
+
+def filter_dashboards(dashboards):
+    &quot;&quot;&quot;filter dashboards by pattern provided by -p/--pattern flag.&quot;&quot;&quot;
+
+    filtered_dashboards = []
+
+    for dashboard in dashboards[&quot;dashboards&quot;]:
+        if re.search(args.pattern, dashboard[&quot;title&quot;], flags=re.IGNORECASE):
+            filtered_dashboards.append(
+                {
+                    &quot;title&quot;: dashboard[&quot;title&quot;],
+                    &quot;id&quot;: dashboard[&quot;id&quot;],
+                    &quot;url&quot;: dashboard[&quot;url&quot;],
+                }
+            )
+
+    return sorted(filtered_dashboards, key=operator.itemgetter(&quot;title&quot;))
+
+
+def filter_monitors(monitors):
+    &quot;&quot;&quot;filter monitors by pattern provided by -p/--pattern flag.&quot;&quot;&quot;
+
+    filtered_monitors = []
+
+    for monitor in monitors:
+        if re.search(args.pattern, monitor[&quot;name&quot;], flags=re.IGNORECASE):
+            filtered_monitors.append(
+                {&quot;name&quot;: monitor[&quot;name&quot;],
+                 &quot;url&quot;: f&quot;https://&lt;YOUR_ORG&gt;.datadoghq.com/monitors/{monitor['id']}&quot;,
+                 &quot;query&quot;: monitor[&quot;query&quot;], })
+
+    return sorted(filtered_monitors, key=operator.itemgetter(&quot;name&quot;))
+
+
+def process():
+    &quot;&quot;&quot;asynchronously acquire dashboards and update metric count.
+
+    Note: the Datadog API is not asynchronous, so we must run API operations
+    within a threadpool, while also running the metric 'searching' algorithm
+    (a cpu heavy operation) within a processpool to help speed up the overall
+    program execution time.
+    &quot;&quot;&quot;
+
+    if not args.unused:
+        format_title(&quot;metrics to find&quot;)
+        pprint(metrics)
+
+    dashboards = None
+    monitors = None
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        wait_for = [
+            executor.submit(all_dashboards),
+            executor.submit(all_monitors)
+        ]
+
+        for f in concurrent.futures.as_completed(wait_for):
+            &quot;&quot;&quot;identify which api finished first and assign to correct variable.
+            dashboard api returns a dictionary, while monitors returns a list.
+            &quot;&quot;&quot;
+
+            results = f.result()
+
+            if isinstance(results, dict):
+                dashboards = results
+            else:
+                monitors = results
+
+    if args.pattern == &quot;.&quot;:
+        ld = len(dashboards['dashboards'])
+        lm = len(monitors)
+        d = f&quot;{ld} dashboards&quot;
+        m = f&quot;{lm} monitors&quot;
+        msg = f&quot;\nno search pattern provided, meaning we'll search ALL {d} and {m}!\n&quot;
+        print(msg)
+
+    filtered_dashboards = filter_dashboards(dashboards)
+    filtered_monitors = filter_monitors(monitors)
+
+    dashboards_metadata = []
+    track_dashboard_metrics = {}
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        wait_for = [
+            executor.submit(dashboard_get, dashboard)
+            for dashboard in filtered_dashboards
+        ]
+
+        for f in concurrent.futures.as_completed(wait_for):
+            dashboards_metadata.append(f.result())
+
+    if not args.unused:
+        format_title(&quot;dashboards&quot;)
+
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        metrics_copy = metrics.copy()  # avoid accidental mutation
+        wait_for = [
+            executor.submit(
+                find_graphs,
+                dashboard[&quot;widgets&quot;],
+                dashboard[&quot;title&quot;],
+                dashboard[&quot;url&quot;],
+                metrics_copy) for dashboard in dashboards_metadata]
+
+        for f in concurrent.futures.as_completed(wait_for):
+            title, url, metrics_mod, matches = f.result()
+            if matches:
+                if not args.unused:
+                    print(title, &quot;\n&quot;)
+                    print(f&quot;https://&lt;YOUR_ORG&gt;.datadoghq.com{url}\n&quot;)
+                    pprint(matches)
+                    print(&quot;---------\n&quot;)
+
+            for metric in metrics_mod:
+                if not track_dashboard_metrics.get(metric[&quot;name&quot;]):
+                    track_dashboard_metrics.update({metric[&quot;name&quot;]:
+                                                    metric[&quot;count&quot;]})
+                else:
+                    track_dashboard_metrics[metric[&quot;name&quot;]] += metric[&quot;count&quot;]
+
+    unused_dashboard_metrics = set()
+    unused_monitor_metrics = set()
+    used_monitor_metrics = set()
+
+    if not args.unused:
+        format_title(&quot;unused metrics in dashboards&quot;)
+
+    for metric, count in track_dashboard_metrics.items():
+        if count == 0:
+            unused_dashboard_metrics.add(metric)
+            print(metric)
+
+    if not args.unused:
+        format_title(&quot;monitors&quot;)
+
+    for monitor in filtered_monitors:
+        for metric in metrics:
+            if metric[&quot;name&quot;] in monitor[&quot;query&quot;]:
+                if not args.unused:
+                    print(monitor[&quot;name&quot;], &quot;\n&quot;)
+                    print(monitor[&quot;url&quot;], &quot;\n&quot;)
+                    print(monitor[&quot;query&quot;], &quot;\n&quot;)
+                    print(&quot;---------\n&quot;)
+
+                used_monitor_metrics.add(metric[&quot;name&quot;])
+            else:
+                unused_monitor_metrics.add(metric[&quot;name&quot;])
+
+    # avoid scenario where one monitor does reference the metric
+    # but a latter monitor DOES NOT reference it. when that happens
+    # we want to ensure we remove the metric name so it doesn't
+    # accidentally get marked later as being unused.
+    for metric in used_monitor_metrics:
+        try:
+            unused_monitor_metrics.remove(metric)
+        except KeyError:
+            pass
+
+    if not args.unused:
+        format_title(&quot;unused metrics in monitors&quot;)
+
+        for m in unused_monitor_metrics:
+            print(m)
+
+    format_title(&quot;unused metrics in monitors and dashboards&quot;)
+
+    unused_metrics = unused_dashboard_metrics.intersection(
+        unused_monitor_metrics)
+
+    for m in unused_metrics:
+        print(m)
+
+    print(f&quot;\n{len(unused_metrics)} out of {len(metrics)} metrics are unused.&quot;)
+
+
+if __name__ == '__main__':
+    process()
+</code></pre>
+
+<h2 id="sort-dashboards-py">sort dashboards.py</h2>
+
+<pre><code class="language-python">from datadog import api, initialize
+
+options = {
+    &quot;api_key&quot;: &quot;foo&quot;,
+    &quot;app_key&quot;: &quot;bar&quot;
+}
+
+initialize(**options)
+
+result = api.Dashboard.get_all()
+
+date_ordered = sorted(result[&quot;dashboards&quot;], key=lambda d: d[&quot;modified_at&quot;])
+
+for dashboard in date_ordered:
+    print(f'{dashboard[&quot;title&quot;]}: {dashboard[&quot;modified_at&quot;]}')
+
+</code></pre>
+
+</div>
+</body>
+</html>

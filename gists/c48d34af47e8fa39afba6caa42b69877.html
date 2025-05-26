@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Functional Programming Map in Go] #go #golang #map #fp #functional</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="functional-programming-map-in-go-go-golang-map-fp-functional">[Functional Programming Map in Go] #go #golang #map #fp #functional</h1>
+
+<h2 id="functional-programming-map-go">functional-programming-map.go</h2>
+
+<pre><code class="language-go">// REFERENCE:
+// https://blog.burntsushi.net/type-parametric-functions-golang/
+//
+
+package main
+
+import (
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;reflect&quot;
+)
+
+func Map(f interface{}, xs interface{}) interface{} {
+	vf := reflect.ValueOf(f)
+	vxs := reflect.ValueOf(xs)
+
+	ftype := vf.Type()
+	xstype := vxs.Type()
+
+	// 1) Map's first parameter type must be `func(A) B`
+	if ftype.Kind() != reflect.Func {
+		log.Panicf(&quot;`f` should be %s but got %s&quot;, reflect.Func, ftype.Kind())
+	}
+	if ftype.NumIn() != 1 {
+		log.Panicf(&quot;`f` should have 1 parameter but it has %d parameters&quot;,
+			ftype.NumIn())
+	}
+	if ftype.NumOut() != 1 {
+		log.Panicf(&quot;`f` should return 1 value but it returns %d values&quot;,
+			ftype.NumOut())
+	}
+
+	// 2) Map's second parameter type must be `[]A1` where `A == A1`.
+	if xstype.Kind() != reflect.Slice {
+		log.Panicf(&quot;`xs` should be %s but got %s&quot;, reflect.Slice, xstype.Kind())
+	}
+	if xstype.Elem() != ftype.In(0) {
+		log.Panicf(&quot;type of `f`'s parameter should be %s but xs contains %s&quot;,
+			ftype.In(0), xstype.Elem())
+	}
+
+	// 3) Map's return type must be `[]B1` where `B == B1`.
+	tys := reflect.SliceOf(vf.Type().Out(0))
+
+	vys := reflect.MakeSlice(tys, vxs.Len(), vxs.Len())
+	for i := 0; i &lt; vxs.Len(); i++ {
+		y := vf.Call([]reflect.Value{vxs.Index(i)})[0]
+		vys.Index(i).Set(y)
+	}
+	return vys.Interface()
+}
+
+func main() {
+	squared := Map(func(x int) int { return x * x }, []int{1, 2, 3}).([]int)
+
+	fmt.Printf(&quot;%+v\n&quot;, squared) // [1 4 9]
+  
+	squared = Map(func(a string) int { return len(a) }, []int{1, 2, 3}).([]int)
+	
+	fmt.Printf(&quot;%+v\n&quot;, squared) // panic: type of `f`'s parameter should be string but xs contains int
+}
+</code></pre>
+
+</div>
+</body>
+</html>

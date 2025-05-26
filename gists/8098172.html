@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Playing around with http://gulpjs.com/</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="playing-around-with-http-gulpjs-com">Playing around with <a href="http://gulpjs.com/" target="_blank">http://gulpjs.com/</a></h1>
+
+<h2 id="1-gulp-basic-streaming-js">1. Gulp Basic Streaming.js</h2>
+
+<pre><code class="language-javascript">var gulp    = require('gulp');
+var size    = require('gulp-filesize');
+var stream  = require('stream');
+var util    = require('util');
+var styles  = 'Assets/Styles';
+var scripts = 'Assets/Scripts';
+
+function aNewWritableStream() {
+    stream.Writable.call(this, { objectMode: true }); // make Stream behave like stream of objects instead of a Buffer with a set size
+
+    this.on('finish', function() {
+        console.log('Stream has finished, no more events can come through without causing an error');
+    });
+}
+
+util.inherits(aNewWritableStream, stream.Writable);
+
+aNewWritableStream.prototype._write = function(chunk, encoding, next) {
+    console.log(chunk.contents.toString(encoding)); // logs content of file
+    next();
+};
+
+// We need mulitiple Streams to be created for us to pipe the data through to
+var writableStuff1 = new aNewWritableStream();
+var writableStuff2 = new aNewWritableStream();
+
+gulp.task('filesizes', function() {
+    gulp.src(styles + '/**/*.css').pipe(size()).pipe(writableStuff1);
+    gulp.src(scripts + '/**/*.js').pipe(size()).pipe(writableStuff2);
+});
+
+gulp.task('default', function() {
+    gulp.watch([
+        styles + '/**/*.css',
+        scripts + '/**/*.js',
+        './gulpfile.js'
+    ], function() {
+        gulp.run('filesizes');
+    });
+});
+</code></pre>
+
+<h2 id="2-gulp-basic-async-js">2. Gulp Basic Async.js</h2>
+
+<pre><code class="language-javascript">var gulp    = require('gulp');
+
+gulp.task('test', function(cb) {
+    cb(null); // when the async task is done we execute our callback
+});
+
+gulp.task('default', function() {
+    gulp.watch([
+        './gulpfile.js'
+    ], function() {
+        gulp.run('test', doSomethingAsync);
+    });
+});
+
+function doSomethingAsync(err) {
+    if (err) console.log('Error: ' + err);
+
+    console.log('Our async task is complete and this is the callback to do something else after the async task');
+}
+</code></pre>
+
+</div>
+</body>
+</html>

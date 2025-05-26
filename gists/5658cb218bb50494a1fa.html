@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby stdlib debugger</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-stdlib-debugger">Ruby stdlib debugger</h1>
+
+<h2 id="ruby-stdlib-debugger-md">Ruby stdlib debugger.md</h2>
+
+<pre><code class="language-markdown">Program `app.rb`:
+
+```rb
+def foo(msg)
+  result = bar
+  msg
+end
+
+def bar
+  thing = 123
+  thing
+end
+
+require &quot;debug&quot; # this is what drops us into the debugger
+p foo(:hai)
+</code></pre>
+
+<p>Run the program as normal:</p>
+
+<pre><code class="language-bash">ruby app.rb
+</code></pre>
+
+<p>We find ourselves not necessarily where we&rsquo;d expect:</p>
+
+<pre><code>Debug.rb
+Emacs support available.
+
+/Users/M/.rbenv/versions/2.1.2/lib/ruby/2.1.0/rubygems/core_ext/kernel_require.rb:57:        RUBYGEMS_ACTIVATION_MONITOR.enter
+(rdb:1) 
+</code></pre>
+
+<p>So first thing to do is to check for any breakpoints:</p>
+
+<pre><code>b
+=&gt; No breakpoints
+</code></pre>
+
+<p>Let&rsquo;s set a breakpoint for our <code>foo</code> method (e.g. whenever it&rsquo;s called we&rsquo;ll stop there):</p>
+
+<pre><code>b app.rb:foo
+=&gt; Set breakpoint 1 at app.rb:foo
+</code></pre>
+
+<p>Let&rsquo;s check the breakpoint was set:</p>
+
+<pre><code>b
+=&gt; Breakpoints:
+     1 app.rb:foo
+</code></pre>
+
+<p>Let&rsquo;s also set a breakpoint within the <code>foo</code> method at line <code>3</code> (just after we call the <code>bar</code> method and assign its result to <code>result</code>):</p>
+
+<pre><code>b app.rb:3
+=&gt; Set breakpoint 2 at app.rb:3
+</code></pre>
+
+<p>Again, let&rsquo;s check the breakpoint was set:</p>
+
+<pre><code>b
+=&gt; Breakpoints:
+     1 app.rb:foo
+     2 app.rb:3
+</code></pre>
+
+<p>Let&rsquo;s remind ourselves where we are before continuing on:</p>
+
+<pre><code>w
+=&gt; #1 /Users/M/.rbenv/versions/2.1.2/lib/ruby/2.1.0/rubygems/core_ext/kernel_require.rb:57:in `require'
+</code></pre>
+
+<p>If we forget any debugging commands we can look at the help:</p>
+
+<pre><code>h
+=&gt; Debugger help v.-0.002b
+Commands
+  b[reak] [file:|class:]&lt;line|method&gt;
+  b[reak] [class.]&lt;line|method&gt;
+                             set breakpoint to some position
+  wat[ch] &lt;expression&gt;       set watchpoint to some expression
+  cat[ch] (&lt;exception&gt;|off)  set catchpoint to an exception
+  b[reak]                    list breakpoints
+  cat[ch]                    show catchpoint
+  del[ete][ nnn]             delete some or all breakpoints
+  disp[lay] &lt;expression&gt;     add expression into display expression list
+  undisp[lay][ nnn]          delete one particular or all display expressions
+  c[ont]                     run until program ends or hit breakpoint
+  s[tep][ nnn]               step (into methods) one line or till line nnn
+  n[ext][ nnn]               go over one line or till line nnn
+  w[here]                    display frames
+  f[rame]                    alias for where
+  l[ist][ (-|nn-mm)]         list program, - lists backwards
+                             nn-mm lists given lines
+  up[ nn]                    move to higher frame
+  down[ nn]                  move to lower frame
+  fin[ish]                   return to outer frame
+  tr[ace] (on|off)           set trace mode of current thread
+  tr[ace] (on|off) all       set trace mode of all threads
+  q[uit]                     exit from debugger
+  v[ar] g[lobal]             show global variables
+  v[ar] l[ocal]              show local variables
+  v[ar] i[nstance] &lt;object&gt;  show instance variables of object
+  v[ar] c[onst] &lt;object&gt;     show constants of object
+  m[ethod] i[nstance] &lt;obj&gt;  show methods of object
+  m[ethod] &lt;class|module&gt;    show instance methods of class or module
+  th[read] l[ist]            list all threads
+  th[read] c[ur[rent]]       show current thread
+  th[read] [sw[itch]] &lt;nnn&gt;  switch thread context to nnn
+  th[read] stop &lt;nnn&gt;        stop thread nnn
+  th[read] resume &lt;nnn&gt;      resume thread nnn
+  pp expression              evaluate expression and pretty_print its value
+  p expression               evaluate expression and print its value
+  r[estart]                  restart program
+  h[elp]                     print this help
+  &lt;everything else&gt;          evaluate
+</code></pre>
+
+<p>Let&rsquo;s just &lsquo;continue&rsquo; to our first breakpoint (which <em>should</em> be the <code>foo</code> method being called):</p>
+
+<pre><code>c
+=&gt; Breakpoint 1, foo at app.rb:foo
+   app.rb:1:def foo(msg)
+</code></pre>
+
+<p>To be sure where we are let&rsquo;s use <code>l</code> again:</p>
+
+<pre><code>l
+[-4, 5] in app.rb
+=&gt; 1  def foo(msg)
+   2    result = bar
+   3    msg
+   4  end
+   5  
+</code></pre>
+
+<p>If at this point I enter the expression <code>msg</code> (which is the argument incoming into the <code>foo</code> method), then I&rsquo;ll get its value:</p>
+
+<pre><code>msg
+=&gt; :hai
+</code></pre>
+
+<p>If I press <code>c</code> to continue again we&rsquo;ll reach our next breakpoint:</p>
+
+<pre><code>c
+=&gt; Breakpoint 2, foo at app.rb:3
+   app.rb:3:  msg
+</code></pre>
+
+<p>If at this point I enter the expression <code>result</code> (which is the variable set within the <code>foo</code> method), then I&rsquo;ll get its value that was provided by the <code>bar</code> method:</p>
+
+<pre><code>result
+=&gt; 123
+</code></pre>
+
+<p>I can check for any local variables scoped/available to me at this point of the program:</p>
+
+<pre><code>v l
+  msg =&gt; :hai
+  result =&gt; 123
+</code></pre>
+
+<p>Before we wrap up, let me restart the program so we can go through the process again but take a slightly different route:</p>
+
+<pre><code>r
+=&gt; app.rb:57:
+</code></pre>
+
+<blockquote>
+<p>Note: the line number <code>57</code> doesn&rsquo;t actually make any sense to me to be honest</p>
+</blockquote>
+
+<p>From here we can &lsquo;continue&rsquo; <code>c</code> to get to our first breakpoint (like we did before), but this time instead of skipping over the call to <code>bar</code>, we&rsquo;ll use <code>s</code> to &lsquo;step&rsquo; into the method and then <code>n</code> to go through the next subsequent lines until our program completes):</p>
+
+<pre><code>(rdb:1) s
+app.rb:2:  result = bar
+(rdb:1) l
+[-3, 6] in app.rb
+   1  def foo(msg)
+=&gt; 2    result = bar
+   3    msg
+   4  end
+   5  
+   6  def bar
+(rdb:1) s
+app.rb:7:  thing = 123
+(rdb:1) l
+[2, 11] in app.rb
+   2    result = bar
+   3    msg
+   4  end
+   5  
+   6  def bar
+=&gt; 7    thing = 123
+   8    thing
+   9  end
+   10  
+   11  require &quot;debug&quot;
+(rdb:1) v l
+  thing =&gt; nil
+(rdb:1) n
+app.rb:8:  thing
+(rdb:1) v l
+  thing =&gt; 123
+(rdb:1) n
+app.rb:3:  msg
+(rdb:1) l
+[-2, 7] in app.rb
+   1  def foo(msg)
+   2    result = bar
+=&gt; 3    msg
+   4  end
+   5  
+   6  def bar
+   7    thing = 123
+(rdb:1) result
+123
+(rdb:1) v l
+  msg =&gt; :hai
+  result =&gt; 123
+(rdb:1) n
+:hai
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

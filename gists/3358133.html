@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>140byt.es -- addObserverMethods</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="140byt-es-addobservermethods">140byt.es &ndash; addObserverMethods</h1>
+
+<h2 id="index-js">index.js</h2>
+
+<pre><code class="language-javascript">function(a){a.l={};a.on=function(b,c){a.l[b]=a.l[b]||[];a.l[b].push(c)};a.fire=function(b){(a.l[b]||[]).forEach(function(a){a()})}}
+
+</code></pre>
+
+<h2 id="package-json">package.json</h2>
+
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;addObserverMethods&quot;,
+  &quot;description&quot;: &quot;Bind observer methods to an object.&quot;,
+  &quot;keywords&quot;: [
+    &quot;observer&quot;,
+    &quot;listener&quot;
+  ]
+}
+
+</code></pre>
+
+<h2 id="test-html">test.html</h2>
+
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;title&gt;addObserverMethods&lt;/title&gt;
+&lt;script&gt;
+  var addObserverMethods = function(a){a.l={};a.on=function(b,c){a.l[b]=a.l[b]||[];a.l[b].push(c)};a.fire=function(b){(a.l[b]||[]).forEach(function(a){a()})}}
+
+  var Player = function(){
+    addObserverMethods(this)
+  }
+
+  Player.prototype.walk = function() {
+    // do smth
+    this.fire('walk')
+  }
+
+  var player = new Player()
+
+  player.on('walk', function() {
+    alert('it moved!')
+  })
+
+  player.walk()
+&lt;/script&gt;
+
+</code></pre>
+
+<h2 id="license-txt">LICENSE.txt</h2>
+
+<pre><code class="language-text">            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+                    Version 2, December 2004
+
+ Copyright (C) 2011 Sascha Depold http://depold.com
+
+ Everyone is permitted to copy and distribute verbatim or modified
+ copies of this license document, and changing it is allowed as long
+ as the name is changed.
+
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+  0. You just DO WHAT THE FUCK YOU WANT TO.
+
+</code></pre>
+
+<h2 id="readme-md">README.md</h2>
+
+<pre><code class="language-markdown">addObserverMethods
+=========
+
+The function adds everything that is needed to an object. It will get a event-callbacks-map, an observer/listener method (`on`)
+and a trigger method (`fire`).
+
+Usage
+-----------
+
+```js
+  var obj = {
+    walk: function() {
+      // do smth
+      this.fire('walk')
+    }
+  }
+
+  addObserverMethods(obj)
+
+  obj.on('walk', function() {
+    alert('it moved!')
+  })
+
+  obj.walk()
+</code></pre>
+
+<p>Or use it with a prototype:</p>
+
+<pre><code class="language-js">  var Player = function(){
+    addObserverMethods(this)
+  }
+
+  Player.prototype.walk = function() {
+    // do smth
+    this.fire('walk')
+  }
+
+  var player = new Player()
+  player.on('walk', function() {
+    alert('it moved!')
+  })
+  player.walk()
+</code></pre>
+
+<pre><code>
+## annotated.js
+
+```javascript
+function(
+  a // an object / instance
+) {
+  a.l = {};                 // eventName - listeners - map
+  a.on = function(          // the observer method
+    b,                      // the event name
+    c                       // the callback
+  ) {
+    a.l[b] = a.l[b] || [];  // init array for current event name
+    a.l[b].push(c)          // save callback for the event name
+  };
+  a.fire = function(        // the trigger method
+    b                       // the event name
+  ) {
+    // iterate over the event name's callbacks and exec them
+    (a.l[b] || []).forEach(function(a) {
+      a()
+    })
+  }
+}
+
+</code></pre>
+
+</div>
+</body>
+</html>

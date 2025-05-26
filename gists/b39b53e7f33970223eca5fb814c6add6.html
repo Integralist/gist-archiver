@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang HTTP Web Server Parallel Tee Goroutine per Request] #go #golang #tee #parallel #http #web #server #request #pool #concurrency</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-http-web-server-parallel-tee-goroutine-per-request-go-golang-tee-parallel-http-web-server-request-pool-concurrency">[Golang HTTP Web Server Parallel Tee Goroutine per Request] #go #golang #tee #parallel #http #web #server #request #pool #concurrency</h1>
+
+<h2 id="golang-http-web-server-parallel-tee-goroutine-per-request-go">Golang HTTP Web Server Parallel Tee Goroutine per Request.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+    &quot;encoding/json&quot;
+    &quot;io/ioutil&quot;
+    &quot;net/http&quot;
+)
+
+var largePool chan func()
+var smallPool chan func()
+
+func main() {
+    // Start two different sized worker pools (e.g., for different workloads).
+    // Cancelation and graceful shutdown omited for brevity.
+
+    largePool = make(chan func(), 100)
+    smallPool = make(chan func(), 10)
+
+    for i := 0; i &lt; 100; i++ {
+            go func() {
+                    for f := range largePool {
+                            f()
+                    }
+            }()
+    }
+
+    for i := 0; i &lt; 10; i++ {
+            go func() {
+                    for f := range smallPool {
+                            f()
+                    }
+            }()
+    }
+
+    http.HandleFunc(&quot;/endpoint-1&quot;, handler1)
+    http.HandleFunc(&quot;/endpoint-2&quot;, handler2) // naming things is hard, okay?
+
+    http.ListenAndServe(&quot;:8080&quot;, nil)
+}
+
+func handler1(w http.ResponseWriter, r *http.Request) {
+    // Imagine a JSON body containing a URL that we are expected to fetch.
+    // Light work that doesn't consume many of *our* resources and can be done
+    // in bulk, so we put in in the large pool.
+    var job struct{ URL string }
+
+    if err := json.NewDecoder(r.Body).Decode(&amp;job); err != nil {
+            http.Error(w, err.Error(), http.StatusBadRequest)
+            return
+    }
+
+    go func() {
+            largePool &lt;- func() {
+                    http.Get(job.URL)
+                    // Do something with the response
+            }
+    }()
+
+    w.WriteHeader(http.StatusAccepted)
+}
+
+func handler2(w http.ResponseWriter, r *http.Request) {
+    // The request body is an image that we want to do some fancy processing
+    // on. That's hard work; we don't want to do too many of them at once, so
+    // so we put those jobs in the small pool.
+
+    b, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+    }
+
+    go func() {
+            smallPool &lt;- func() {
+                    processImage(b)
+            }
+    }()
+    w.WriteHeader(http.StatusAccepted)
+}
+
+func processImage(b []byte) {}
+</code></pre>
+
+</div>
+</body>
+</html>

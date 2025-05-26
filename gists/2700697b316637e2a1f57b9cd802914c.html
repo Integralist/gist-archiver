@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Search for package versions] #tags: bash, apt, versions</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="search-for-package-versions-tags-bash-apt-versions">[Search for package versions] #tags: bash, apt, versions</h1>
+
+<h2 id="search-for-package-versions-sh">Search for package versions.sh</h2>
+
+<pre><code class="language-shell">docker run -it ubuntu
+
+root@8fea4e1634e1:/$ apt-get update
+root@8fea4e1634e1:/$ apt-cache policy nginx
+
+nginx:
+  Installed: (none)
+  Candidate: 1.10.0-0ubuntu0.16.04.4
+  Version table:
+     1.10.0-0ubuntu0.16.04.4 500
+        500 http://archive.ubuntu.com/ubuntu xenial-updates/main amd64 Packages
+        500 http://archive.ubuntu.com/ubuntu xenial-security/main amd64 Packages
+     1.9.15-0ubuntu1 500
+        500 http://archive.ubuntu.com/ubuntu xenial/main amd64 Packages
+
+root@cd0aa2494917:/$ apt-cache policy nginx-plus
+
+nginx-plus:
+  Installed: 1.11.10-4~jessie
+  Candidate: 1.13.4-1~jessie
+  Version table:
+     1.13.4-1~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+ *** 1.11.10-4~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+        100 /var/lib/dpkg/status
+     1.11.10-3~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.11.10-2~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.11.10-1~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.11.5-1~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.11.3-1~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.9.13-2~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.9.13-1~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.9.9-4~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.9.9-3~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.9.9-2~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.9.9-1~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.9.4-3~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.9.4-2~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.9.4-1~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+     1.7.11-2~jessie 0
+        500 https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+
+# an alternative would be: apt-cache madison &lt;package_name&gt;
+# which also displays different versions but in a more compact way...
+
+root@cd0aa2494917:/$ apt-cache madison nginx-plus
+
+nginx-plus | 1.13.4-1~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.11.10-4~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.11.10-3~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.11.10-2~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.11.10-1~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.11.5-1~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.11.3-1~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.9.13-2~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.9.13-1~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.9.9-4~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.9.9-3~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.9.9-2~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.9.9-1~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.9.4-3~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.9.4-2~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.9.4-1~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+nginx-plus | 1.7.11-2~jessie | https://plus-pkgs.nginx.com/debian/ jessie/nginx-plus amd64 Packages
+</code></pre>
+
+</div>
+</body>
+</html>

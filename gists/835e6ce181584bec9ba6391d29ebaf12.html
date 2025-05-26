@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Varnish VCL] use vcl to store provided query string and path into HTTP response headers #tags: vcl, varnish</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="varnish-vcl-use-vcl-to-store-provided-query-string-and-path-into-http-response-headers-tags-vcl-varnish">[Varnish VCL] use vcl to store provided query string and path into HTTP response headers #tags: vcl, varnish</h1>
+
+<h2 id="varnish-vcl-replace-store-query-string-and-path-into-http-response-headers-cs">Varnish VCL replace store query string and path into HTTP response headers.cs</h2>
+
+<pre><code class="language-c#">vcl 4.0;
+
+backend default { 
+  .host = &quot;www.vclfiddle.net&quot;; 
+  .port = &quot;80&quot;; 
+}
+
+sub vcl_recv {
+  if (req.url ~ &quot;(foo/bar)&quot;) {
+    set req.http.X-QS = regsub(req.url, &quot;^[^?]+\?&quot;, &quot;&quot;); // good=hey&amp;bad1=true&amp;bad2=boop
+    set req.http.X-Path = regsub(req.url, &quot;\?.+$&quot;, &quot;&quot;);  // /foo/bar
+  }
+}
+
+/*
+curl http://www.vclfiddle.net/foo/bar?good=hey&amp;bad1=true&amp;bad2=boop --header 'User-Agent: vclFiddle'
+http://vclfiddle.net/161102-3c995c5/44
+*/
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[How Vary HTTP header works] #fastly #vcl #cdn #vary</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="how-vary-http-header-works-fastly-vcl-cdn-vary">[How Vary HTTP header works] #fastly #vcl #cdn #vary</h1>
+
+<h2 id="explain-how-vary-http-header-works-md">Explain How Vary HTTP header works.md</h2>
+
+<pre><code class="language-markdown">## Vary Behaviour
+
+To understand HTTP's [Vary](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary) behaviour we first must understand how the CDN works in the traditional sense of caching and looking up resources.
+
+&gt; Note: at the bottom of this page is a sequence diagram which visually illustrates how Vary works (if you prefer a more visual aid).
+
+The CDN caches requests based on a given pair of Host and Path values. So when the CDN accepts a request, as an example, for the resource `https://www.buzzfeed.com/videos` the CDN will take the Host (e.g. `www.buzzfeed.com`) and the Path (e.g. `/videos`) and generate a hash of those values which will become the 'cache key'. Later when the CDN receives the same request from a different client it'll generate the same hash and lookup the resource in its cache using the hash as the key.
+
+Depending on the client, the origin server that generates response content (which will be cached in the CDN) may well want to serve _different_ content for different clients (e.g. serve a German language version of the page for German users vs an English language version for users from the UK or US).
+
+The problem with serving different content for the same resource (e.g. imagine `www.example.com/foo` is able to return German _or_ English depending on the client) is that whoever makes the request _first_ will have that version of the content cached by the CDN.
+
+For example if `www.example.com/foo` is able to return German _or_ English based on my web browser's built-in value for the HTTP request header [`Accept-Language`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language) (which for me would be set to `en-uk`), then imagine someone from Germany making a request for that uncached resource _first_ (whose browser users the value `de-de`).
+
+What will happen in that instance is that the German language version of the response content will be cached using `hash(Host + Path) = cache_key` and so when I make my request for the same resource, I'll end up getting the cached German version of the page (which I won't be able to read).
+
+This is where the HTTP Vary response header comes in to help solve the problem. The origin server generating the content should be setup to send a Vary header with the value `Accept-Language`. The CDN will look at the Vary header's value and will subsequently cache the content using the same `hash(Host + Path) = cache_key` approach, but it'll add another 'key' (known as the 'vary key') to the object which will indicate the value that the browser provided.
+
+So if we go back to the example of a German user making a request for the same resource as myself (and they make the request first), then the vary key assigned to the cached German version of the page will be `de-de`, and so although when I make my request the cache lookup key will be the same, I'll get a cache MISS (and the CDN will make a fresh request to the origin) because the value my browser is providing for `Accept-Language` is `en-uk` and that doesn't match the cached object's vary key value of `de-de`.
+
+Now when the origin sends back the English version of the page, the CDN will cache the content again using `hash(Host + Path) = cache_key` as the cache lookup key, but will set a _different_ 'vary key' value of `en-en`. So we now have _two_ objects in the cache for the same resource: one German and one English.
+
+&gt; Note: read [this article](https://www.fastly.com/blog/getting-most-out-vary-fastly) to understand how to make the most of the Vary response header.
+</code></pre>
+
+<h2 id="how-vary-http-header-works-editorconfig">How Vary HTTP header works.EditorConfig</h2>
+
+<pre><code class="language-editorconfig">title Vary on Access-Control-Request-Method
+
+note over Client: More details:\nhttps://www.fastly.com/blog/getting-most-out-vary-fastly
+
+== request image without **Access-Control-Request-Method** header ==#pink
+
+Client-&gt;Fastly: GET /thumbnailer-prod-us-east-1/video-api/assets/107836.jpg\n**Host**: img.buzzfeed.com
+
+Fastly--&gt;Fastly: generate cache key...\nhash(host + path) = 123
+
+note over Fastly: CACHE MISS
+
+Fastly-&gt;Origin: proxy request
+
+Origin-&gt;Fastly: image content
+
+Fastly--&gt;Fastly: set `Vary: Access-Control-Request-Method`\nVary is like a secondary cache key.
+
+Fastly--&gt;Fastly: cache response object (this inc. headers)
+
+note over Fastly: **CACHE_KEY**: 123\n**VARY_KEY**: \&quot;\&quot;\n\nnote: vary key is empty as no\nAccess-Control-Request-Method was provided by the client
+
+Fastly-&gt;Client: image content
+
+== same request again ==#pink
+
+Client-&gt;Fastly: GET /thumbnailer-prod-us-east-1/video-api/assets/107836.jpg\n**Host**: img.buzzfeed.com
+
+Fastly--&gt;Fastly: generate cache key...\nhash(host + path) = 123
+
+note over Fastly: CACHE HIT\n\nbecause there was an object matching...\n\n**CACHE_KEY**: 123\n**VARY_KEY**: \&quot;\&quot;
+
+Fastly-&gt;Client: image content
+
+== similar request but with **Access-Control-Request-Method** request header ==#lightgreen
+
+Client-&gt;Fastly: GET /thumbnailer-prod-us-east-1/video-api/assets/107836.jpg\n**Host**: img.buzzfeed.com\n**Access-Control-Request-Method**: GET
+
+Fastly--&gt;Fastly: generate cache key...\nhash(host + path) = 123
+
+note over Fastly: CACHE MISS\n\nbecause there was no object matching...\n\n**CACHE_KEY**: 123\n**VARY_KEY**: \&quot;GET\&quot;
+
+Fastly-&gt;Origin: proxy request
+
+note over Origin: adds access control headers
+
+Origin-&gt;Fastly: image content\n+ access-control-&lt;...&gt; headers
+
+Fastly--&gt;Fastly: set `Vary: Access-Control-Request-Method`
+
+Fastly--&gt;Fastly: cache response object (this inc. headers)
+
+note over Fastly: **CACHE_KEY**: 123\n**VARY_KEY**: \&quot;GET\&quot;\n\nnote: vary key is no longer empty, as the\nAccess-Control-Request-Method was provided by the client
+
+Fastly-&gt;Client: image content
+
+== same request again ==#lightgreen
+
+Client-&gt;Fastly: GET /thumbnailer-prod-us-east-1/video-api/assets/107836.jpg\n**Host**: img.buzzfeed.com\n**Access-Control-Request-Method**: GET
+
+Fastly--&gt;Fastly: generate cache key...\nhash(host + path) = 123
+
+note over Fastly: CACHE HIT\n\nbecause there was an object matching...\n\n**CACHE_KEY**: 123\n**VARY_KEY**: \&quot;GET\&quot;
+
+Fastly-&gt;Client: image content
+</code></pre>
+
+</div>
+</body>
+</html>

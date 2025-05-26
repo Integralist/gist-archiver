@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[CLI Device Authorization Flow with Auth0] #auth #auth0 #device #cli</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="cli-device-authorization-flow-with-auth0-auth-auth0-device-cli">[CLI Device Authorization Flow with Auth0] #auth #auth0 #device #cli</h1>
+
+<h2 id="example-go">example.go</h2>
+
+<pre><code class="language-go">package authenticate
+
+// https://auth0.com/docs/get-started/authentication-and-authorization-flow/device-authorization-flow
+// https://auth0.com/docs/get-started/authentication-and-authorization-flow/call-your-api-using-the-device-authorization-flow
+
+import (
+	&quot;encoding/json&quot;
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;net/http&quot;
+	&quot;net/url&quot;
+	&quot;strings&quot;
+	&quot;time&quot;
+
+	&quot;github.com/fastly/cli/pkg/cmd&quot;
+	&quot;github.com/fastly/cli/pkg/config&quot;
+	fsterr &quot;github.com/fastly/cli/pkg/errors&quot;
+	&quot;github.com/fastly/cli/pkg/text&quot;
+)
+
+// RootCommand is the parent command for all subcommands in this package.
+// It should be installed under the primary root command.
+type RootCommand struct {
+	cmd.Base
+}
+
+// Auth0DeviceCodeURL is the Auth0 device code URL.
+const Auth0DeviceCodeURL = &quot;https://&lt;YOUR_DOMAIN&gt;.us.auth0.com&quot;
+
+// Auth0ClientID is the Auth0 Client ID.
+const Auth0ClientID = &quot;&lt;YOUR_CLIENT_ID&gt;&quot;
+
+// Auth0Audience is the unique identifier of the API your app wants to access.
+const Auth0Audience = &quot;https://&lt;YOUR_API&gt;/&quot;
+
+// Auth0GrantType is an extension grant type (MUST be URL encoded).
+var Auth0GrantType = url.QueryEscape(&quot;urn:ietf:params:oauth:grant-type:device_code&quot;)
+
+// NewRootCommand returns a new command registered in the parent.
+func NewRootCommand(parent cmd.Registerer, globals *config.Data) *RootCommand {
+	var c RootCommand
+	c.Globals = globals
+	c.CmdClause = parent.Command(&quot;authenticate&quot;, &quot;Authenticate with Fastly (returns temporary, auto-rotated, API token)&quot;)
+	return &amp;c
+}
+
+// Exec implements the command interface.
+func (c *RootCommand) Exec(_ io.Reader, out io.Writer) error {
+	deviceCodeResponse, err := getDeviceCode()
+	if err != nil {
+		return err
+	}
+
+	intro := &quot;Please open the following URL and enter your user code: &quot; + deviceCodeResponse.UserCode
+	text.Description(out, intro, deviceCodeResponse.VerificationURI)
+
+	var accessTokenResponse chan *AccessTokenResponse
+
+	interval := time.Duration(deviceCodeResponse.Interval) * time.Second
+	deviceCodeExpiration := time.Duration(deviceCodeResponse.ExpiresIn) * time.Second
+
+	go pollForAccessToken(
+		deviceCodeResponse.DeviceCode,
+		interval,
+		deviceCodeExpiration,
+		accessTokenResponse,
+		c.Globals.ErrLog,
+	)
+
+	select {
+	case atr := &lt;-accessTokenResponse:
+		fmt.Printf(&quot;%+v\n&quot;, atr)
+	case &lt;-time.After(deviceCodeExpiration):
+		return fsterr.RemediationError{
+			Inner:       fmt.Errorf(&quot;user code expired&quot;),
+			Remediation: &quot;Please re-run the command and complete the authorization flow.&quot;,
+		}
+	}
+
+	return nil
+}
+
+// getDeviceCode retrieves a device code from Auth0.
+func getDeviceCode() (deviceCodeResponse DeviceCodeResponse, err error) {
+	path := &quot;/oauth/device/code&quot;
+
+	// TODO: In the future we may want to restrict the API scope (see 'scope').
+	// https://auth0.com/docs/get-started/authentication-and-authorization-flow/call-your-api-using-the-device-authorization-flow#device-code-parameters
+	payload := fmt.Sprintf(&quot;client_id=%s&amp;audience=%s&quot;, Auth0ClientID, url.QueryEscape(Auth0Audience))
+
+	req, err := http.NewRequest(&quot;POST&quot;, Auth0DeviceCodeURL+path, strings.NewReader(payload))
+	if err != nil {
+		return deviceCodeResponse, err
+	}
+
+	req.Header.Add(&quot;content-type&quot;, &quot;application/x-www-form-urlencoded&quot;)
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return deviceCodeResponse, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return deviceCodeResponse, err
+	}
+
+	err = json.Unmarshal(body, &amp;deviceCodeResponse)
+	if err != nil {
+		return deviceCodeResponse, err
+	}
+
+	return deviceCodeResponse, nil
+}
+
+// DeviceCodeResponse is the API response for an Auth0 Device Code request.
+type DeviceCodeResponse struct {
+	// DeviceCode is the unique code for the device.
+	DeviceCode string `json:&quot;device_code&quot;`
+	// ExpiresIn indicates the lifetime (in seconds) of the device_code and user_code.
+	ExpiresIn int `json:&quot;expires_in&quot;`
+	// Interval indicates the interval (in seconds) at which the app should poll the token URL to request a token.
+	Interval int `json:&quot;interval&quot;`
+	// UserCode contains the code that should be input at the verification_uri to authorize the device.
+	UserCode string `json:&quot;user_code&quot;`
+	// VerificationURI contains the URL the user should visit to authorize the device.
+	VerificationURI string `json:&quot;verification_uri&quot;`
+	// VerificationURIComplete contains the complete URL the user should visit to authorize the device.
+	VerificationURIComplete string `json:&quot;verification_uri_complete&quot;`
+}
+
+func pollForAccessToken(
+	deviceCode string,
+	interval time.Duration,
+	deviceCodeExpiration time.Duration,
+	accessTokenResponse chan *AccessTokenResponse,
+	errLog fsterr.LogInterface,
+) {
+	path := &quot;/oauth/token&quot;
+	payload := fmt.Sprintf(&quot;grant_type=%s&amp;device_code=%s&amp;client_id=%s&quot;, Auth0GrantType, deviceCode, Auth0ClientID)
+	ctx := map[string]any{
+		&quot;path&quot;:    path,
+		&quot;payload&quot;: payload,
+	}
+
+	req, err := http.NewRequest(&quot;POST&quot;, Auth0DeviceCodeURL+path, strings.NewReader(payload))
+	if err != nil {
+		errLog.AddWithContext(err, ctx)
+		return
+	}
+
+	req.Header.Add(&quot;content-type&quot;, &quot;application/x-www-form-urlencoded&quot;)
+
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	done := make(chan bool)
+	go func() {
+		time.Sleep(deviceCodeExpiration)
+		done &lt;- true
+	}()
+	for {
+		select {
+		case &lt;-done:
+			return
+		case &lt;-ticker.C:
+			// NOTE: We extract the logic into a func to avoid a defer within a loop.
+			checkAccessToken(req, errLog, ctx, accessTokenResponse, done)
+		}
+	}
+}
+
+func checkAccessToken(
+	req *http.Request,
+	errLog fsterr.LogInterface,
+	ctx map[string]any,
+	accessTokenResponse chan *AccessTokenResponse,
+	done chan bool,
+) {
+	// TODO: Handle all the different error scenarios appropriately.
+	// https://auth0.com/docs/get-started/authentication-and-authorization-flow/call-your-api-using-the-device-authorization-flow#token-responses
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		errLog.AddWithContext(err, ctx)
+		return
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		errLog.AddWithContext(err, ctx)
+		return
+	}
+
+	var atr *AccessTokenResponse
+	err = json.Unmarshal(body, atr)
+	if err != nil {
+		errLog.AddWithContext(err, ctx)
+		return
+	}
+
+	done &lt;- true
+	accessTokenResponse &lt;- atr
+}
+
+// AccessTokenResponse is the API response for an Auth0 Access Token request.
+type AccessTokenResponse struct {
+	// AccessToken can be exchanged for a Fastly API token.
+	AccessToken string `json:&quot;access_token&quot;`
+	// ExpiresIn indicates the lifetime (in seconds) of the access token.
+	ExpiresIn int `json:&quot;expires_in&quot;`
+	// IDToken contains user information that must be decoded and extracted.
+	IDToken string `json:&quot;id_token&quot;`
+	// RefreshToken is used to obtain a new Access Token or ID Token after the previous one has expired.
+	RefreshToken string `json:&quot;refresh_token&quot;`
+	// TokenType indicates which HTTP authentication scheme is used (e.g. Bearer).
+	TokenType string `json:&quot;token_type&quot;`
+}
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Node debugger API</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="node-debugger-api">Node debugger API</h1>
+
+<h2 id="node-debug-md">node debug.md</h2>
+
+<pre><code class="language-markdown">```sh
+Run your application using: `node debug xxx.js` then use the following commands to step-through the code (note: Ctrl+D to exit the debugger)...
+ 
+    `cont`                      -&gt; continue running
+    `next`                      -&gt; step over next statement
+    `step`                      -&gt; step into next statement (if possible, otherwise it just steps over)
+    `out`                       -&gt; step out of the currently executing function
+    `backtrace`                 -&gt; show the current call execution frame or call stack
+    `repl`                      -&gt; start the node repl to allow you to view variable values and execute code
+    `watch(expr)`               -&gt; add given expression to the watch list (which is shown whenever you step through anything in the debugger)
+    `list(n)`                   -&gt; list the 'n' lines of source code before and after the currently stopped line in the debugger
+    `setBreakpoint(lineNumber)` -&gt; set break-point for specified line number
+ 
+    The way to use this is to have two terminal screens open.
+    In the first have your `node debug xxx.js`
+    In the second have your `curl –i http://localhost:8080` (don't run this command yet)
+ 
+    In the first, look through your code using `list(n)`.
+    Once you find a line you think might be the cause of the error use `setBreakpoint(lineNumber)`.
+    Then type `cont` and go to the other terminal window and run the curl command.
+    You'll see that the curl command never completes as the node debugger has taken over.
+    Go back to the first terminal window and use `repl` to inspect the data at that break-point.
+    You can just type the variables into the console (no need to console.log(variableName)).
+    You'll need to press Ctrl+C to exit the REPL so you can continue using the debugger.
+    Or you can Ctrl+D to exit debugging completely.
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

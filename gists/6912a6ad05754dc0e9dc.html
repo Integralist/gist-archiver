@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>RSpec described_class</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="rspec-described-class">RSpec described_class</h1>
+
+<h2 id="describedclass-rb">DescribedClass.rb</h2>
+
+<pre><code class="language-ruby"># https://www.relishapp.com/rspec/rspec-core/docs/metadata/described-class
+
+RSpec.describe Fixnum do
+  it &quot;is available as described_class&quot; do
+    expect(described_class).to eq(Fixnum)
+  end
+end
+
+module Foo
+  module Bar
+    class Baz
+      def initialize(msg = &quot;hello&quot;)
+        puts msg
+      end
+    end
+  end
+end
+
+describe Foo::Bar::Baz do
+  subject { described_class.new(&quot;hi&quot;) }
+  
+  # The subject is implicitly a new instance of what's in the describe block.
+  # But it wont know what to pass to the constructor, 
+  # so in this example we override the implicit subject
+end
+</code></pre>
+
+</div>
+</body>
+</html>

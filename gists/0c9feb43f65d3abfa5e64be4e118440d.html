@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Dynamically Create Struct] #go #golang #struct #reflect #generate #dynamic</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-dynamically-create-struct-go-golang-struct-reflect-generate-dynamic">[Golang Dynamically Create Struct] #go #golang #struct #reflect #generate #dynamic</h1>
+
+<h2 id="1-basic-example-go">1. Basic Example.go</h2>
+
+<pre><code class="language-go">// READ THIS FOR MANY MORE EXAMPLES!
+// https://medium.com/capital-one-tech/learning-to-use-go-reflection-822a0aed74b7
+
+package main
+
+import (
+	&quot;fmt&quot;
+	&quot;reflect&quot;
+)
+
+type Foo struct {
+	A int `tag1:&quot;First Tag&quot; tag2:&quot;Second Tag&quot;`
+	B string
+}
+
+func main() {
+	greeting := &quot;hello&quot;
+	f := Foo{A: 10, B: &quot;Salutations&quot;}
+
+	gVal := reflect.ValueOf(greeting)
+	// not a pointer so all we can do is read it
+	fmt.Println(&quot;ORIGINAL GREETING:&quot;, gVal.Interface())
+
+	gpVal := reflect.ValueOf(&amp;greeting)
+	// it’s a pointer, so we can change it, and it changes the underlying variable
+	gpVal.Elem().SetString(&quot;goodbye&quot;)
+	fmt.Println(&quot;NEW GREETING:&quot;, greeting)
+
+	fType := reflect.TypeOf(f)
+	fVal := reflect.New(fType)
+	fVal.Elem().Field(0).SetInt(20)
+	fVal.Elem().Field(1).SetString(&quot;Greetings&quot;)
+	f2 := fVal.Elem().Interface().(Foo)
+	
+	
+	fmt.Printf(&quot;ORIGINAL struct: %+v, %d, %s\n&quot;, f, f.A, f.B)
+	fmt.Printf(&quot;NEW struct: %+v, %d, %s\n&quot;, f2, f2.A, f2.B)
+}
+</code></pre>
+
+<h2 id="2-golang-dynamically-create-struct-go">2. Golang Dynamically Create Struct.go</h2>
+
+<pre><code class="language-go">// https://play.golang.org/p/iIf7OF_lPBG
+//
+// all this good work is done by https://github.com/Ompluscator/dynamic-struct
+// which offers much more functionality than I had stripped out from that library
+//
+// I was working on something where I wanted only standard library implementation code
+// so I decided to just strip out the code I needed
+//
+package main
+
+import (
+	&quot;encoding/json&quot;
+	&quot;fmt&quot;
+	&quot;reflect&quot;
+)
+
+// DynamicStruct contains defined dynamic struct.
+// This definition can't be changed anymore, once is built.
+// It provides a method for creating new instances of same defintion.
+type DynamicStruct interface {
+	// New provides new instance of defined dynamic struct.
+	//
+	// value := dStruct.New()
+	//
+	New() interface{}
+}
+
+// Builder holds all fields' definitions for desired structs.
+type Builder interface {
+	// AddField creates new struct's field.
+	// It expects field's name, type and string.
+	// Type is provided as an instance of some golang type.
+	// Tag is provided as classical golang field tag.
+	//
+	// builder.AddField(&quot;SomeFloatField&quot;, 0.0, `json:&quot;boolean&quot; validate:&quot;gte=10&quot;`)
+	//
+	AddField(name string, typ interface{}, tag string) Builder
+
+	// Build returns definition for dynamic struct.
+	// Definition can be used to create new instances.
+	//
+	// dStruct := builder.Build()
+	//
+	Build() DynamicStruct
+}
+
+type dynamicStructImpl struct {
+	definition reflect.Type
+}
+
+type fieldConfigImpl struct {
+	typ interface{}
+	tag string
+}
+
+type builderImpl struct {
+	fields map[string]*fieldConfigImpl
+}
+
+func (b *builderImpl) AddField(name string, typ interface{}, tag string) Builder {
+	b.fields[name] = &amp;fieldConfigImpl{
+		typ: typ,
+		tag: tag,
+	}
+
+	return b
+}
+
+func (b *builderImpl) Build() DynamicStruct {
+	var structFields []reflect.StructField
+
+	for name, field := range b.fields {
+		structFields = append(structFields, reflect.StructField{
+			Name: name,
+			Type: reflect.TypeOf(field.typ),
+			Tag:  reflect.StructTag(field.tag),
+		})
+	}
+
+	return &amp;dynamicStructImpl{
+		definition: reflect.StructOf(structFields),
+	}
+}
+
+func (ds *dynamicStructImpl) New() interface{} {
+	return reflect.New(ds.definition).Interface()
+}
+
+// NewStruct returns new clean instance of Builder interface
+// for defining fresh dynamic struct.
+//
+// builder := NewStruct()
+//
+func NewStruct() Builder {
+	return &amp;builderImpl{
+		fields: map[string]*fieldConfigImpl{},
+	}
+}
+
+func main() {
+	instance := NewStruct().
+		AddField(&quot;Integer&quot;, 0, `json:&quot;int&quot;`).
+		AddField(&quot;Text&quot;, &quot;&quot;, `json:&quot;someText&quot;`).
+		AddField(&quot;Float&quot;, 0.0, `json:&quot;double&quot;`).
+		AddField(&quot;Boolean&quot;, false, &quot;&quot;).
+		AddField(&quot;Slice&quot;, []int{}, &quot;&quot;).
+		AddField(&quot;Anonymous&quot;, &quot;&quot;, `json:&quot;-&quot;`).
+		Build().
+		New()
+
+	fmt.Printf(&quot;empty struct instance:\n%+v\n\n&quot;, instance)
+
+	data := []byte(`
+{
+    &quot;int&quot;: 123,
+    &quot;someText&quot;: &quot;example&quot;,
+    &quot;double&quot;: 123.45,
+    &quot;Boolean&quot;: true,
+    &quot;Slice&quot;: [1, 2, 3],
+    &quot;Anonymous&quot;: &quot;avoid to read&quot;
+}
+`)
+
+	json.Unmarshal(data, &amp;instance)
+
+	fmt.Printf(&quot;struct data:\n%+v\n&quot;, instance)
+}
+</code></pre>
+
+<h2 id="3-golang-dynamically-create-struct-separate-call-go">3. Golang Dynamically Create Struct - Separate Call.go</h2>
+
+<pre><code class="language-go">// https://play.golang.org/p/0cfY0LZ0NdL
+//
+// all this good work is done by https://github.com/Ompluscator/dynamic-struct
+// which offers much more functionality than I had stripped out from that library
+//
+// I was working on something where I wanted only standard library implementation code
+// so I decided to just strip out the code I needed
+//
+package main
+
+import (
+	&quot;encoding/json&quot;
+	&quot;fmt&quot;
+	&quot;reflect&quot;
+)
+
+// DynamicStruct contains defined dynamic struct.
+// This definition can't be changed anymore, once is built.
+// It provides a method for creating new instances of same defintion.
+type DynamicStruct interface {
+	// New provides new instance of defined dynamic struct.
+	//
+	// value := dStruct.New()
+	//
+	New() interface{}
+}
+
+// Builder holds all fields' definitions for desired structs.
+type Builder interface {
+	// AddField creates new struct's field.
+	// It expects field's name, type and string.
+	// Type is provided as an instance of some golang type.
+	// Tag is provided as classical golang field tag.
+	//
+	// builder.AddField(&quot;SomeFloatField&quot;, 0.0, `json:&quot;boolean&quot; validate:&quot;gte=10&quot;`)
+	//
+	AddField(name string, typ interface{}, tag string) Builder
+
+	// Build returns definition for dynamic struct.
+	// Definition can be used to create new instances.
+	//
+	// dStruct := builder.Build()
+	//
+	Build() DynamicStruct
+}
+
+type dynamicStructImpl struct {
+	definition reflect.Type
+}
+
+type fieldConfigImpl struct {
+	typ interface{}
+	tag string
+}
+
+type builderImpl struct {
+	fields map[string]*fieldConfigImpl
+}
+
+func (b *builderImpl) AddField(name string, typ interface{}, tag string) Builder {
+	b.fields[name] = &amp;fieldConfigImpl{
+		typ: typ,
+		tag: tag,
+	}
+
+	return b
+}
+
+func (b *builderImpl) Build() DynamicStruct {
+	var structFields []reflect.StructField
+
+	for name, field := range b.fields {
+		structFields = append(structFields, reflect.StructField{
+			Name: name,
+			Type: reflect.TypeOf(field.typ),
+			Tag:  reflect.StructTag(field.tag),
+		})
+	}
+
+	return &amp;dynamicStructImpl{
+		definition: reflect.StructOf(structFields),
+	}
+}
+
+func (ds *dynamicStructImpl) New() interface{} {
+	return reflect.New(ds.definition).Interface()
+}
+
+// NewStruct returns new clean instance of Builder interface
+// for defining fresh dynamic struct.
+//
+// builder := NewStruct()
+//
+func NewStruct() Builder {
+	return &amp;builderImpl{
+		fields: map[string]*fieldConfigImpl{},
+	}
+}
+
+func main() {
+	instance := NewStruct()
+
+	// now you can loop a data structure to generate these calls...
+	instance.AddField(&quot;Integer&quot;, 0, `json:&quot;int&quot;`)
+	instance.AddField(&quot;Text&quot;, &quot;&quot;, `json:&quot;someText&quot;`)
+	instance.AddField(&quot;Float&quot;, 0.0, `json:&quot;double&quot;`)
+	instance.AddField(&quot;Boolean&quot;, false, &quot;&quot;)
+	instance.AddField(&quot;Slice&quot;, []int{}, &quot;&quot;)
+	instance.AddField(&quot;Anonymous&quot;, &quot;&quot;, `json:&quot;-&quot;`)
+
+	value := instance.Build().New()
+
+	data := []byte(`
+{
+    &quot;int&quot;: 123,
+    &quot;someText&quot;: &quot;example&quot;,
+    &quot;double&quot;: 123.45,
+    &quot;Boolean&quot;: true,
+    &quot;Slice&quot;: [1, 2, 3],
+    &quot;Anonymous&quot;: &quot;avoid to read&quot;
+}
+`)
+
+	json.Unmarshal(data, &amp;value)
+
+	fmt.Printf(&quot;struct data:\n%+v\n&quot;, value)
+}
+</code></pre>
+
+</div>
+</body>
+</html>

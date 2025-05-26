@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go vs Rust: syntax differences] #go #golang #rust #rustlang #syntax</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-vs-rust-syntax-differences-go-golang-rust-rustlang-syntax">[Go vs Rust: syntax differences] #go #golang #rust #rustlang #syntax</h1>
+
+<h2 id="go-vs-rust-syntax-differences-md">Go vs Rust - syntax differences.md</h2>
+
+<pre><code class="language-markdown">The following examples are written from the perspective of an engineer who writes code using the Go programming language, and so you'll find that I've written notes about how Rust is different and I don't really cover the why or how of the example Go code. Additionally, the Go examples are far from exhaustive because I'm using this as a 'scratch pad' for my Rust learnings.
+
+- [Error Handling](#error-handling)
+- [Structs](#structs)
+- [Interface](#interface)
+
+## Error Handling
+
+### Go example
+
+```go
+package main
+
+import (
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;os&quot;
+)
+
+func main() {
+	f, err := os.Open(&quot;hello.txt&quot;)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(f)
+}
+</code></pre>
+
+<h3 id="rust-example">Rust example</h3>
+
+<pre><code class="language-rust">use std::fs::File;
+
+fn main() {
+    let f = File::open(&quot;hello.txt&quot;);
+
+    let f = match f {
+        Ok(file) =&gt; file,
+        Err(error) =&gt; panic!(&quot;Problem opening the file: {:?}&quot;, error),
+    };
+}
+</code></pre>
+
+<h3 id="notes">Notes</h3>
+
+<p>Rust uses a <a href="https://doc.rust-lang.org/std/result/enum.Result.html" target="_blank"><code>std::result::Result</code></a> Enumerator to encapsulate the returned value, which could be either a <code>Ok(T)</code> or <code>Err(E)</code> variant.</p>
+
+<blockquote>
+<p><strong>NOTE</strong>: The more correct way to describe an enum is <a href="https://en.wikipedia.org/wiki/Enumerated_type" target="_blank">enumerated type</a>.</p>
+</blockquote>
+
+<p>Enumerators are a powerful feature in Rust, unlike in Go where you don&rsquo;t have enumerators but <code>iota</code> (that and half-baked custom implementations using custom types with constants).</p>
+
+<p>The use of constants to vaguely mimic a form of enum would be:</p>
+
+<pre><code class="language-go">type TokenScope string
+
+const (
+	GlobalScope TokenScope = &quot;global&quot;
+	PurgeSelectScope TokenScope = &quot;purge_select&quot;
+	PurgeAllScope TokenScope = &quot;purge_all&quot;
+)
+</code></pre>
+
+<p>While using <code>iota</code> is better, it doesn&rsquo;t have the same flexibility and expressiveness as rust:</p>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+)
+
+// InputType is a base for the different input variants.
+type InputType int64
+
+// Variants of an InputType
+//
+// NOTE: These can be passed anywhere the InputType is specified.
+const (
+	InputTypeUndefined InputType = iota // 0
+	InputTypeEmail                      // 1
+	InputTypeNumber                     // 2
+	InputTypeURL                        // 3
+)
+
+// Notice the return type acts a bit like an interface
+// in that we're able to return any of the defined input types
+// as they all are a subset of InputType.
+func (it InputType) Convert(s string) InputType {
+	switch s {
+	case &quot;email&quot;:
+		return InputTypeEmail
+	case &quot;number&quot;:
+		return InputTypeNumber
+	case &quot;url&quot;:
+		return InputTypeURL
+	}
+	return InputTypeUndefined
+}
+
+// It represents a new instance of InputType
+//
+// NOTE: 
+// You can't call a method on the type without first creating a new instance. 
+// So to make things easier for a consumer I make it a package level public variable.
+// This means you'll likely need to think more about how you name this variable as you'll have to also remeber this is likely to be in a separate package.
+var It = new(InputType)
+
+func main() {
+	fmt.Println(It.Convert(&quot;email&quot;) == InputTypeEmail)   // true
+	fmt.Println(It.Convert(&quot;number&quot;) == InputTypeNumber) // true
+	fmt.Println(It.Convert(&quot;url&quot;) == InputTypeURL)       // true
+	fmt.Println(It.Convert(&quot;nope&quot;) == InputTypeURL)      // false
+}
+</code></pre>
+
+<p>There&rsquo;s many ways to get to the value from within the <code>Result</code> Enum (i.e. you&rsquo;ll want to get either the value inside of the <code>Ok</code> or the <code>Err</code> variants).</p>
+
+<p>The most verbose variation, which is to use a <code>match</code> statement, is demonstrated in the above example where we take the value extracted from the <code>Result</code> Enum and overwrite the <code>f</code> variable to now contain the extracted value.</p>
+
+<p>Other ways to get at the value contained in a <code>Result</code> are:</p>
+
+<ul>
+<li><code>?</code>: append this <a href="https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html#a-shortcut-for-propagating-errors-the--operator" target="_blank">operator</a> and it&rsquo;ll return either the value inside of <code>Ok</code> or return the error inside <code>Err</code>.</li>
+<li><code>unwrap</code>: returns the <code>Ok</code> value otherwise the program will panic.</li>
+<li><code>expect</code>: same as <code>unwrap</code> except you can customise the panic message.</li>
+</ul>
+
+<blockquote>
+<p>NOTE: These methods are implemented on both <a href="https://doc.rust-lang.org/std/result/enum.Result.html" target="_blank"><code>std::result::Result</code></a> and <a href="https://doc.rust-lang.org/std/option/enum.Option.html" target="_blank"><code>std::option::Option</code></a>.</p>
+</blockquote>
+
+<p>The above are the most common ways to get at the value contained in a <code>Result</code> or <code>Option</code> enum, but there are also:</p>
+
+<ul>
+<li><code>unwrap_or</code>: returns the <code>Ok</code> or <code>Some</code> value (in the case of an <code>Option</code> enum variant), otherwise returns your given &lsquo;default&rsquo; value.</li>
+<li><code>unwrap_or_else</code>: returns the <code>Ok</code> or <code>Some</code> value (in the case of an <code>Option</code> enum variant), otherwise computes it from a closure.</li>
+</ul>
+
+<p>One last thing to mention about error handling in Rust is the following <code>if let</code> pattern, which is used when using <code>match</code> is overly explicit/verbose due to its exhaustive nature:</p>
+
+<pre><code class="language-rust">let number = Some(7); // pretend this was generated by a function returning a std::option::Option
+
+if let Some(i) = number {
+    println!(&quot;Matched {:?}!&quot;, i);
+}
+</code></pre>
+
+<blockquote>
+<p><strong>Refer</strong>: <a href="https://doc.rust-lang.org/rust-by-example/flow_control/if_let.html" target="_blank">https://doc.rust-lang.org/rust-by-example/flow_control/if_let.html</a></p>
+</blockquote>
+
+<h2 id="structs">Structs</h2>
+
+<ul>
+<li>Define a struct.</li>
+<li>Define <code>hello</code> function with struct as the receiver.</li>
+<li>Define a constructor function.</li>
+</ul>
+
+<h3 id="go-example">Go example</h3>
+
+<pre><code class="language-go">package main
+
+import &quot;fmt&quot;
+
+type Foo struct {
+	bar string
+	baz int
+}
+
+func (f Foo) hello() {
+	fmt.Printf(&quot;%s, %d\n&quot;, f.bar, f.baz)
+}
+
+func NewFoo() *Foo {
+	return &amp;Foo{
+		bar: &quot;bar&quot;,
+		baz: 123,
+	}
+}
+
+func main() {
+	f := Foo{
+		bar: &quot;bar&quot;,
+		baz: 123,
+	}
+	fmt.Printf(&quot;f: %+v\n\n&quot;, f)
+
+	f.hello()
+
+	fp := NewFoo()
+	fmt.Printf(&quot;\nfp: %+v\n\n&quot;, fp)
+	
+	fp.hello()
+}
+</code></pre>
+
+<h3 id="rust-example-1">Rust example</h3>
+
+<pre><code class="language-rust">#[derive(Debug)]
+struct Foo&lt;'a&gt; {
+	bar: &amp;'a str,
+    baz: u8,
+}
+
+impl&lt;'a&gt; Foo&lt;'a&gt; {
+    fn hello(&amp;self) {
+        println!(&quot;{}, {}&quot;, self.bar, self.baz);
+    }
+    
+    fn new(bar: &amp;str, baz: u8) -&gt; Foo {
+        Foo {
+            bar,
+            baz,
+        }
+    }
+}
+
+fn main() {
+	let f = Foo {
+  		bar: &quot;bar&quot;,
+        baz: 123,
+  	};
+  	
+  	println!(&quot;{:#?}&quot;, f);
+  	
+  	f.hello();
+  	
+  	let foo = Foo::new(&quot;new bar&quot;, 255);
+  	
+  	foo.hello();
+}
+</code></pre>
+
+<h3 id="rust-requirements">Rust requirements</h3>
+
+<p>To print the struct we need to implement <code>Debug</code> (so we &lsquo;derive&rsquo; it using existing implementation rather than implement it ourselves).</p>
+
+<p>We have to add a lifetime <code>'a</code> to the struct so that Rust will compile the code (for safety reasons Rust needs to ensure the referenced string assigned to the field lives long enough for the code to be considered safe).</p>
+
+<p>The compiler also complains when defining a method on Foo using <code>impl</code>: &ldquo;implicit elided lifetime not allowed here&rdquo;. The resolution is: &ldquo;indicate the anonymous lifetime&rdquo;, which is done using <code>&lt;'_&gt;</code>:</p>
+
+<pre><code class="language-rust">impl Foo&lt;'_&gt;
+</code></pre>
+
+<p>If we read the <a href="https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html#more-lifetime-elision-rules" target="_blank">Rust documentation on elision rules</a> we&rsquo;ll see that the &lsquo;anonymous lifetime&rsquo; is just a new rule that enables syntax sugar that makes the more explicit lifetime code (i.e. <code>impl&lt;'a&gt; Foo&lt;'a&gt;</code>) simpler.</p>
+
+<p>For the sake of the example, I used the more explicit version because it makes understanding the Rust code and the relationship of the <code>'a</code> lifetime clearer.</p>
+
+<h3 id="notes-1">Notes</h3>
+
+<p>The <code>impl</code> block actually creates a &lsquo;namespace&rsquo;, meaning we have to call <code>new</code> using the namespace: <code>Foo::new()</code>.</p>
+
+<p>When a function&rsquo;s arguments match the field names of a struct, you can omit the typical <code>key: value</code> format. So instead of <code>Foo{bar: bar}</code> we just write <code>Foo{bar}</code>.</p>
+
+<p>You can&rsquo;t omit a struct field in Rust. Unlike in Go which will automatically assign a default value (the type&rsquo;s zero value). To do this in Rust you need to derive <code>Default</code> on the struct and splat the remaining fields using <code>Default::default()</code>&hellip;</p>
+
+<pre><code class="language-rust">#[derive(Debug, Default)]
+struct Foo {
+    bar: u8,
+    baz: bool,
+}
+
+fn main() {
+    let f = Foo {
+        bar: 123,
+        ..Default::default()
+    };
+    println!(&quot;{:?}&quot;, f);
+    println!(&quot;{} {}&quot;, f.bar, f.baz); // There would be a WARNING if we didn't read the fields.
+}
+</code></pre>
+
+<p>Alternatively assign the field type to an <code>Option</code> type, that way it will default to <code>None</code>.</p>
+
+<h2 id="interface">Interface</h2>
+
+<p>In traditional programming languages an interface defines a contract. It states that a certain object follows the behaviours expected by implementing the assigned interface.</p>
+
+<h3 id="go-example-1">Go example</h3>
+
+<pre><code class="language-go">package main
+
+import &quot;fmt&quot;
+
+type foo interface {
+	bar()
+}
+
+func callBar(value foo) {
+	value.bar()
+}
+
+type x int
+type y string
+
+func (t x) bar() {
+	fmt.Printf(&quot;Int: %d\n&quot;, t)
+}
+func (t y) bar() {
+	fmt.Printf(&quot;String: %s\n&quot;, t)
+}
+
+func main() {
+	callBar(x(1))
+	callBar(y(&quot;foo&quot;))
+}
+</code></pre>
+
+<h3 id="rust-example-2">Rust example</h3>
+
+<pre><code class="language-rust">trait Foo { 
+    fn bar(&amp;self); 
+}
+
+impl Foo for i32 { 
+    fn bar(&amp;self) {}
+}
+
+impl Foo for String { 
+    fn bar(&amp;self) {}
+}
+
+// impl Trait (i.e. Generics) short-hand:
+// fn call_bar(value: impl T)
+fn call_bar&lt;T: Foo&gt;(value: T) {
+    value.bar()
+}
+
+fn main() {
+    call_bar(1i32);
+    call_bar(&quot;foo&quot;.to_string());
+}
+</code></pre>
+
+<h3 id="notes-2">Notes</h3>
+
+<p>In Go the concept of an interface is more flexible than the traditional definition because your objects can implement an interface without <em>explicitly</em> being assigned it. This means a single object could in theory implement lots of different interfaces (hence why it&rsquo;s more flexible than traditional programming languages, because in those languages you&rsquo;d need to explicitly assign <em>multiple</em> interfaces to an object).</p>
+
+<p>From an implementation stand point, Go uses &lsquo;dynamic dispatch&rsquo; when dealing with interfaces, while methods on a struct or any other concrete type are always resolved statically (<a href="https://golang.org/doc/faq#How_do_I_get_dynamic_dispatch_of_methods" target="_blank">reference</a>). This means it is faster to compile a Go program but isn&rsquo;t as fast to run because when dealing with interface method resolution the value of the &lsquo;receiver&rsquo; that a method is implemented on can only be determined at runtime (this can also, in extreme cases, be less memory safe).</p>
+
+<p>In Rust the concept of an interface is referred to as a &lsquo;trait&rsquo;. Traits are just as flexible as Go, and more so in the sense that they provide both &lsquo;dynamic dispatch&rsquo; <em>and</em> &lsquo;static dispatch&rsquo; (the latter meaning the code doesn&rsquo;t have a single function, like with dynamic dispatch, but has multiple functions compiled that reflect each receiver &ndash; this is possible due to the use of generics in the rust language).</p>
+
+<blockquote>
+<p><strong>NOTE</strong>: Refer to <a href="https://www.ncameron.org/blog/dyn-trait-and-impl-trait-in-rust/#preliminary-traits-are-not-types" target="_blank">this article</a> for the difference between a &lsquo;type&rsquo; and a &lsquo;trait&rsquo; in Rust.</p>
+</blockquote>
+
+<p>In the above Rust example the two <code>call_bar</code> calls will actually compile to two distinct functions, like:</p>
+
+<pre><code class="language-rust">fn call_bar_int(value: int) { value.bar() }
+fn call_bar_string(value: String) { value.bar() }
+</code></pre>
+
+<p>This is because it uses trait bounds (i.e. <code>&lt;T: Foo&gt;</code>). If the example used a &lsquo;trait object&rsquo; (see <a href="https://doc.rust-lang.org/book/ch17-02-trait-objects.html#defining-a-trait-for-common-behavior" target="_blank">docs on trait objects</a>), then it would cause &lsquo;dynamic dispatch&rsquo; to be utilised. Dynamic dispatch means the two <code>call_bar</code> calls will always call the single <code>call_bar</code> function, with the address of <code>bar</code> loaded from the interface&rsquo;s <a href="http://en.wikipedia.org/wiki/Virtual_method_table" target="_blank">vtable</a>.</p>
+
+<blockquote>
+<p><strong>Refer</strong>: riptutorial.com for more details on <a href="https://riptutorial.com/rust/example/4656/static-and-dynamic-dispatch" target="_blank">static vs dynamic dispatch in Rust</a> and also this Rust by Example page on <a href="https://doc.rust-lang.org/rust-by-example/trait/dyn.html" target="_blank">dyn Trait</a>.</p>
+</blockquote>
+
+<h3 id="marker-traits">Marker Traits</h3>
+
+<p>Imagine we have a trait for an <code>Animal</code> that defines a <code>make_noise</code> method. We want to call function and pass any object that defines <code>make_noise</code> but we only want to do this for &lsquo;pets&rsquo; not all &lsquo;animals&rsquo;.</p>
+
+<p>So how can we make it so that we only accept pets? This is where marker traits are useful:</p>
+
+<pre><code class="language-rust">pub trait Pet {}
+
+impl Pet for Dog {}
+impl Pet for Cat {}
+</code></pre>
+
+<p>Okay so far so good so now we know that these are pets not just animals. We call these marker traits because they have no functions for you to implement, but they allow you to “mark” the type with the trait. How do we tell our function to utilize this functionality then?</p>
+
+<pre><code class="language-rust">fn record_pet_noise&lt;P: Animal + Pet&gt;(pet: &amp;P) -&gt; Result&lt;Sound, Mp4EncodeError&gt; {
+  let noise = pet.make_noise();
+  mp4_encode(noise)
+}
+</code></pre>
+
+<p>We added another trait boundary to <code>P</code> which says “We accept a type only if it implements the traits Animal and Pet.” Pet is a marker trait. It doesn’t do anything, but it restricts what types are acceptable.</p>
+
+<h3 id="trait-bounds">Trait Bounds</h3>
+
+<p>We can compose behaviours using a &lsquo;trait bound&rsquo;, which determines what something should be able to do&hellip;</p>
+
+<pre><code class="language-rust">trait Bar: PartialEq + Debug {
+	fn something_specific_for_bar(&amp;self);
+}
+</code></pre>
+
+<p>In the above example, the <code>Bar</code> trait requires the implementator to also implement the <code>PartialEq</code> and <code>Debug</code> traits.</p>
+
+<blockquote>
+<p><strong>NOTE</strong>: Go does something similar with embedding interfaces within interfaces.</p>
+</blockquote>
+
+<p>We&rsquo;ve already seen trait bounds in the earlier example, but it can take multiple forms&hellip;</p>
+
+<pre><code class="language-rust">fn call_bar&lt;T: Foo&gt;(value: T) {
+    value.bar()
+}
+
+fn call_bar&lt;T&gt;(value: T) 
+where 
+    T: Foo,
+{
+    value.bar()
+}
+
+fn call_bar(value: impl Foo) {
+    value.bar()
+}
+</code></pre>
+
+<p>The last example is preferred, but often the trait bounds can be complex enough that the second variation with a <code>where</code> clause is better.</p>
+
+<p>The first example is the most traditional relative to other languages.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

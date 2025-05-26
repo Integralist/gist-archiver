@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Basic script loader example that works for all browsers</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="basic-script-loader-example-that-works-for-all-browsers">Basic script loader example that works for all browsers</h1>
+
+<h2 id="loadscript-js">loadScript.js</h2>
+
+<pre><code class="language-javascript">function loadScript(url, callback) {
+    var d = document, 
+	s = d.getElementsByTagName('script')[0], 
+	done = false, 
+	script = d.createElement('script');		 
+	script.type = &quot;text/javascript&quot;;
+	script.src = url;
+		 
+    script.onload = script.onreadystatechange = function() {
+        if (!done &amp;&amp; (!this.readyState || this.readyState == 'loaded' || this.readyState == 'complete')) {
+            done = true;
+            script.onload = script.onreadystatechange = null;
+            if (callback) {
+                callback();
+            }
+        }
+    };
+	
+    s.parentNode.insertBefore(script, s); // Find the &lt;script&gt; tag and insert new script above it
+}
+</code></pre>
+
+</div>
+</body>
+</html>

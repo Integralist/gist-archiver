@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Add properties to PHP object dynamically</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="add-properties-to-php-object-dynamically">Add properties to PHP object dynamically</h1>
+
+<h2 id="object-properties-php">object-properties.php</h2>
+
+<pre><code class="language-php">// Check it out online: http://phpepl.cloudcontrolled.com/
+ 
+$obj = new stdClass();
+$abc = 'something';
+ 
+$obj-&gt;{$abc} = 'test'; // dynamically generated object key = MIND BLOWN
+ 
+var_dump($obj); // =&gt; object(stdClass)#1 (1) { [&quot;something&quot;]=&gt; string(4) &quot;test&quot; }
+</code></pre>
+
+</div>
+</body>
+</html>

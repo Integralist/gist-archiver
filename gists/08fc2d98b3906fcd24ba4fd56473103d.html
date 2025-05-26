@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Print the type of a reference] #rust #type #reflection</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="print-the-type-of-a-reference-rust-type-reflection">[Print the type of a reference] #rust #type #reflection</h1>
+
+<h2 id="print-type-of-reference-rs">print type of reference.rs</h2>
+
+<pre><code class="language-rust">use std::any::type_name;
+
+fn type_of&lt;T&gt;(_: &amp;T) {
+    println!(&quot;{}&quot;, type_name::&lt;T&gt;())
+}
+
+fn main() {
+    type_of(&amp;&quot;foo&quot;);               // &amp;str
+    type_of(&amp;String::from(&quot;foo&quot;)); // alloc::string::String
+    type_of(&amp;123);                 // i32
+    type_of(&amp;1.23);                // f64
+}
+</code></pre>
+
+</div>
+</body>
+</html>

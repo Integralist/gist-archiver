@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Vim arg list and Search Replacement] #vim #search #replace #args #case #lower #upper</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="vim-arg-list-and-search-replacement-vim-search-replace-args-case-lower-upper">[Vim arg list and Search Replacement] #vim #search #replace #args #case #lower #upper</h1>
+
+<h2 id="vim-arg-list-and-search-replacement-md">Vim arg list and Search Replacement.md</h2>
+
+<pre><code class="language-markdown">Imagine we have a file containing...
+
+```python
+from foo import Bar
+</code></pre>
+
+<p>We want <code>Bar</code> to be <code>bar</code>.</p>
+
+<p>We could do that across all files like so:</p>
+
+<pre><code class="language-viml">:args
+:args **/*.py
+:argdo %s/\v(from foo import )B(ar)/\1b\2/e | update
+</code></pre>
+
+<blockquote>
+<p><code>e</code> flag tells Vim to ignore any errors</p>
+</blockquote>
+
+<p>Alternatively instead of hardcoding the lowercase <code>b</code> we could have done this dynamically using either <code>\l</code> which lowercases the first character inside of a backreference or <code>\L</code> which lowercases the entire backreference (<a href="https://vim.fandom.com/wiki/Changing_case_with_regular_expressions" target="_blank">Reference</a>).</p>
+
+<p>Examples&hellip;</p>
+
+<pre><code class="language-viml">:argdo %s/\v(from foo import Bar)/\L\1/e | update
+:argdo %s/\vfrom foo import (B)ar/\l\1/e | update
+:argdo %s/\vfrom foo import (*+)/\l\1/e | update
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Faraday SSL example</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="faraday-ssl-example">Faraday SSL example</h1>
+
+<h2 id="faraday-ssl-example-rb">Faraday SSL example.rb</h2>
+
+<pre><code class="language-ruby">connection = Faraday::Connection.new('http://example.com') do |builder|
+  builder.request :url_encoded  # for POST/PUT params
+  builder.adapter :net_http
+end
+
+# same as above, short form:
+connection = Faraday.new 'http://example.com'
+
+# GET
+connection.get '/posts'
+
+# POST payload
+payload = {:title =&gt; 'Example'}
+connection.post '/posts', payload
+
+# now again, over SSL
+# verify_mode is automatically set to OpenSSL::SSL::VERIFY_PEER
+connection = Faraday.new 'https://example.com'
+
+# turn off SSL
+# (no use-case for this, really)
+connection = Faraday.new 'https://example.com', :ssl =&gt; false
+
+# turn off peer verification
+connection = Faraday.new 'https://example.com', :ssl =&gt; {:verify =&gt; false}
+
+# other SSL options
+connection = Faraday.new 'https://example.com', :ssl =&gt; {
+    :client_cert  =&gt; ...,
+    :client_key   =&gt; ...,
+    :ca_file      =&gt; ...,
+    :ca_path      =&gt; ...,
+    :cert_store   =&gt; ...
+  }
+
+</code></pre>
+
+</div>
+</body>
+</html>

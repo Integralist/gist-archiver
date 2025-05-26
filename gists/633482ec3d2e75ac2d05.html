@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Bash pipestatus</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="bash-pipestatus">Bash pipestatus</h1>
+
+<h2 id="sh-pipestatus-sh">sh-pipestatus.sh</h2>
+
+<pre><code class="language-shell">docker run \
+	--cpu-shares 1024 \
+	--rm=true \
+	-v $WORKSPACE:/app \
+	ruby:2.1.2 \
+    bash -c &quot;cd /app &amp;&amp; gem install bundler &amp;&amp; bundle install --jobs 4 &amp;&amp; rspec&quot; | true
+
+TESTS_RESULT=&quot;${PIPESTATUS[0]}&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

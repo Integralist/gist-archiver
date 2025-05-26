@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Bold text in bash output</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="bold-text-in-bash-output">Bold text in bash output</h1>
+
+<h2 id="bold-text-in-bash-output-sh">Bold text in bash output.sh</h2>
+
+<pre><code class="language-shell">bold=$(tput bold)
+normal=$(tput sgr0)
+
+echo &quot;So, ${bold}I'm bolded${normal} but I'm not bolded&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

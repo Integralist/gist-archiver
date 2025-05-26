@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Go: JSON omitempty vs omitzero #go #golang #json</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-json-omitempty-vs-omitzero-go-golang-json">Go: JSON omitempty vs omitzero #go #golang #json</h1>
+
+<h2 id="readme-md">README.md</h2>
+
+<pre><code class="language-markdown">**Guidelines:**
+
+&gt; [!TIP]
+&gt; The super quick summary is: use `omitzero`\
+&gt; _Unless_ you need to identify an empty map/slice/interface, then use `omitempty`.\
+&gt; If you need to identify if value was deliberately set to the zero type, use a pointer.\
+&gt; If you have specific zero requirements define custom type with `IsZero` method.
+
+- to filter out a nil map, use `omitzero`
+- to filter out a nil map _and_ an empty map, use `omitempty`
+- to filter out a nil slice, use `omitzero`
+- to filter out a nil slice _and_ an empty slice, use `omitempty`
+- to filter out an empty struct, use `omitzero`**
+- to filter out a zero time, use `omitzero`
+- to filter out a bool, use `omitzero`
+
+&gt; ** Go checks if all the struct's fields are their respective zero values _or_ if it has a custom `IsZero()` bool method that returns true. 
+
+Here is a contrived example of a custom int type that implements `IsZero` to trick 0 to be shown (but really, the implementation can be whatever makes sense for your application):
+
+```go
+package main
+
+import (
+	&quot;encoding/json&quot;
+	&quot;fmt&quot;
+)
+
+type Data struct {
+	Field CustomInt `json:&quot;field,omitzero&quot;`
+}
+
+type CustomInt int
+
+func (i CustomInt) IsZero() bool {
+	return i == -1
+}
+
+func main() {
+	d1 := Data{}
+	j1, _ := json.Marshal(d1)
+	fmt.Println(string(j1)) // {&quot;field&quot;:0}
+
+	d2 := Data{Field: 0}
+	j2, _ := json.Marshal(d2)
+	fmt.Println(string(j2)) // {&quot;field&quot;:0}
+
+	d3 := Data{Field: 1}
+	j3, _ := json.Marshal(d3)
+	fmt.Println(string(j3)) // {&quot;field&quot;:1}
+}
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

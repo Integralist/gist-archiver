@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Website Crawler</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="website-crawler">Website Crawler</h1>
+
+<h2 id="website-crawler-sh">Website Crawler.sh</h2>
+
+<pre><code class="language-shell">wget --mirror \
+     --convert-links \
+     --adjust-extension \
+     --page-requisites \
+     --header=&quot;Host: www.example.com&quot; \
+     --no-parent https://beepboop.cloudfront.net
+</code></pre>
+
+</div>
+</body>
+</html>

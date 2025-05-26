@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Tornado Decorator with arguments] #python #decorator #tornado #dict #compare</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-tornado-decorator-with-arguments-python-decorator-tornado-dict-compare">[Python Tornado Decorator with arguments] #python #decorator #tornado #dict #compare</h1>
+
+<h2 id="python-tornado-decorator-with-arguments-py">Python Tornado Decorator with arguments.py</h2>
+
+<pre><code class="language-python">def auth(*args, **kwargs):
+    client = kwargs['client']
+
+    def wrapper(handler_method):
+        &quot;&quot;&quot;input will be, for example, RequestHandler.get or RequestHandler.post&quot;&quot;&quot;
+
+        @wraps(handler_method)
+        async def request_handler_wrapper(*args, **kwargs):
+            &quot;&quot;&quot;input is the request handler class and params from tornado.routing.Rule&quot;&quot;&quot;
+
+            request_handler = args[0]
+            cookie = acquire_cookie(request_handler)
+            if invalid_cookie(cookie):
+                return request_handler.send_error(status_code=401)
+                # raise tornado.web.HTTPError(401)
+
+            tokens = extract_tokens_from_cookie(cookie)
+            if not tokens:
+                return request_handler.send_error(status_code=401)
+                # raise tornado.web.HTTPError(401)
+
+            id_payload = await verify_tokens(tokens, client)
+            if not id_payload:
+                return request_handler.send_error(status_code=401)
+                # raise tornado.web.HTTPError(401)
+
+            kwargs = {&quot;auth_data&quot;: id_payload, **kwargs}
+
+            return await handler_method(*args, **kwargs)
+        return request_handler_wrapper
+    return wrapper
+
+  
+def acquire_cookie(request_handler):
+    return request_handler.get_cookie(cookie_name)
+
+
+def invalid_cookie(cookie):
+    if not cookie:
+        return True
+    if cookie.find('access_token') == -1:
+        return True
+    return False
+
+
+def extract_tokens_from_cookie(cookie):
+    p = re.compile(r'id_token=(?P&lt;id_token&gt;.+),access_token=(?P&lt;access_token&gt;.+),refresh_token=(?P&lt;refresh_token&gt;.+)')  # noqa
+    tokens = p.search(cookie)
+    return tokens
+
+
+def build_endpoint(host, path) -&gt; str:
+    not_prod = settings.get('cluster') != 'prod'
+    buzzfeed = 'buzzfeed.com' in host
+    gateway = re.search('api-(?:public-)?stage.buzzfeed.com', host)
+
+    if not_prod and buzzfeed and not gateway:
+        creds = '{}:{}'.format(webapp_stage_user, webapp_stage_pass)
+        host = '{}@{}'.format(creds, host)
+
+    return 'https://{}{}'.format(host, path)
+
+
+async def verify_tokens(tokens, api_gateway):
+    if not tokens:
+        return
+
+    api_path = '/bfauth/tokens/verify'
+    endpoint = build_endpoint(api_gateway_host, api_path)
+
+    post_data = {'id_token': tokens.group('id_token'),
+                 'access_token': tokens.group('access_token'),
+                 'refresh_token': tokens.group('refresh_token')}
+
+    body = urllib.parse.urlencode(post_data)
+
+    try:
+        response = await api_gateway.post(endpoint, body=body, debug=debug, request_timeout=10)
+    except bf_api_gateway.errors.BackoffError as err:
+        metrics.incr(&quot;verify_tokens&quot;, tags={&quot;service&quot;: service,
+                                            &quot;status&quot;: &quot;error&quot;,
+                                            &quot;context&quot;: &quot;{}. {}&quot;.format(type(err), str(err))})
+        return
+    except bf_api_gateway.errors.APIGatewayError as err:
+        metrics.incr(&quot;verify_tokens&quot;, tags={&quot;service&quot;: service,
+                                            &quot;status&quot;: &quot;error&quot;,
+                                            &quot;context&quot;: &quot;{}. {}&quot;.format(type(err), str(err))})
+        return
+
+    try:
+        response_data = json.loads(response.body)
+    except Exception as err:
+        metrics.incr(&quot;verify_tokens&quot;, tags={&quot;service&quot;: service,
+                                            &quot;status&quot;: &quot;error&quot;,
+                                            &quot;context&quot;: &quot;{}. {}&quot;.format(type(err), str(err))})
+        return
+
+    if response_data.get('status') == 'error':
+        metrics.incr(&quot;verify_tokens&quot;, tags={&quot;service&quot;: service,
+                                            &quot;status&quot;: &quot;error&quot;,
+                                            &quot;context&quot;: &quot;status returned error&quot;})
+        return
+
+    return response_data.get('payload')
+
+class AuthTest(tornado.web.RequestHandler):
+    @auth('get', client=mock_apigateway)
+    async def get(self, *args, **kwargs):
+        &quot;&quot;&quot; kwargs = {&quot;auth_data&quot;: &quot;...&quot;, &quot;path&quot;: &quot;protected&quot;} &quot;&quot;&quot;
+        self.finish(kwargs)
+
+return tornado.web.Application([
+    (r'/(?P&lt;path&gt;protected)', AuthTest),
+])
+
+@mock.patch(&quot;bf_auth.subject.build_endpoint&quot;)
+def test_successful_authentication(self, mock_endpoint):
+    &quot;&quot;&quot;Test a cookie is acquired, and the tokens are extracted and verified.&quot;&quot;&quot;
+
+    mock_cookie = 'mycookiename=id_token=1,access_token=2,refresh_token=3;'
+    mock_endpoint.return_value = 'https://example-api.com'
+    mock_apigateway.post.side_effect = mock_verify_tokens_success
+
+    response = self.fetch('/protected', headers={&quot;Cookie&quot;: mock_cookie})
+    assert response.code == 200
+
+    # Python 3.5 doesn't guarantee dictionary ordering, so we use json sort_keys
+    actual = json.dumps(json.loads(response.body.decode()), sort_keys=True)
+    expected = '{&quot;auth_data&quot;: &quot;foobar&quot;, &quot;path&quot;: &quot;protected&quot;}'
+    assert actual == expected
+</code></pre>
+
+</div>
+</body>
+</html>

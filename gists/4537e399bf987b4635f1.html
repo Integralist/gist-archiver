@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Executing the Clojure STM within JRuby (code modified from "Programming Concurrency on the JVM")</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="executing-the-clojure-stm-within-jruby-code-modified-from-programming-concurrency-on-the-jvm">Executing the Clojure STM within JRuby (code modified from &ldquo;Programming Concurrency on the JVM&rdquo;)</h1>
+
+<h2 id="account-rb">account.rb</h2>
+
+<pre><code class="language-ruby">$CLASSPATH &lt;&lt; &quot;clojure-1.6.0/clojure-1.6.0.jar&quot; # Downloaded from http://clojure.org/downloads
+
+require &quot;java&quot;
+java_import &quot;clojure.lang.Ref&quot;
+java_import &quot;clojure.lang.LockingTransaction&quot;
+
+class Account
+  attr_reader :name
+
+  def initialize(name, initial_balance)
+    @name    = name
+    @balance = Ref.new initial_balance
+  end
+
+  def balance
+    @balance.deref
+  end
+
+  def deposit(amount)
+    LockingTransaction.run_in_transaction do
+      if amount &gt; 0
+        @balance.set @balance.deref + amount
+        p &quot;Deposited $#{amount} into account #{@name}&quot;
+      else
+        raise &quot;The amount must be greater than zero&quot;
+      end
+    end
+  end
+
+  def withdraw(amount)
+    LockingTransaction.run_in_transaction do
+      if amount &gt; 0 &amp;&amp; @balance.deref &gt;= amount
+        @balance.set @balance.deref - amount
+      else
+        raise &quot;Can't withdraw $#{amount}; balance is $#{@balance.deref}&quot;
+      end
+    end
+  end
+end
+
+def transfer(from, to, amount)
+  LockingTransaction.run_in_transaction do
+    to.deposit amount
+    from.withdraw amount
+  end
+end
+
+def transfer_and_print(from, to, amount)
+  begin
+    transfer from, to, amount
+  rescue StandardError =&gt; e
+    p &quot;Transfer failed: #{e}&quot;
+  end
+
+  p &quot;Balance of 'from' account (#{from.name}) is $#{from.balance}&quot;
+  p &quot;Balance of 'to' account (#{to.name}) is $#{to.balance}&quot;
+end
+
+account1 = Account.new 1, 2000
+account2 = Account.new 2, 100
+
+p &quot;account1 balance is $#{account1.balance}&quot;
+p &quot;account2 balance is $#{account2.balance}&quot;
+p &quot;---&quot;
+
+transfer_and_print account1, account2, 500
+p &quot;---&quot;
+transfer_and_print account1, account2, 5000
+</code></pre>
+
+<h2 id="output-zsh">output.zsh</h2>
+
+<pre><code class="language-shell">&quot;account1 balance is $2000&quot;
+&quot;account2 balance is $100&quot;
+&quot;---&quot;
+&quot;Deposited $500 into account 2&quot;
+&quot;Balance of 'from' account (1) is $1500&quot;
+&quot;Balance of 'to' account (2) is $600&quot;
+&quot;---&quot;
+&quot;Deposited $5000 into account 2&quot;
+&quot;Transfer failed: Can't withdraw $5000; balance is $1500&quot;
+&quot;Balance of 'from' account (1) is $1500&quot;
+&quot;Balance of 'to' account (2) is $600&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

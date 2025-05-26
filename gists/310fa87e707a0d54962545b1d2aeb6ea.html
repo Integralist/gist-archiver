@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Netcat web server</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="netcat-web-server">Netcat web server</h1>
+
+<h2 id="netcat-web-server-sh">Netcat web server.sh</h2>
+
+<pre><code class="language-shell">{ echo -ne &quot;HTTP/1.0 200 OK\r\nContent-Length: $(wc -c &lt;some.file)\r\n\r\n&quot;; cat some.file; } | nc -l 8080
+</code></pre>
+
+</div>
+</body>
+</html>

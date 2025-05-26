@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Python Asyncio Timing Decorator</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-asyncio-timing-decorator">Python Asyncio Timing Decorator</h1>
+
+<h2 id="python-asyncio-timing-decorator-py">Python Asyncio Timing Decorator.py</h2>
+
+<pre><code class="language-python">import asyncio
+import time
+
+
+def timeit(func):
+    async def process(func, *args, **params):
+        if asyncio.iscoroutinefunction(func):
+            print('this function is a coroutine: {}'.format(func.__name__))
+            return await func(*args, **params)
+        else:
+            print('this is not a coroutine')
+            return func(*args, **params)
+
+    async def helper(*args, **params):
+        print('{}.time'.format(func.__name__))
+        start = time.time()
+        result = await process(func, *args, **params)
+
+        # Test normal function route...
+        # result = await process(lambda *a, **p: print(*a, **p), *args, **params)
+
+        print('&gt;&gt;&gt;', time.time() - start)
+        return result
+
+    return helper
+
+
+async def compute(x, y):
+    print('Compute %s + %s ...' % (x, y))
+    await asyncio.sleep(1.0)  # asyncio.sleep is also a coroutine
+    return x + y
+
+
+@timeit
+async def print_sum(x, y):
+    result = await compute(x, y)
+    print('%s + %s = %s' % (x, y, result))
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(print_sum(1, 2))
+loop.close()
+</code></pre>
+
+<h2 id="test-py">Test.py</h2>
+
+<pre><code class="language-python">'''
+this was complicated because of the mocking of objects
+you need to mock not the source where the module is
+but mock the full path to where the module (e.g. statsd) is imported and used
+so I import statsd into app/renderer.py so that's where I mock from
+
+I also needed to utilise side_effect for mocking the time builtin
+this is so that it would return multiple values every time it was called
+'''
+
+# pylint: disable=W0613
+
+import asyncio
+from unittest import mock
+from app.renderer import time_it
+
+
+async def coro(*args, **params):
+    await asyncio.sleep(0)
+    return 'foobar'
+
+
+'''
+The `loop` argument in each test is provided by tests/conftest.py
+
+Pytest looks in every test-directory for a file called conftest.py
+and applies the fixtures and hooks implemented there to all tests within that directory
+'''
+
+
+@mock.patch('app.renderer.time')
+@mock.patch('app.renderer.statsd')
+def test_sync_time_it(mock_stats, mock_time, loop):
+    async def do_test():
+        mock_time.time.side_effect = [2, 10]
+        expectation = 'foobar'
+        func = lambda *args, **params: 'foobar'
+        ti = time_it(func)
+        result = await ti({}, {})
+        mock_stats.timing.assert_called_with('component.dict.&lt;lambda&gt;.time', 8)
+        assert result == expectation
+
+    loop.run_until_complete(do_test())
+
+
+@mock.patch('app.renderer.time')
+@mock.patch('app.renderer.statsd')
+def test_async_time_it(mock_stats, mock_time, loop):
+    async def do_test():
+        mock_time.time.side_effect = [2, 10]
+        expectation = 'foobar'
+        ti = time_it(coro)
+        result = await ti({}, {})
+        mock_stats.timing.assert_called_with('component.dict.coro.time', 8)
+        assert result == expectation
+
+    loop.run_until_complete(do_test())
+</code></pre>
+
+<h2 id="tests-conftest-py">tests conftest.py</h2>
+
+<pre><code class="language-python">import asyncio
+import pytest
+
+'''
+# Following can be useful when running tests in shared environment
+# Alongside multiple other services using this as a shared lib
+#
+# pylint: disable=wrong-import-order
+
+import pytest
+
+try:
+    import asyncio
+except (ImportError, RuntimeError):
+    pytest.skip('unsupported configuration')
+'''
+
+@pytest.yield_fixture
+def loop():
+    # Set-up
+    evloop = asyncio.new_event_loop()
+    asyncio.set_event_loop(evloop)
+
+    yield evloop
+
+    # Clean-up
+    evloop.close()
+</code></pre>
+
+</div>
+</body>
+</html>

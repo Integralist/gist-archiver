@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Logrus JSON Example] #go #golang #logrus #json #logging #logger #logs #message #fieldkey</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-logrus-json-example-go-golang-logrus-json-logging-logger-logs-message-fieldkey">[Golang Logrus JSON Example] #go #golang #logrus #json #logging #logger #logs #message #fieldkey</h1>
+
+<h2 id="golang-logrus-json-example-go">Golang Logrus JSON Example.go</h2>
+
+<pre><code class="language-go">// https://play.golang.org/p/5H9ZV7Hqc6D
+
+package main
+
+import (
+	&quot;github.com/sirupsen/logrus&quot;
+)
+
+func main() {
+	logger := logrus.New()
+	logger.SetFormatter(&amp;logrus.JSONFormatter{
+		FieldMap: logrus.FieldMap{
+			logrus.FieldKeyMsg: &quot;message&quot;, // uses `message` instead of `msg` field
+		},
+	})
+    logger.SetLevel(logrus.InfoLevel)
+
+	baselineLogger := logger.WithFields(logrus.Fields{
+		&quot;foo&quot;: logrus.Fields{
+			&quot;bar&quot;: 123,
+			&quot;baz&quot;: &quot;abc&quot;,
+		},
+	}).WithFields(logrus.Fields{
+		&quot;bar&quot;: logrus.Fields{
+			&quot;baz&quot;: 456,
+			&quot;qux&quot;: &quot;xyz&quot;,
+		},
+	})
+
+	baselineLogger.WithFields(logrus.Fields{&quot;beep&quot;: &quot;boop&quot;}).Info(&quot;HERE&quot;)
+  
+  	// {&quot;bar&quot;:{&quot;baz&quot;:456,&quot;qux&quot;:&quot;xyz&quot;},&quot;beep&quot;:&quot;boop&quot;,&quot;foo&quot;:{&quot;bar&quot;:123,&quot;baz&quot;:&quot;abc&quot;},&quot;level&quot;:&quot;info&quot;,&quot;message&quot;:&quot;HERE&quot;,&quot;time&quot;:&quot;2009-11-10T23:00:00Z&quot;}
+}
+</code></pre>
+
+</div>
+</body>
+</html>

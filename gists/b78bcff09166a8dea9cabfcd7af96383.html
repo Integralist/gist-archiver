@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang sharing behaviours between individual structs and a base struct] #go #golang #struct #embedding #polymorphism</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-sharing-behaviours-between-individual-structs-and-a-base-struct-go-golang-struct-embedding-polymorphism">[Golang sharing behaviours between individual structs and a base struct] #go #golang #struct #embedding #polymorphism</h1>
+
+<h2 id="golang-sharing-behaviours-between-individual-structs-and-a-base-struct-go">Golang sharing behaviours between individual structs and a base struct.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+)
+
+type JavaScript struct {
+	postProcessing bool
+	toolchain      string
+}
+
+func (j JavaScript) Validate() {
+	fmt.Printf(&quot;validating with %s\n&quot;, j.toolchain)
+
+	if j.postProcessing {
+		fmt.Println(&quot;post processing&quot;)
+	}
+}
+
+func (j JavaScript) Build() {
+	fmt.Printf(&quot;do our own JavaScript thing with %s\n&quot;, j.toolchain)
+}
+
+func (j *JavaScript) Toolchain(toolchain string) {
+	j.toolchain = toolchain
+}
+
+type AssemblyScript struct {
+	JavaScript
+}
+
+func (a AssemblyScript) Build() {
+	fmt.Printf(&quot;do our own AssemblyScript thing with %s\n&quot;, a.toolchain)
+}
+
+func main() {
+	js := JavaScript{true, &quot;yarn&quot;}
+	js.Validate() // validating with yarn + post processing
+	js.Build()    // do our own JavaScript thing with yarn
+
+	as := AssemblyScript{JavaScript{false, &quot;npm&quot;}}
+	as.Validate() // validating with npm
+	as.Build()    // do our own AssemblyScript thing with npm
+
+	as2 := AssemblyScript{JavaScript{false, &quot;npm&quot;}}
+	as2.Toolchain(&quot;beepboop&quot;)
+	as2.Validate() // validating with beepboop
+	as2.Build()    // do our own AssemblyScript thing with beepboop
+}
+</code></pre>
+
+</div>
+</body>
+</html>

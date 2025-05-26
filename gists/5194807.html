@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>A few (of the many) different ways to create a Singleton in JavaScript. Be warned some of these examples require a lot more code to make them true Singletons. As is the case with most problems: simplicity is the key.</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="a-few-of-the-many-different-ways-to-create-a-singleton-in-javascript-be-warned-some-of-these-examples-require-a-lot-more-code-to-make-them-true-singletons-as-is-the-case-with-most-problems-simplicity-is-the-key">A few (of the many) different ways to create a Singleton in JavaScript. Be warned some of these examples require a lot more code to make them true Singletons. As is the case with most problems: simplicity is the key.</h1>
+
+<h2 id="singleton-2-js">Singleton_2.js</h2>
+
+<pre><code class="language-javascript">function Universe() {
+    // the cached instance 
+    var instance = this;
+    
+    // proceed as normal 
+    this.start_time = 0; 
+    this.bang = &quot;Big&quot;;
+    
+    // public methods
+    this.setTime = function(time){
+        this.start_time = time;
+    }
+    
+    // rewrite the constructor
+    Universe = function () {
+        return instance;
+    };
+}
+
+// testing
+var uni = new Universe(); 
+var uni2 = new Universe(); 
+console.log(uni === uni2); // true
+
+// view each instance to see their value
+console.log(uni.start_time);
+console.log(uni2.start_time);
+
+// update the value for the first instance
+uni.setTime(123);
+
+// see both instances have updated (which means although different instances were created, the object is still a Singleton
+console.log(uni.start_time);
+console.log(uni2.start_time);
+</code></pre>
+
+<h2 id="singleton-3-js">Singleton_3.js</h2>
+
+<pre><code class="language-javascript">var Singleton = (function(){ // We use a 'immediately invoked function expression' to create a Closure.
+    // Private attribute that holds the single instance
+    var uniqueInstance;
+    
+    // Private method which holds all of the normal Singleton code
+    function Constructor(){
+		// Private members (can't be accessed directly)
+		var privateAttribute1 = false;
+		var privateAttribute2 = [1, 2, 3];
+		
+		// Private method (can't be accessed directly)
+		function privateMethod(){
+			return 'my private method';
+		}
+		
+		return {
+			publicAttribute1: true,
+			publicAttribute2: 10,
+			
+            // This method can be referred to as a 'Privileged' method as it has access to Private areas
+			publicMethod: function(){
+    			console.log('privateMethod() = ' + privateMethod()); // privileged access
+				console.log('privateAttribute1 = ' + privateAttribute1); // privileged access 
+				console.log('privateAttribute2 = ' + privateAttribute2); // privileged access
+				console.log('this.publicAttribute1 = ' + this.publicAttribute1);
+				console.log('this.publicAttribute2 = ' + this.publicAttribute2);
+			}
+		}
+	}
+	
+	return {
+		getInstance: function(){
+			// Instantiate only if the instance doesn't exist.
+			if (!uniqueInstance) {
+				uniqueInstance = Constructor();
+			}
+			
+			return uniqueInstance;
+		}
+	}
+})();
+	
+/**
+ * Now this singleton uses 'lazy loading' we must make sure we use the correct function calls
+ *
+ * e.g. 
+ * Singleton.getInstance().publicMethod1();
+ *
+ * Notice we can 'chain' the methods because 'getInstance' returns the function object itself rather than a value.
+ */
+ 
+Singleton.getInstance().publicMethod();
+</code></pre>
+
+<h2 id="singleton-js">Singleton.js</h2>
+
+<pre><code class="language-javascript">function Universe() {
+    // do we have an existing instance?
+    if (typeof Universe.instance === &quot;object&quot;) {
+        return Universe.instance; 
+    }
+    
+    // proceed as normal 
+    this.start_time = 0; 
+    this.bang = &quot;Big&quot;;
+    
+    // public methods
+    this.setTime = function(time){
+        this.start_time = time;
+    }
+    
+    // cache (warning this property is public and so can be modified!)
+    Universe.instance = this;
+}
+
+// testing
+var uni = new Universe(); 
+var uni2 = new Universe(); 
+console.log(uni === uni2); // true
+
+// view each instance to see their value
+console.log(uni.start_time);
+console.log(uni2.start_time);
+
+// update the value for the first instance
+uni.setTime(123);
+
+// see both instances have updated (which means although different instances were created, the object is still a Singleton
+console.log(uni.start_time);
+console.log(uni2.start_time);
+</code></pre>
+
+</div>
+</body>
+</html>

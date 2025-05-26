@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Service Orchestration vs Choreography (http://developers.redhat.com/blog/2016/05/26/scalable-microservices-through-messaging/)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="service-orchestration-vs-choreography-http-developers-redhat-com-blog-2016-05-26-scalable-microservices-through-messaging">Service Orchestration vs Choreography (<a href="http://developers.redhat.com/blog/2016/05/26/scalable-microservices-through-messaging/" target="_blank">http://developers.redhat.com/blog/2016/05/26/scalable-microservices-through-messaging/</a>)</h1>
+
+<h2 id="service-orchestration-vs-choreography-md">Service Orchestration vs Choreography.md</h2>
+
+<pre><code class="language-markdown">- Service Orchestration: Queues 
+- Service Choreography: Pub/Sub
+
+The former requires a service to know about its upstream services.
+
+The latter allows a service to _not_ know about its upstream services.
+
+The latter is a cleaner separation of concerns and decoupling, because the upstream services just need to be aware of a potential &quot;event&quot; and the original service just needs to know that it has to fire an &quot;event&quot;.
+</code></pre>
+
+</div>
+</body>
+</html>

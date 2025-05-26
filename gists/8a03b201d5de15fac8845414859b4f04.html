@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[varnish hit-for-pass explanation] #varnish #vcl</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="varnish-hit-for-pass-explanation-varnish-vcl">[varnish hit-for-pass explanation] #varnish #vcl</h1>
+
+<h2 id="varnish-hit-for-pass-explanation-md">varnish hit-for-pass explanation.md</h2>
+
+<pre><code class="language-markdown">## Hit For Pass
+
+You may notice in `vcl_fetch` some logic like:
+
+```vcl
+if (beresp.http.Cache-Control ~ &quot;private&quot;) {
+  return(pass);
+}
+</code></pre>
+
+<p>The reason we <code>return(pass)</code> is because we don&rsquo;t want to cache this content (because we can see the response headers tell us it should be &ldquo;private&rdquo;).</p>
+
+<p>But in doing so varnish does <em>still</em> create an object and caches it?</p>
+
+<p>The object it creates is called &ldquo;hit-for-pass&rdquo; and it has a ttl of 120s.</p>
+
+<blockquote>
+<p>Note: the ttl can be changed using vcl but it should be kept small</p>
+</blockquote>
+
+<p>The reason varnish does this is because if it <em>didn&rsquo;t</em>, then when the content is not cached and another request is made for that content, we would find that &ldquo;request collapsing&rdquo; starts causing an issue.</p>
+
+<p>Request collapsing is where varnish blocks requests for the same uncached content in order to prevent overloading your origin. But in the case of uncachable content, users are blocked waiting for another request to complete only to find that the request wasn&rsquo;t cached and so the request is made again for the current user.</p>
+
+<p>As you can imagine, this is very bad because the requests for this uncachable content has resulted in sequential processing.</p>
+
+<p>So when we &ldquo;pass&rdquo; inside of <code>vcl_fetch</code> varnish prevents this bad sequential processing. It does this creating a &ldquo;hit-for-pass&rdquo; object which has a short ttl of 120s, and so for the next 120s any requests for this same resource will <em>not</em> result in request collapsing (i.e. user requests to origin will not be blocked waiting for an already &ldquo;in-flight&rdquo; origin request to complete). Meaning, <em>all</em> requests will be sent straight through to the origin.</p>
+
+<blockquote>
+<p>Note: you&rsquo;ll see in <code>vcl_hit</code> it looks out for <code>obj.cacheable</code> being false and subsequently executes <code>return(pass)</code> to allow the request to flow through to origin. When Varnish executes <code>return(pass)</code> inside of <code>vcl_fetch</code> it caches the &ldquo;hit-for-pass&rdquo; object with the <code>cacheable</code> attribute set to <code>false</code>.</p>
+</blockquote>
+
+<p>The reason the ttl is supposed to be short is because for that ttl time period your origin is susceptible to multiple requests.</p>
+
+<p>See the following link for a more detailed explanation:<br />
+<a href="https://info.varnish-software.com/blog/hit-for-pass-varnish-cache" target="_blank">https://info.varnish-software.com/blog/hit-for-pass-varnish-cache</a>
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Playing around with DynamoDB (old)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="playing-around-with-dynamodb-old">Playing around with DynamoDB (old)</h1>
+
+<h2 id="dynamo-db-query-example-md">dynamo_db_query_example.md</h2>
+
+<pre><code class="language-markdown">[AWS query-instance_method docs](http://docs.aws.amazon.com/AWSRubySDK/latest/AWS/DynamoDB/Client/V20120810.html#query-instance_method)
+
+```sh
+export AWS_ACCESS_KEY_ID=‘XXXX’
+export AWS_SECRET_ACCESS_KEY=‘XXXX’
+</code></pre>
+
+<pre><code class="language-rb"># ENV['AWS_ACCESS_KEY_ID']
+# ENV['AWS_SECRET_ACCESS_KEY']
+
+require 'aws-sdk'
+dynamo_db = AWS::DynamoDB.new
+
+# Create table
+foobar = dynamo_db.tables.create(
+  'foobar', 10, 5, 
+  :hash_key =&gt; { 
+    :component_id =&gt; :string 
+  }, 
+  :range_key =&gt; { 
+    :opts_hash =&gt; :string }
+)
+
+foobar.status # =&gt; :creating
+foobar.status # =&gt; :active (takes ~15 seconds)
+foobar.hash_key # =&gt; &lt;AWS::DynamoDB::PrimaryKeyElement:0x60cd375d @name=&quot;component_id&quot;, @type=:string&gt;
+foobar.range_key # =&gt; &lt;AWS::DynamoDB::PrimaryKeyElement:0x48774b2c @name=&quot;opts_hash&quot;, @type=:string&gt;
+
+# Get table
+dynamo_db.tables['foobar']
+
+# Create Item
+item1 = foobar.items.create(
+  :component_id =&gt; '1', 
+  :opts_hash =&gt; 'abc',
+  :s3_location =&gt; 'foo/bar/baz'
+) 
+# =&gt; &lt;AWS::DynamoDB::Item table_name:foobar hash_value:1 range_value:abc&gt;
+
+# Retrieve Items
+foobar.items.each { |item| puts item.attributes.to_h }
+# =&gt; {&quot;s3_location&quot;=&gt;&quot;foo/bar/baz&quot;, &quot;component_id&quot;=&gt;&quot;1&quot;, &quot;opts_hash&quot;=&gt;&quot;def&quot;}
+
+# Delete Tables
+dynamo_db.tables.each {|x| if x.name == foobar then x.delete end }
+
+# Query Tables
+client = AWS::DynamoDB::Client::V20120810.new
+client.query({ 
+  :table_name =&gt; 'foobar', 
+  :consistent_read =&gt; true,
+  :select =&gt; 'SPECIFIC_ATTRIBUTES',
+  :attributes_to_get =&gt; ['s3_location'],
+  :key_conditions =&gt; { 
+    'component_id' =&gt; { 
+      :comparison_operator =&gt; 'EQ', 
+      :attribute_value_list =&gt; [
+        { 's' =&gt; '1' }
+      ],
+    },
+    'opts_hash' =&gt; { 
+      :comparison_operator =&gt; 'EQ', 
+      :attribute_value_list =&gt; [
+        { 's' =&gt; 'def' }
+      ]
+    } 
+  } 
+})
+
+# =&gt; {:member=&gt;[{&quot;s3_location&quot;=&gt;{:s=&gt;&quot;foo/bar/baz&quot;}}], :count=&gt;1}
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

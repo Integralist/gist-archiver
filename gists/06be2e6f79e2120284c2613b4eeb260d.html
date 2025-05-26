@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Fixing GPG and Agent Errors] #gpg #gpgagent #agent #pass</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="fixing-gpg-and-agent-errors-gpg-gpgagent-agent-pass">[Fixing GPG and Agent Errors] #gpg #gpgagent #agent #pass</h1>
+
+<h2 id="fixing-gpg-and-agent-errors-md">Fixing GPG and Agent Errors.md</h2>
+
+<pre><code class="language-markdown">## Updated gpg and gpg-agent via Homebrew
+
+**Error**:
+
+```bash
+$ pass show Some/Example/Service
+
+gpg: WARNING: server 'gpg-agent' is older than us (2.3.1 &lt; 2.3.2)
+gpg: problem with fast path key listing: IPC parameter error - ignored
+gpg: public key decryption failed: No pinentry
+gpg: decryption failed: No pinentry
+</code></pre>
+
+<p><strong>Solution</strong>:</p>
+
+<pre><code class="language-bash">gpgconf --kill all
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Docker tagging and ONBUILD</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="docker-tagging-and-onbuild">Docker tagging and ONBUILD</h1>
+
+<h2 id="docker-tagging-and-onbuild-md">Docker tagging and ONBUILD.md</h2>
+
+<pre><code class="language-markdown">When an author builds the image https://github.com/cpuguy83/docker-jruby/blob/10eae9359611104c013e82206104b40f20fac377/1.7/Dockerfile:
+
+</code></pre>
+
+<p>FROM java:8
+ENV JRUBY_VERSION 1.7.16
+RUN mkdir /opt/jruby <br />
+  &amp;&amp; curl <a href="http://jruby.org.s3.amazonaws.com/downloads/${JRUBY_VERSION}/jruby-bin-${JRUBY_VERSION}.tar.gz" target="_blank">http://jruby.org.s3.amazonaws.com/downloads/${JRUBY_VERSION}/jruby-bin-${JRUBY_VERSION}.tar.gz</a> <br />
+  | tar -zxC /opt/jruby &ndash;strip-components=1 <br />
+  &amp;&amp; update-alternatives &ndash;install /usr/local/bin/ruby ruby /opt/jruby/bin/jruby 1
+ENV PATH /opt/jruby/bin:$PATH</p>
+
+<p>RUN echo &lsquo;gem: &ndash;no-rdoc &ndash;no-ri&rsquo; &gt;&gt; /.gemrc</p>
+
+<p>RUN gem install bundler</p>
+
+<p>CMD [ &ldquo;irb&rdquo; ]</p>
+
+<pre><code>
+...they tag it with (for example) `1.7.16` so that the other docker image https://github.com/cpuguy83/docker-jruby/blob/10eae9359611104c013e82206104b40f20fac377/1.7/onbuild/Dockerfile:
+
+</code></pre>
+
+<p>FROM jruby:1.7.16</p>
+
+<p>RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app</p>
+
+<p>ONBUILD ADD Gemfile /usr/src/app/
+ONBUILD ADD Gemfile.lock /usr/src/app/
+ONBUILD RUN bundle install &ndash;system</p>
+
+<p>ONBUILD ADD . /usr/src/app</p>
+
+<pre><code>
+...can then build from that (e.g. `FROM jruby:1.7.16`). 
+
+Then when that image is pushed up they tag it `1.7-onbuild` (as they utilise the `ONBUILD` feature). 
+
+We then base our own Docker image off of `FROM jruby:1.7-onbuild`. Using `jruby:1.7-onbuild` means when we build our own image the gems are already installed, and it avoids the issue of installing the Gems every time you execute `docker run` an image to start up a container.
+
+</code></pre>
+
+</div>
+</body>
+</html>

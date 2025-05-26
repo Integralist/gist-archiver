@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Godo re-build task</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="godo-re-build-task">Godo re-build task</h1>
+
+<h2 id="godofile-go">Godofile.go</h2>
+
+<pre><code class="language-go">// It's important to realise that you'll only ever want to `go build` or `go run` a single file
+// This confused me originally
+// I could understand why my task's `Context` didn't get passed the name of the changed file
+// The problem was I was just hacking little scripts together
+// In practice, you'll be working within a project directory and you'll have a single entry point file
+
+package main
+
+import . &quot;gopkg.in/godo.v1&quot;
+
+func tasks(p *Project) {
+	p.Task(&quot;build&quot;, func(c *Context) error {
+		return Run(&quot;go build&quot;)
+	}).Watch(&quot;**/*.go&quot;)
+}
+
+func main() {
+	Godo(tasks)
+}
+
+</code></pre>
+
+</div>
+</body>
+</html>

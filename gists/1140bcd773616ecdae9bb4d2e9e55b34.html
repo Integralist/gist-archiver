@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Dynamic Log Levels via Abstraction] #python #logging #logs #dynamic #levels</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-dynamic-log-levels-via-abstraction-python-logging-logs-dynamic-levels">[Python Dynamic Log Levels via Abstraction] #python #logging #logs #dynamic #levels</h1>
+
+<h2 id="1-python-dynamic-log-levels-via-abstraction-py">1. Python Dynamic Log Levels via Abstraction.py</h2>
+
+<pre><code class="language-python">import logging
+
+def log_it(msg, level='error'):
+    fn = getattr(logging, level)
+    fn(msg)
+
+log_it(1, level='warning')
+# WARNING:root:1
+
+log_it(1, level='error')
+log_it(1)
+# ERROR:root:1
+</code></pre>
+
+<h2 id="2-more-nested-abstractions-py">2. More nested abstractions.py</h2>
+
+<pre><code class="language-python">import inspect
+
+import logging
+import structlog
+
+# TODO: configuration of structure logs (see my other gists)
+
+def extract_status_code(exc):
+    return exc.response['ResponseMetadata']['HTTPStatusCode'] if hasattr(exc, 'response') else 500
+
+
+def get_function_name(steps=2):
+    &quot;&quot;&quot;
+    The 'steps' indicate how far back in the stack to traverse.
+
+    Example A...
+
+    0: get_function_name()
+    1: log_it()
+    2: whatever called log_it()
+
+    Example B...
+
+    0: get_function_name()
+    1: log_it()
+    2. log_exception()
+    3: whatever called log_exception()
+    
+    It gets tricky when you have a function nested inside of another function
+    and even more tricky when that nested function is called at different
+    levels.
+    &quot;&quot;&quot;
+    return inspect.stack()[steps].function
+
+
+def log_it(msg, steps=2, level='error', **kwargs):
+    &quot;&quot;&quot;Abstraction to make logging generic information easier to manage.&quot;&quot;&quot;
+    
+    log_level = getattr(logger, level)
+    log_level(msg, fn=get_function_name(steps=steps), **kwargs)
+
+
+def log_exception(exc, msg='exception caught', steps=3, **kwargs):
+    &quot;&quot;&quot;AWS exceptions don't always have a code. So we protect against that.&quot;&quot;&quot;
+    
+    has_code = hasattr(exc, 'code')
+
+    exc_data = {'exc_class': type(exc),
+                'exc_type': exc.__class__.__name__,
+                'exc_msg': str(exc),
+                'err_code': exc.code if has_code else extract_status_code(exc)}
+
+    log_it(msg, steps=steps, **exc_data, **kwargs)
+    
+&quot;&quot;&quot;
+Alternative version that moves some things around to accommodate needing to record metrics
+and not wanting to have to look back up the stack trace multiple times...
+
+def log_it(message, steps=2, level='error', fn=False, metric_name='log', **kwargs):
+    &quot;&quot;&quot;Abstraction to make general instrumentation (logs/metrics) easier to manage.&quot;&quot;&quot;
+
+    if not fn:
+        # log_exception will always provide a fn (function name)
+        # meaning log_it was called directly
+        fn = get_function_name(steps=steps)
+
+    metrics.increment(metric_name, tags={'msg': message, 'level': level, 'func': fn, **kwargs})
+
+    # prevent log_level call with func keyword argument from exploding
+    # as func will sometimes be provided via kwargs object
+    kwargs.pop('func', None)
+
+    log_level = getattr(logger, level)
+    log_level(message, func=fn, **kwargs)
+
+
+def log_exception(exc, msg='exception caught', trigger_type='expected', **kwargs):
+    &quot;&quot;&quot;Abstraction to make exception instrumentation easier to manage.&quot;&quot;&quot;
+
+    fn = get_function_name(steps=2)
+
+    has_code = hasattr(exc, 'code')
+    err_code = exc.code if has_code else extract_status_code(exc)
+
+    exc_data = {'exc_class': type(exc),
+                'exc_type': exc.__class__.__name__,
+                'exc_msg': str(exc),
+                'err_code': err_code}
+
+    metric_tags = {'type': trigger_type,
+                   'func': fn,
+                   'msg': msg,
+                   **exc_data,
+                   **kwargs}
+
+    log_it(msg, fn=fn, metric_name='exception', **metric_tags)
+&quot;&quot;&quot;
+</code></pre>
+
+<h2 id="tornado-unhandled-exception-function-py">Tornado Unhandled Exception Function.py</h2>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+The log abstractions can be used along with tornado to make tracking unhandled exceptions easier
+&quot;&quot;&quot;
+
+class AuthBaseHandler(BaseHandler):
+    def write_error(self, status_code, **kwargs):
+        if kwargs.get('exc_info'):
+            # we're dealing with an unhandled exception
+
+            stack_trace = '\n'.join([line for line in traceback.format_exception(*kwargs['exc_info'])])
+            exc = kwargs['exc_info'][1]
+            log_exception(exc, msg='unhandled exception', trigger_type='unexpected', stack=stack_trace)
+
+            self.set_status(status_code)
+            self.write({'state': 'error',
+                        'code': status_code,
+                        'message': 'unknown exception'})
+</code></pre>
+
+</div>
+</body>
+</html>

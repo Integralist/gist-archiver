@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Made a super quick bookmarklet for displaying the current screen dimensions for Chrome</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="made-a-super-quick-bookmarklet-for-displaying-the-current-screen-dimensions-for-chrome">Made a super quick bookmarklet for displaying the current screen dimensions for Chrome</h1>
+
+<h2 id="bookmarklet-screendimensions-js">bookmarklet-screendimensions.js</h2>
+
+<pre><code class="language-javascript">javascript:(function(w, d){
+    var el = d.createElement('div');
+        el.setAttribute('style', 'position: fixed; right: 1em; top: 0; background-color: red; color: white; padding: 5px; z-index: 1000;');
+    el.innerHTML = d.documentElement.clientWidth;
+    d.body.appendChild(el);
+    w.addEventListener('resize', function(){
+        el.innerHTML = d.documentElement.clientWidth;
+    }, false);
+}(window, window.document));
+
+// minified version
+/* 
+javascript:(function(w,d){var el=d.createElement(&quot;div&quot;);el.setAttribute(&quot;style&quot;,&quot;position: fixed; right: 1em; top: 0; background-color: red; color: white; padding: 5px; z-index: 1000;&quot;);el.innerHTML=d.documentElement.clientWidth;d.body.appendChild(el);w.addEventListener(&quot;resize&quot;,function(){el.innerHTML=d.documentElement.clientWidth},false)})(window,window.document);
+*/
+</code></pre>
+
+</div>
+</body>
+</html>

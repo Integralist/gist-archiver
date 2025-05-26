@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Mock Response via RoundTripper interface] #go #golang #mock #testing #roundtripper #network #http #client</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-mock-response-via-roundtripper-interface-go-golang-mock-testing-roundtripper-network-http-client">[Golang Mock Response via RoundTripper interface] #go #golang #mock #testing #roundtripper #network #http #client</h1>
+
+<h2 id="0-readme-md">0. README.md</h2>
+
+<pre><code class="language-markdown">## 2025 Update
+
+Here's the latest approach I've used:
+https://github.com/fastly/cli/pull/1374/commits/98742dcfebe896e7b97bfbdb8f72906aede71594
+
+First, the test itself:
+
+```go
+// pkg/commands/domainv1/domain_test.go
+package domainv1_test
+
+import (
+	&quot;bytes&quot;
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;net/http&quot;
+	&quot;testing&quot;
+
+	v1 &quot;github.com/fastly/go-fastly/v9/fastly/domains/v1&quot;
+
+	root &quot;github.com/fastly/cli/pkg/commands/domainv1&quot;
+	&quot;github.com/fastly/cli/pkg/testutil&quot;
+)
+
+func TestDomainV1Create(t *testing.T) {
+	fqdn := &quot;www.example.com&quot;
+	sid := &quot;123&quot;
+	did := &quot;domain-id&quot;
+
+	scenarios := []testutil.CLIScenario{
+		{
+			Args:      &quot;&quot;,
+			WantError: &quot;error parsing arguments: required flag --fqdn not provided&quot;,
+		},
+		{
+			Args: fmt.Sprintf(&quot;--fqdn %s --service-id %s&quot;, fqdn, sid),
+			Client: &amp;http.Client{
+				Transport: &amp;testutil.MockRoundTripper{
+					Response: &amp;http.Response{
+						StatusCode: http.StatusOK,
+						Status:     http.StatusText(http.StatusOK),
+						Body: io.NopCloser(bytes.NewReader(testutil.GenJSON(v1.Data{
+							DomainID:  did,
+							FQDN:      fqdn,
+							ServiceID: &amp;sid,
+						}))),
+					},
+				},
+			},
+			WantOutput: fmt.Sprintf(&quot;SUCCESS: Created domain '%s' (domain-id: %s, service-id: %s)&quot;, fqdn, did, sid),
+		},
+	}
+	testutil.RunCLIScenarios(t, []string{root.CommandName, &quot;create&quot;}, scenarios)
+}
+</code></pre>
+
+<p>Second, the supporting test util functions:</p>
+
+<pre><code class="language-go">// pkg/testutil/client.go
+
+package testutil
+
+import (
+  &quot;encoding/json&quot;
+  &quot;net/http&quot;
+)
+
+// MockRoundTripper implements [http.RoundTripper] for mocking HTTP responses
+type MockRoundTripper struct {
+	Response *http.Response
+	Err      error
+}
+
+// RoundTrip executes a single HTTP transaction, returning a Response for the
+// provided Request.
+func (m *MockRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	return m.Response, m.Err
+}
+
+// GenJSON returns JSON encoding of data, or empty object in case of an error.
+func GenJSON(data any) []byte {
+	b, err := json.Marshal(data)
+	if err != nil {
+		return []byte(&quot;{}&quot;)
+	}
+	return b
+}
+</code></pre>
+
+<p>Third, modified scenario codebase:</p>
+
+<pre><code class="language-go">// pkg/testutil/scenarios.go
+
+var acf global.APIClientFactory
+if scenario.Client != nil {
+  acf = func(_, _ string, _ bool) (api.Interface, error) {
+    fc, err := fastly.NewClientForEndpoint(&quot;no-key&quot;, &quot;api.example.com&quot;)
+    if err != nil {
+      return nil, fmt.Errorf(&quot;failed to mock fastly.Client: %w&quot;, err)
+    }
+    fc.HTTPClient = scenario.Client
+    return fc, nil
+  }
+} else {
+  acf = mock.APIClient(scenario.API)
+}
+opts.APIClientFactory = acf
+</code></pre>
+
+<pre><code>
+## 1. Golang Mock Response via RoundTripper interface.go
+
+```go
+package main
+
+import (
+	&quot;bytes&quot;
+	&quot;fmt&quot;
+	&quot;io/ioutil&quot;
+	&quot;net/http&quot;
+	&quot;os&quot;
+	&quot;time&quot;
+)
+
+type MockRoundTripper struct{}
+
+func (rt MockRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	fmt.Printf(&quot;http.Request: %+v\n&quot;, req)
+
+	res := &amp;http.Response{
+		StatusCode: 404,
+		Body:       ioutil.NopCloser(bytes.NewBufferString(&quot;Not Found!?&quot;)),
+		Header:     make(http.Header),
+	}
+
+	return res, nil
+}
+
+func main() {
+	httpclient := &amp;http.Client{
+		Timeout:   time.Second * 10,
+		Transport: MockRoundTripper{},
+	}
+
+	response, err := httpclient.Get(&quot;https://www.integralist.co.uk/&quot;)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	fmt.Println(string(body))
+	fmt.Println(response.Status)
+}
+</code></pre>
+
+<h2 id="2-golang-mock-response-via-roundtripper-interface-abstraction-layer-go">2. Golang Mock Response via RoundTripper interface (abstraction layer).go</h2>
+
+<pre><code class="language-go">// modified from https://gist.github.com/jarcoal/8940980
+//
+
+package main
+
+import (
+	&quot;bytes&quot;
+	&quot;fmt&quot;
+	&quot;io/ioutil&quot;
+	&quot;net/http&quot;
+	&quot;os&quot;
+	&quot;time&quot;
+)
+
+type Responder func(*http.Request) (*http.Response, error)
+
+type MockRoundTripperMultiples struct {
+	host       string
+	responders map[string]Responder
+}
+
+func (rt MockRoundTripperMultiples) RoundTrip(req *http.Request) (*http.Response, error) {
+	key := req.Method + &quot; &quot; + req.URL.String()
+
+	for k, r := range rt.responders {
+		if k != key {
+			continue
+		}
+		return r(req)
+	}
+
+	return http.DefaultTransport.RoundTrip(req)
+}
+
+func (rt *MockRoundTripperMultiples) RegisterResponder(method, path string, responder Responder) {
+	if rt.responders == nil {
+		rt.responders = make(map[string]Responder)
+	}
+	rt.responders[method+&quot; &quot;+rt.BuildURL(path)] = responder
+}
+
+func (rt *MockRoundTripperMultiples) BuildURL(path string) string {
+	return &quot;https://&quot; + rt.host + path
+}
+
+func requestOK(*http.Request) (*http.Response, error) {
+	return &amp;http.Response{
+		StatusCode: 200,
+		Body:       ioutil.NopCloser(bytes.NewBufferString(&quot;OK!!!&quot;)),
+		Header:     make(http.Header),
+	}, nil
+}
+
+func requestBad(*http.Request) (*http.Response, error) {
+	return &amp;http.Response{
+		StatusCode: 400,
+		Body:       ioutil.NopCloser(bytes.NewBufferString(&quot;Bad Request!??&quot;)),
+		Header:     make(http.Header),
+	}, nil
+}
+
+func get(url string, httpclient *http.Client) *http.Response {
+	res, err := httpclient.Get(url)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	return res
+}
+
+func read(url string, httpclient *http.Client) {
+	res := get(url, httpclient)
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+	defer res.Body.Close()
+
+	fmt.Println(string(body))
+	fmt.Println(res.Status)
+}
+
+func main() {
+	transport := &amp;MockRoundTripperMultiples{
+		host: &quot;www.integralist.co.uk&quot;,
+	}
+	transport.RegisterResponder(&quot;GET&quot;, &quot;/good&quot;, requestOK)
+	transport.RegisterResponder(&quot;GET&quot;, &quot;/bad&quot;, requestBad)
+
+	httpclient := &amp;http.Client{
+		Timeout:   time.Second * 10,
+		Transport: transport,
+	}
+
+	read(&quot;https://www.integralist.co.uk/good&quot;, httpclient)
+	read(&quot;https://www.integralist.co.uk/bad&quot;, httpclient)
+
+	// no registered 'responder' matches the following URL so it will fallback to
+	// using http.DefaultTransport.RoundTrip implementation to make a 'real'
+	// network request.
+	read(&quot;https://www.integralist.co.uk/about&quot;, httpclient)
+}
+</code></pre>
+
+</div>
+</body>
+</html>

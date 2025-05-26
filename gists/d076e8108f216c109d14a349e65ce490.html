@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Separate the musical instruments from a song and make an instrumental</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="separate-the-musical-instruments-from-a-song-and-make-an-instrumental">Separate the musical instruments from a song and make an instrumental</h1>
+
+<h2 id="readme-md">README.md</h2>
+
+<pre><code class="language-markdown">Download the demucs app:  
+https://github.com/CarlGao4/Demucs-Gui/releases
+
+Open the app and press &quot;Load&quot;.
+
+Click on the &quot;File queue&quot; tab.
+
+Drag and drop your mp3 file into the app window.
+
+Click on &quot;Start separation&quot;.
+
+Once finished, you'll find a folder in the same directory as your mp3 file.
+
+This folder will contain separate `.flac` music files for the vocals, drums, guitar, bass etc.
+
+You can then recombine the song, omitting the vocals, using the following terminal command:
+
+</code></pre>
+
+<p>brew install ffmpeg
+ffmpeg -i other.flac -i bass.flac -i drums.flac -filter_complex &ldquo;[0:a][1:a][2:a]amerge=inputs=3[aout]&rdquo; -map &ldquo;[aout]&rdquo; -ac 2 -c:a libmp3lame instrumental.mp3</p>
+
+<pre><code>
+&gt; [!NOTE]
+&gt; Replace/update the `-i other.flac`, `-i bass.flac` etc, depending on what parts you want put back together.
+
+The `ffmpeg` command will generate an `instrumental.mp3` file.
+</code></pre>
+
+</div>
+</body>
+</html>

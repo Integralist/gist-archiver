@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Sync Pool Golang] #pool #concurrency #go #golang</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="sync-pool-golang-pool-concurrency-go-golang">[Sync Pool Golang] #pool #concurrency #go #golang</h1>
+
+<h2 id="sync-pool-go">Sync Pool.go</h2>
+
+<pre><code class="language-go">// http://www.akshaydeo.com/blog/2017/12/23/How-did-I-improve-latency-by-700-percent-using-syncPool/
+
+import (
+	&quot;fmt&quot;
+	&quot;sync&quot;
+	&quot;time&quot;
+)
+
+// Pool for our struct A
+var pool *sync.Pool
+
+// A dummy struct with a member 
+type A struct {
+	Name string
+}
+
+// Func to init pool
+func initPool() {
+	pool = &amp;sync.Pool {
+		New: func()interface{} {
+			fmt.Println(&quot;Returning new A&quot;)
+			return new(A)
+		},
+	}
+}
+
+// Main func
+func main() {
+	// Initializing pool
+	initPool()
+
+	// Get hold of instance one
+	one := pool.Get().(*A)
+
+	one.Name = &quot;first&quot;
+
+	fmt.Printf(&quot;one.Name = %s\n&quot;, one.Name)
+
+	// Submit back the instance after using
+	pool.Put(one)
+
+	// Now the same instance becomes usable by another routine without allocating it again
+  	//
+    // Note: depending on the data type in your pool, you might want to make sure that you
+    // zero out the data in the object before putting it back into the pool.
+    //
+    // An example of this would be a complex/expensive object creation for user authentication.
+    // But putting back a user object with a username/password would be bad as the next request
+    // would pull those values out of the pool.
+    //
+    // Meaning, if you use the pool for reducing the overhead of recreating objects, then that's
+    // fine but just be aware of making the pool dirty by putting back stateful objects.
+}
+</code></pre>
+
+</div>
+</body>
+</html>

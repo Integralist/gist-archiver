@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Generate golang documentation] #go #golang #bash #docs</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="generate-golang-documentation-go-golang-bash-docs">[Generate golang documentation] #go #golang #bash #docs</h1>
+
+<h2 id="generate-golang-documentation-bash">Generate golang documentation.bash</h2>
+
+<pre><code class="language-shell">#!/bin/bash
+
+set -e
+
+PACKAGE_LIST=&quot;&quot;
+for pkg in $(go list  ./...); do 
+	echo &quot;Generating $pkg ...&quot;
+	if [[ &quot;$pkg&quot; == *&quot;internal&quot;* ]]; then
+		# Skip internal packages
+		:
+	else
+		PACKAGE_LIST=&quot;$PACKAGE_LIST $pkg&quot;
+		rm -rf docs/$pkg
+		mkdir -p docs/$pkg
+		# Piping into tail to skip the go module warning
+		godoc -url=pkg/$pkg | tail -n +2 &gt; docs/$pkg/index.html
+	fi
+done
+
+# Following: https://rohanverma.net/blog/2020/11/24/generating-go-documentation/
+echo &quot;Generating gomarkdoc to pandoc ...&quot;
+gomarkdoc $PACKAGE_LIST &gt; docs/fastly-tinygo-docs.md
+pandoc docs/fastly-tinygo-docs.md \
+	--toc \
+	--metadata title=&quot;Fastly C@E TinyGo - User Docs&quot; \
+	-c https://unpkg.com/sakura.css/css/sakura.css \
+	--self-contained \
+	-o docs/fastly-tinygo-docs.html
+</code></pre>
+
+</div>
+</body>
+</html>

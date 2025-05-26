@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Python 3: Convert namedtuple into dict so we can convert it to json</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-3-convert-namedtuple-into-dict-so-we-can-convert-it-to-json">Python 3: Convert namedtuple into dict so we can convert it to json</h1>
+
+<h2 id="python-3-convert-namedtuple-into-dict-so-we-can-convert-it-to-json-py">Python 3: Convert namedtuple into dict so we can convert it to json.py</h2>
+
+<pre><code class="language-python">import json
+from collections import namedtuple
+
+x = namedtuple('_', ['language', 'country', 'locale'])(
+            'en',
+            'en-GV',
+            'en_US'
+        )
+
+nt = x._asdict()
+
+print('namedtuple:', nt) 
+
+# OrderedDict([('language', 'en'), ('country', 'en-GV'), ('locale', 'en_US')])
+
+# Note: if you want to print `nt` as a dict then you'll need to wrap it in a dict(nt) call
+
+z = json.dumps(nt)
+
+print('json dump:', z)
+
+# {&quot;language&quot;: &quot;en&quot;, &quot;country&quot;: &quot;en-GV&quot;, &quot;locale&quot;: &quot;en_US&quot;}
+</code></pre>
+
+</div>
+</body>
+</html>

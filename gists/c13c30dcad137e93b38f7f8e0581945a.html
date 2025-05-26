@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[nginx rate limiting is weird] #nginx #ratelimit</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="nginx-rate-limiting-is-weird-nginx-ratelimit">[nginx rate limiting is weird] #nginx #ratelimit</h1>
+
+<h2 id="nginx-rate-limiting-is-weird-md">nginx rate limiting is weird.md</h2>
+
+<pre><code class="language-markdown">nginx rate limiting is weird
+
+it takes input in requests per second
+
+but that’s not how it rate limits
+
+instead it divides your limit into tenth of a second chunks
+
+so a rate limit of 10 req/s is actually 1 req / 0.1 s
+
+which means if you get 2 requests within 0.1 s, the second one will be rejected
+
+the best way to mitigate this is to allow a burst (this is what we do on webapp_waf) where you allow a burst of e.g. 10 reqs - meaning the first 10 requests wont be limited, but then if that rate is sustained future ones will be limited based on the tenth of a second bucketing
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>HTTP/2 notes (taken from https://www.nginx.com/wp-content/uploads/2015/09/NGINX_HTTP2_White_Paper_v4.pdf)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="http-2-notes-taken-from-https-www-nginx-com-wp-content-uploads-2015-09-nginx-http2-white-paper-v4-pdf">HTTP/2 notes (taken from <a href="https://www.nginx.com/wp-content/uploads/2015/09/NGINX_HTTP2_White_Paper_v4.pdf" target="_blank">https://www.nginx.com/wp-content/uploads/2015/09/NGINX_HTTP2_White_Paper_v4.pdf</a>)</h1>
+
+<h2 id="http2-md">http2.md</h2>
+
+<pre><code class="language-markdown">## General features
+
+HTTP/2 adds five key features:
+
+- Single, Persistent Connection - Only one connection is used for each web page, as
+shown in the figure. The same connection is used as long as the web page is open.
+- Multiplexing - Requests and replies are prioritized and multiplexed onto separate
+streams within the single connection. When the connection is stable, “head of line
+blocking” - making every transfer wait for all previous transfers to complete - is
+eliminated.
+- Header Compression and Binary Encoding - Headers are compressed using a new,
+separate, secure standard, HPACK compression, which reduces the amount of data
+crossing the network. Header information is sent in compact, binary format, not as
+plain text.
+- Prioritization - Requests are assigned levels of dependency and requests at the same
+level are prioritized. The server uses this information to order and assign resources to
+fulfilling requests.
+- SSL Encryption - HTTP/2 allows you to add SSL support with, in some cases, no
+performance penalty, making your site more secure.
+
+## SSL
+
+How does HTTP/2 overcome the performance overhead imposed by SSL on HTTP/1.x? There
+are four key techniques:
+
+1. Having a single connection minimizes SSL handshaking.
+2. Headers are compressed, reducing the time needed to send them.
+3. Multiplexing means file transfers don’t wait on other requests.
+4. Files don’t need to be in-lined, concatenated, or sprited, so caching can work
+optimally.
+
+When compared to a non-SSL implementation, there is still SSL performance overhead for
+authenticating the single connection and for encrypting and decrypting data, but this remaining overhead should be more or less offset by the performance improvements in HTTP/2.
+
+&gt; Note: The HTTP/2 specification also includes server push, in which the server sends files listed in a page’s HTML before they’re requested
+</code></pre>
+
+</div>
+</body>
+</html>

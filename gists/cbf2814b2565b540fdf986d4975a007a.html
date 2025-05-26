@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang: panic vs os.Exit] #go #golang #panic</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-panic-vs-os-exit-go-golang-panic">[Golang: panic vs os.Exit] #go #golang #panic</h1>
+
+<h2 id="panic-vs-os-exit-md">Panic vs os.Exit.md</h2>
+
+<pre><code class="language-markdown">`panic` signals &quot;the programmer has made a fundamental mistake and execution cannot continue safely&quot;, whereas `os.Exit` signals &quot;the programmer has decided that the process should terminate here&quot; — different meanings. Also, important difference in behavior: `panic` will unwind the callstack, which means it will call any pending `defer` statements; `os.Exit` will just do a hard kill, so it won't.
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Generic JavaScript library</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="generic-javascript-library">Generic JavaScript library</h1>
+
+<h2 id="generic-javascript-library-1">Generic JavaScript library</h2>
+
+<pre><code class="language-text">(function(window, document, undef) {
+	
+	// Generic library
+	var mylib = (function(){
+	
+		// Private implementation
+		var __mylib = {
+			
+			/**
+			 * Following property indicates whether the current rendering engine is Trident (i.e. Internet Explorer)
+			 * 
+			 * @return v { Integer|undefined } if IE then returns the version, otherwise returns 'undefined' to indicate NOT a IE browser
+			 */
+			isIE: (function() {
+				var undef,
+					 v = 3,
+					 div = document.createElement('div'),
+					 all = div.getElementsByTagName('i');
+			
+				while (
+					div.innerHTML = '&lt;!--[if gt IE ' + (++v) + ']&gt;&lt;i&gt;&lt;/i&gt;&lt;![endif]--&gt;',
+					all[0]
+				);
+			
+				return v &gt; 4 ? v : undef;
+			}()),
+			
+			// Errors
+			errors: [],
+			
+			/**
+			 * Listens for when the DOM is ready to be interacted with.
+			 * Then processes queued functions.
+			 * 
+			 * @param fn { Function } a function to be executed when the DOM is ready.
+			 * @return anonymous { Function } immediately-invoked function expression which returns a Function to be executed.
+			 */
+			domready: (function(){
+
+				// Variables used throughout this script
+				var queue = [],
+					 exec,
+					 loaded,
+					 original_onload;
+				
+				// Private inner function which is called once DOM is loaded.
+				function process() {
+					// Let the script know the DOM is loaded
+					loaded = true;
+					
+					// Cleanup
+					if (document.addEventListener) {
+						document.removeEventListener(&quot;DOMContentLoaded&quot;, process, false);
+					}
+				
+					// Move the zero index item from the queue and set 'exec' equal to it
+					while ((exec = queue.shift())) {
+						// Now execute the current function
+						exec();
+					}
+				}
+			
+				return function(fn) {
+					// if DOM is already loaded then just execute the specified function
+					if (loaded) { 
+						return fn();
+					}
+					
+					if (document.addEventListener) {
+						// Any number of listeners can be set for when this event fires,
+						// but just know that this event only ever fires once
+						document.addEventListener(&quot;DOMContentLoaded&quot;, process, false);
+					} else {
+						// All browsers support document.readyState (except Firefox 3.5 and lower, but they support DOMContentLoaded event)
+						/loaded|complete/.test(document.readyState) ? process() : setTimeout(&quot;__mylib.domready(&quot; + fn + &quot;)&quot;, 10);
+					}
+					
+					// Fall back to standard window.onload event
+					// But make sure to store the original window.onload in case it was already set by another script
+					original_onload = window.onload;
+					
+					window.onload = function() {
+					
+						// Note: calling process() now wont cause any problem for modern browsers.
+						// Because the function would have already been called when the DOM was loaded.
+						// Meaning the queue of functions have already been executed
+						process();
+						
+						// Check for original window.onload and execute it
+						if (original_onload) {
+							original_onload();
+						}
+						
+					};
+					
+					// As the DOM hasn't loaded yet we'll store this function and execute it later
+					queue.push(fn);
+				};
+				
+			}()),
+			
+			/**
+			 * XMLHttpRequest abstraction.
+			 * 
+			 * @return xhr { XMLHttpRequest|ActiveXObject } a new instance of either the native XMLHttpRequest object or the corresponding ActiveXObject
+			 */
+		 	xhr: (function() {
+	
+				// Create local variable which will cache the results of this function
+				var xhr;
+				
+				return function() {
+					// Check if function has already cached the value
+					if (xhr) {
+						// Create a new XMLHttpRequest instance
+						return new xhr();
+					} else {
+						// Check what XMLHttpRequest object is available and cache it
+						xhr = (!window.XMLHttpRequest) ? function() {
+							return new ActiveXObject(
+								// Internet Explorer 5 uses a different XMLHTTP object from Internet Explorer 6
+								(__mylib.isIE &lt; 6) ? &quot;Microsoft.XMLHTTP&quot; : &quot;MSXML2.XMLHTTP&quot;
+							);
+						} : window.XMLHttpRequest;
+						
+						// Return a new XMLHttpRequest instance
+						return new xhr();
+					}
+				};
+				
+			}()),
+			
+			/**
+			 * A basic AJAX method.
+			 * 
+			 * @param settings { Object } user configuration
+			 * @return undefined {  } no explicitly returned value
+			 */
+		 	ajax: function(settings) {
+		 	
+		 		// JavaScript engine will 'hoist' variables so we'll be specific and declare them here
+		 		var xhr, url, requestDone;
+		 		
+		 		// Load the config object with defaults, if no values were provided by the user
+				config = {
+					// The type of HTTP Request
+					method: settings.method || 'POST',
+					
+					// The data to POST to the server
+					data: settings.data || '',
+				
+					// The URL the request will be made to
+					url: settings.url || '',
+				
+					// How long to wait before considering the request to be a timeout
+					timeout: settings.timeout || 5000,
+				
+					// Functions to call when the request fails, succeeds, or completes (either fail or succeed)
+					onComplete: settings.onComplete || function(){},
+					onError: settings.onError || function(){},
+					onSuccess: settings.onSuccess || function(){},
+				
+					// The data type that'll be returned from the server
+					// the default is simply to determine what data was returned from the and act accordingly.
+					dataType: settings.dataType || ''
+				};
+				
+				// Create new cross-browser XMLHttpRequest instance
+				xhr = __mylib.xhr();
+				
+				// Open the asynchronous request
+				xhr.open(config.method, config.url, true);
+				
+				// Determine the success of the HTTP response
+				function httpSuccess(r) {
+					try {
+						// If no server status is provided, and we're actually
+						// requesting a local file, then it was successful
+						return !r.status &amp;&amp; location.protocol == 'file:' ||
+						
+						// Any status in the 200 range is good
+						( r.status &gt;= 200 &amp;&amp; r.status &lt; 300 ) ||
+						
+						// Successful if the document has not been modified
+						r.status == 304 ||
+						
+						// Safari returns an empty status if the file has not been modified
+						navigator.userAgent.indexOf('Safari') &gt;= 0 &amp;&amp; typeof r.status == 'undefined';
+					} catch(e){
+						// Throw a corresponding error
+						throw new Error(&quot;httpSuccess = &quot; + e);
+					}
+					
+					// If checking the status failed, then assume that the request failed too
+					return false;
+				}
+				
+				// Extract the correct data from the HTTP response
+				function httpData(r, type) {
+				
+					// Get the content-type header
+					var ct = r.getResponseHeader(&quot;content-type&quot;),
+						 data = !type &amp;&amp; ct &amp;&amp; ct.indexOf(&quot;xml&quot;) &gt;= 0; // If no default type was provided, determine if some form of XML was returned from the server
+					
+					// Get the XML Document object if XML was returned from the server,
+					// otherwise return the text contents returned by the server
+					data = (type == &quot;xml&quot; || data) ? r.responseXML : r.responseText;
+					
+					// If the specified type is &quot;script&quot;, execute the returned text response as if it was JavaScript
+					if (type == &quot;script&quot;) {
+						eval.call(window, data);
+					}
+					
+					// Return the response data (either an XML Document or a text string)
+					return data;
+					
+				}
+				
+				// Initalize a callback which will fire within the timeout range, cancelling the request (if it has not already occurred)
+				window.setTimeout(function() {
+					requestDone = true;
+				}, config.timeout);
+				
+				// Watch for when the state of the document gets updated
+				xhr.onreadystatechange = function() {
+				
+					// Wait until the data is fully loaded, and make sure that the request hasn't already timed out
+					if (xhr.readyState == 4 &amp;&amp; !requestDone) {
+						
+						// Check to see if the request was successful
+						if (httpSuccess(xhr)) {
+							// Execute the success callback
+							config.onSuccess(httpData(xhr, config.type));
+						}
+						// Otherwise, an error occurred, so execute the error callback
+						else {
+							config.onError(httpData(xhr, config.type));
+						}
+			
+						// Call the completion callback
+						config.onComplete();
+						
+						// Clean up after ourselves, to avoid memory leaks
+						xhr = null;
+						
+					} else if (requestDone &amp;&amp; xhr.readyState != 4) {
+						// If the script timed out then keep a log of it so the developer can query this and handle any exceptions
+						__mylib.errors.push(url + &quot; { timed out } &quot;);
+						
+						// Bail out of the request immediately
+						xhr.onreadystatechange = null;
+					}
+					
+				};
+				
+				// Get if we should POST or GET...
+				if (config.data) {
+					// Settings
+					xhr.setRequestHeader(&quot;Content-Type&quot;,&quot;application/x-www-form-urlencoded&quot;);
+					
+					// Establish the connection to the server
+					xhr.send(config.data);
+				} else {					
+					// Establish the connection to the server
+					xhr.send(null);
+				}
+	
+			},
+			
+			// Event management
+			events: {
+				
+				/**
+				 * 
+				 */
+				prepareHandler: function(fn, model) {
+					var e = (model) ? e : window.event;
+					return function(e) {
+						// Execute handler function, passing it a normalised version of the event object
+						fn(__mylib.events.standardize(e));
+					};
+				},
+				
+				/**
+				 * 
+				 */
+				checkHandler: function(fn, operation, model) {
+					
+					var ch = this.checkHandler, list, map, handler, i, index = -1;
+					
+					// Maintain a static function list
+					// If no list property exists then we'll create one
+					if (!ch.list) {
+						ch.list = [];
+					}
+					list = ch.list;
+					
+					// Loop through our list looking for the item
+					// We cache the handler so we don't have to keep checking the 'standardise' method every time the handler is called
+					for (i = list.length - 1; i &gt;= 0; i -= 1) {
+						map = list[i];
+						if (map &amp;&amp; map.original === fn) {
+							index = i;
+							handler = map.generated;
+							break;
+						}
+					}
+					
+					if (operation == 'remove') {
+						
+						if (index !== -1) {
+							list[index].counter -= 1;
+							if (list[index].counter &lt;= 0) {
+								delete list[index];
+							}
+						}
+						
+					} else if(operation == 'add') {
+						
+						if (index !== -1) {
+							list[index].counter += 1;
+						} else {
+							handler = __mylib.events.prepareHandler(fn, model);
+							list[list.length] = {
+								original: fn,
+								generated: handler,
+								counter: 1
+							};
+						}
+						
+					}
+					
+					console.log(list);
+					return handler;
+					
+				},
+			
+				/**
+				 * The add method allows us to assign a function to execute when an event of a specified type occurs on a specific element
+				 * 
+				 * @param element { Element/Node } the element that will have the event listener attached
+				 * @param eventType { String } the event type, e.g. 'click' that will trigger the event handler
+				 * @param handler { Function } the function that will execute as the event handler
+				 * @return __add { Function } this immediately invoked function expression returns a bridge function which calls the private implementation
+				 */
+				add: (function() {
+					
+					var __add, eventType, fn;
+					
+					if (document.addEventListener) {
+						
+						// Rewrite add method to use W3C event listener
+						__add = function(element, eventType, handler) {
+							
+							// Because we're using an anonymous function below (within the addEventListener method - this is so we can standardise the event object),
+							// removing the event listener wont work because you must use a Function Declaration/Expression (not an anonymous function).
+							// A way to explain this would be: var x = {}, y = {}; (x !== y) they may *look* the same but there is no way to tell.
+							// So to work around this we need to prepare(store) the handler before specifying it as the handler.
+							
+							fn = __mylib.events.checkHandler(handler, 'add', 1);
+							
+							eventType = eventType.toLowerCase();
+							element.addEventListener(eventType, fn, false);
+							
+						};
+						
+					} 
+					
+					else if (document.attachEvent) {
+					
+						// Rewrite add method to use Internet Explorer event listener
+						__add = function(element, eventType, handler) {
+						
+							// Keep reference to the handler
+							fn = __mylib.events.checkHandler(handler, 'add', 0);
+							
+							eventType = eventType.toLowerCase();
+							element.attachEvent(&quot;on&quot; + eventType, fn);
+							
+						};
+						
+					}
+					
+					return function(element, eventType, handler) {
+						__add(element, eventType, handler);
+					};
+					
+				}()),
+				
+				/**
+				 * The remove method allows us to remove previously assigned code from an event
+				 * 
+				 * @param element { Element/Node } the element that will have the event listener detached
+				 * @param eventType { String } the event type, e.g. 'click' that triggered the event handler
+				 * @param callback { Function } the function that was to be executed as the event handler
+				 * @return __remove { Function } this immediately invoked function expression returns a bridge function which calls the private implementation
+				 */
+				remove: (function() {
+					
+					var __remove, eventType, fn;
+					
+					if (document.removeEventListener) {
+						
+						// Rewrite remove method to use W3C event listener
+						__remove = function(element, eventType, handler) {
+							
+							fn = __mylib.events.checkHandler(handler, 'remove', 1);
+							eventType = eventType.toLowerCase();
+							element.removeEventListener(element, eventType, handler);
+							
+						};
+						
+					} 
+					
+					else if (document.detachEvent) {
+					
+						// Rewrite remove method to use Internet Explorer event listener
+						__remove = function(element, eventType, handler) {
+							
+							fn = __mylib.events.checkHandler(handler, 'remove', 0);
+							eventType = eventType.toLowerCase();
+							element.detachEvent(&quot;on&quot; + eventType, handler);
+							
+						};
+						
+					}
+					
+					return function(element, eventType, handler) {
+						__remove(element, eventType, handler);
+					};
+					
+				}()),
+								
+				/**
+				 * The standardize method produces a unified set of event properties, regardless of the browser
+				 * 
+				 * @param event { Object } the event object associated with the event that was triggered
+				 * @return anonymous { Object } an un-named object literal with the relevant event properties normalised
+				 */
+			 	standardize: function(event) { 
+				
+					// These two methods, defined later, return the current position of the 
+					// mouse pointer, relative to the document as a whole, and relative to the 
+					// element the event occurred within 
+					var page = this.getMousePositionRelativeToDocument(event),
+						 offset = this.getMousePositionOffset(event);
+					
+					// Let's stop events from firing on element nodes above the current...
+					
+					// W3C method 
+					if (event.stopPropagation) { 
+						event.stopPropagation(); 
+					} 
+					
+					// Internet Explorer method 
+					else { 
+						event.cancelBubble = true; 
+					} 
+					
+					// We return an object literal containing seven properties and one method 
+					return { 
+					
+						// The target is the element the event occurred on 
+						target: this.getTarget(event), 
+						
+						// The relatedTarget is the element the event was listening for, 
+						// which can be different from the target if the event occurred on an 
+						// element located within the relatedTarget element in the DOM 
+						relatedTarget: this.getRelatedTarget(event), 
+						
+						// If the event was a  keyboard- related one, key returns the character 
+						key: this.getCharacterFromKey(event), 
+						
+						// Return the x and y coordinates of the mouse pointer, 
+						// relative to the document 
+						pageX: page.x, 
+						pageY: page.y, 
+						
+						// Return the x and y coordinates of the mouse pointer, 
+						// relative to the element the current event occurred on 
+						offsetX: offset.x, 
+						offsetY: offset.y, 
+						
+						// The preventDefault method stops the default event of the element 
+						// we're acting upon from occurring. If we were listening for click 
+						// events on a hyperlink, for example, this method would stop the 
+						// link from being followed 
+						preventDefault: function() {
+						 
+						 	// W3C method
+							if (event.preventDefault) {
+								event.preventDefault();
+							} 
+							
+							// Internet Explorer method
+							else { 
+								event.returnValue = false; 
+							} 
+							
+						}
+						
+					};
+					
+				},
+				
+				/**
+				 * The getTarget method locates the element the event occurred on
+				 * 
+				 * @param event { Object } the event object associated with the event that was triggered
+				 * @return target { Element/Node } the element that was the target of the triggered event
+				 */
+			 	getTarget: function(event) { 
+				
+					// Internet Explorer value is srcElement, W3C value is target 
+					var target = event.srcElement || event.target; 
+					
+					// Fix legacy Safari bug which reports events occurring on a text node instead of an element node 
+					if (target.nodeType == 3) { // 3 denotes a text node 
+						target = target.parentNode; // Get parent node of text node 
+					} 
+					
+					// Return the element node the event occurred on 
+					return target;
+					 
+				},
+				
+				/**
+				 * The getCharacterFromKey method returns the character pressed when keyboard events occur. 
+				 * You should use the keypress event as others vary in reliability
+				 * 
+				 * @param event { Object } the event object associated with the event that was triggered
+				 * @return character { String } the character pressed when keyboard events occurred
+				 */
+			 	getCharacterFromKey: function(event) {
+				 
+					var character = &quot;&quot;; 
+					
+					// Internet Explorer 
+					if (event.keyCode) {
+						character = String.fromCharCode(event.keyCode); 
+					} 
+					
+					// W3C 
+					else if (event.which) {
+						character = String.fromCharCode(event.which); 
+					} 
+					
+					return character;
+					
+				},
+				
+				/**
+				 * The getMousePositionRelativeToDocument method returns the current mouse pointer position relative to the top left edge of the current page.
+				 * 
+				 * @param event { Object } the event object associated with the event that was triggered
+				 * @return anonymous { Object } the x and y coordinates
+				 */
+			 	getMousePositionRelativeToDocument: function(event) { 
+					
+					var x = 0, y = 0; 
+					
+					// pageX gets coordinates of pointer from left of entire document 
+					if (event.pageX) { 
+						x = event.pageX; 
+						y = event.pageY; 
+					} 
+					
+					// clientX gets coordinates from left of current viewable area 
+					// so we have to add the distance the page has scrolled onto this value 
+					else if (event.clientX) { 
+						x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft; 
+						y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop; 
+					}
+					
+					// Return an object literal containing the x and y mouse coordinates 
+					return { 
+						x: x, 
+						y: y 
+					};
+					
+				},
+				
+				/**
+				 * The getMousePositionOffset method returns the distance of the mouse pointer from the top left of the element the event occurred on
+				 * 
+				 * @param event { Object } the event object associated with the event that was triggered
+				 * @return anonymous { Object } the x and y coordinates of the mouse relative to the element
+				 */
+			 	getMousePositionOffset: function(event) {
+				 
+					var x = 0, y = 0; 
+				
+					if (event.layerX) { 
+						x = event.layerX; 
+						y = event.layerY; 
+					}
+					
+					// Internet Explorer proprietary
+					else if (event.offsetX) { 
+						x = event.offsetX; 
+						y = event.offsetY; 
+					} 
+					
+					// Returns an object literal containing the x and y coordinates of the mouse relative to the element the event fired on 
+					return { 
+						x: x, 
+						y: y 
+					};
+					
+				},
+				
+				/**
+				 * The getRelatedTarget method returns the element node the event was set up to fire on, 
+				 * which can be different from the element the event actually fired on
+				 * 
+				 * @param event { Object } the event object associated with the event that was triggered
+				 * @return relatedTarget { Element/Node } the element the event was set up to fire on
+				 */
+			 	getRelatedTarget: function(event) { 
+				
+					var relatedTarget = event.relatedTarget; 
+					
+					// With mouseover events, relatedTarget is not set by default 
+					if (event.type == &quot;mouseover&quot;) { 
+						relatedTarget = event.fromElement; 
+					} 
+					
+					// With mouseout events, relatedTarget is not set by default
+					else if (event.type == &quot;mouseout&quot;) { 
+						relatedTarget = event.toElement; 
+					}
+					
+					return relatedTarget; 
+					
+				}
+				
+			},
+			
+			utilities: {
+			
+				/**
+				 * The toCamelCase method takes a hyphenated value and converts it into a camel case equivalent.
+				 * e.g. margin-left becomes marginLeft. 
+				 * Hyphens are removed, and each word after the first begins with a capital letter.
+				 * 
+				 * @param hyphenatedValue { String } hyphenated string to be converted
+				 * @return result { String } the camel case version of the string argument
+				 */
+			 	toCamelCase: function(hyphenatedValue) { 
+					
+					var result = hyphenatedValue.replace(/-\D/g, function(character) { 
+						return character.charAt(1).toUpperCase(); 
+					}); 
+					
+					return result;
+					 
+				}, 
+				
+				/**
+				 * The toHyphens method performs the opposite conversion, taking a camel case string and converting it into a hyphenated one.
+				 * e.g. marginLeft becomes margin-left
+				 * 
+				 * @param camelCaseValue { String } camel cased string to be converted
+				 * @return result { String } the hyphenated version of the string argument
+				 */
+			 	toHyphens: function(camelCaseValue) { 
+					
+					var result = camelCaseValue.replace(/[A-Z]/g, function(character) { 
+						return ('-' + character.charAt(0).toLowerCase()); 
+					});
+				
+					return result; 
+
+				}
+				
+			},
+			
+			css: {
+			
+				/**
+				 * The getAppliedStyle method returns the current value of a specific CSS style property on a particular element
+				 * 
+				 * @param element { Element/Node } the element we wish to find the style value for
+				 * @param styleName { String } the specific style property we're interested in
+				 * @return style { String } the value of the style property found
+				 */
+			 	getAppliedStyle: function(element, styleName) {
+			 	 
+					var style = &quot;&quot;;
+					
+					if (window.getComputedStyle) { 
+						//  W3C specific method. Expects a style property with hyphens 
+						style = element.ownerDocument.defaultView.getComputedStyle(element, null).getPropertyValue(__mylib.utilities.toHyphens(styleName)); 
+					} 
+					
+					else if (element.currentStyle) { 
+						// Internet Explorer-specific method. Expects style property names in camel case 
+						style = element.currentStyle[__mylib.utilities.toCamelCase(styleName)]; 
+					}
+					  
+					return style;
+					
+				},
+				
+				/**
+				 * The getArrayOfClassNames method is a utility method which returns an array of all the CSS class names assigned to a particular element.
+				 * Multiple class names are separated by a space character
+				 * 
+				 * @param element { Element/Node } the element we wish to retrieve class names for
+				 * @return classNames { String } a list of class names separated with a space in-between
+				 */
+			 	getArrayOfClassNames: function(element) {
+			 	
+					var classNames = []; 
+					
+					if (element.className) { 
+						// If the element has a CSS class specified, create an array 
+						classNames = element.className.split(' '); 
+					} 
+					
+					return classNames;
+					
+				},
+				
+				/**
+				 * The addClass method adds a new CSS class of a given name to a particular element
+				 * 
+				 * @param element { Element/Node } the element we want to add a class name to
+				 * @param className { String } the class name we want to add
+				 * @return undefined {  } no explicitly returned value
+				 */
+			 	addClass: function(element, className) {
+			 	
+					// Get a list of the current CSS class names applied to the element 
+					var classNames = this.getArrayOfClassNames(element); 
+					
+					// Add the new class name to the list 
+					classNames.push(className);
+					
+					// Convert the list in space-separated string and assign to the element 
+					element.className = classNames.join(' '); 
+					
+				},
+				
+				/**
+				 * The removeClass method removes a given CSS class name from a given element
+				 * 
+				 * @param element { Element/Node } the element we want to remove a class name from
+				 * @param className { String } the class name we want to remove
+				 * @return undefined {  } no explicitly returned value
+				 */
+			 	removeClass: function(element, className) { 
+			 	
+					var classNames = this.getArrayOfClassNames(element),
+						 resultingClassNames = []; // Create a new array for storing all the final CSS class names in 
+			        
+					for (var index = 0, len = classNames.length; index &lt; len; index++) { 
+					
+						// Loop through every class name in the list 
+						if (className != classNames[index]) { 
+						
+							// Add the class name to the new list if it isn't the one specified 
+							resultingClassNames.push(classNames[index]); 
+							
+						} 
+						
+					}
+					  
+					// Convert the new list into a  space- separated string and assign it 
+					element.className = resultingClassNames.join(&quot; &quot;); 
+					
+				},
+				
+				/**
+				 * The hasClass method returns true if a given class name exists on a specific element, false otherwise
+				 * 
+				 * @param element { Element/Node } the element we want to check whether a class name exists on
+				 * @param className { String } the class name we want to check for
+				 * @return isClassNamePresent { Boolean } if class name was found or not
+				 */
+			 	hasClass: function(element, className) { 
+			 	
+					// Assume by default that the class name is not applied to the element 
+					var isClassNamePresent = false,
+						 classNames = this.getArrayOfClassNames(element); 
+			        
+					for (var index = 0, len = classNames.length; index &lt; len; index++) { 
+					
+						// Loop through each CSS class name applied to this element 
+						if (className == classNames[index]) { 
+						
+							// If the specific class name is found, set the return value to true 
+							isClassNamePresent = true; 
+							
+						} 
+						
+					} 
+			        
+					// Return true or false, depending on if the specified class name was found 
+					return isClassNamePresent; 
+					
+				}
+				
+			}
+			
+		};
+	
+		// Return public API
+		return {
+			load: __mylib.domready,
+			ajax: __mylib.ajax,
+			events: __mylib.events,
+			css: __mylib.css
+		};
+		
+	}());
+	
+	// Expose st to the global object
+	window.st = mylib;
+	
+}(this, this.document));
+</code></pre>
+
+</div>
+</body>
+</html>

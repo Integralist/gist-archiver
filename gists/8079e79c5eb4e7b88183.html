@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Example script that uses the `&` trick (typically used to convert an object to a proc; e.g. https://gist.github.com/Integralist/11206577) to convert a method (retrieved using `method()`) to a proc so it can be utilised by another method</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="example-script-that-uses-the-trick-typically-used-to-convert-an-object-to-a-proc-e-g-https-gist-github-com-integralist-11206577-to-convert-a-method-retrieved-using-method-to-a-proc-so-it-can-be-utilised-by-another-method">Example script that uses the <code>&amp;</code> trick (typically used to convert an object to a proc; e.g. <a href="https://gist.github.com/Integralist/11206577" target="_blank">https://gist.github.com/Integralist/11206577</a>) to convert a method (retrieved using <code>method()</code>) to a proc so it can be utilised by another method</h1>
+
+<h2 id="ruby-method-to-proc-rb">ruby-&amp;-method-to_proc.rb</h2>
+
+<pre><code class="language-ruby">def hello(&amp;block)
+  block.call if block_given?
+end
+
+def world
+  &quot;world&quot;
+end
+
+hello                  # =&gt; nil
+hello { &quot;world&quot; }      # =&gt; &quot;world&quot;
+hello(&amp;method(:world)) # =&gt; &quot;world&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

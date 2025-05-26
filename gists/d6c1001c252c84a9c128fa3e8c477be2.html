@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go Playground multiple files] #go #golang #playground</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-playground-multiple-files-go-golang-playground">[Go Playground multiple files] #go #golang #playground</h1>
+
+<h2 id="playground-go">playground.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;play.ground/foo&quot;
+)
+
+func main() {
+	foo.Bar()
+}
+
+-- go.mod --
+module play.ground
+
+-- foo/foo.go --
+package foo
+
+import &quot;fmt&quot;
+
+func Bar() {
+	fmt.Println(&quot;The Go playground now has support for multiple files!&quot;)
+}
+
+</code></pre>
+
+</div>
+</body>
+</html>

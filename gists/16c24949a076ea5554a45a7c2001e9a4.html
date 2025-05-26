@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Simple Bash File Watcher] #tags: bash, watcher, polling</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="simple-bash-file-watcher-tags-bash-watcher-polling">[Simple Bash File Watcher] #tags: bash, watcher, polling</h1>
+
+<h2 id="simple-bash-file-watcher-sh">Simple Bash File Watcher.sh</h2>
+
+<pre><code class="language-shell">if [ &quot;$#&quot; -ne 1 ]; then
+  echo &quot;ERROR: directory is required.&quot;
+  exit 1
+fi
+
+DIRECTORY=$1
+
+checkSum1=&quot;&quot;
+
+while [[ true ]]
+do
+  checkSum2=`find $DIRECTORY -type f \( -iname &quot;*.go&quot; \) -exec md5 {} \;`
+  
+  if [[ $checkSum1 != $checkSum2 ]] ; then
+	# do something like run a test suite
+    
+    # update last seen checksum
+    checkSum1=$checkSum2
+  fi
+  
+  # don't overload the system
+  sleep 2
+done
+</code></pre>
+
+</div>
+</body>
+</html>

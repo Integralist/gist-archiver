@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby Socket Wrapper (one connection, multiple messages)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-socket-wrapper-one-connection-multiple-messages">Ruby Socket Wrapper (one connection, multiple messages)</h1>
+
+<h2 id="ruby-socket-wrapper-one-connection-multiple-messages-md">Ruby Socket Wrapper (one connection, multiple messages).md</h2>
+
+<pre><code class="language-markdown">```rb
+class SocketWrapper
+  def self.instance
+    @inst ||= self.new
+  end
+
+  def initialize
+    @messages = Queue.new
+    @socket = TCPSocket.open('192.168.0.25', 2000)
+    Thread.new do
+       loop do
+          @messages &lt;&lt; @parse_message.nil? ? @socket.read : @parse_message.call(@socket.read)
+       end
+    end
+  end
+
+  def parse_message(&amp;block)
+    @parse_message = block
+  end
+
+  def send_message(msg)
+    @socket.write msg
+  end
+
+  def read_messages
+    result = []
+    begin
+      while message = @messages.pop(true)
+        result &lt;&lt; message
+      end
+    rescue ThreadError
+      #raised if queue is empty
+    end
+    result
+  def
+end
+</code></pre>
+
+<p>In initializer:</p>
+
+<pre><code class="language-rb">SocketWrapper.instance.parse_message do |raw|
+  JSON.parse(raw)
+  # or any other awesome thing with raw
+end
+</code></pre>
+
+<p>In Controller:</p>
+
+<pre><code class="language-rb">SocketWrapper.instance.send_message('blah blah blah')
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

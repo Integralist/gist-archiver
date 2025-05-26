@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Basic Closure example in PHP</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="basic-closure-example-in-php">Basic Closure example in PHP</h1>
+
+<h2 id="closure-php">Closure.php</h2>
+
+<pre><code class="language-php">&lt;?php
+    function doSomething($multiplier)
+    {
+        return array_map(function ($item) {
+            return $item * $multiplier;
+        }, array(1, 2, 3));
+    }
+
+    function doSomethingWithClosure($multiplier)
+    {
+        // We tell the Closure to `use` (i.e. pass through) `$multiplier` from the parent scope. 
+        // If we didn't then `$multiplier` would be equal to zero (as scope within the anonymous function is lost).
+        // The previous `doSomething` function demonstrates what would happen if we didn't pass through $multiplier. 
+        return array_map(function ($item) use ($multiplier) {
+            return $item * $multiplier;
+        }, array(1, 2, 3));
+    }
+
+    print_r(doSomething(2)); // [0, 0, 0]
+    print_r(doSomethingWithClosure(2));  // [2, 4, 6]
+</code></pre>
+
+</div>
+</body>
+</html>

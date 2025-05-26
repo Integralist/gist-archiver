@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python tornado logging when request has completed] #python #python3 #tornado #logging #logs #server #http</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-tornado-logging-when-request-has-completed-python-python3-tornado-logging-logs-server-http">[Python tornado logging when request has completed] #python #python3 #tornado #logging #logs #server #http</h1>
+
+<h2 id="tornado-logging-when-request-has-completed-py">tornado logging when request has completed.py</h2>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+That Application.log_request approach uses very explicit naming, 
+and yet the tornado docs for RequestHandler.on_finish says...
+
+&gt; Override this method to perform cleanup, logging, etc.
+
+So there’s two ways to essentially do the same thing 🤔
+
+My understanding for the difference would be log_request is useful for 
+generic logging behaviour, while on_finish could be customized per 
+request handler.
+
+NOTE: log_request completes first, then on_finish
+&quot;&quot;&quot;
+
+import asyncio
+
+import tornado.ioloop
+import tornado.web
+
+
+class MainHandler(tornado.web.RequestHandler):
+    def initialize(self, *args, **kwargs):
+        print(&quot;initialize:&quot;, args, kwargs)
+
+    def prepare(self):
+        self.ctx = {}
+        print(&quot;prepare:&quot;, self.ctx)
+
+    async def get(self):
+        self.write(&quot;Hello, world&quot;)
+        self.ctx[&quot;abc&quot;] = 123
+        await asyncio.sleep(2)
+        print(&quot;get:&quot;, self.ctx)
+
+    def on_finish(self):
+        self.ctx[&quot;xyz&quot;] = 456
+        print(&quot;finish:&quot;, self.ctx)
+
+
+def make_app():
+    class App(tornado.web.Application):
+		&quot;&quot;&quot;subclass tornado web application so we can override log_request.
+        
+        DOCUMENTATION:
+        https://www.tornadoweb.org/en/stable/web.html#tornado.web.Application.log_request
+        &quot;&quot;&quot;
+        
+        def log_request(self, handler: tornado.web.RequestHandler) -&gt; None:
+            print(&quot;log stuff&quot;)
+
+    # return tornado.web.Application([
+    #     (r'/', MainHandler, {&quot;beep&quot;: 123, &quot;boop&quot;: 456}),
+    # ])
+
+    return App([
+        (r'/', MainHandler, {&quot;beep&quot;: 123, &quot;boop&quot;: 456}),
+    ])
+
+
+if __name__ == '__main__':
+    app = make_app()
+    app.listen(9000)
+    tornado.ioloop.IOLoop.current().start()
+</code></pre>
+
+</div>
+</body>
+</html>

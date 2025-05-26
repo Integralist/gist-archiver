@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Python extract query string params in order they are specified</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-extract-query-string-params-in-order-they-are-specified">Python extract query string params in order they are specified</h1>
+
+<h2 id="python-extract-query-string-params-in-order-they-are-specified-py">Python extract query string params in order they are specified.py</h2>
+
+<pre><code class="language-python"># use regex instead of urlparse as it was inconsistent ordering
+params = re.findall(r'[(\?|\&amp;)]([^=]+)', url) 
+</code></pre>
+
+</div>
+</body>
+</html>

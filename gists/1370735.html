@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JSONP Async Loading via RequireJs</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="jsonp-async-loading-via-requirejs">JSONP Async Loading via RequireJs</h1>
+
+<h2 id="json-p-php">JSON-P.php</h2>
+
+<pre><code class="language-php">&lt;?php
+	header('Content-Type: text/javascript; charset=utf8');
+	header('Access-Control-Allow-Origin: *');
+	header('Access-Control-Max-Age: 3628800');
+	header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+	
+	// Callback function
+	$callback = $_GET['callback'];
+	
+	// JSON data
+	$data = '{&quot;name&quot;:&quot;mark mcdonnell&quot;}';
+	
+	// Delay sending the data back (this is to mimic latency)
+	sleep(5);
+	
+	echo $callback.'('.$data.');';
+?&gt;
+</code></pre>
+
+<h2 id="example-jsonp-js">example-jsonp.js</h2>
+
+<pre><code class="language-javascript">require.config({ 
+	paths: { 
+		jsonp: 'Plugins/jsonp'
+	} 
+});
+
+require(['jsonp!http://twitter.com/statuses/user_timeline/Integralist.json?callback=rjs_global', 
+		 'jsonp!http://twitter.com/statuses/user_timeline/Barracat.json?callback=rjs_global', 
+		 'jsonp!http://api.twitter.com/1/trends/available.json?callback=rjs_global'], function(feed1, feed2, feed3) {
+	console.log('feed1: ', feed1);
+	console.log('feed2: ', feed2);
+	console.log('feed3: ', feed3);
+});
+
+require(['jsonp!JSON-P.php?callback=rjs_global'], function(feed4) {
+	console.log('feed4: ', feed4);
+});
+</code></pre>
+
+<h2 id="jsonp-js">jsonp.js</h2>
+
+<pre><code class="language-javascript">define(function(){
+	
+	function loadScript(url, callback) {
+		var d = document,
+			b = d.body,
+			callback = (typeof callback !== &quot;undefined&quot;) ? callback : function(){},
+			script = d.createElement(&quot;script&quot;);
+			script.type = &quot;text/javascript&quot;;
+	
+		if (script.readyState) { // Internet Explorer
+			script.onreadystatechange = function() {
+				if (script.readyState == &quot;loaded&quot; || script.readyState == &quot;complete&quot;) {
+					/*
+					 * Oddly the final readyState isn’t always &quot;complete&quot;. 
+					 * Sometimes, readyState stops at &quot;loaded&quot; without going on to &quot;complete&quot; 
+					 * and sometimes it skips over &quot;loaded&quot; altogether. 
+					 * 
+					 * The best approach is to check for both readyState values 
+					 * and remove the event handler in both cases to ensure you don’t handle the loading twice:
+					 */
+					script.onreadystatechange = null;
+					callback(true);
+				}
+			};
+		} else {
+			script.onload = function() {
+				callback(true);
+			};
+		}
+	
+		script.src = url;
+		b.insertBefore(script, b.firstChild); // can be a problem if the BODY doesn't exist
+	}
+	
+	// Create global variable for jsonp service to execute
+	window['rjs_global'] = function(data) {
+		// Create global variable to store returned data
+		window['rjs_jsonp'] = data;
+	};
+	
+	return {
+		/**
+		 * @param resource { String } the resource to be loaded
+		 * @param req { Function } a local require() for loading other modules
+		 * @param load { Function } a function to call with the value for name (this tells the loader that the plugin is done loading the resource)
+		 * @param config { Object } the main configuration object RequireJs is using
+		 */
+		load: function(resource, req, load, config) {
+			loadScript(resource, function(loaded){
+				if (loaded &amp;&amp; ('rjs_jsonp' in window)) {
+					load(window['rjs_jsonp']);
+				}
+			});
+		}
+	};
+	
+});
+</code></pre>
+
+</div>
+</body>
+</html>

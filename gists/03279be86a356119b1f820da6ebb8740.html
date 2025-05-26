@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Validate README format with Python] #python</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="validate-readme-format-with-python-python">[Validate README format with Python] #python</h1>
+
+<h2 id="1-validate-readme-format-with-python-py">1. Validate README format with Python.py</h2>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+Usage:
+
+    python ./scripts/validate_readmes.py
+        validate every README (~1min)
+
+    python ./scripts/validate_readmes.py --debug
+        validate every README with details on what headers are missing (~1min)
+
+    python ./scripts/validate_readmes.py --debug --service bpager
+        validate specific service README (time varies by service directory structure)
+&quot;&quot;&quot;
+
+import argparse
+import glob
+import re
+import unicodedata
+
+parser = argparse.ArgumentParser(description=&quot;Validate READMEs&quot;)
+parser.add_argument(&quot;-d&quot;, &quot;--debug&quot;,
+                    help=&quot;Show failure details&quot;, action=&quot;store_true&quot;)
+parser.add_argument(&quot;-s&quot;, &quot;--service&quot;, help=&quot;Validate specific service&quot;,
+                    default=&quot;**&quot;)
+parser.set_defaults(debug=False)
+args = parser.parse_args()
+
+valid_headers = set([
+    &quot;## Point of Contact and Slack channel&quot;,
+    &quot;## Running the service&quot;,
+    &quot;## System&quot;,
+    &quot;## Runbook&quot;,
+    &quot;## Monitoring&quot;,
+    &quot;## Documentation&quot;,
+])
+
+title = re.compile(&quot;^\s*(#.+$)&quot;, re.MULTILINE)
+invalid = re.compile(&quot;node_modules&quot;)
+service = args.service
+path = f&quot;../buzzfeed/mono/{service}/README.md&quot;
+
+
+for filename in glob.iglob(path, recursive=True):
+    with open(filename, &quot;r&quot;) as f:
+        if not (invalid.search(filename)):
+            print(filename, &quot;\n\n&quot;)
+
+            contents = f.read()
+            contents = unicodedata.normalize(&quot;NFKD&quot;, contents)
+            matches = title.findall(contents)
+            missing_headers = valid_headers - set(matches)
+            is_valid = valid_headers.issubset(set(matches))
+
+            if matches:
+                if args.debug:
+                    print(&quot;Found headers:\n&quot;, matches, &quot;\n\n&quot;)
+                    print(&quot;Expected headers:\n&quot;, valid_headers, &quot;\n\n&quot;)
+                    print(&quot;Missing headers:\n&quot;, missing_headers, &quot;\n\n&quot;)
+                print(&quot;Is README valid?\n&quot;, is_valid)
+            else:
+                print(&quot;no matching headers found? so will presume this README is invalid&quot;)
+
+            print(&quot;\n\n---\n\n&quot;)
+</code></pre>
+
+<h2 id="2-python-3-4-compatible-version-for-rig-vm-mono-repo-result-csv-options-missing-etc-py">2. Python 3.4 compatible version for Rig VM (Mono Repo) + RESULT &amp; CSV OPTIONS + Missing etc.py</h2>
+
+<pre><code class="language-python"># Python 3.4 has no iglob recursive option so we have to walk the entire tree (very slow)
+
+#!/usr/bin/env python3
+
+&quot;&quot;&quot;
+Usage:
+
+    ./scripts/validate_readmes
+        validate every README (~40s)
+
+    ./scripts/validate_readmes --missing
+        report how many READMEs are missing from top level service directories
+
+    ./scripts/validate_readmes --debug
+        validate every README with details on what headers are missing (~40s+)
+
+    ./scripts/validate_readmes --debug --service bpager
+        validate specific service README (time varies by service directory structure)
+
+    ./scripts/validate_readmes --result
+        validate every README and show the number of valid vs invalid READMEs (~40s+)
+
+    ./scripts/validate_readmes --service bpager --result
+        validate specific service README and show the number of valid vs invalid READMEs
+
+    ./scripts/validate_readmes --csv &gt; readmes.csv
+        generate CSV data highlighting valid vs invalid READMEs (~40s+)
+
+    ./scripts/validate_readmes --service bpager --csv &gt; bpager.csv
+        generate CSV data highlighting valid vs invalid READMEs for a specific service
+&quot;&quot;&quot;
+
+import argparse
+import fnmatch
+import json
+import re
+import os
+import unicodedata
+
+parser = argparse.ArgumentParser(description=&quot;Validate READMEs&quot;)
+parser.add_argument(&quot;-d&quot;, &quot;--debug&quot;,
+                    help=&quot;Show failure details&quot;, action=&quot;store_true&quot;)
+parser.add_argument(&quot;-s&quot;, &quot;--service&quot;, help=&quot;Validate specific service&quot;,
+                    default=&quot;&quot;)
+parser.add_argument(&quot;-r&quot;, &quot;--result&quot;, help=&quot;Show only the results of the validation checker&quot;,
+                    action=&quot;store_true&quot;)
+parser.add_argument(&quot;-c&quot;, &quot;--csv&quot;, help=&quot;Generate CSV of results&quot;,
+                    action=&quot;store_true&quot;)
+parser.add_argument(&quot;-m&quot;, &quot;--missing&quot;, help=&quot;Show services that have no README file&quot;, action=&quot;store_true&quot;)
+parser.set_defaults(debug=False, result=False, csv=False, missing=False)
+args = parser.parse_args()
+
+valid_headers = set([
+    &quot;## Point of Contact and Slack channel&quot;,
+    &quot;## Running the service&quot;,
+    &quot;## System&quot;,
+    &quot;## Runbook&quot;,
+    &quot;## Monitoring&quot;,
+    &quot;## Documentation&quot;,
+])
+
+title = re.compile(&quot;^\s*(#.+$)&quot;, re.MULTILINE)
+invalid = re.compile(&quot;node_modules&quot;)
+service = args.service
+valid = 0
+csv = &quot;file,valid\n&quot;
+top_level_dirs = {}
+
+if args.missing:
+    for item in sorted(os.listdir(&quot;./&quot;)):
+        path = os.path.join(&quot;./&quot;, item)
+        is_dir = os.path.isdir(path)
+        if is_dir and not path.startswith(&quot;./.&quot;):
+            top_level_dirs[path] = False
+            for file in os.listdir(path):
+                if file == &quot;README.md&quot;:
+                    top_level_dirs[path] = True
+
+    if args.debug:
+        print(json.dumps(top_level_dirs, indent=2, sort_keys=True))
+
+    total = len(top_level_dirs)
+    missing = total - sum(top_level_dirs.values())
+    percent = round(missing / total * 100)
+    print(&quot;\n{}% of top level directories are missing a README ({} out of {})\n&quot;.format(percent, missing, total))
+    exit()
+
+if service == &quot;&quot; and not args.csv:
+    print(&quot;hold tight, this can take up to 40 seconds to process every README in mono...&quot;)
+
+file_matches = []
+for root, dirnames, filenames in os.walk(&quot;./&quot; + args.service):
+    for filename in fnmatch.filter(filenames, &quot;README.md&quot;):
+        fn = os.path.join(root, filename)
+        if not invalid.search(fn):
+            file_matches.append(fn)
+
+for filename in file_matches:
+    with open(filename, &quot;r&quot;) as f:
+        contents = f.read()
+        contents = unicodedata.normalize(&quot;NFKD&quot;, contents)
+        matches = title.findall(contents)
+        missing_headers = valid_headers - set(matches)
+        is_valid = valid_headers.issubset(set(matches))
+
+        if args.csv:
+            csv += &quot;{},{}\n&quot;.format(filename, is_valid)
+
+        if is_valid:
+            valid += 1
+
+        if not args.result and not args.csv:
+            print(filename, &quot;\n\n&quot;)
+
+            if matches:
+                if args.debug:
+                    print(&quot;Found headers:\n&quot;, matches, &quot;\n\n&quot;)
+                    print(&quot;Expected headers:\n&quot;, valid_headers, &quot;\n\n&quot;)
+                    print(&quot;Missing headers:\n&quot;, missing_headers, &quot;\n\n&quot;)
+                print(&quot;Is README valid?\n&quot;, is_valid)
+            else:
+                print(&quot;no matching headers found? so will presume this README is invalid&quot;)
+
+            print(&quot;\n\n---\n\n&quot;)
+
+if args.result and not args.csv:
+    percent = round(valid / len(file_matches) * 100)
+    print(&quot;\n{}% of the READMEs found are valid ({} out of {})\n&quot;.format(percent, valid, len(file_matches)))
+
+if args.csv:
+    print(csv)
+    
+&quot;&quot;&quot;
+Inconsistent Numbers?
+
+When using the `--missing` flag, the script doesn't walk every _nested_ directory (like it does when validating READMEs using the `--result` flag). This is because not all nested directories would logically have a README.
+
+e.g. `/foo-service/random-dir/` can't necessarily be classed as _missing_ a README as there may well be no need for one there. Where as the top level directories in mono are all expected to have a README at the very least.
+
+But some top level directories will indeed have a nested directory that _does_ have a README and if so we should at least validate those the best we can against the standard format.
+
+e.g. `./scripts/validate_readmes -s bpager` reports there are two READMEs `./bpager/README.md` (valid) and `./bpager/tests/e2e/README.md` (invalid).
+
+Subsequently, because `--missing` only checks the top level directories, we'll likely find that number (i.e. the number of directories &quot;missing&quot; a README) will be a much lower number than the number of &quot;invalid vs valid&quot; READMEs reported by the `--result` flag.
+
+If you look at the examples given above, that's why the number of &quot;found&quot; READMEs is 378 (because it recursively searched all nested directories) where as the total number of top level directories is reported as 469. If you were to do `469-378` you won't see the same result as what is being reported as directories with &quot;missing&quot; READMEs (205) because that's not a comparison that can be made.
+
+The reason the script validates all found READMEs, rather than just validating the READMEs in the top level directories, is because there's lots of Python package related READMEs (e.g. `./packages/foo-package/README.md`) that need to be validated and those would otherwise be missed. We could potentially add a whitelist or blacklist to account for &quot;known&quot; directories that we should recurse into but then we could in future end up skipping over directories that we might want to validate READMEs.
+&quot;&quot;&quot;
+</code></pre>
+
+<h2 id="3-example-output-sh">3. Example Output.sh</h2>
+
+<pre><code class="language-shell">$ python validate.py --debug
+
+# note: this would print out 'all' READMEs...
+
+---
+
+
+../buzzfeed/mono/video_player/README.md
+
+
+Found headers:
+ ['# Video Player Service (VPS)', '## Usage', '## Data Response', '## Running the service', '## System', '## Runbook', '## Monitoring', '### Logs', '### Dashboards', '### Alarms', '## Documentation']
+
+
+Expected headers:
+ {'## System', '## Documentation', '## Running the service', '## Monitoring', '## Point of Contact and Slack channel', '## Runbook', '## Usage'}
+
+
+Missing headers:
+ {'## Point of Contact and Slack channel'}
+
+
+Is README valid?
+ False
+
+
+---
+
+$ python validate.py
+
+# note: this would print out 'all' READMEs...
+
+---
+
+
+../buzzfeed/mono/video_player/README.md
+
+
+Is README valid?
+ False
+
+
+---
+
+$ python validate.py --debug --service bpager
+
+# note: this would print out 'only' the bpager README...
+
+---
+
+../buzzfeed/mono/bpager/README.md 
+
+Found headers:
+ ['# BPager', '## Running the service', '## Point of Contact and Slack channel', '## Runbook', '## System', '## Monitoring', '### Logs', '### Dashboards', '## Documentation'] 
+
+
+Expected headers:
+ {'## System', '## Monitoring', '## Running the service', '## Runbook', '## Point of Contact and Slack channel', '## Documentation'} 
+
+
+Missing headers:
+ set() 
+
+
+Is README valid?
+ True
+
+---
+
+$ python validate.py --service bpager
+
+# note: this would print out 'only' the bpager README...
+
+---
+
+../buzzfeed/mono/bpager/README.md 
+
+Is README valid?
+ True
+
+---
+
+./scripts/validate_readmes --service bpager --result                                                                                                                                     
+
+1 of 2 are valid
+
+./scripts/validate_readmes --result                                                                                                                                                      
+
+hold tight, this can take up to 40 seconds to process every README in mono...
+
+19 of 1156 are valid
+</code></pre>
+
+<h2 id="4-multiprocess-version-py">4. Multiprocess version.py</h2>
+
+<pre><code class="language-python"># no improvement in performance as the os.walk is the bottleneck and can't be sped up
+
+import fnmatch
+import itertools
+import multiprocessing
+import os
+import re
+import unicodedata
+
+valid_headers = set([
+    &quot;## Point of Contact and Slack channel&quot;,
+    &quot;## Running the service&quot;,
+    &quot;## System&quot;,
+    &quot;## Runbook&quot;,
+    &quot;## Monitoring&quot;,
+    &quot;## Documentation&quot;,
+])
+
+title = re.compile(&quot;^\s*(#.+$)&quot;, re.MULTILINE)
+invalid = re.compile(&quot;node_modules&quot;)
+
+def worker(filename):
+    with open(filename, &quot;r&quot;) as f:
+        if not invalid.search(filename):
+            print(filename, &quot;\n\n&quot;)
+
+            contents = f.read()
+            contents = unicodedata.normalize(&quot;NFKD&quot;, contents)
+            matches = title.findall(contents)
+            missing_headers = valid_headers - set(matches)
+            is_valid = valid_headers.issubset(set(matches))
+
+            if matches:
+                print(&quot;Is README valid?\n&quot;, is_valid)
+            else:
+                print(&quot;no matching headers found? so will presume this README is invalid&quot;)
+
+            print(&quot;\n\n---\n\n&quot;)
+
+with multiprocessing.Pool(48) as Pool: # pool of 48 processes
+    walk = os.walk(&quot;./&quot;) # generator
+
+    # this is the bottleneck (the walking of all files &amp; directories)
+    fn_gen = itertools.chain.from_iterable((os.path.join(root, file)
+                                            for file in fnmatch.filter(files, 'README.md'))
+                                           for root, dirs, files in walk)
+
+    results_of_work = Pool.map(worker, fn_gen) # this does the parallel processing
+</code></pre>
+
+</div>
+</body>
+</html>

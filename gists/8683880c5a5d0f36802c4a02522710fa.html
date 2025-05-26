@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Bash search find and filter, then execute] #bash #find #filter #execute #grep #uniq #sort #search</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="bash-search-find-and-filter-then-execute-bash-find-filter-execute-grep-uniq-sort-search">[Bash search find and filter, then execute] #bash #find #filter #execute #grep #uniq #sort #search</h1>
+
+<h2 id="find-and-filter-then-execute-sh">find-and-filter-then-execute.sh</h2>
+
+<pre><code class="language-shell">#!/usr/local/bin/bash
+
+DIR=&quot;$HOME/code/project-foo/&quot;
+
+pushd &quot;$DIR&quot;
+
+# the \; is necessary when using -exec flag
+find . -name 'README*' ! -path '*node_modules*' -exec wc -l {} \;
+
+popd
+</code></pre>
+
+<h2 id="find-python-handlers-sh">find-python-handlers.sh</h2>
+
+<pre><code class="language-shell"># the `-type f` is not needed as I'm using the `-name` flag to anchor to Python files
+# but I kept it in for the sake of me needing to remember the flag and how to use it.
+#
+# some files use &quot;double&quot; quotes while others use 'single' quotes
+# to catch both variations we have to make sure the pattern is wrapped in double quotes
+# as this allows us to escape the double quotes used in the pattern itself
+# if your pattern was wrapped in single quotes, then the shell will ignore any \ escaping of a single quote within your pattern
+time find . -type f -name '*.py' -exec egrep -o &quot;\(r?f?['\&quot;](\/[^'\&quot;]+)&quot; {} \; | sort | uniq -c | sort
+</code></pre>
+
+<h2 id="find-regex-sh">find-regex.sh</h2>
+
+<pre><code class="language-shell"># find all yaml files inside of a 'src' directory but ignore 'settings.yaml'
+# TODO: double check we didn't mean -name instead of -path
+$ find -E ~/Code/fastly/api-documentation -iregex '.+/src/.+\.yaml$' ! -path '*settings.yaml' -print
+
+# now find all API endpoints defined in those files
+# e.g. I want to find things like '/customer/{customer_id}/users:'
+$ find -E ~/Code/fastly/api-documentation -iregex '.+/src/.+\.yaml$' -print -exec grep -E '\s/.+:$' {} \;
+
+# now normalise the api by replacing the interpolation syntax {} with ...
+# we do this by using gsed's extended regex -E and then starting by finding { and keep going until something that's not an } and then ending match with }
+$ find -E ~/Code/fastly/api-documentation -iregex '.+/src/.+\.yaml$' -exec grep -E '\s/.+:$' {} \; | gsed -E 's/\{[^}]+\}/.../g'
+
+# find all files named pipfile or requirement
+$ find -E . -iregex '.+(pipfile|requirements).+'
+
+# print all matching files that include bf_tornado (or bf-tornado) + print the bf_tornado value itself
+# we do the latter by searching lines that match the bf_tornado pattern and then use -B (&quot;before&quot;) to specify that the output should include one line before
+$ find -E . -iregex '.+(pipfile|requirements).+' -print -exec egrep 'bf[_-]tornado' {} \; | egrep -B 1 '^bf\-'
+</code></pre>
+
+<h2 id="find-sh">find.sh</h2>
+
+<pre><code class="language-shell"># find any files that contain the given string (&quot;nginx&quot;).
+# then we use the grep command's -l, --files-with-matches flag to ensure only file names are printed.
+# we use the ! operator (same as -not flag) to exclude matches.
+# we also have to be careful with files that have spaces in their name, so we use '* *' to try and capture those.
+# we also want to avoid dotfiles such as .git
+# the output will be paths like './webapp_waf/nginx.conf.j2' so we use the cut command to extract the service name (e.g. webapp_waf)
+$ time find . -type f ! -path '*.git/*' ! -path '*.venv*' ! -path '* *' ! -name '*.md' ! -name '*.json' ! -name '*.yml' | xargs grep -l -i nginx | sort | uniq | sort | cut -d / -f 2 | uniq | sort
+</code></pre>
+
+</div>
+</body>
+</html>

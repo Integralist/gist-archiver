@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>S.O.L.I.D - (D)ependency Inversion. In the bad example, yes we're injecting our dependency but the Button class is now no longer reusable as it is too tightly coupled to the Lamp class. In the better example, we're still injecting our dependency but we now inverse the control via the use of an Interface. So now any `SwitchableDevice` can be used with the Button class.</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="s-o-l-i-d-d-ependency-inversion-in-the-bad-example-yes-we-re-injecting-our-dependency-but-the-button-class-is-now-no-longer-reusable-as-it-is-too-tightly-coupled-to-the-lamp-class-in-the-better-example-we-re-still-injecting-our-dependency-but-we-now-inverse-the-control-via-the-use-of-an-interface-so-now-any-switchabledevice-can-be-used-with-the-button-class">S.O.L.I.D - (D)ependency Inversion. In the bad example, yes we&rsquo;re injecting our dependency but the Button class is now no longer reusable as it is too tightly coupled to the Lamp class. In the better example, we&rsquo;re still injecting our dependency but we now inverse the control via the use of an Interface. So now any <code>SwitchableDevice</code> can be used with the Button class.</h1>
+
+<h2 id="1-bad-example-php">1. Bad Example.php</h2>
+
+<pre><code class="language-php">&lt;?php
+class Lamp
+{
+    public function turnOn()
+    {
+        // code
+    }
+    
+    public function turnOff()
+    {
+        // code
+    }
+}
+
+class Button
+{
+    private $lamp;
+    
+    public function __construct(Lamp $lamp)
+    {
+        $this-&gt;lamp = $lamp;
+    }
+    
+    public function doSomething()
+    {
+        if (x) {
+            $this-&gt;lamp-&gt;turnOn();
+        }
+    }
+}
+</code></pre>
+
+<h2 id="2-better-example-php">2. Better Example.php</h2>
+
+<pre><code class="language-php">&lt;?php
+interface SwitchableDevice
+{
+    public function turnOn();
+    public function turnOff();
+}
+
+class Lamp implements SwitchableDevice
+{
+    public function turnOn()
+    {
+        // code
+    }
+    
+    public function turnOff()
+    {
+        // code
+    }
+}
+
+class Button
+{
+    private $switchableDevice;
+    
+    public function __construct(SwitchableDevice $switchableDevice)
+    {
+        $this-&gt;switchableDevice = $switchableDevice;
+    }
+    
+    public function doSomething()
+    {
+        if (x) {
+            $this-&gt;switchableDevice-&gt;turnOn();
+        }
+    }
+}
+</code></pre>
+
+</div>
+</body>
+</html>

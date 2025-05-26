@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Bash split string by delimiter</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="bash-split-string-by-delimiter">Bash split string by delimiter</h1>
+
+<h2 id="bash-split-string-by-delimiter-sh">Bash split string by delimiter.sh</h2>
+
+<pre><code class="language-shell">IN=&quot;bla@some.com;john@home.com&quot;
+arrIN=(${IN//;/ })
+echo &quot;${arrIN[@]}&quot; # foo bar
+echo $arrIN # foo
+</code></pre>
+
+</div>
+</body>
+</html>

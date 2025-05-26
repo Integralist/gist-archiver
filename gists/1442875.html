@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>image onload event issue when browser caches image</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="image-onload-event-issue-when-browser-caches-image">image onload event issue when browser caches image</h1>
+
+<h2 id="image-onload-js">image-onload.js</h2>
+
+<pre><code class="language-javascript">/*
+ * Had issue with browsers caching images and so they were not triggering an onload event.
+ * This jQuery snippet helped fixed the issue.
+ * 
+ * UPDATE: 
+ * Discovered that IE9 was having issues (IE7/8 were fine?)
+ * So we used a 'cache-buster' technique which is to append a QueryString onto the end of the image URL
+ */
+
+var originalSource,
+    imageList = $('img');
+
+/*
+ * Following function expression indicates whether the current rendering engine is Trident (i.e. Internet Explorer)
+ * 
+ * @return v { Integer|undefined } if IE then returns the version, otherwise returns 'undefined' to indicate NOT a IE browser
+ */
+var isIE = (function() {
+    var undef,
+        v = 3,
+        div = document.createElement('div'),
+        all = div.getElementsByTagName('i');
+
+    while (
+        div.innerHTML = '&lt;!--[if gt IE ' + (++v) + ']&gt;&lt;i&gt;&lt;/i&gt;&lt;![endif]--&gt;',
+        all[0]
+    );
+
+    return v &gt; 4 ? v : undef;	
+}());
+
+// If we're not using IE then we can use the img.complete property to determine if image is loaded
+if (!isIE) {
+  
+    // Execute the 'load' event only once
+    $(imageList).one('load', function() {
+        // Do stuff on image load
+    })
+    // Loop through each image found
+    .each(function() {
+        // Check if the image 'complete' property has been set to true
+        // See: https://developer.mozilla.org/en/DOM/HTMLImageElement#DOM_properties
+        if(this.complete) {
+            // Trigger the load event for each image
+            $(this).load();
+        }
+    });
+  
+} else {
+   
+    // Loop through each image found
+    $(imageList).each(function(){
+        
+        // Keep a reference to the original src
+        originalSource = this.src;
+
+        // Reset the src attribute so it includes a QueryString (this is the 'cache-buster' technique)
+        this.src = originalSource + '?' + new Date().getTime();
+
+    }).on('load', function(){
+        // Do stuff on image load 
+    });
+    
+}
+</code></pre>
+
+</div>
+</body>
+</html>

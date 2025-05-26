@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>DB migrations</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="db-migrations">DB migrations</h1>
+
+<h2 id="db-migrations-md">DB migrations.md</h2>
+
+<pre><code class="language-markdown">## Renaming or changing the type of a column
+
+- Create a new column
+- Write to both columns
+- Backfill data from the old column to the new column
+- Move reads from the old column to the new column
+- Stop writing to the old column
+- Drop the old column
+
+## Renaming a table
+
+- Create a new table
+- Write to both tables
+- Backfill data from the old table to new table
+- Move reads from the old table to the new table
+- Stop writing to the old table
+- Drop the old table
+
+## Adding a column with a default value
+
+- Add the column without a default value
+- Commit the transaction
+- Backfill the column
+- Add the default value
+</code></pre>
+
+</div>
+</body>
+</html>

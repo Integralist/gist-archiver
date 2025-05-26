@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>@madrobby's 140 bytes template engine</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="madrobby-s-140-bytes-template-engine">@madrobby&rsquo;s 140 bytes template engine</h1>
+
+<h2 id="template-js">template.js</h2>
+
+<pre><code class="language-javascript">function template(string, data, prop) {
+    for (prop in data) {
+        string = string.replace(new RegExp('{' + prop + '}', 'g'), data[prop]);
+    }
+    return string;
+}
+
+/*
+String templating engine:
+
+t(&quot;Hello {name}!, It is {date}!&quot;, { name: &quot;Thomas&quot;, date: function(){ return new Date }});
+// = &quot;Hello Thomas!, It is Sun May 08 2011 15:15:33 GMT-0400 (EDT)!&quot;
+*/
+</code></pre>
+
+</div>
+</body>
+</html>

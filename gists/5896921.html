@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>The power of r.js is incredible. `insertRequire` and `onBuildRead` are insanely useful in the right situation (not to mention other useful features such as `fileExclusionRegExp`, `removeCombined` and literally a ton more)...</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="the-power-of-r-js-is-incredible-insertrequire-and-onbuildread-are-insanely-useful-in-the-right-situation-not-to-mention-other-useful-features-such-as-fileexclusionregexp-removecombined-and-literally-a-ton-more">The power of r.js is incredible. <code>insertRequire</code> and <code>onBuildRead</code> are insanely useful in the right situation (not to mention other useful features such as <code>fileExclusionRegExp</code>, <code>removeCombined</code> and literally a ton more)&hellip;</h1>
+
+<h2 id="build-js">build.js</h2>
+
+<pre><code class="language-javascript">var config = {
+    paths: { jquery: 'libs/jquery' },
+    fileExclusionRegExp: /^\.|node_modules|Gruntfile|grunt-|libs|\.md|package.json/,
+    baseUrl: './',
+    modules: [
+        { 
+            name: 'bootstrap-about', 
+            exclude: ['app'], 
+            include: ['components/world/component'], 
+            insertRequire: ['components/world/component'] 
+        },
+        { 
+            name: 'bootstrap-index', 
+            exclude: ['app'], 
+            include: ['components/hello/component', 'components/world/component'], 
+            insertRequire: ['components/hello/component', 'components/world/component'] 
+        }
+    ],
+    dir: './release/',
+    optimize: 'none',
+    removeCombined: true,
+    onBuildRead: function (moduleName, path, contents) {
+        if (path.indexOf('bootstrap-') !== -1 || path.indexOf('/app.js') !== -1) {
+            return '';
+        } else {
+            return contents;
+        }
+    }
+};
+</code></pre>
+
+</div>
+</body>
+</html>

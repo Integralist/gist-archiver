@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Managing resources with Python Context Managers</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="managing-resources-with-python-context-managers">Managing resources with Python Context Managers</h1>
+
+<h2 id="1-context-manager-none-py">1. Context Manager - None.py</h2>
+
+<pre><code class="language-python">files = []
+
+for _ in range(100000):
+    f = open('foo.txt', 'w')
+    f.close()
+    files.append(f)
+
+print(files)
+</code></pre>
+
+<h2 id="2-context-manager-builtin-py">2. Context Manager - Builtin.py</h2>
+
+<pre><code class="language-python">files = []
+
+for _ in range(100000):
+    with open('foo.txt', 'w') as f:
+        files.append(f)
+
+print(files)
+</code></pre>
+
+<h2 id="3-context-manager-custom-py">3. Context Manager - Custom.py</h2>
+
+<pre><code class="language-python">files = []
+
+class Open():
+    def __init__(self, filename, mode):
+        self.filename = filename
+        self.mode = mode
+
+    def __enter__(self):
+        self.open_file = open(self.filename, self.mode)
+        return self.open_file
+
+    def __exit__(self, *args):
+        self.open_file.close()
+
+for _ in range(100000):
+    with Open('foo.txt', 'w') as f:
+        files.append(f)
+
+print(files)
+</code></pre>
+
+<h2 id="4-context-manager-contextlib-py">4. Context Manager - contextlib.py</h2>
+
+<pre><code class="language-python">from contextlib import contextmanager
+
+files = []
+
+@contextmanager
+def open_file(path, mode):
+    file = open(path, mode)
+    yield file
+    file.close()
+
+for _ in range(100000):
+    with open_file('foo.txt', 'w') as f:
+        files.append(f)
+
+print(files)
+</code></pre>
+
+</div>
+</body>
+</html>

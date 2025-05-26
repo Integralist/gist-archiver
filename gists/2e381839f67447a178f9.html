@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>git merge --squash brings in your changes but doesn't create a commit. Instead it will stage your changes so you can create a fresh commit for it (avoiding ugly merge commits showing in GitHub when using a standard git merge)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="git-merge-squash-brings-in-your-changes-but-doesn-t-create-a-commit-instead-it-will-stage-your-changes-so-you-can-create-a-fresh-commit-for-it-avoiding-ugly-merge-commits-showing-in-github-when-using-a-standard-git-merge">git merge &ndash;squash brings in your changes but doesn&rsquo;t create a commit. Instead it will stage your changes so you can create a fresh commit for it (avoiding ugly merge commits showing in GitHub when using a standard git merge)</h1>
+
+<h2 id="git-merge-squash-sh">git-merge-squash.sh</h2>
+
+<pre><code class="language-shell">git merge --squash &lt;branch|commit&gt; # only works with single commits
+
+# When specifying a commit hash, this is still different from something like
+# `git cherry-pick` because that would create a commit where as --squash simply
+# copies the changes into your staging area
+</code></pre>
+
+</div>
+</body>
+</html>

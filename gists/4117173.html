@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ensure two columns match heights (rather than tweaking CSS for multiple browser's rendering differences)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ensure-two-columns-match-heights-rather-than-tweaking-css-for-multiple-browser-s-rendering-differences">Ensure two columns match heights (rather than tweaking CSS for multiple browser&rsquo;s rendering differences)</h1>
+
+<h2 id="equal-columns-md">Equal Columns.md</h2>
+
+<pre><code class="language-markdown">When I get a chance I'm going to rewrite the following module to return a function that can accept multiple columns and change the height a bit more efficiently (as well as specify the device dimensions it should be applied for). But for now, this proof of concept works perfectly...
+
+```js
+define(function(){
+
+    var doc = document;
+
+    if (doc.documentElement.clientWidth &gt;= 650) {
+        var compare = doc.querySelector('.island.compare');
+        var lending = doc.querySelector('.island.lending');
+        var highest = Math.max(compare.clientHeight, lending.clientHeight);
+
+        compare.style.height = highest + 'px';
+        lending.style.height = highest + 'px';
+    }
+
+});
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

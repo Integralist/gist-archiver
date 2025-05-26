@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go development tools as dependencies] #go #golang #modules #tools #dependencies</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-development-tools-as-dependencies-go-golang-modules-tools-dependencies">[Go development tools as dependencies] #go #golang #modules #tools #dependencies</h1>
+
+<h2 id="readme-md">README.md</h2>
+
+<pre><code class="language-markdown">There are multiple ways to deal with non-application dependencies (i.e. &quot;tools&quot; that your project needs).
+
+- [go tool](#go-tool)
+  - [caveats and issues](#caveats-and-issues)
+  - [multiple module files](#multiple-module-files)
+- [tools.go](#toolsgo)
+- [go run](#go-run)
+
+## go tool
+
+As of Go 1.24 (Feb 2025)
+
+To add a new tool:
+
+```shell
+go get -tool golang.org/x/lint/golint
+go get -tool github.com/mgechev/revive@latest
+</code></pre>
+
+<p>To run the tool:</p>
+
+<pre><code class="language-shell">go tool golint -h
+go tool golang.org/x/lint/golint -h # in case of naming overlap
+</code></pre>
+
+<p>To see a list of all tools:</p>
+
+<pre><code class="language-shell">go tool
+</code></pre>
+
+<p>To update all tools:</p>
+
+<pre><code class="language-shell">go get -u tool
+</code></pre>
+
+<p>If you check the <code>go.mod</code> you&rsquo;ll see a new tool syntax:</p>
+
+<pre><code class="language-go.mod">module testing-tools
+
+go 1.23.4
+
+tool (
+    github.com/mgechev/revive
+    golang.org/x/lint/golint
+)
+</code></pre>
+
+<h3 id="caveats-and-issues">caveats and issues</h3>
+
+<p>Now, there is a problem (sort of), which is that you&rsquo;ll see a bunch of <em>indirect</em> dependencies showing up in the <code>go.mod</code>.</p>
+
+<p>This is because these are the dependencies that your &ldquo;tools&rdquo; need.</p>
+
+<p>I&rsquo;m less concerned about that as a side-effect of using the new <code>go tools</code> feature, but I appreciate it&rsquo;s not ideal.</p>
+
+<p>My concern being: it&rsquo;s more mental overhead.</p>
+
+<p>You don&rsquo;t know if these <em>indirect</em> dependencies are transient dependencies used by your application dependencies, or if they&rsquo;re dependencies for the &ldquo;tools&rdquo; you&rsquo;ve installed.</p>
+
+<p>The reason I&rsquo;m not usually <em>that fussed</em> by this is because I only really care about the &ldquo;direct&rdquo; dependencies, and those are always clear because they don&rsquo;t have <code>// indirect</code> following them.</p>
+
+<p><strong>So the following instructions are only relevant if you really care about this</strong>.</p>
+
+<h3 id="multiple-module-files">multiple module files</h3>
+
+<p>There is another option on the table that we can use, and it doesn&rsquo;t appear to be too much additional maintenance or mental overhead, which is great. But it does have a downside (see the <code>IMPORTANT</code> note at the end of this section).</p>
+
+<p>Essentially, the approach is to have a separate modfile for tools.</p>
+
+<p>It means we&rsquo;d have multiple files now, like this&hellip;</p>
+
+<pre><code>go.mod
+go.sum
+tools.mod
+tools.sum
+</code></pre>
+
+<blockquote>
+<p>[!IMPORTANT]
+If you give the <code>tools.mod</code> a unique module name, let&rsquo;s say <code>go.mod</code> uses <code>github.com/example/foo</code>, and so you make <code>tools.mod</code> use <code>github.com/example/foo/tools</code> then be aware that the use of <code>go mod</code> isn&rsquo;t going to make your <code>tools.mod</code> think it needs the module from <code>go.mod</code> and it&rsquo;ll add it as a dependency (this makes things weird in special cases), so it might be worth making the module name the same between <code>go.mod</code> and <code>tools.mod</code>.</p>
+</blockquote>
+
+<p>To install a new tool:</p>
+
+<pre><code class="language-bash"># instead of...
+go get -tool github.com/mgechev/revive
+
+# we do...
+go get -modfile=tools.mod -tool github.com/mgechev/revive
+</code></pre>
+
+<blockquote>
+<p>[!TIP]
+To <em>remove</em> a tool you can do the above but set the version to <code>@none</code>.</p>
+</blockquote>
+
+<p>And if we want to use that tool we have to make sure to specify the modfile:</p>
+
+<pre><code>$ go tool revive --version
+go: no such tool &quot;revive&quot;
+
+$ go tool -modfile=tools.mod revive --version
+version 1.7.0
+</code></pre>
+
+<p>Having to specify the <code>-modfile</code> flag isn&rsquo;t a big issue as we already have <code>go tool</code> abstracted inside the various Makefile targets, so we should only ever be calling a Makefile target (or in the case of stringer have it codified in the go generate directive in the code itself).</p>
+
+<p>As far as updating tools, you can either do it a dependency at a time or all of them at once:</p>
+
+<pre><code class="language-bash"># instead of...
+go get -u -tool github.com/mgechev/revive@latest
+go get -u tool
+
+# we do...
+go get -u -modfile=tools.mod -tool github.com/mgechev/revive@latest
+go get -u -modfile=tools.mod tool
+</code></pre>
+
+<p>Same for listing the installed tools:</p>
+
+<pre><code class="language-bash"># instead of...
+go tool
+
+# we do...
+go tool -modfile=tools.mod
+</code></pre>
+
+<blockquote>
+<p>[!TIP]
+Can also try <code>go list -modfile=tools.mod tool</code></p>
+</blockquote>
+
+<p>To verify the integrity of the tool dependencies:</p>
+
+<pre><code>go mod verify -modfile=tools.mod
+</code></pre>
+
+<p>Here&rsquo;s an associated Makefile:</p>
+
+<pre><code class="language-Makefile">.PHONY: deps-app-update
+deps-app-update: ## Update all application dependencies
+	go get -u -t ./...
+	go mod tidy
+	if [ -d &quot;vendor&quot; ]; then go mod vendor; fi
+	
+.PHONY: deps-outdated
+deps-outdated:  ## Lists direct dependencies that have a newer version available
+	@go list -u -m -json all | go tool -modfile=tools.mod go-mod-outdated -update -direct
+	
+TOOLS = \
+	cuelang.org/go/cmd/cue \
+	github.com/client9/misspell/cmd/misspell \
+	github.com/go-delve/delve/cmd/dlv \
+	github.com/mgechev/revive \
+	github.com/psampaz/go-mod-outdated \
+	github.com/stealthrocket/wasi-go/cmd/wasirun \
+	github.com/stern/stern \
+	github.com/tetratelabs/wazero/cmd/wazero \
+	golang.org/x/lint/golint \
+	golang.org/x/tools/cmd/stringer \
+	golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness \
+	golang.org/x/vuln/cmd/govulncheck \
+	honnef.co/go/tools/cmd/staticcheck \
+	mvdan.cc/gofumpt \
+
+.PHONY: tools
+tools:
+	@$(foreach tool,$(TOOLS), \
+		if ! go tool -modfile=tools.mod | grep &quot;$(tool)&quot; &gt;/dev/null; then \
+			go get -modfile=tools.mod -tool &quot;$(tool)&quot;@latest; \
+		fi; \
+	)
+
+.PHONY: tools-update
+tools-update:
+	go get -u -modfile=tools.mod tool
+	go mod tidy -modfile=tools.mod
+</code></pre>
+
+<blockquote>
+<p>[!IMPORTANT]
+This approach keeps the main <code>go.mod</code> and <code>go.sum</code> clean of any tool dependencies, but not the other way around. So the <code>tools.mod</code> and <code>tools.sum</code> will ultimately contain all the dependencies from the main <code>go.mod</code> (that is a side-effect of running <code>go mod tidy -modfile=tools.mod</code> as <code>go mod</code> always consults the main <code>go.mod</code>, hence all of its dependencies end up in your <code>tools.mod</code> and <code>tools.sum</code>).</p>
+
+<p>This is unavoidable. There is no way to get around it (trust me, I&rsquo;ve tried 😅).</p>
+
+<p>Now, this isn&rsquo;t the end of the world as the <code>tools</code> directive is still at the top of the <code>tools.mod</code> and is very clear as to what &ldquo;tools&rdquo; are installed, but yeah, you&rsquo;ll also see a bunch of <code>require</code> directives (related to your main Go project) as well, unfortunately.</p>
+
+<p>One thing you could do, is only run the <code>go get -u -modfile=tools.mod tool</code> command, which would keep your <code>tools.mod</code> clean, and would only update <code>tools.sum</code> with the relevant updated dependencies. The problem with that is the old dependencies aren&rsquo;t cleaned out. e.g. if you updated tool &ldquo;foo&rdquo; from version 1.0 to 2.0 then both versions appear in your <code>tools.sum</code> (this is why we have <code>go mod tidy</code> to ensure only 2.0 is present in the <code>tools.sum</code>). So one approach would simple be to manually clean up the <code>go.sum</code> everytime after running <code>go get -u -modfile=tools.mod tool</code> &ndash; it&rsquo;s not that difficult as you just look for the new tool version added and remove the old one, but it&rsquo;s a manual process and that sucks).</p>
+</blockquote>
+
+<h2 id="tools-go">tools.go</h2>
+
+<blockquote>
+<p>[!NOTE]
+For more details on code generation in a general sense, refer to:<br />
+<a href="https://gist.github.com/Integralist/8f39eb897316e1cbeaf9eff8326cfa59" target="_blank">https://gist.github.com/Integralist/8f39eb897316e1cbeaf9eff8326cfa59</a></p>
+</blockquote>
+
+<p>The following file <code>internal/tools/tools.go</code> uses a build tag to avoid the dependencies being compiled into your application binary&hellip;</p>
+
+<pre><code class="language-go">//go:build tools
+
+// Package tools manages go-based tools that are used to develop in this repo.
+package tools
+
+import (
+	_ &quot;github.com/nbio/cart&quot;
+	_ &quot;github.com/nbio/slugger&quot;
+	_ &quot;github.com/psampaz/go-mod-outdated&quot;
+	_ &quot;github.com/stealthrocket/wasi-go/cmd/wasirun&quot;
+	_ &quot;github.com/tetratelabs/wazero/cmd/wazero&quot;
+	_ &quot;golang.org/x/lint/golint&quot;
+	_ &quot;golang.org/x/tools/cmd/stringer&quot;
+	_ &quot;golang.org/x/vuln/cmd/govulncheck&quot;
+)
+
+//go:generate go install github.com/nbio/cart
+//go:generate go install github.com/nbio/slugger
+//go:generate go install github.com/psampaz/go-mod-outdated
+//go:generate go install github.com/stealthrocket/wasi-go/cmd/wasirun
+//go:generate go install github.com/tetratelabs/wazero/cmd/wazero
+//go:generate go install golang.org/x/lint/golint
+//go:generate go install golang.org/x/vuln/cmd/govulncheck
+//go:generate go install golang.org/x/tools/cmd/stringer
+</code></pre>
+
+<p>Notice the <code>go:generate</code> comments? Yup, we invoke them like so (notice the <code>-tags</code> flag):</p>
+
+<pre><code class="language-Makefile">tools: internal/tools/tools.go
+	go generate -v -x -tags tools ./internal/tools/...
+</code></pre>
+
+<h2 id="go-run">go run</h2>
+
+<p>An alternative to this approach is to use <code>go run</code> directly, which downloads tools to a cache but doesn&rsquo;t install them and yet still gives you explicit versioning consistency across developer&rsquo;s machines&hellip;</p>
+
+<pre><code class="language-go">//go:generate go run golang.org/x/tools/cmd/stringer@v0.25.0 -type=Scope -linecomment
+</code></pre>
+
+<p>I then invoke go generation with:</p>
+
+<pre><code class="language-Makefile">.PHONY: go-gen
+go-gen: ## Invoke go generate
+	@# The `-x` flag prints the shell commands that `go generate` runs.
+	go generate -v -x ./mustang/status/...
+</code></pre>
+
+<blockquote>
+<p>[!TIP]
+If you&rsquo;re developing whilst offline, then one advantage the tools.go pattern
+has is that it works whilst offline because the tool is explicitly installed.
+But to work around that with <code>go run</code> you can set <code>export GOPROXY=direct</code> and
+as long as you have the module in your local cache you&rsquo;ll be able to use it.</p>
+</blockquote>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

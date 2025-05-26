@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Example of how Sass mixins when used excessively and without thought can actually be more of a code smell than a helper.</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="example-of-how-sass-mixins-when-used-excessively-and-without-thought-can-actually-be-more-of-a-code-smell-than-a-helper">Example of how Sass mixins when used excessively and without thought can actually be more of a code smell than a helper.</h1>
+
+<h2 id="maintainability-md">Maintainability.md</h2>
+
+<pre><code class="language-markdown">
+We had multiple mixins for prefixing properties such as:
+
+- `border-box`
+- `border-radius`
+- `box-shadow`
+- ...on and on...
+
+When realistically we just needed...
+
+```sass
+@mixin vendor ($property, $value) {
+    -webkit-#{$property}: $value;
+       -moz-#{$property}: $value;
+        -ms-#{$property}: $value;
+         -o-#{$property}: $value;
+            #{$property}: $value;
+}
+</code></pre>
+
+<p>&hellip;which you would use as for example: <code>@include vendor(box-sizing, border-box);</code></p>
+
+<p>Yes this adds prefixes that might not be needed (e.g. border-radius is reasonably well supported in older versions of Firefox and WebKit) but this repeatable content will get chewed up when it comes to GZIP&rsquo;ing.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

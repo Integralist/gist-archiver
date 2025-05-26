@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>netcat web server</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="netcat-web-server">netcat web server</h1>
+
+<h2 id="server-sh">server.sh</h2>
+
+<pre><code class="language-shell">#!/bin/bash
+
+RESPONSE=&quot;HTTP/1.1 200 OK\r\nConnection: keep-alive\r\n\r\n${2:-&quot;OK&quot;}\r\n&quot;
+
+while { echo -en &quot;$RESPONSE&quot;; } | /usr/bin/nc -l &quot;${1:-8080}&quot;; do
+  echo &quot;================================================&quot;
+done
+
+# Note: using GNU netcat doesn't work, not sure why (so we use macOS' netcat)
+</code></pre>
+
+<h2 id="term1-sh">term1.sh</h2>
+
+<pre><code class="language-shell">sudo /usr/bin/nc -l 80 &lt; response.txt
+
+# Note: using GNU netcat doesn't work, not sure why (so we use macOS' netcat)
+</code></pre>
+
+<h2 id="term2-sh">term2.sh</h2>
+
+<pre><code class="language-shell">curl -v 127.0.0.1:80
+
+* Rebuilt URL to: 127.0.0.1:80/
+*   Trying 127.0.0.1...
+* TCP_NODELAY set
+* Connected to 127.0.0.1 (127.0.0.1) port 80 (#0)
+&gt; GET / HTTP/1.1
+&gt; Host: 127.0.0.1
+&gt; User-Agent: curl/7.50.3
+&gt; Accept: */*
+&gt; 
+&lt; HTTP/1.1 200 OK
+&lt; Date: Mon, 27 Jul 2009 12:28:53 GMT
+&lt; Server: Apache/2.2.14 (Win32)
+&lt; Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
+&lt; Content-Length: 88
+&lt; Content-Type: text/html
+&lt; Connection: Closed
+&lt; 
+&lt;p&gt;Stuff&lt;/p&gt;
+* transfer closed with 75 bytes remaining to read
+* Curl_http_done: called premature == 1
+* stopped the pause stream!
+* Closing connection 0
+curl: (18) transfer closed with 75 bytes remaining to read
+</code></pre>
+
+<h2 id="response-txt">response.txt</h2>
+
+<pre><code class="language-text">HTTP/1.1 200 OK
+Content-Type: text/html
+Connection: keep-alive
+
+&lt;p&gt;Stuff&lt;/p&gt;
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Extending placeholder selectors within media queries</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="extending-placeholder-selectors-within-media-queries">Extending placeholder selectors within media queries</h1>
+
+<h2 id="input-scss">input.scss</h2>
+
+<pre><code class="language-scss">%myclass {
+  color: blue;
+
+  @media (min-width: 600px) {
+    background: red;
+  }
+  @media (min-width: 800px) {
+    font-size: 28px;
+  }
+}
+
+.class1 {
+  @media (min-width: 600px) {
+    @extend %myclass;
+  }
+}
+
+.class2 {
+  @media (min-width: 800px) {
+    @extend %myclass;
+  }
+}
+
+.class3 {
+  @extend %myclass;
+}
+
+</code></pre>
+
+<h2 id="output-css">output.css</h2>
+
+<pre><code class="language-css">.class3 {
+  color: blue;
+}
+@media (min-width: 600px) {
+  .class1, .class3 {
+    background: red;
+  }
+}
+@media (min-width: 800px) {
+  .class2, .class3 {
+    font-size: 28px;
+  }
+}
+
+</code></pre>
+
+<h2 id="readme-md">readme.md</h2>
+
+<pre><code class="language-markdown"># Extending placeholder selectors within @media queries
+
+By [blackfalcon](https://github.com/blackfalcon)
+
+Recent updates to Sass 3.2.3 has me thinking. And thanks to @micahgodbolt and @ScottKellum, I think we got to the bottom of this. Special thanks to [Sass Meister](http://sassmeister.com/) for providing the test bed.
+
+The following example illustrates how a placeholder selector can be extended within a @media query, functionality that previously threw an error in Sass. In the previous versions of Sass, the extended rule needed to be in direct context with the @media query. The functionality that this example illustrates is that if there is a common @media query between the new rule and the extended placeholder, this relationship will inherit.
+</code></pre>
+
+</div>
+</body>
+</html>

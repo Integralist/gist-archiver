@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Backbone.js example script (?)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="backbone-js-example-script">Backbone.js example script (?)</h1>
+
+<h2 id="1-main-js">1. main.js</h2>
+
+<pre><code class="language-javascript">requirejs.config({
+    paths: {
+        Backbone: '../Utils/Libraries/backbone'
+    },
+    shim: {
+        'Backbone': {
+            deps: ['../Utils/Libraries/lodash', '../Utils/Libraries/jquery'], // load dependencies
+            exports: 'Backbone' // use the global 'Backbone' as the module value
+        }
+    }
+});
+
+require(['../Views/CustomerLogin'], function (CustomerLoginView) {
+
+    var customer_login = new CustomerLoginView();
+
+});
+</code></pre>
+
+<h2 id="2-views-customerlogin-js">2. Views - CustomerLogin.js</h2>
+
+<pre><code class="language-javascript">define(['../Models/CustomerLogin', 'Backbone'], function (CustomerLogin) {
+
+    return Backbone.View.extend({
+        initialize: function(){
+            // Store the form element and hide it
+            this.form = this.$el.find('form');
+            this.form.hide();
+
+            // Store the Model object for easy reference
+            this.model = new CustomerLogin();
+        },
+
+        // The containing element
+        el: $('.customer-login'),
+
+        // Selectors are scoped to the parent element
+        events: {
+            'click .login-btn': 'toggle_display',
+            'submit form': 'store_user_details'
+        },
+
+        toggle_display: function(){
+            this.form.slideToggle();
+        },
+
+        store_user_details: function (e) {
+            // Calling 'set' triggers the Model's built-in 'validate' method (see: Models/CustomerLogin)
+            this.model.set({
+                account: this.form[0].elements[0].value,
+                password: this.form[0].elements[1].value
+            });
+
+            e.preventDefault();
+        }
+    });
+
+});
+</code></pre>
+
+<h2 id="3-models-customerlogin-js">3. Models - CustomerLogin.js</h2>
+
+<pre><code class="language-javascript">define(['Backbone'], function(){
+
+    return Backbone.Model.extend({
+        initialize: function(){
+            this.on('error', this.handle_errors);
+        },  
+                      
+        validate: function (attributes) {
+            var errors = [];
+
+            if (attributes.account.indexOf('@') === -1) {
+                errors.push({
+                    field: 'account',
+                    value: attributes.account
+                });
+            }
+
+            if (attributes.password === '') {
+                errors.push({
+                    field: 'password',
+                    value: attributes.password
+                });
+            }
+
+            if (errors.length) {
+                return errors
+            }
+        },
+
+        handle_errors: function (model, error) {
+            _.each(error, function (list, iterator) {
+                console.log(list, iterator);
+            });
+        }
+    });
+
+});
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Manually SSH into Vagrant</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="manually-ssh-into-vagrant">Manually SSH into Vagrant</h1>
+
+<h2 id="vagrant-ssh-md">Vagrant SSH.md</h2>
+
+<pre><code class="language-markdown">Reference: http://thediscoblog.com/blog/2013/10/16/ssh-and-vagrant/
+
+</code></pre>
+
+<p>ssh -i <span class="math inline">\((vagrant ssh-config | grep IdentityFile  | awk '{print \)</span>2}&lsquo;) -l vagrant -p 2222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 127.0.0.1</p>
+
+<pre><code>
+&gt; Note: `vagrant` can be changed for any other user  
+e.g. you can add a user when logged in as `root` (see following section)
+
+</code></pre>
+
+<p>vagrant ssh
+su # password: vagrant
+adduser foo
+adduser bar
+addgroup baz # create new group, which above users will be assigned to
+mkdir /var/baz # folder to hold tmux session data
+chgrp baz /var/baz # give group access to tmux session folder
+chmod g+ws /var/baz # ensure new files are accessible to the group
+usermod -aG baz foo # add foo user to the baz group
+usermod -aG baz bar # add bar user to the baz group</p>
+
+<pre><code></code></pre>
+
+</div>
+</body>
+</html>

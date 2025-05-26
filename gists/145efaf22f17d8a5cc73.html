@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>EC2 Roles applied by InstanceProfiles.md</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ec2-roles-applied-by-instanceprofiles-md">EC2 Roles applied by InstanceProfiles.md</h1>
+
+<h2 id="ec2-roles-applied-by-instanceprofiles-md-1">EC2 Roles applied by InstanceProfiles.md</h2>
+
+<pre><code class="language-markdown">&gt; If an application runs on an Amazon EC2 instance and needs to make requests for AWS resources such as Amazon S3 buckets or an DynamoDB table, it must have security credentials. It isn't a good practice to embed or pass IAM user credentials to each instance; distributing long-term credentials to each instance is challenging to manage and a potential security risk. A better strategy is to create a role that is used when the Amazon EC2 instance is launched. An application can then get temporary security credentials from the Amazon EC2 instance
+
+## CloudFormation example
+
+```yaml
+Resources:
+  Instance:
+    Type: &quot;AWS::EC2::Instance&quot;
+
+  Properties:
+    IamInstanceProfile:
+      Ref: &quot;Profile&quot;
+
+  Profile:
+    Type: &quot;AWS::IAM::InstanceProfile&quot;
+
+    Properties:
+      Path: &quot;/&quot;
+      Roles:
+        - Ref: &quot;Role&quot;
+
+  Role:
+    Type: &quot;AWS::IAM::Role&quot;
+
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - &quot;sts:AssumeRole&quot;
+            Effect: &quot;Allow&quot;
+            Principal:
+              Service:
+                - &quot;ec2.amazonaws.com&quot;
+
+  Policy:
+    Type: &quot;AWS::IAM::Policy&quot;
+
+    Properties:
+      Roles:
+        - Ref: &quot;Role&quot;
+      PolicyName: &quot;Policy&quot;
+      PolicyDocument:
+        Statement:
+          - Action: &quot;sts:AssumeRole&quot;
+            Resource: &quot;*&quot;
+            Effect: &quot;Allow&quot;
+
+          - Action: &quot;ec2:Describe*&quot;
+            Resource: &quot;*&quot;
+            Effect: &quot;Allow&quot;
+</code></pre>
+
+<h2 id="assumerole">AssumeRole</h2>
+
+<blockquote>
+<p>A user in one account (the trusted account) can assume a role in another account (the trusting account). To assume a role, a user (or an application that the user is running) calls the AWS STS AssumeRole API. Before the user can assume a role, in the trusting account an administrator must configure the role to assume. In addition, in the trusted account, the user must be given permissions to call the AssumeRole API.</p>
+</blockquote>
+
+<h2 id="instanceprofile">InstanceProfile</h2>
+
+<blockquote>
+<p>An instance profile is a container for an IAM role. Instance profiles are used to pass role information to an Amazon EC2 instance when the instance starts. An instance profile can contain only one role. However, a role can be included in multiple instance profiles.
+&ldquo;`</p>
+</blockquote>
+
+</div>
+</body>
+</html>

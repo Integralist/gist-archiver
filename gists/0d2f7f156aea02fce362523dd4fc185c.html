@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Kali Linux Vim + Bash setup</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="kali-linux-vim-bash-setup">Kali Linux Vim + Bash setup</h1>
+
+<h2 id="01-setup-sh">01. setup.sh</h2>
+
+<pre><code class="language-shell"># use VirtualBox's device menu to insert Guest Additions CDROM
+# copy VBoxLinuxAdditions.run from mounted CDROM
+# then eject the CDROM, run the script and then shutdown the VM
+# you'll then go into VirtualBox and setup shared directories etc
+
+cd ~ &amp;&amp; eject /media/cdrom0
+sudo chmod 755 VBoxLinuxAdditions.run 
+./VBoxLinuxAdditions.run
+
+curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh -o ~/.git-prompt.sh
+
+curl https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.bash-preexec.sh
+
+mkdir -p ~/.vim/{autoload,bundle,colors}
+curl -LSso ~/.vim/colors/integralist.vim https://raw.githubusercontent.com/Integralist/dotfiles/master/.vim/colors/integralist.vim
+curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
+curl -LSso ~/.vim/plugins https://raw.githubusercontent.com/Integralist/dotfiles/master/voom/plugins
+curl -LSso /usr/local/bin/voom https://raw.githubusercontent.com/airblade/voom/master/voom
+chmod 744 /usr/local/bin/voom
+alias voom='VIM_DIR=~/.vim voom'
+
+sudo apt-get install neovim
+ln -s ~/.vim ~/.config/nvim
+ln -s ~/.vimrc ~/.config/nvim/init.vim
+
+curl -LSso ~/googler-completion.bash https://raw.githubusercontent.com/jarun/googler/master/auto-completion/bash/googler-completion.bash
+
+apt-get install git
+git --version
+
+add-apt-repository ppa:pgolm/the-silver-searcher
+apt-get update
+apt-get install silversearcher-ag
+
+apt-get install tree
+
+curl https://sift-tool.org/downloads/sift/sift_0.9.0_linux_amd64.tar.gz -o /tmp/sift.tar.gz
+cd /tmp &amp;&amp; tar xzf sift.tar.gz &amp;&amp; cp sift/sift /usr/bin/sift
+
+mkdir Developer &amp;&amp; cd Developer/
+mkdir Python{2,3} &amp;&amp; cd Python3/
+sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils
+curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
+pyenv install 3.5.1
+pyenv local 3.5.1 
+pip install --upgrade pip
+pip install pylint flake8 flake8-quotes pep8-naming
+pip install --upgrade neovim
+
+cd ../Python2/
+pyenv install 2.7.11
+pyenv local 2.7.11
+pip install --upgrade pip
+pip install pylint flake8 flake8-quotes pep8-naming
+pip install --upgrade neovim
+
+# copied modified files back to the host shared directory
+cp ~/.bashrc /media/sf_Developer/.bashrc
+cp ~/.vimrc /media/sf_Developer/.vimrc
+
+sed -i 's/XKBMODEL=&quot;pc105&quot;/XKBMODEL=&quot;macintosh&quot;/' /etc/default/keyboard # pc105 was old value
+reboot # needed for keyboard to take effect
+</code></pre>
+
+<h2 id="kali-linux-bashrc">kali-linux.bashrc</h2>
+
+<pre><code class="language-shell">#!/usr/bin/env bash
+
+# https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
+source ~/.git-prompt.sh
+
+# https://github.com/jarun/googler/blob/master/auto-completion/bash/googler-completion.bash
+source ~/googler-completion.bash
+
+# tells Readline to perform filename completion in a case-insensitive fashion
+bind &quot;set completion-ignore-case on&quot;
+
+# filename matching during completion will treat hyphens and underscores as equivalent
+bind &quot;set completion-map-case on&quot;
+
+# will get Readline to display all possible matches for an ambiguous pattern at the first &lt;Tab&gt; press instead of at the second
+bind &quot;set show-all-if-ambiguous on&quot;
+
+# no bell sound on error
+bind &quot;set bell-style none&quot;
+
+# enable emacs like bindings (&lt;C-a&gt; and &lt;C-e&gt; for start and end of line shortcuts)
+set -o emacs
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# save multi-line commands as one command
+shopt -s cmdhist
+
+# no need to type cd (works for .. but not -, although alias -- -='cd -' fixes it)
+shopt -s autocd 2&gt;/dev/null
+
+# autocorrect minor spelling errors
+shopt -s dirspell 2&gt;/dev/null
+shopt -s cdspell 2&gt;/dev/null
+
+# check windows size if windows is resized
+shopt -s checkwinsize 2&gt;/dev/null
+
+# use extra globing features. See man bash, search extglob.
+shopt -s extglob 2&gt;/dev/null
+
+# include .files when globbing.
+shopt -s dotglob 2&gt;/dev/null
+
+# case insensitive globbing
+shopt -s nocaseglob 2&gt;/dev/null
+
+# can be useful to utilise the gnu style error message format
+shopt -s gnu_errfmt 2&gt;/dev/null
+
+# ensure SIGHUP is sent to all jobs when an interactive login shell exits
+shopt -s huponexit 2&gt;/dev/null
+
+# custom environment variables
+export GITHUB_USER=&quot;integralist&quot;
+
+# application configuration
+export GOOGLER_COLORS=bjdxxy # https://github.com/jarun/googler/
+export LSCOLORS=&quot;dxfxcxdxbxegedabagacad&quot; # http://geoff.greer.fm/lscolors/
+export MANPAGER=&quot;less -X&quot; # Don't clear the screen after quitting a manual page
+export EDITOR=&quot;vim&quot;
+
+# git specific configurations
+export GIT_PS1_SHOWCOLORHINTS=true
+export GIT_PS1_SHOWDIRTYSTATE=true     # * for unstaged changes (+ staged but uncommitted changes)
+export GIT_PS1_SHOWSTASHSTATE=true     # $ for stashed changes
+export GIT_PS1_SHOWUNTRACKEDFILES=true # % for untracked files
+export GIT_PS1_SHOWUPSTREAM=&quot;auto&quot;     # &gt; for local commits on HEAD not pushed to upstream
+                                       # &lt; for commits on upstream not merged with HEAD
+                                       # = HEAD points to same commit as upstream
+
+# terminal configuration
+export PROMPT_COMMAND='history -a' # record each line as it gets issued
+
+# history configuration
+export HISTSIZE=500000
+export HISTFILESIZE=100000
+export HISTCONTROL=&quot;erasedups:ignoreboth&quot; # avoid duplicate entries
+export HISTIGNORE=&quot;&amp;:[ ]*:exit:ls:bg:fg:history&quot; # don't record some commands
+export HISTTIMEFORMAT='%F %T ' # useful timestamp format
+
+# force colours
+export force_color_prompt=yes
+
+# use colour prompt
+export color_prompt=yes
+
+# \033[    -&gt; Indicates the beginning of color in the text
+# x;yzm    -&gt; Indicates color code
+# \033[00m -&gt; Indicates the end of color in the text
+#
+# 00;30 = black
+# 00;31 = red
+# 00;32 = green
+# 00;33 = yellow
+# 00;34 = blue
+# 00;35 = purple
+# 00;36 = cyan
+# 00;37 = grey
+#
+# use 01 for background colour, rather than text colour
+
+function prompt_right() {
+  echo -e &quot;&quot;
+}
+
+function prompt_left() {
+  num_jobs=$(jobs | wc -l)
+
+  if [ &quot;$num_jobs&quot; -eq 0 ]; then
+    num_jobs=&quot;&quot;
+  else
+    num_jobs=&quot; (\j)&quot;
+  fi
+
+  echo -e &quot;\033[00;33m\u.\033[00m \w/$num_jobs\033[00;31m$(__git_ps1) \033[00m(\A)&quot; # \A is the current time
+}
+
+function prompt() {
+  unset PS1
+  PS1=$(printf &quot;%s \$ &quot; &quot;$(prompt_left)&quot;)
+}
+
+function gms() {
+  git merge --squash &quot;$1&quot;
+}
+
+function gc {
+  if [ -z &quot;$1&quot; ]; then
+    printf &quot;\n\tUse: gc some-existing-branch-name\n&quot;
+  else
+    git checkout &quot;$1&quot;
+  fi
+}
+
+function gcb {
+  if [ -z &quot;$1&quot; ]; then
+    printf &quot;\n\tUse: gcb some-new-branch-name (branch will be created)\n&quot;
+  else
+    git checkout -b &quot;$1&quot;
+  fi
+}
+
+# We use _ to indicate an unused variable
+# Otherwise shellcheck will kick up a stink
+# shellcheck disable=SC2034
+read -r -d '' git_icons &lt;&lt;- EOF
+* unstaged changes
++ staged but uncommitted changes
+$ stashed changes
+% untracked files
+&gt; local commits on HEAD not pushed to upstream
+&lt; commits on upstream not merged with HEAD
+= HEAD points to same commit as upstream
+EOF
+
+# use `type &lt;alias&gt;` to see what is assigned to an alias/fn/builtin/keyword
+alias dotfiles=&quot;ls -a | grep '^\.' | grep --invert-match '\.DS_Store\|\.$'&quot;
+alias getcommit=&quot;git log -1 | cut -d ' ' -f 2 | head -n 1&quot;
+alias sshkey=&quot;ssh-keygen -t rsa -b 4096 -C 'mark.mcdx@gmail.com'&quot;
+alias ls=&quot;ls -GpF&quot;
+alias ll=&quot;ls -laGpFHh&quot;
+alias r=&quot;source ~/.bashrc&quot;
+alias cm=&quot;git checkout master&quot;
+alias c-=&quot;git checkout -&quot;
+alias gb=&quot;git branch&quot;
+alias gbd=&quot;git branch -D&quot;
+alias gcp=&quot;git cherry-pick -&quot;
+alias gpr=&quot;git pull --rebase origin master&quot;
+alias wat='echo &quot;$git_icons&quot;'
+alias wut='echo &quot;$git_icons&quot;'
+alias gitupstream=&quot;echo git branch -u origin/\&lt;branch\&gt;&quot;
+alias drm='docker rm $(docker ps -a -q)'
+alias drmi='docker rmi $(docker images -q)'
+alias pipall=&quot;pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip install -U&quot;
+alias uid='echo $(uuidgen)'
+alias datesec='date +%s'
+
+export PATH=&quot;/root/.pyenv/bin:$PATH&quot;
+eval &quot;$(pyenv init -)&quot;
+eval &quot;$(pyenv virtualenv-init -)&quot;
+
+# https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh
+source ~/.bash-preexec.sh
+
+# preexec executes just BEFORE a command is executed
+# preexec() { echo &quot;just typed $1&quot;; }
+
+# precmd executes just AFTER a command is executed, but before the prompt is shown
+precmd() { prompt; }
+
+</code></pre>
+
+<h2 id="kali-linux-vimrc">kali-linux.vimrc</h2>
+
+<pre><code class="language-vim"># installation of vim plugins using Voom
+
+&quot; Use the system clipboard
+set clipboard+=unnamed
+
+&quot; Switch syntax highlighting on
+syntax on
+
+&quot; Don't worry about trying to support old school Vi features
+set nocompatible
+
+&quot; Disable Mouse (this is something that only recently affected me within NeoVim)
+&quot; Seemed using the mouse to select some text would make NeoVim jump into VISUAL mode?
+set mouse=
+
+&quot; No backup files
+set nobackup
+
+&quot; No write backup
+set nowritebackup
+
+&quot; No swap file
+set noswapfile
+
+&quot; Command history
+set history=100
+
+&quot; Always show cursor
+set ruler
+
+&quot; Show incomplete commands
+set showcmd
+
+&quot; Incremental searching (search as you type)
+set incsearch
+
+&quot; Highlight search matches
+set hlsearch
+
+&quot; Ignore case in search
+set smartcase
+
+&quot; Make sure any searches /searchPhrase doesn't need the \c escape character
+set ignorecase
+
+&quot; A buffer is marked as ‘hidden’ if it has unsaved changes, and it is not currently loaded in a window
+&quot; If you try and quit Vim while there are hidden buffers, you will raise an error:
+&quot; E162: No write since last change for buffer “a.txt”
+set hidden
+
+&quot; Turn word wrap off
+set nowrap
+
+&quot; Allow backspace to delete end of line, indent and start of line characters
+set backspace=indent,eol,start
+
+&quot; Convert tabs to spaces
+set expandtab
+
+&quot; Set tab size in spaces (this is for manual indenting)
+set tabstop=2
+
+&quot; The number of spaces inserted for a tab (used for auto indenting)
+set shiftwidth=2
+
+&quot; Turn on line numbers
+set number
+
+&quot; Highlight tailing whitespace
+set list listchars=tab:\ \ ,trail:·
+
+&quot; Get rid of the delay when pressing O (for example)
+&quot; http://stackoverflow.com/questions/2158516/vim-delay-before-o-opens-a-new-line
+set timeout timeoutlen=1000 ttimeoutlen=100
+
+&quot; Always show status bar
+set laststatus=2
+
+&quot; Set the status line to something useful
+set statusline=%f\ %m\ %=L:%l/%L\ C:%c\ (%p%%)
+
+&quot; UTF encoding
+set encoding=utf-8
+
+&quot; Autoload files that have changed outside of vim
+set autoread
+
+&quot; Better splits (new windows appear below and to the right)
+set splitbelow
+set splitright
+
+&quot; Highlight the current line
+set cursorline
+
+&quot; Ensure Vim doesn't beep at you every time you make a mistype
+set visualbell
+
+&quot; Visual autocomplete for command menu (e.g. :e ~/path/to/file)
+set wildmenu
+
+&quot; Redraw only when we need to (i.e. don't redraw when executing a macro)
+set lazyredraw
+
+&quot; Highlight a matching [{()}] when cursor is placed on start/end character
+set showmatch
+
+&quot; &lt;C-x&gt;&lt;C-k&gt; for word autocomplete
+set dictionary=/usr/share/dict/words
+
+&quot; Use Ag for :grep command (would use Sift but it doesn't work well)
+set grepprg=ag\ --nogroup\ --nocolor
+
+&quot; Set built-in file system explorer to use layout similar to the NERDTree plugin
+&quot; P opens file in previously focused window
+&quot; o opens file in new horizontal split window
+&quot; v opens file in new vertical split window
+&quot; t opens file in new tab split window
+let g:netrw_liststyle=3
+
+execute pathogen#infect()
+filetype plugin indent on
+
+let g:default_theme=&quot;gruvbox&quot;
+
+set background=dark
+execute 'colorscheme ' . g:default_theme
+
+&quot; http://pep8.readthedocs.io/en/latest/intro.html#error-codes
+&quot; https://github.com/PyCQA/pep8-naming
+let g:neomake_python_flake8_args = neomake#makers#ft#python#flake8()['args'] + ['--ignore', 'N802']
+
+&quot; http://pylint-messages.wikidot.com/all-codes
+&quot; http://pylint-messages.wikidot.com/all-messages
+let g:neomake_python_pylint_args = neomake#makers#ft#python#pylint()['args'] + ['-d', 'missing-docstring,invalid-name']
+
+&quot; Enable both default Python linters
+let g:neomake_python_enabled_makers = ['flake8', 'pylint']
+
+&quot; https://github.com/koalaman/shellcheck/wiki/SC1091
+let g:neomake_sh_shellcheck_args = neomake#makers#ft#sh#shellcheck()['args'] + ['-e', 'SC1090,SC1091']
+let g:neomake_bash_enabled_makers = ['shellcheck']
+
+&quot; General Neomake configuration
+let g:neomake_open_list=2
+let g:neomake_list_height=5
+let g:neomake_verbose=3
+
+&quot; Run Neomake whenever we enter or write a buffer
+autocmd BufWritePost,BufWinEnter * silent Neomake
+
+&quot; The following configuration is useful if you don't like
+&quot; the icons (which are provided by default) for highlighting errors/warnings
+&quot;
+&quot; let g:neomake_warning_sign = {
+&quot;   \ 'text': 'W',
+&quot;   \ 'texthl': 'WarningMsg',
+&quot;   \ }
+&quot; let g:neomake_error_sign = {
+&quot;   \ 'text': 'E',
+&quot;   \ 'texthl': 'ErrorMsg',
+&quot;   \ }
+
+&quot; vim-go
+let g:go_fmt_command = &quot;goimports&quot;
+let g:go_metalinter_autosave = 1
+let g:go_metalinter_autosave_enabled = ['vet', 'golint']
+let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck']
+
+&quot; tabular
+map &lt;Leader&gt;e :Tabularize /=&lt;CR&gt;
+map &lt;Leader&gt;c :Tabularize /:&lt;CR&gt;
+map &lt;Leader&gt;es :Tabularize /=\zs&lt;CR&gt;
+map &lt;Leader&gt;cs :Tabularize /:\zs&lt;CR&gt;
+
+&quot; ctrlp
+map &lt;leader&gt;t &lt;C-p&gt;
+map &lt;leader&gt;y :CtrlPBuffer&lt;CR&gt;
+let g:ctrlp_show_hidden=1
+let g:ctrlp_working_path_mode=0
+let g:ctrlp_max_height=30
+let g:ctrlp_arg_map = 1 &quot; Override &lt;C-o&gt; to provide options for how to open files
+set wildignore+=*/.git/*,*/.hg/*,*/.svn/*.,*/.DS_Store &quot; Files matched are ignored when expanding wildcards
+let g:ctrlp_user_command = 'ag %s -l --nocolor -g &quot;&quot;' &quot; Use Ag for searching instead of VimScript (might not work with ctrlp_show_hidden and ctrlp_custom_ignore)
+let g:ctrlp_custom_ignore = '\v[\/]((node_modules)|\.(git|svn|grunt|sass-cache))$' &quot; Directories to ignore when fuzzy finding
+
+&quot; ack
+let g:ackprg = 'ag --nogroup --nocolor --column'
+
+&quot; vim-textobj-rubyblock
+runtime macros/matchit.vim
+
+&quot; vim-commentary
+xmap &lt;leader&gt;&lt;leader&gt;&lt;leader&gt; &lt;Plug&gt;Commentary
+nmap &lt;leader&gt;&lt;leader&gt;&lt;leader&gt; &lt;Plug&gt;Commentary
+omap &lt;leader&gt;&lt;leader&gt;&lt;leader&gt; &lt;Plug&gt;Commentary
+nmap &lt;leader&gt;&lt;leader&gt;&lt;leader&gt; &lt;Plug&gt;CommentaryLine
+
+&quot; gist
+let g:github_user = $GITHUB_USER
+let g:gist_detect_filetype = 1
+let g:gist_open_browser_after_post = 1
+
+&quot; camelcase
+map &lt;silent&gt; w &lt;Plug&gt;CamelCaseMotion_w
+map &lt;silent&gt; b &lt;Plug&gt;CamelCaseMotion_b
+map &lt;silent&gt; e &lt;Plug&gt;CamelCaseMotion_e
+sunmap w
+sunmap b
+sunmap e
+
+&quot; nofrils
+let g:nofrils_strbackgrounds=1 &quot; enable highlighting of strings and mispellings
+
+&quot; NeoVim shortcut for quick terminal exit
+:silent! tnoremap &lt;Esc&gt; &lt;C-\&gt;&lt;C-n&gt;
+
+fun! StripTrailingWhitespace()
+  &quot; Don't strip on these filetypes
+  if &amp;ft =~ 'markdown'
+    return
+  endif
+  %s/\s\+$//e
+endfun
+autocmd BufWritePre * call StripTrailingWhitespace()
+
+autocmd FileType gitcommit setlocal spell textwidth=72
+autocmd FileType markdown setlocal wrap linebreak nolist textwidth=0 wrapmargin=0 &quot; http://vim.wikia.com/wiki/Word_wrap_without_line_breaks
+autocmd FileType sh,cucumber,ruby,yaml,zsh,vim setlocal shiftwidth=2 tabstop=2 expandtab
+autocmd FileType php,python setlocal shiftwidth=4 tabstop=4 expandtab
+
+&quot; See `:h fo-table` for details of formatoptions `t` to force wrapping of text
+autocmd FileType python,ruby,go,sh,javascript setlocal textwidth=79 formatoptions+=t
+
+&quot; Set different colorscheme for Bash and VimL scripts
+autocmd BufEnter *.sh,*.vimrc,*.txt colorscheme github
+autocmd BufLeave *.sh,*.vimrc,*.txt execute 'set background=dark' | execute 'colorscheme ' . g:default_theme
+
+&quot; Specify syntax highlighting for specific files
+autocmd Bufread,BufNewFile *.spv set filetype=php
+autocmd Bufread,BufNewFile *.md set filetype=markdown &quot; Vim interprets .md as 'modula2' otherwise, see :set filetype?
+
+&quot; Run Goyo plugin on Markdown files for when I'm writing blog posts
+autocmd Bufread,BufEnter *.md,*.txt execute 'normal zR' | execute 'Goyo'
+autocmd BufLeave *.md,*.txt execute 'Goyo!'
+
+&quot; Automatically reload vimrc when it's saved
+&quot; autocmd BufWritePost .vimrc so ~/.vimrc
+
+&quot; Rainbow parenthesis always on!
+autocmd VimEnter * if exists(':RainbowParenthesesToggle') | exe &quot;:RainbowParenthesesToggleAll&quot; | endif
+
+&quot; Change colourscheme when diffing
+fun! SetDiffColours()
+  highlight DiffAdd    cterm=bold ctermfg=white ctermbg=DarkGreen
+  highlight DiffDelete cterm=bold ctermfg=white ctermbg=DarkGrey
+  highlight DiffChange cterm=bold ctermfg=white ctermbg=DarkBlue
+  highlight DiffText   cterm=bold ctermfg=white ctermbg=DarkRed
+endfun
+autocmd FilterWritePre * call SetDiffColours()
+
+&quot; Map § key to :nohlsearch (or :noh for short)
+map § :nohlsearch&lt;CR&gt;
+</code></pre>
+
+</div>
+</body>
+</html>

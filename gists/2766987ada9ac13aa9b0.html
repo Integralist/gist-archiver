@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Test "Duck Typing" using RSpec 3's `instance_double`</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="test-duck-typing-using-rspec-3-s-instance-double">Test &ldquo;Duck Typing&rdquo; using RSpec 3&rsquo;s <code>instance_double</code></h1>
+
+<h2 id="duck-typing-rspec-rb">duck typing rspec.rb</h2>
+
+<pre><code class="language-ruby">class Calculator
+  def reduce(operator)
+    fail &quot;You shouldn't be calling this directly!&quot;
+  end
+end
+
+def uses_a_duck_type(calculation)
+  calculation.reduce(:+)
+end
+
+RSpec.describe &quot;various ways to use instance_double with duck typing&quot; do
+
+  context &quot;defining a local module to document the duck type&quot; do
+    duck_type = Module.new do
+      def reduce(operator)
+        fail &quot;You shouldn't be calling this directly!&quot;
+      end
+    end
+
+    it &quot;works as expected with duck types&quot; do
+      stubbed_calculator = instance_double(duck_type, reduce: 2)
+      expect(uses_a_duck_type(stubbed_calculator)).to eq 2
+    end
+  end
+
+  context &quot;using the assumed Calculator class&quot; do
+    it &quot;works with we intended&quot; do
+      stubbed_calculator = instance_double(&quot;Calculator&quot;, reduce: 5)
+      expect(uses_a_duck_type(stubbed_calculator)).to eq 5
+    end
+  end
+
+  context &quot;using a common object which quacks properly&quot; do
+    it &quot;works with an Array as well&quot; do
+      stubbed_calculator = instance_double(&quot;Array&quot;, reduce: :ohmy)
+      expect(uses_a_duck_type(stubbed_calculator)).to eq :ohmy
+    end
+  end
+
+end
+</code></pre>
+
+</div>
+</body>
+</html>

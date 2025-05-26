@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby Sinatra Sessions</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-sinatra-sessions">Ruby Sinatra Sessions</h1>
+
+<h2 id="ruby-sinatra-sessions-rb">Ruby Sinatra Sessions.rb</h2>
+
+<pre><code class="language-ruby">require &quot;sinatra&quot;
+
+enable :sessions
+set :session_secret, &quot;*&amp;(^B234&quot;
+
+get &quot;/&quot; do
+  id = get_session :foo
+  &quot;session id: #{id}\n&quot;
+end
+
+def get_session(id)
+  return session[id] unless session[id].nil?
+  session[id] = SecureRandom.uuid
+end
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Run Python tests using -m]</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="run-python-tests-using-m">[Run Python tests using -m]</h1>
+
+<h2 id="run-python-tests-using-m-md">Run Python tests using -m.md</h2>
+
+<pre><code class="language-markdown">## Syntax
+
+```bash
+python -m &lt;path/to/test/directory/&gt;.&lt;name_of_test_file&gt;
+</code></pre>
+
+<h2 id="example">Example</h2>
+
+<p>Given the following directory structure:</p>
+
+<pre><code>└── test
+    ├── __init__.py
+    ├── foo.py
+    └── bar.py
+</code></pre>
+
+<p>You can execute the tests in each file like so:</p>
+
+<pre><code class="language-bash">python -m test.foo
+python -m test.bar
+</code></pre>
+
+<p>This requires the code to use:</p>
+
+<pre><code class="language-python">if __name__ == '__main__':
+    unittest.main()
+</code></pre>
+
+<p>See also: <a href="https://realpython.com/python-testing/#executing-your-first-test" target="_blank">https://realpython.com/python-testing/#executing-your-first-test</a>
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

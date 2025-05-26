@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang stream new-line delimited JSON to Server] #go #golang #api #stream #json #ndjson</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-stream-new-line-delimited-json-to-server-go-golang-api-stream-json-ndjson">[Golang stream new-line delimited JSON to Server] #go #golang #api #stream #json #ndjson</h1>
+
+<h2 id="0-readme-md">0. README.md</h2>
+
+<pre><code class="language-markdown">The `application/x-ndjson` MIME type refers to a type of data format called Newline delimited JSON (NDJSON). NDJSON is a way of storing structured data as a sequence of JSON (JavaScript Object Notation) objects, separated by newline characters. 
+
+Each line of an NDJSON file contains a complete JSON object, which means that a single NDJSON file can contain multiple JSON objects. This format is commonly used for streaming large datasets, as it allows data to be processed in a continuous and efficient manner.
+
+The `application/x-ndjson` MIME type is used to indicate that a file or data stream contains NDJSON formatted data. The `x` in the MIME type indicates that it is an unregistered type, which means that it is not an official MIME type defined by the Internet Assigned Numbers Authority (IANA). However, it is widely used and supported by many applications and APIs that deal with structured data.
+
+Here's an example of how you could use Go to send an NDJSON-formatted payload to an API:
+
+```go
+package main
+
+import (
+	&quot;bytes&quot;
+	&quot;encoding/json&quot;
+	&quot;fmt&quot;
+	&quot;net/http&quot;
+)
+
+func main() {
+	// Define some example JSON objects
+	obj1 := map[string]string{&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: &quot;30&quot;}
+	obj2 := map[string]string{&quot;name&quot;: &quot;Bob&quot;, &quot;age&quot;: &quot;40&quot;}
+
+	// Create a buffer to hold the NDJSON payload
+	var payload bytes.Buffer
+
+	// Encode each object as a JSON string and write it to the payload buffer with a newline separator
+	enc := json.NewEncoder(&amp;payload)
+	enc.Encode(obj1)
+	payload.WriteByte('\n')
+	enc.Encode(obj2)
+	payload.WriteByte('\n')
+
+	// Create a new HTTP request to the API endpoint
+	req, err := http.NewRequest(&quot;POST&quot;, &quot;http://example.com/api&quot;, &amp;payload)
+	if err != nil {
+		fmt.Println(&quot;Error creating request:&quot;, err)
+		return
+	}
+
+	// Set the Content-Type header to indicate that we're sending NDJSON data
+	req.Header.Set(&quot;Content-Type&quot;, &quot;application/x-ndjson&quot;)
+
+	// Send the request and print the response
+	client := &amp;http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(&quot;Error sending request:&quot;, err)
+		return
+	}
+	defer resp.Body.Close()
+
+	fmt.Println(&quot;Response status:&quot;, resp.Status)
+}
+</code></pre>
+
+<p>In this example, we define two JSON objects (<code>obj1</code> and <code>obj2</code>) and encode them as strings using the <code>json</code> package. We then write each encoded object to a buffer, with a newline character separating them. This creates an NDJSON-formatted payload.</p>
+
+<p>We then create a new HTTP request to an API endpoint and set the request body to our NDJSON payload. We also set the <code>Content-Type</code> header to indicate that we&rsquo;re sending NDJSON data.</p>
+
+<p>Finally, we send the request using an <code>http.Client</code> and print the response status. Note that this example is simplified and doesn&rsquo;t include error handling for the sake of brevity. In a real-world application, you would want to handle errors appropriately.</p>
+
+<pre><code>
+## 1. Example.sh
+
+```shell
+./stream.sh 100000 | go run client.go
+</code></pre>
+
+<h2 id="2-stream-sh">2. stream.sh</h2>
+
+<pre><code class="language-shell">#!/bin/bash
+
+generate_json_object() {
+  echo &quot;{\&quot;key\&quot;:\&quot;$(openssl rand -hex 16)-$RANDOM-$(date +%s)\&quot;,\&quot;value\&quot;:\&quot;$(echo object_$RANDOM | base64)\&quot;}&quot;
+}
+
+for _ in $(seq 1 &quot;$1&quot;); do
+  generate_json_object
+done
+</code></pre>
+
+<h2 id="3-client-go">3. client.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;log&quot;
+	&quot;net/http&quot;
+	&quot;os&quot;
+)
+
+func main() {
+	req, err := http.NewRequest(&quot;POST&quot;, &quot;http://localhost:8080/stream&quot;, os.Stdin)
+	if err != nil {
+		log.Println(&quot;Failed to create HTTP request:&quot;, err)
+	}
+	req.Header.Set(&quot;Content-Type&quot;, &quot;application/json&quot;)
+
+	client := &amp;http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Println(&quot;Failed to send HTTP request:&quot;, err)
+	}
+	defer resp.Body.Close()
+
+	log.Println(&quot;Response:&quot;, resp.Status)
+}
+</code></pre>
+
+<h2 id="4-server-go">4. server.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;bufio&quot;
+	&quot;encoding/json&quot;
+	&quot;io&quot;
+	&quot;log&quot;
+	&quot;net/http&quot;
+	&quot;os&quot;
+)
+
+type MyServerObject struct {
+	ID   int    `json:&quot;id&quot;`
+	Name string `json:&quot;name&quot;`
+}
+
+func handleJSONStream(w http.ResponseWriter, r *http.Request) {
+	reader := bufio.NewReader(io.TeeReader(r.Body, os.Stdout))
+	defer r.Body.Close()
+
+	decoder := json.NewDecoder(reader)
+
+	for {
+		var obj MyServerObject
+		err := decoder.Decode(&amp;obj)
+		if err != nil {
+			if err.Error() == &quot;EOF&quot; {
+				break
+			}
+			http.Error(w, &quot;Failed to decode JSON object&quot;, http.StatusBadRequest)
+			return
+		}
+
+		log.Printf(&quot;Received object: %+v&quot;, obj)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(&quot;Data processed successfully&quot;))
+}
+
+func main() {
+	http.HandleFunc(&quot;/stream&quot;, handleJSONStream)
+	log.Fatal(http.ListenAndServe(&quot;:8080&quot;, nil))
+}
+</code></pre>
+
+</div>
+</body>
+</html>

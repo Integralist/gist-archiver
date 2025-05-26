@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Terraform Fastly C@E Service] #terraform #fastly #compute #serverless #edge</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="terraform-fastly-c-e-service-terraform-fastly-compute-serverless-edge">[Terraform Fastly C@E Service] #terraform #fastly #compute #serverless #edge</h1>
+
+<h2 id="1-readme-md">1. README.md</h2>
+
+<pre><code class="language-markdown">This is a dirty hack to get a locally changed file to be depended on by an external resource provided by the Fastly Terraform provider.
+
+i.e. get Terraform to actual compile the wasm binary that would otherwise be manually produced using `fastly compute build`.
+
+&gt; **NOTE:** The example is for an older version of the Fastly Terraform provider, a more recent version (e.g. 5.4.0 at the time of writing) uses a different setup (shown below) so you'll need to tweak the older examples.
+
+```hcl
+terraform {
+  required_providers {
+    fastly = {
+      source  = &quot;fastly/fastly&quot;
+      version = &quot;5.4.0&quot;
+    }
+  }
+}
+
+data &quot;fastly_package_hash&quot; &quot;example&quot; {
+  filename = &quot;./pkg/testing-fastly-tf-cli-deploys.tar.gz&quot;
+}
+
+resource &quot;fastly_service_compute&quot; &quot;testing-fastly-tf-cli-deploys&quot; {
+  name = &quot;testing-fastly-tf-cli-deploys&quot;
+
+  domain {
+    name = &quot;testing-fastly-tf-cli-deploys.edgecompute.app&quot;
+  }
+
+  package {
+    filename         = &quot;./pkg/testing-fastly-tf-cli-deploys.tar.gz&quot;
+    source_code_hash = data.fastly_package_hash.example.hash
+  }
+
+  force_destroy = true
+}
+</code></pre>
+
+<pre><code>
+## main.tf
+
+```hcl
+# https://www.terraform.io/docs/language/settings/index.html
+terraform {
+  # https://www.terraform.io/docs/language/providers/requirements.html
+  required_providers {
+    # https://registry.terraform.io/providers/fastly/fastly
+    fastly = {
+      source  = &quot;fastly/fastly&quot;
+      version = &quot;0.27.0&quot;
+    }
+    # https://registry.terraform.io/providers/hashicorp/null
+    null = {
+      source = &quot;hashicorp/null&quot;
+      version = &quot;3.1.0&quot;
+    }
+    # https://registry.terraform.io/providers/hashicorp/local
+    local = {
+      source = &quot;hashicorp/local&quot;
+      version = &quot;2.1.0&quot;
+    }
+  }
+}
+
+# https://registry.terraform.io/providers/fastly/fastly/latest/docs/resources/service_compute
+resource &quot;fastly_service_compute&quot; &quot;test_service&quot; {
+  name = &quot;compute_dictionary&quot;
+
+  domain {
+    name    = &quot;integralist-computehack.edgecompute.app&quot;
+    comment = &quot;test-domain&quot;
+  }
+
+  package {
+    filename         = data.local_file.package_name.filename
+    source_code_hash = sha512(data.local_file.package_name.content)
+    
+    # if I was just working with a standard pre-built package (i.e. a package I manually compiled) I'd use...
+    #
+    # filename         = &quot;package-built-locally-via-cli.tar.gz&quot;
+    # source_code_hash = filesha512(&quot;package-built-locally-via-cli.tar.gz&quot;)
+  }
+
+  backend {
+    address = &quot;127.0.0.1&quot;
+    name    = &quot;originless&quot;
+    port    = 80
+  }
+
+  force_destroy = true
+}
+
+
+# https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource
+resource &quot;null_resource&quot; &quot;build_package&quot; {
+  triggers = {
+    package_name = &quot;package.tar.gz&quot;
+  }
+  
+  # https://www.terraform.io/docs/language/resources/provisioners/local-exec.html
+  provisioner &quot;local-exec&quot; {
+    command = &quot;fastly compute build&quot; 
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/local/latest/docs/data-sources/file
+data &quot;local_file&quot; &quot;package_name&quot; {
+  filename = null_resource.build_package.triggers.package_name
+}
+</code></pre>
+
+</div>
+</body>
+</html>

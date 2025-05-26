@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Curl to JSON] #curl #bash #shell #json</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="curl-to-json-curl-bash-shell-json">[Curl to JSON] #curl #bash #shell #json</h1>
+
+<h2 id="curl-to-json-bash">curl to json.bash</h2>
+
+<pre><code class="language-shell"># https://daniel.haxx.se/blog/2020/03/17/curl-write-out-json/
+#
+curl --write-out '%{json}' https://example.com -svo /dev/null | jq
+
+{
+    &quot;url_effective&quot;: &quot;https://example.com/&quot;,
+    &quot;method&quot;: &quot;GET&quot;,
+    &quot;http_code&quot;: 200,
+    &quot;response_code&quot;: 200,
+    &quot;http_connect&quot;: 0,
+    &quot;time_total&quot;: 0.365787,
+    &quot;time_namelookup&quot;: 0.001746,
+    &quot;time_connect&quot;: 0.002049,
+    &quot;time_appconnect&quot;: 0.27916,
+    &quot;time_pretransfer&quot;: 0.279358,
+    &quot;time_starttransfer&quot;: 0.365528,
+    &quot;size_header&quot;: 351,
+    &quot;size_request&quot;: 75,
+    &quot;size_download&quot;: 1256,
+    &quot;size_upload&quot;: 0,
+    &quot;speed_download&quot;: 3441,
+    &quot;speed_upload&quot;: 0,
+    &quot;content_type&quot;: &quot;text/html; charset=UTF-8&quot;,
+    &quot;num_connects&quot;: 1,
+    &quot;time_redirect&quot;: 0.0,
+    &quot;num_redirects&quot;: 0,
+    &quot;ssl_verify_result&quot;: 0,
+    &quot;proxy_ssl_verify_result&quot;: 0,
+    &quot;filename_effective&quot;: &quot;/dev/null&quot;,
+    &quot;remote_ip&quot;: &quot;93.184.216.34&quot;,
+    &quot;remote_port&quot;: 443,
+    &quot;local_ip&quot;: &quot;127.0.0.1&quot;,
+    &quot;local_port&quot;: 61028,
+    &quot;http_version&quot;: &quot;1.1&quot;,
+    &quot;scheme&quot;: &quot;HTTPS&quot;,
+    &quot;curl_version&quot;: &quot;libcurl/7.72.0 SecureTransport zlib/1.2.11&quot;
+}
+</code></pre>
+
+</div>
+</body>
+</html>

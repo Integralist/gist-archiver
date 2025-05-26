@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Search for files and pipe into Vim</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="search-for-files-and-pipe-into-vim">Search for files and pipe into Vim</h1>
+
+<h2 id="search-files-pipe-to-vim-bash">search-files-pipe-to-vim.bash</h2>
+
+<pre><code class="language-shell">nvim $(sift -n SomePattern | awk -F : '{ print $1 &quot; +:&quot; $2 }')
+</code></pre>
+
+</div>
+</body>
+</html>

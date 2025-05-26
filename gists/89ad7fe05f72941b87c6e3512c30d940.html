@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[RipGrep inline file replacements] #riggrep #rg #sed #replacement #bash #shell</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ripgrep-inline-file-replacements-riggrep-rg-sed-replacement-bash-shell">[RipGrep inline file replacements] #riggrep #rg #sed #replacement #bash #shell</h1>
+
+<h2 id="ripgrep-inline-file-replacements-sh">RipGrep inline file replacements.sh</h2>
+
+<pre><code class="language-shell">#!/bin/bash
+
+# DESCRIPTION:
+# Replaces all instances where...
+#
+#   `Id` should be `ID`
+#   `Acl` should be `ACL`
+#   `Http` should be `HTTP`
+#
+# DEPENDENCIES:
+# brew install ripgrep
+
+CLIENT=$1
+
+function replace {
+  local pattern=$1
+  local replacement=$2
+  local file=$3
+
+  rg $1 \
+    --case-sensitive \
+    --type go \
+    --type md \
+    --color never \
+    --no-line-number \
+    --passthru \
+    --replace $2 \
+    &quot;$file&quot; &gt; tmp.txt &amp;&amp; mv tmp.txt &quot;$file&quot;
+
+  rm tmp.txt 2&gt; /dev/null
+}
+
+FILES=&quot;./$CLIENT/**/*&quot;
+for f in $FILES
+do
+  echo &quot;Processing $f...&quot;
+  # ID
+  replace '\b(\w+)Id([A-Z]\w+)?\b' '${1}ID${2}' &quot;$f&quot;
+  # ACL
+  replace '([a-z])?Acl(\w+)?\b' '${1}ACL${2}' &quot;$f&quot;
+  # HTTP
+  replace '([a-z])?Http(\w+)?\b' '${1}HTTP${2}' &quot;$f&quot;
+done
+
+cd ./tests/simple-client-test/go-client-test
+go run main.go
+cd -
+</code></pre>
+
+</div>
+</body>
+</html>

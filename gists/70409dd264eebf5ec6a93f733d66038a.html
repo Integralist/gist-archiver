@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Semaphore] #python #concurrency #semaphore</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-semaphore-python-concurrency-semaphore">[Python Semaphore] #python #concurrency #semaphore</h1>
+
+<h2 id="python-semaphore-py">Python Semaphore.py</h2>
+
+<pre><code class="language-python">import asyncio
+
+async def do_work(semaphore):
+    # new: only enter if semaphore can be acquired
+    async with semaphore:
+        print(&quot;start work&quot;)
+        await asyncio.sleep(1) # optionally do a lot of work that will consume memory
+        print(&quot;end work&quot;)
+
+async def main():
+    tasks = []
+    
+    # new: instantiate a semaphore before calling our coroutines
+    semaphore = asyncio.BoundedSemaphore(10)
+    
+    for i in range(100):
+        # new: pass the semaphore to the coroutine that will limit itself
+        tasks.append(asyncio.ensure_future(do_work(semaphore)))
+        
+    await asyncio.gather(*tasks)
+
+if __name__ == &quot;__main__&quot;:
+    loop = asyncio.get_event_loop()
+    loop.set_debug(True)
+    loop.run_until_complete(main())
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Netcat</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="netcat">Netcat</h1>
+
+<h2 id="netcat-md">Netcat.md</h2>
+
+<pre><code class="language-markdown">Install the netcat `nc` command with Homebrew (otherwise Mac OS X version is really old and the interface is different):
+
+```bash
+brew install netcat
+</code></pre>
+
+<p>Use netcat to listen for incoming TCP connections on port 3000:</p>
+
+<pre><code class="language-bash">nc -l -p 3000
+</code></pre>
+
+<blockquote>
+<p>Note: old versions of netcat consider using <code>-l</code> and <code>-p</code> incorrect usage<br />
+e.g. this would work instead for old versions of netcat <code>nc -l 3000</code></p>
+</blockquote>
+
+<p>This instance of netcat is considered a &ldquo;listener&rdquo; and is now waiting for a connection.</p>
+
+<p>Once you connect to the listener, the connection will act like a channel/pipe.</p>
+
+<p>Use netcat to establish a TCP connection (run in a new terminal window so as to not conflict with listening netcat instance):</p>
+
+<pre><code class="language-bash">nc localhost 3000
+</code></pre>
+
+<p>You&rsquo;ve set up both ends of the TCP connection. If you type into one of those terminal windows and hit <code>&lt;Enter&gt;</code>, you should see whatever you typed appear in the other window. Any data put through one end of the pipe will appear at the other end of the pipe.</p>
+
+<p>Execute <code>&lt;Ctrl-c&gt;</code> to stop both netcat instances.</p>
+
+<p>Now, to send a HTTP request we&rsquo;ll need two terminal windows again. In the first we&rsquo;ll again be listening on port 3000:</p>
+
+<pre><code class="language-bash">nc -l -p 3000
+</code></pre>
+
+<p>But this time in the other terminal window we&rsquo;ll use <code>curl</code> to send a HTTP request to our <code>localhost:3000</code> that netcat has set-up:</p>
+
+<pre><code class="language-bash">curl http://127.0.0.1:3000/
+</code></pre>
+
+<p>Now in the listening netcat terminal window simply type the following HTML code, then press <code>&lt;Enter&gt;</code> (that&rsquo;s important, it doesn&rsquo;t work otherwise) and then stop the netcat instance by executing <code>&lt;Ctrl-c&gt;</code> to see the HTML response sent back to the other terminal window where you made the initial <code>curl</code> request (you can do this in your browser as well if you want to see the HTML actually rendered):</p>
+
+<pre><code class="language-bash">&lt;h1&gt;hello world&lt;/h1&gt;
+</code></pre>
+
+<p>If you try this from both the terminal and from a proper browser request, you&rsquo;ll notice a slight difference between sending a <code>curl</code> request and sending a HTTP request from your browser:</p>
+
+<p><strong>curl request</strong>:</p>
+
+<pre><code class="language-bash">GET / HTTP/1.1
+User-Agent: curl/7.37.1
+Host: 127.0.0.1:3000
+Accept: */*
+</code></pre>
+
+<p><strong>browser request</strong>:</p>
+
+<pre><code class="language-bash">GET / HTTP/1.1
+Host: 127.0.0.1:3000
+Connection: keep-alive
+Cache-Control: max-age=0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.122 Safari/537.36
+DNT: 1
+Accept-Encoding: gzip,deflate,sdch
+Accept-Language: en-US,en;q=0.8
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

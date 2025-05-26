@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Jenkins CI -> GitHub API</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="jenkins-ci-github-api">Jenkins CI -&gt; GitHub API</h1>
+
+<h2 id="jenkins-to-github-api-sh">jenkins-to-github-api.sh</h2>
+
+<pre><code class="language-shell">printf &quot;\nPOST result to GitHub\n\n&quot;
+
+if [ $(cat RUBOCOP_RESULT) == &quot;0&quot; ]; then
+  RESULT=&quot;success&quot;
+else
+  RESULT=&quot;failure&quot;
+fi
+
+GITHUB_TOKEN=$(cat /etc/github_access_token)
+GITHUB_STATUS_API=&quot;https://api.github.com/repos/FOO-ORG/FOO-REPO/contents/PATH/TO/status.sh&quot;
+
+curl --silent --location --header &quot;Accept: application/vnd.github.v3.raw&quot; --user $GITHUB_TOKEN:x-oauth-basic \
+  $GITHUB_STATUS_API | bash -e -s -- &quot;composition&quot; $GIT_COMMIT &quot;Rubocop&quot; $RESULT &quot;jenkins/rubocop&quot;
+</code></pre>
+
+<h2 id="status-sh">status.sh</h2>
+
+<pre><code class="language-shell">#!/bin/bash
+
+function setStatus()
+{
+  local REPO=$1
+  local COMMIT_HASH=$2
+  local MESSAGE=$3
+  local TYPE=pending
+  local GITHUB_TOKEN=$(cat /etc/github_access_token)
+  local CONTEXT=continuous-integration/jenkins
+
+  if [ ! -z &quot;$4&quot; ]; then
+    TYPE=$4
+  fi
+
+  if [ ! -z &quot;$5&quot; ]; then
+    CONTEXT=$5
+  fi
+
+  GITHUB_STATUS_ENDPOINT=https://api.github.com/repos/FOO-ORG/$REPO/statuses
+  STATUS=&quot;{\&quot;state\&quot;: \&quot;$TYPE\&quot;,\&quot;target_url\&quot;: \&quot;$BUILD_URL\&quot;,\&quot;description\&quot;: \&quot;$MESSAGE\&quot;,\&quot;context\&quot;: \&quot;$CONTEXT\&quot;}&quot;
+  curl -u FOOUSER:$GITHUB_TOKEN -X POST -d &quot;$STATUS&quot; --header 'Content-Type: application/json' $GITHUB_STATUS_ENDPOINT/$COMMIT_HASH &gt; /dev/null
+}
+
+setStatus &quot;$1&quot; &quot;$2&quot; &quot;$3&quot; &quot;$4&quot; &quot;$5&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

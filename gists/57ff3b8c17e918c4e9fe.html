@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Redis testing on EC2 instance with CentOS</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="redis-testing-on-ec2-instance-with-centos">Redis testing on EC2 instance with CentOS</h1>
+
+<h2 id="redis-testing-ec2-bash">redis-testing-ec2.bash</h2>
+
+<pre><code class="language-shell">yum install epel-release -y
+yum install redis -y # gives you the cli tools
+
+# now you can use:
+# http://redis.io/commands
+
+redis-cli -h &lt;endpoint&gt; -p 6379
+# where &lt;endpoint&gt; is something like int-mozart-comp.f7qvra.0001.euw1.cache.amazonaws.com
+# which you can get from the AWS console under &quot;cache clusters&quot;
+
+set foo &quot;bar&quot;
+get foo
+Keys *    # returns all redis keys
+monitor   # tails all activity
+ttl &lt;key&gt; # returns current ttl value remaining
+</code></pre>
+
+</div>
+</body>
+</html>

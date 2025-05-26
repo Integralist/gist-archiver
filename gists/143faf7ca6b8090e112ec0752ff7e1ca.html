@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[macOS System Information] #macos #system #information #shell #bash</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="macos-system-information-macos-system-information-shell-bash">[macOS System Information] #macos #system #information #shell #bash</h1>
+
+<h2 id="macos-system-information-bash">macOS System Information.bash</h2>
+
+<pre><code class="language-shell"># Documentation:
+#
+# - man sw_vers
+# - man system_profiler
+#
+# Product Name:
+# Neither of the above solutions provide the OS 'product name' (e.g. Catalina, Mojave, High Sierra etc.)
+# So I curl Wikipedia's macOS version history page and parse out the name.
+#
+# The problem in doing so is that I need a version number (e.g. 10.15) 
+# but the version number provided by `sw_vers -productVersion` is the full version (e.g. 10.15.16)
+# meaning we need to strip the last segment (this is done with the following bash trick: `${version%.*}`)
+# also when grepping for the product name it comes up twice in the Wikipedia page, so I use `uniq` to remove duplicates
+
+alias sys='sw_vers &amp;&amp; echo &amp;&amp; system_profiler SPSoftwareDataType &amp;&amp; curl -s https://en.wikipedia.org/wiki/MacOS_version_history | grep -Eo &quot;Version $(version=$(sw_vers -productVersion) &amp;&amp; echo ${version%.*}): \&quot;[^\&quot;]+\&quot;&quot; | uniq'
+
+# Example Output:
+# 
+# ProductName:    Mac OS X
+# ProductVersion: 10.15.6
+# BuildVersion:   19G2021
+# 
+# Software:
+# 
+#     System Software Overview:
+# 
+#       System Version: macOS 10.15.6 (19G2021)
+#       Kernel Version: Darwin 19.6.0
+#       Boot Volume: Macintosh HD
+#       Boot Mode: Normal
+#       Computer Name: Integralist-MBPr
+#       User Name: Integralist (integralist)
+#       Secure Virtual Memory: Enabled
+#       System Integrity Protection: Enabled
+#       Time since boot: 3 days 2:37
+# 
+# Version 10.15: &quot;Catalina&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

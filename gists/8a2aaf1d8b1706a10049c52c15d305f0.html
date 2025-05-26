@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[vim linefeed and carriage return] #vim #LF #CR #CRLF</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="vim-linefeed-and-carriage-return-vim-lf-cr-crlf">[vim linefeed and carriage return] #vim #LF #CR #CRLF</h1>
+
+<h2 id="vim-linefeed-and-carriage-return-md">vim linefeed and carriage return.md</h2>
+
+<pre><code class="language-markdown">&gt; The term **CRLF** refers to Carriage Return (ASCII 13, `\r`) Line Feed (ASCII 10, `\n`). They're used to note the termination of a line, however, dealt with differently in today's popular Operating Systems.
+
+- Windows: CRLF (`\r\n`)
+- Linux/Unix: LF (`\n`)
+
+Imagine in vim you have a buffer like:
+
+</code></pre>
+
+<p>a
+b
+c
+d</p>
+
+<pre><code>
+If you wanted to add an extra line space between each line, so it looked like:
+
+</code></pre>
+
+<p>a</p>
+
+<p>b</p>
+
+<p>c</p>
+
+<p>d</p>
+
+<pre><code>
+&gt; Note: my example is based on me running Vim on macOS.
+
+You would need to use a substitution like:
+
+```viml
+:%s/\n/\r\r/
+</code></pre>
+
+<p>Notice you&rsquo;re looking for a &lsquo;line feed&rsquo; <code>\n</code> (because that&rsquo;s how macOS denotes a new line), while to get Vim to insert a line break I need it to <em>insert</em> two separate &lsquo;carriage returns&rsquo; <code>\r</code>.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

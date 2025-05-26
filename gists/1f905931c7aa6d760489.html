@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>AWS Lambda using Ruby (via uploaded compiled binary of MRI)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="aws-lambda-using-ruby-via-uploaded-compiled-binary-of-mri">AWS Lambda using Ruby (via uploaded compiled binary of MRI)</h1>
+
+<h2 id="lambda-with-ruby-js">lambda with ruby.js</h2>
+
+<pre><code class="language-javascript">console.log('Loading function');
+
+var exec = require('child_process').exec,
+    child;
+
+exports.handler = function(event, context) {
+    exec('/var/task/ruby/bin/ruby /var/task/foo.rb', function (error, stdout, stderr) {
+        console.log('stderr:', stderr);
+        console.log('stdout: ' + stdout);
+        context.done(null, stdout);
+    });
+};
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>More ActionScript, how I hate dealing with Flash</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="more-actionscript-how-i-hate-dealing-with-flash">More ActionScript, how I hate dealing with Flash</h1>
+
+<h2 id="pagination-as">pagination.as</h2>
+
+<pre><code class="language-actionscript">import flash.events.MouseEvent;
+
+stop();
+
+var counter = 0;
+var list = [one, two, three, four, five, six, seven, eight, nine, ten, eleven]; // list of MovieClip instance names
+
+function goBack (e:MouseEvent):void {
+	// Prevent user from clicking the navigation buttons too quickly (e.g. clicking when animation is still running)
+	btn_prev.removeEventListener(MouseEvent.CLICK, goBack);
+	btn_next.removeEventListener(MouseEvent.CLICK, goForward);
+	
+	if (counter == 0) {
+		list.forEach(function (item, index) {
+			// We don't want to hide the first slide yet, but all others do
+			if (index != 0) {
+				item.alpha = 0;
+			}
+		});
+		
+		// Start fading out the first screen
+		Tweener.addTween(list[0], {
+			alpha: 0,
+			time: 1,
+			transition: &quot;linear&quot;,
+			onComplete: function(){
+				// Now the first screen is faded out we need to fade in the last screen
+				Tweener.addTween(list[counter], {
+					alpha: 1,
+					time: 1,
+					transition: &quot;linear&quot;,
+					onComplete: function(){
+						// Now the last screen is now faded back into view we can allow the user to start using the navigation again
+						btn_prev.addEventListener(MouseEvent.CLICK, goBack);
+						btn_next.addEventListener(MouseEvent.CLICK, goForward);
+					}
+				});
+			}
+		});
+	} else {
+		Tweener.addTween(list[counter-1], {
+			alpha: 1,
+			time: 1,
+			transition: &quot;linear&quot;,
+			onComplete: function(){
+				// Now the previous screen is now faded back into view we can allow the user to start using the navigation again
+				btn_prev.addEventListener(MouseEvent.CLICK, goBack);
+				btn_next.addEventListener(MouseEvent.CLICK, goForward);
+			}
+		});
+	}
+	
+	if (counter &lt;= 0) {
+		counter = list.length - 1;
+	} else {
+		counter--;
+	}
+}
+
+function goForward (e:MouseEvent):void {
+	// Prevent user from clicking the navigation buttons too quickly (e.g. clicking when animation is still running)
+	btn_prev.removeEventListener(MouseEvent.CLICK, goBack);
+	btn_next.removeEventListener(MouseEvent.CLICK, goForward);
+	
+	Tweener.addTween(list[counter], {
+		alpha: 0,
+		time: 1,
+		transition: &quot;linear&quot;,
+		onComplete: function(){
+			if (counter == 0) {
+				Tweener.addTween(list[counter], {
+					alpha: 1,
+					time: 1,
+					onComplete: function(){
+						// Now the first screen is faded in, we'll reset all movie clips back to having full alpha
+						list.forEach(function (item) {
+							item.alpha = 1;
+						});
+						
+						// Now the current screen is faded out, we'll allow user to start using the navigation again
+						btn_prev.addEventListener(MouseEvent.CLICK, goBack);
+						btn_next.addEventListener(MouseEvent.CLICK, goForward);
+					}
+				})
+			} else {
+				// Now the current screen is faded out, we'll allow user to start using the navigation again
+				btn_prev.addEventListener(MouseEvent.CLICK, goBack);
+				btn_next.addEventListener(MouseEvent.CLICK, goForward);
+			}
+		}
+	});
+	
+	if (counter &gt;= (list.length - 1)) {
+		counter = 0;
+	} else {
+		counter++;
+	}
+}
+
+// Just before we start the animation lets set all screens to be blank so we can fade the first one into view
+list.forEach(function (item) {
+	item.alpha = 0;
+});
+
+// Start the animation by initially fadding into view the first slide
+Tweener.addTween(list[0], {
+	alpha: 1,
+	time: 1,
+	transition: &quot;linear&quot;,
+	onComplete: function(){
+		// Now the first screen is faded in, we'll reset all movie clips back to having full alpha
+		list.forEach(function (item) {
+			item.alpha = 1;
+		});
+		
+		btn_prev.addEventListener(MouseEvent.CLICK, goBack);
+		btn_next.addEventListener(MouseEvent.CLICK, goForward);
+	}
+});
+</code></pre>
+
+</div>
+</body>
+</html>

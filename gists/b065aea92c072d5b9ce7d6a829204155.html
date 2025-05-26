@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[JavaScript sort two-dimensional Array] #js #javascript #sort</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="javascript-sort-two-dimensional-array-js-javascript-sort">[JavaScript sort two-dimensional Array] #js #javascript #sort</h1>
+
+<h2 id="sortby-js">sortBy.js</h2>
+
+<pre><code class="language-javascript">// sortBy accepts a two-dimensional array (results) and an array that indicates
+// the required ordering for the data based on the given groupings (groups).
+//
+// EXAMPLE:
+// The following inputs:
+//
+//    results = [[&quot;Foo&quot;, 3], [&quot;Bar&quot;, 2], [&quot;Baz&quot;, 1]]
+//    groups  = [&quot;Baz&quot;, &quot;Bar&quot;, &quot;Foo&quot;]
+//
+//  Will sort the results into:
+//
+//    [[&quot;Baz&quot;, 1], [&quot;Bar&quot;, 2], [&quot;Foo&quot;, 3]]
+//
+function sortBy(results, groups) {
+  groups.reverse().forEach((name) =&gt; {
+    // This line ensures 'name' is the first element in the 'results' array.
+    // By iterating over the given 'groups' in reverse we can enforce the required ordering.
+    // All other elements are left in-place.
+    results.sort((a, _) =&gt; (a[0] === name ? -1 : 0))
+  })
+}
+</code></pre>
+
+</div>
+</body>
+</html>

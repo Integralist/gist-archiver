@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[GPN: Ganners Pipe Notation] #GPN #design #architecture #systems</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="gpn-ganners-pipe-notation-gpn-design-architecture-systems">[GPN: Ganners Pipe Notation] #GPN #design #architecture #systems</h1>
+
+<h2 id="gpn-ganners-pipe-notation-md">GPN: Ganners Pipe Notation.md</h2>
+
+<pre><code class="language-markdown">## GPN: Ganners Pipe Notation
+
+&gt; Designed by Mark Gannaway @BuzzFeed
+
+It's a way of articulating the design of a system, using unix pipes (and other recognised syntax), without worrying about the concrete implementation.
+
+For example:
+
+```bash
+request_drink
+| open_bottle
+| acknowledge_satisfying_cork_sound
+| pour_generously --tolerance=1
+| tee
+  | &gt;(drink)
+  | &gt;(drink)
+  | &gt;(drink...)
+| hangover_recovery_sequence
+</code></pre>
+
+<p>But more seriously&hellip;</p>
+
+<pre><code class="language-bash">taxi_dispatcher -f 
+    | update_robot_position --id=1
+    | nearby_stations --limit=1 --max-distance=.35km
+    | google_maps_traffic_report
+</code></pre>
+
+<p>Which breaks down to:</p>
+
+<ul>
+<li><p><strong>taxi_dispatcher</strong>:<br />
+Outputs latitude/longitude with a robot id</p></li>
+
+<li><p><strong>update_robot_position</strong>:<br />
+Listens for latitude/longitude and moves a robot</p></li>
+
+<li><p><strong>nearby_stations</strong>:<br />
+Listens for latitude/longitude and finds nearby stations</p></li>
+
+<li><p><strong>google_traffic_report</strong>:<br />
+Listens for latitude/longitude and checks traffic</p></li>
+</ul>
+
+<h2 id="naming-things">Naming things</h2>
+
+<p>In the following example we&rsquo;re defining the requirements for rendering HTML components.</p>
+
+<pre><code class="language-bash">shared_components=curl $API/data.json?lang=$lang
+    | tee
+        &gt;(render_metadata --brand=bf)
+        &gt;(render_navbar --lang=$lang --brand=bf)
+        &gt;(jq .subcomponents | render_subcomponents --brand=bf)
+        &gt;(render_subcomponents_js --brand=bf)
+        &gt;(render_subcomponents_css --brand=bf)
+</code></pre>
+
+<blockquote>
+<p>Note: <code>tee</code> is a simple command which provides us the primitives to fork a stream concurrently.</p>
+</blockquote>
+
+<p>We&rsquo;ve given it a name (<code>shared_components</code>) in order for us to be able to utilise it in a larger pipeline, like so:</p>
+
+<pre><code>http_request | shared_components | render_template
+</code></pre>
+
+<h2 id="no-behavioural-abstractions">No behavioural abstractions</h2>
+
+<p>We want to avoid complicating these definitions, so instead of trying to have something like <code>render_template(foo)</code> and <code>render_template(bar)</code>, we should instead use two separate calls:</p>
+
+<pre><code>http_request | shared_components | render_foo_template
+http_request | shared_components | render_bar_template
+</code></pre>
+
+<h2 id="complexity-reduced-to-simpler-concepts">Complexity reduced to simpler concepts</h2>
+
+<pre><code>http_request
+  | in_cache || shared_components
+  | render_foobar_template
+  | convert_to_amp
+  | minify_html
+  | validate_html
+  | inline_css --file-pattern=*critical*
+  | inline_images --file-pattern=*static-assets*
+  | gzip
+</code></pre>
+
+<h2 id="what-details-do-we-lose">What details do we lose?</h2>
+
+<ul>
+<li>Fault tolerance and application errors (although possible using stderror redirection).</li>
+<li>Considerations of the CAP theorem (e.g. defining shared infrastructure).</li>
+<li>Performance considerations (with respect to network latency).</li>
+<li>Logical forking (though this can be expressed with added detail).</li>
+</ul>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>the symbols enable us to further <strong>simplify</strong>, <strong>optimize</strong>, and <strong>describe</strong> a system.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

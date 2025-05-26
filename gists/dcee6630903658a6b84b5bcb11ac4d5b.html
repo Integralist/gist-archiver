@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[nginx redirect request to separate server block with different server_name] #nginx #rewrite #server</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="nginx-redirect-request-to-separate-server-block-with-different-server-name-nginx-rewrite-server">[nginx redirect request to separate server block with different server_name] #nginx #rewrite #server</h1>
+
+<h2 id="nginx-redirect-request-to-separate-server-block-with-different-server-name-conf">nginx redirect request to separate server block with different server_name.conf</h2>
+
+<pre><code class="language-text"># let's imagine that we have two virtual servers
+#
+# 1. *.example.com
+# 2. *.foo.com
+#
+# let's also imagine that nearly all our requests are from host www.example.com
+# so the first server block would handle those requests
+#
+# but if we get a request for a location that doesn't match in the *.example.com
+# how do we get it to failover to the other server block to see if that has the path?
+#
+# we can use a rewrite rule (http://nginx.org/en/docs/http/ngx_http_rewrite_module.html#rewrite)...
+
+set $is_foo 0;
+
+if ($host = 'foo.com') {
+  set $is_foo 1;
+}
+
+if ($is_foo = 1) {
+  rewrite ^/(.*)$ http://www.foo.com/$1 permanent; # see link above for the various flag options
+}  
+</code></pre>
+
+</div>
+</body>
+</html>

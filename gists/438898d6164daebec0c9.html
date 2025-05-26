@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>AWS EC2 SSH Access and creating new AMI</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="aws-ec2-ssh-access-and-creating-new-ami">AWS EC2 SSH Access and creating new AMI</h1>
+
+<h2 id="aws-ec2-ssh-access-and-creating-new-ami-md">AWS EC2 SSH Access and creating new AMI.md</h2>
+
+<pre><code class="language-markdown">Access instance via SSH
+
+We need to create a key pair via AWS Console (or CLI tool). AWS will load the public half of the key into your EC2 instances and when you try to SSH into the instance then AWS will require you to provide the private half of the key pair (you do this using the `-i path/to/private.pem` flag).
+
+```sh
+# We specify our private key (my.pem)
+ssh -i ~/.ssh/path/to/my.pem root@ec2-xx-xx-xx-xx.some-name.amazonaws.com
+</code></pre>
+
+<p>Default location of web page on base AWS AMI (open it and make a change):</p>
+
+<pre><code class="language-sh">vi /var/www/html/index.html
+</code></pre>
+
+<p>To create a new AMI based off any modifications we make to the currently running instance:</p>
+
+<pre><code class="language-sh"># We're copying over our X.509 certificate and key (we use a glob as the names are quite long)
+# We copy them to the /mnt directory because we don't want the certs to be part of the new AMI generated
+# The bundling process excludes some folders, and /mnt is one of them
+scp -i ~/.ssh/path/to/my.pem ~/Temp/cert*.pem root@ec2-xx-xx-xx-xx.some-name.amazonaws.com:/mnt
+scp -i ~/.ssh/path/to/my.pem ~/Temp/pk*.pem root@ec2-xx-xx-xx-xx.some-name.amazonaws.com:/mnt
+
+# Verify X.509 files have been updated
+ls -l /mnt
+</code></pre>
+
+<p>To generate a new AMI based on the state of the currently running instance, ssh into the instance and run:</p>
+
+<pre><code class="language-sh">ec2-bundle-vol \
+  -d /mnt \            # bundle to be stored
+  -k /mnt/pk-*.pem \   # our key
+  -c /mnt/cert-*.pem \ # our certificate
+  -u 926130534554 \    # our user id
+  -r i386 \            # image architecture
+  -p myNewBundleName   # file name prefix
+</code></pre>
+
+<p>For full details see: <a href="http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/CLTRG-ami-bundle-vol.html" target="_blank">http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/CLTRG-ami-bundle-vol.html</a></p>
+
+<p>We now need to upload the new AMI to S3, so still within the running instance execute the following command:</p>
+
+<pre><code class="language-sh">ec2-upload-bundle \
+  -b myS3BuckName \                           # S3 Bucket name
+  -m /mnt/myNewBundleName.manifest.xml \      # Manifest file for the new AMI bundle
+  -a 123 \                                    # AWS Access Key ID
+  -s 456                                      # AWS Secret Access Key
+</code></pre>
+
+<p>For full details see: <a href="http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/CLTRG-ami-upload-bundle.html" target="_blank">http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/CLTRG-ami-upload-bundle.html</a></p>
+
+<p>Now we need to register our new AMI (done via the AWS Console): &ldquo;Register New AMI&rdquo; under EC2 &gt; AMIs
+Then specify the locatation in S3: <code>{S3_buckname}/{path_to_manifest_xml}</code>
+Now from here we can launch an instance from this new AMI.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

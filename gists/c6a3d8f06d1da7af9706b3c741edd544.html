@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go Tools] Useful tools to run over your project #go #golang #tools #linting</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-tools-useful-tools-to-run-over-your-project-go-golang-tools-linting">[Go Tools] Useful tools to run over your project #go #golang #tools #linting</h1>
+
+<h2 id="go-tools-bash">Go Tools.bash</h2>
+
+<pre><code class="language-shell">go mod tidy
+gofmt -l ./cmd ./pkg
+go vet ./{cmd,pkg}/...
+staticcheck ./{cmd,pkg}/...
+golint ./{cmd,pkg}/...
+gosec -quiet -exclude=G104 ./{cmd,pkg}/...
+</code></pre>
+
+</div>
+</body>
+</html>

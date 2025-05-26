@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>AOP (Aspect-Oriented Programming)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="aop-aspect-oriented-programming">AOP (Aspect-Oriented Programming)</h1>
+
+<h2 id="aop-md">AOP.md</h2>
+
+<pre><code class="language-markdown">## What is AOP?
+
+&gt; Aspect Oriented Programming is a means to change the behaviour of – or add behaviour to – methods and functions (including constructors) non-invasively. The added behaviour is called “advice” and can be added before, after, or around the function it advises.
+
+This description is similar to the [Extract Surrounding](http://www.integralist.co.uk/posts/refactoring-techniques/#extract-surrounding-method) refactoring method. The difference is in the direction of the change. It seems AOP is more focused at modifying existing behaviour non-invasively; where as the Extract Surrounding Method actually changes the source code to allow this type of behavioural modification.
+
+### Libraries
+
+- Ruby: https://github.com/deanwampler/Aquarium
+- JS: http://mulli.nu/2010/05/07/aop-js.html
+- JS: https://github.com/cujojs/meld
+</code></pre>
+
+<h2 id="javascript-js">JavaScript.js</h2>
+
+<pre><code class="language-javascript">// Variation 1 (AOP format -&gt; modifies behaviour without changing the `foo` method code)
+
+var obj = {
+    foo: function(a, b, c) {
+        console.log('foo', a, b, c);
+    }
+};
+
+var originalMethod = obj.foo;
+
+originalMethod(1, 2, 3) // =&gt; foo, a, b, c
+
+obj.foo = function(a, b, c) {
+    console.log('before');
+    originalMethod.apply(this, arguments)
+    console.log('after');
+};
+
+obj.foo(1, 2, 3) // =&gt; before; foo, a, b, c; after
+
+// Variation 2 (Same as the first but abstracted into reusable helper functions)
+
+function before(f, advice) {
+    return function () {
+        advice.apply(this, arguments);
+        return f.apply(this, arguments);
+    };
+}
+function after(f, advice) {
+    return function () {
+        var result = f.apply(this, arguments);
+        advice.call(this, result);
+        return result;
+    };
+}
+
+var obj = {
+    foo: function(a, b, c) {
+        console.log('foo', a, b, c);
+    }
+};
+
+obj.foo = before(obj.foo, function(){
+    console.log('Before!!');
+});
+
+obj.foo = after(obj.foo, function(){
+    console.log('After!!');
+});
+
+obj.foo(1, 2, 3) // =&gt; Before!!; foo, a, b, c; After!!
+
+// Variation 3 (&quot;Extract Surrounding&quot; format -&gt; not AOP as it modifies the source `foo` method)
+
+var obj = {
+    foo: function(before, after) {
+        if (before) before();
+        console.log('foo');
+        if (after) after();
+    }
+};
+
+function before(){
+    console.log('before');
+}
+
+function after(){
+    console.log('after');
+}
+
+object.foo(before, after);
+
+// Different example of the second variation
+
+function logsArguments (fn) {
+    return function () {
+      console.log.apply(this, arguments);
+      return fn.apply(this, arguments)
+    }
+}
+
+function sum (a, b) {
+    return a + b;
+}
+
+var logsSum = logsArguments(sum);
+
+console.log(
+    logsSum(1, 3)
+);
+</code></pre>
+
+<h2 id="ruby-consumer-rb">Ruby Consumer.rb</h2>
+
+<pre><code class="language-ruby">module AOP
+  def around(fn_name)
+    old_method = instance_method(fn_name)
+    define_method(fn_name) do |*args|
+      yield :before, args if block_given?
+      old_method.bind(self).call *args
+      yield :after, args if block_given?
+    end
+  end
+end
+ 
+class Foo
+  extend AOP
+ 
+  def process(msg)
+    puts msg
+  end
+end
+ 
+Foo.around('process') do |state, args|
+  if state == :before
+    puts 'Blah 1'
+  elsif state == :after
+    puts 'Blah 2'
+  end
+end
+ 
+Foo.new.process('hai')
+</code></pre>
+
+<h2 id="ruby-rb">Ruby.rb</h2>
+
+<pre><code class="language-ruby">module Around
+  def around(fn_name)
+    old_method = instance_method(fn_name)
+    define_method(fn_name) do |*args|
+      puts &quot;before&quot;
+      old_method.bind(self).call *args
+      puts &quot;after&quot;
+    end
+  end
+end
+ 
+class Foo
+  extend Around
+ 
+  def bar
+    puts &quot;Bar!&quot;
+  end
+ 
+  bar = around(:bar)
+end
+ 
+Foo.new.bar # =&gt; before; Bar!; after
+</code></pre>
+
+</div>
+</body>
+</html>

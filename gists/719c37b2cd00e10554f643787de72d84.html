@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang updating a pointer field value] #go #golang #memory #allocation #performance #pointers</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-updating-a-pointer-field-value-go-golang-memory-allocation-performance-pointers">[Golang updating a pointer field value] #go #golang #memory #allocation #performance #pointers</h1>
+
+<h2 id="updating-a-pointer-field-value-md">updating a pointer field value.md</h2>
+
+<pre><code class="language-markdown">I have a struct with a field that’s a pointer, and I want to update the value.
+
+The following code does that (notice the memory address for the field changes, which is what I would expect once I change the value)...
+
+```go
+package main
+
+import &quot;fmt&quot;
+
+type S struct {
+	F *int
+}
+
+func main() {
+	s := new(S)
+	fmt.Printf(&quot;%+v\n&quot;, s) // &amp;{F:&lt;nil&gt;}
+
+	i := 1
+	s.F = &amp;i
+	fmt.Printf(&quot;%+v\n&quot;, s)    // &amp;{F:0xc000018050}
+	fmt.Printf(&quot;%+v\n&quot;, *s.F) // 1
+
+	i2 := 2
+	s.F = &amp;i2
+	fmt.Printf(&quot;%+v\n&quot;, s)    // &amp;{F:0xc000018060}
+	fmt.Printf(&quot;%+v\n&quot;, *s.F) // 2
+}
+</code></pre>
+
+<p>Now, in the following example I’ve modified the code from <code>s.F = &amp;i2</code> to <code>*s.F = i2</code> and I can see that the change is applied because when I print a dereference of the struct field I see the updated value <code>2</code> but the memory address appears to be the same as when the value was set to <code>1</code>. This is because I didn’t assign a <em>new</em> memory address (like I did with <code>&amp;i2</code>) but went directly to the memory location (e.g. <code>*s.F</code>) and updated the value.</p>
+
+<pre><code class="language-go">package main
+
+import &quot;fmt&quot;
+
+type S struct {
+	F *int
+}
+
+func main() {
+	s := new(S)
+	fmt.Printf(&quot;%+v\n&quot;, s) // &amp;{F:&lt;nil&gt;}
+
+	i := 1
+	s.F = &amp;i
+	fmt.Printf(&quot;%+v\n&quot;, s)    // &amp;{F:0xc000018050}
+	fmt.Printf(&quot;%+v\n&quot;, *s.F) // 1
+
+	i2 := 2
+	*s.F = i2
+	fmt.Printf(&quot;%+v\n&quot;, s)    // &amp;{F:0xc000018050}
+    fmt.Printf(&quot;%+v\n&quot;, *s.F) // 2
+}
+</code></pre>
+
+<p>So the latter could be considered better because it doesn’t cause another allocation of memory.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

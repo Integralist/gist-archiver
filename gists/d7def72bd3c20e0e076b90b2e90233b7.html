@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Docker Go Image with mounted files] #docker #go #golang #image #container #mount</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="docker-go-image-with-mounted-files-docker-go-golang-image-container-mount">[Docker Go Image with mounted files] #docker #go #golang #image #container #mount</h1>
+
+<h2 id="readme-md">README.md</h2>
+
+<pre><code class="language-markdown">Start with a Dockerfile:
+
+```Dockerfile
+FROM golang:latest
+
+RUN apt-get update -y &amp;&amp; apt-get install git -y
+
+CMD [&quot;/bin/bash&quot;]
+</code></pre>
+
+<p>Build the Dockerfile into an image:</p>
+
+<pre><code class="language-shell">docker build -t go-and-git .
+</code></pre>
+
+<p>Run the Docker image as a container:</p>
+
+<pre><code class="language-shell">docker run -it -v /Users/integralist/Code/fastly/cli/dist/linux_linux_arm64/fastly:/go/fastly go-and-git
+</code></pre>
+
+<blockquote>
+<p><strong>NOTE:</strong> The default working directory is <code>/go</code> as setup by the Go base image.
+&ldquo;`</p>
+</blockquote>
+
+</div>
+</body>
+</html>

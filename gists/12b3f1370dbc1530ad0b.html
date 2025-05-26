@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Rust Cargo Guardfile</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="rust-cargo-guardfile">Rust Cargo Guardfile</h1>
+
+<h2 id="guardfile">Guardfile</h2>
+
+<pre><code class="language-ruby">require &quot;terminal-notifier-guard&quot;
+
+guard :shell do
+  watch(/src\/(.*\/)?(.*)\.rs$/) do |path, folder, file|
+    p &quot;Path: #{path}&quot;
+    p &quot;Folder: #{folder}&quot;
+    p &quot;File: #{file}&quot;
+
+    binary_name = `sed -ne 's/name = &quot;\\(.*\\)&quot;/\\1/p' Cargo.toml | tail -n 1`
+
+    `cargo build &amp;&amp; ./target/#{binary_name}`
+  end
+end
+
+</code></pre>
+
+</div>
+</body>
+</html>

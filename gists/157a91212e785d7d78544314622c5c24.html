@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[git --theirs and --ours] #git #rebase #merge</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="git-theirs-and-ours-git-rebase-merge">[git &ndash;theirs and &ndash;ours] #git #rebase #merge</h1>
+
+<h2 id="git-rebase-theirs-and-ours-md">git rebase theirs and ours.md</h2>
+
+<pre><code class="language-markdown">https://nitaym.github.io/ourstheirs/
+
+The summary is: `git checkout` has the following flags whose assigned values can be very confusing.
+
+- `--ours` == `main`
+- `--theirs` == the feature branch.
+
+The flag values don't change between `git merge` and `git rebase` (e.g. †) so it's safe to remember the above values. 
+
+&gt; † `git switch main &amp;&amp; git merge feature` vs `git switch feature &amp;&amp; git rebase main`.
+
+## Rebase Example
+
+I typically rebase `feature` over my `main` branch:
+
+```bash
+git switch feature
+git pull --rebase origin main
+git checkout --theirs &lt;file&gt;
+git add &lt;file&gt;
+git rebase --continue
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

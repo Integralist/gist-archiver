@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby: get class name and method name</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-get-class-name-and-method-name">Ruby: get class name and method name</h1>
+
+<h2 id="get-rb">get.rb</h2>
+
+<pre><code class="language-ruby">class Foo
+  def initialize
+    p &quot;#{self.class.name}##{__method__}&quot;
+  end
+end
+
+Foo.new # =&gt; Foo#initialize
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go Generics] #go #golang #generics</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-generics-go-golang-generics">[Go Generics] #go #golang #generics</h1>
+
+<h2 id="go-generics-md">Go Generics.md</h2>
+
+<pre><code class="language-markdown">## When to use Generics?
+
+If you find yourself writing the exact same code multiple times, where the only difference between the copies is the code uses different types, _consider_ whether you can use a generic type parameter.
+
+It's probably also useful anywhere you have `[]interface{}` today, for example a caching library might define something like...
+
+```go
+Get(key string) (interface{}, error)
+</code></pre>
+
+<p>This could be changed to&hellip;</p>
+
+<pre><code class="language-go">Get[V any](key string) (V, error)
+</code></pre>
+
+<p>With the <code>interface{}</code> type you always need code to cast back the value to what you expect and have error cases if by any chance someone put something in the cache with the wrong type. Now this validation can be done at compile time.</p>
+
+<h2 id="help">Help</h2>
+
+<ul>
+<li><a href="https://www.youtube.com/watch?v=KepBhuQJT9E" target="_blank">Video</a></li>
+<li><a href="https://github.com/golang/go/blob/master/src/constraints/constraints.go" target="_blank">Constraints</a></li>
+<li><a href="https://tip.golang.org/doc/go1.18#generics" target="_blank">Initial <code>1.18beta1</code> release notes</a></li>
+</ul>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="generic-errors-as">Generic errors.As</h3>
+
+<pre><code class="language-go">func As[T error](err error) (bool, T) {
+	var target T
+	ok := errors.As(err, &amp;target)
+	return ok, target
+}
+
+func main() {
+	if _, err := os.Open(&quot;non-existing&quot;); err != nil {
+		ok, perr := As[*fs.PathError](err)
+		if ok {
+			fmt.Println(&quot;Failed at path:&quot;, perr.Path)
+		} else {
+			fmt.Println(err)
+		}
+	}
+}
+</code></pre>
+
+<h3 id="pass-multiple-struct-types-to-generic-function">Pass multiple struct types to generic function</h3>
+
+<p>Caveat is you need to define an interface that has methods described for each field you expect to store in the struct.</p>
+
+<p>In the following example you might be better off using <code>any</code> (i.e. <code>interface{}</code>) for dynamic dispatch rather than static dispatch (i.e. generics).</p>
+
+<p>You might get better performance and less chance of a runtime error with generics but is the code complexity worth it? Up to you to decide.</p>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+)
+
+type ServiceVCL struct {
+	Name string
+	Foo  bool // doesn't exist on ServiceCompute
+}
+
+func (s ServiceVCL) GetName() string {
+	return s.Name
+}
+
+func (s ServiceVCL) GetFoo() (v bool) {
+	return s.Foo
+}
+
+func (s ServiceVCL) GetBar() (v int) {
+	return v
+}
+
+type ServiceCompute struct {
+	Name string
+	Bar  int // doesn't exist on ServiceVCL
+}
+
+func (s ServiceCompute) GetName() string {
+	return s.Name
+}
+
+func (s ServiceCompute) GetFoo() (v bool) {
+	return v
+}
+
+func (s ServiceCompute) GetBar() (v int) {
+	return s.Bar
+}
+
+type Service interface {
+	ServiceVCL | ServiceCompute
+	GetName() (name string)
+	GetFoo() (foo bool)
+	GetBar() (bar int)
+}
+
+type ServiceWrapper[T Service] struct {
+	Data T
+}
+
+func New[T Service](service T) *ServiceWrapper[T] {
+	sw := ServiceWrapper[T]{}
+	sw.Data = service
+	return &amp;sw
+}
+
+func Accept[T Service](sw *ServiceWrapper[T]) {
+	fmt.Printf(&quot;Wrapper: %+v\n&quot;, sw)
+	fmt.Printf(&quot;GetName(): %s\n&quot;, sw.Data.GetName())
+	fmt.Printf(&quot;GetFoo(): %t\n&quot;, sw.Data.GetFoo())
+	fmt.Printf(&quot;GetBar(): %d\n&quot;, sw.Data.GetBar())
+}
+
+func main() {
+	vcl := ServiceVCL{
+		Name: &quot;VCL&quot;,
+		Foo:  true,
+	}
+	compute := ServiceCompute{
+		Name: &quot;Compute&quot;,
+		Bar:  123,
+	}
+
+	swv := New(vcl)
+	swc := New(compute)
+
+	fmt.Printf(&quot;vcl: %+v\n&quot;, swv)
+	fmt.Printf(&quot;compute: %+v\n&quot;, swc)
+
+	Accept(swv)
+	Accept(swc)
+}
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Interface Value vs Interface Type] #go #golang #interface</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-interface-value-vs-interface-type-go-golang-interface">[Golang Interface Value vs Interface Type] #go #golang #interface</h1>
+
+<h2 id="golang-interface-value-vs-interface-type-md">Golang Interface Value vs Interface Type.md</h2>
+
+<pre><code class="language-markdown">**Rereference**:
+- https://tour.golang.org/methods/11 (interface values)
+- https://tour.golang.org/methods/12 (interface values with nil underlying values)
+- https://tour.golang.org/methods/13 (nil interface values)
+- https://tour.golang.org/methods/14 (empty interface)
+- https://tour.golang.org/methods/15 (type assertions)
+- https://tour.golang.org/methods/16 (type switches)
+
+Under the hood, interface values can be thought of as a tuple of a value and a concrete type: 
+
+</code></pre>
+
+<p>(value, type)</p>
+
+<pre><code>
+ Calling a method on an interface value executes the method of the same name on its underlying type. 
+ 
+```go
+package main
+
+import (
+	&quot;fmt&quot;
+	&quot;math&quot;
+	&quot;reflect&quot;
+)
+
+type I interface {
+	M()
+}
+
+type T struct {
+	S string
+}
+
+func (t *T) M() {
+	//fmt.Println(t.S)
+}
+
+type F float64
+
+func (f F) M() {
+	//fmt.Println(f)
+}
+
+func main() {
+	var i I
+
+	i = &amp;T{&quot;Hello&quot;}
+	describe(i) // &amp;{S:Hello}, *main.T
+	i.M()
+
+	// &amp;{S:Hello}, *main.T
+	fmt.Printf(&quot;%+v, %+v\n\n&quot;, reflect.ValueOf(i), reflect.TypeOf(i))
+
+	i = F(math.Pi)
+	describe(i) // 3.141592653589793, main.F
+	i.M()
+
+	// 3.141592653589793, main.F
+	fmt.Printf(&quot;%+v, %+v\n&quot;, reflect.ValueOf(i), reflect.TypeOf(i))
+}
+
+func describe(i I) {
+	fmt.Printf(&quot;%+v, %T\n&quot;, i, i)
+}
+</code></pre>
+
+<p>When we assign to <code>i</code> which is the interface <code>I</code>, we&rsquo;ll find that <code>i</code> ultimately holds the expected value (e.g. either a struct <code>T</code> or a float <code>F</code>) but the &lsquo;type&rsquo; associated with the <code>i</code> variable <em>isn&rsquo;t</em> actually the <code>I</code> interface (which you <em>might</em> have expected) it&rsquo;s actually the type of the value that was assigned.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Write to a variable multiple times before writing to disk] #bash #shell #performance</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="write-to-a-variable-multiple-times-before-writing-to-disk-bash-shell-performance">[Write to a variable multiple times before writing to disk] #bash #shell #performance</h1>
+
+<h2 id="example-bash">example.bash</h2>
+
+<pre><code class="language-shell">function bar {
+  example=$(echo &quot;$example&quot; | rg $1 \
+    --case-sensitive \
+    --type go \
+    --type md \
+    --color never \
+    --no-line-number \
+    --passthru \
+    --replace $2)
+}
+
+function foo {
+  example=$(&lt;fastly-go/go.mod)
+  bar &quot;github&quot; &quot;GITHUB&quot;
+  bar &quot;google&quot; &quot;GOOGLE&quot;
+  echo &quot;$example&quot; &gt; final.txt
+  cat final.txt
+  rm final.txt
+}
+
+foo
+</code></pre>
+
+</div>
+</body>
+</html>

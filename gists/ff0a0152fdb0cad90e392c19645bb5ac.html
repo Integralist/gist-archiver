@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go convert JSON types when unmarshalling] #go #golang #json #unmarshal</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-convert-json-types-when-unmarshalling-go-golang-json-unmarshal">[Go convert JSON types when unmarshalling] #go #golang #json #unmarshal</h1>
+
+<h2 id="main-go">main.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;encoding/json&quot;
+	&quot;fmt&quot;
+)
+
+func main() {
+	var jsonBlob = []byte(`[
+	{&quot;str&quot;: &quot;Foo&quot;, &quot;num&quot;: &quot;1&quot;, &quot;bool&quot;: &quot;true&quot;, &quot;its&quot;: 3},
+	{&quot;str&quot;: &quot;Bar&quot;,    &quot;num&quot;: &quot;2&quot;, &quot;bool&quot;: &quot;false&quot;, &quot;its&quot;: 4}
+]`)
+	type Thing struct {
+		String  string `json:&quot;str&quot;`
+		Number  int    `json:&quot;num,string&quot;`
+		Boolean bool   `json:&quot;bool,string&quot;`
+		// IntToString string `json:&quot;its,int&quot;` // error: json: cannot unmarshal number into Go struct field Thing.its of type string 
+	}
+	var things []Thing
+	err := json.Unmarshal(jsonBlob, &amp;things)
+	if err != nil {
+		fmt.Println(&quot;error:&quot;, err)
+	}
+	fmt.Printf(&quot;%#v&quot;, things)
+}
+
+</code></pre>
+
+</div>
+</body>
+</html>

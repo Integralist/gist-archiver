@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Walk Struct Recursively] #go #golang #walk #reflection</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-walk-struct-recursively-go-golang-walk-reflection">[Golang Walk Struct Recursively] #go #golang #walk #reflection</h1>
+
+<h2 id="walk-go">Walk.go</h2>
+
+<pre><code class="language-go">// Write a function:
+//
+// walk(x interface{}, fn func(string)) 
+//
+// ...which takes a struct x and calls fn for all strings fields found inside.
+//
+
+func walk(x interface{}, fn func(input string)) {
+    val := getValue(x)
+
+    walkValue := func(value reflect.Value) {
+        walk(value.Interface(), fn)
+    }
+
+    switch val.Kind() {
+    case reflect.String:
+        fn(val.String())
+    case reflect.Struct:
+        for i := 0; i &lt; val.NumField(); i++ {
+            walkValue(val.Field(i))
+        }
+    case reflect.Slice, reflect.Array:
+        for i := 0; i &lt; val.Len(); i++ {
+            walkValue(val.Index(i))
+        }
+    case reflect.Map:
+        for _, key := range val.MapKeys() {
+            walkValue(val.MapIndex(key))
+        }
+    case reflect.Chan:
+        for v, ok := val.Recv(); ok; v, ok = val.Recv() {
+            walk(v.Interface(), fn)
+        }
+    case reflect.Func:
+        valFnResult := val.Call(nil)
+        for _, res := range valFnResult {
+            walk(res.Interface(), fn)
+        }
+    }
+}
+</code></pre>
+
+</div>
+</body>
+</html>

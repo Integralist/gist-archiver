@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Star ratings with CSS</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="star-ratings-with-css">Star ratings with CSS</h1>
+
+<h2 id="dabblet-css">dabblet.css</h2>
+
+<pre><code class="language-css">/**
+ * Star ratings with CSS
+ */
+
+.rating {
+	  unicode-bidi: bidi-override;
+	  direction: rtl;
+}
+
+.rating &gt; span {
+	  cursor: pointer;
+	  display: inline-block;
+	  position: relative;
+	  width: 1.1em;
+}
+
+.rating &gt; span:hover:before,
+.rating &gt; span:hover ~ span:before {
+	   content: &quot;\2605&quot;;
+	   position: absolute;
+}
+
+</code></pre>
+
+<h2 id="dabblet-html">dabblet.html</h2>
+
+<pre><code class="language-html">&lt;!-- content to be placed inside &lt;body&gt;…&lt;/body&gt; --&gt;
+&lt;div class=&quot;rating&quot;&gt;
+	&lt;span&gt;☆&lt;/span&gt;
+	&lt;span&gt;☆&lt;/span&gt;
+	&lt;span&gt;☆&lt;/span&gt;
+	&lt;span&gt;☆&lt;/span&gt;
+	&lt;span&gt;☆&lt;/span&gt;
+&lt;/div&gt;
+
+</code></pre>
+
+<h2 id="settings-json">settings.json</h2>
+
+<pre><code class="language-json">{&quot;view&quot;:&quot;split&quot;,&quot;prefixfree&quot;:&quot;1&quot;,&quot;page&quot;:&quot;css&quot;}
+</code></pre>
+
+</div>
+</body>
+</html>

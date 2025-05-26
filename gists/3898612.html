@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Updated truncation script/module</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="updated-truncation-script-module">Updated truncation script/module</h1>
+
+<h2 id="truncate-js">truncate.js</h2>
+
+<pre><code class="language-javascript">define(function(){
+
+    var truncate = function(str, length, suffix) {
+        var length = length || 30;
+        var suffix = (typeof suffix == &quot;undefined&quot;) ? '...' : suffix;
+        
+        // strip off HTML entities such as &amp;nbsp; but use a negative lookahead to prevent &amp;hellip; from being stripped
+        var strip_entities = str.replace(/&amp;(?!hellip)[a-z]+;/gim, '');
+
+        // strip off dodgy line breaks and carriage returns and extra potential spaces/tabs
+        var strip_breaks = strip_entities.replace(/\r+\s+\t+\r+/gim, '');
+
+        // if the string isn't longer than the specified cut-off length then just return the original string
+        var add_suffix = (strip_breaks.length &gt; length) 
+            ? /* next we borrow the String object's &quot;slice()&quot; method using the &quot;call()&quot; method */ String.prototype.slice.call(strip_breaks, 0, length - suffix.length) + suffix 
+            : strip_breaks;
+
+        var strip_endspace = add_suffix.replace(/\s(\.\.\.)$/gim, function (match, cg1) {
+            return cg1;
+        });
+
+        return strip_endspace;
+    }
+    
+    return truncate;
+
+});
+</code></pre>
+
+</div>
+</body>
+</html>

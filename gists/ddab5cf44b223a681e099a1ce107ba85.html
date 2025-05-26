@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Multiple searches via abstraction and grep] #bash #shell #grep #search #ag #silversearcher</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="multiple-searches-via-abstraction-and-grep-bash-shell-grep-search-ag-silversearcher">[Multiple searches via abstraction and grep] #bash #shell #grep #search #ag #silversearcher</h1>
+
+<h2 id="multiple-searches-via-abstraction-and-grep-md">Multiple searches via abstraction and grep.md</h2>
+
+<pre><code class="language-markdown">I have the following abstraction around the `ag` search tool:
+
+```bash
+function search {
+  # search for files based on content pattern
+  # uses 'silver searcher' `ag`
+
+  local flags=${1:-}
+  local pattern=$2
+  local directory=${3:-.}
+  local exclude=(
+    '(js/d3/|jquery|prototype).*\.js'
+    '\.eps'
+    '\.gif'
+    '\.git/'
+    '\.html'
+    '\.jpg'
+    '\.json'
+    '\.map'
+    '\.mypy_cache'
+    '\.psd'
+    '\.sav'
+    '\.so'
+    '\.sql'
+    'build/'
+    'build\.js'
+    'dist/'
+    'fb\.js'
+    'node_modules'
+    'swagger'
+    'tests/'
+    'vendors-bundle\.js'
+  )
+
+  if [ -z &quot;$1&quot; ]; then
+    printf &quot;\\n\\tUsage:\\n\\t\\tsearch &lt;flags:[--]&gt; &lt;pattern:['']&gt; &lt;directory:[./]&gt;\\n&quot;
+
+    # shellcheck disable=SC1117
+    # disabled because \\\\b for literal \b (with double quotes) is ridiculous
+    printf '\n\tExample:\n\t\tsearch -- &quot;def\\b&quot; ~/python/app'
+    printf '\n\t\tsearch &quot;-G Dockerfile --context=5&quot; &quot;FROM&quot; ./'
+    return
+  fi
+
+  exclude_joined=$(join_by '|' ${exclude[@]})
+
+  # for some reason I can't just execute the command, I needed to evaluate it?
+  #
+  cmd=$(echo time ag --ignore &quot;'($exclude_joined)'&quot; &quot;$flags&quot; &quot;'$pattern'&quot; &quot;$directory&quot; 2&gt;/dev/null)
+  eval $cmd
+
+  # OLD IMPLEMENTATIONS...
+  #
+  # time sift -n -X json --err-skip-line-length --group --exclude-ipath &quot;$exclude&quot; &quot;$flags&quot; &quot;$pattern&quot; &quot;$directory&quot; 2&gt;/dev/null
+  # time grep --exclude-dir .git -irlno $pattern $directory
+}
+</code></pre>
+
+<p>I needed a way to search all Dockerfiles and then from the results of that search I needed to search another file (service.yml) for another phrase (launch_type).</p>
+
+<p>I couldn&rsquo;t do this with the search abstraction because when dealing with <code>xargs</code> the command needs to exist in <code>/bin/sh</code> and my <code>search</code> abstraction only exists when spinning up a <code>/bin/bash</code> shell. So I had to resort to using <code>grep</code> to do the secondary search.</p>
+
+<blockquote>
+<p>Note: I even tried doing <code>xargs -I {} bash -c &quot;search ...&quot;</code> but it still couldn&rsquo;t locate the search abstraction I had defined.</p>
+</blockquote>
+
+<pre><code class="language-bash">search &quot;-G Dockerfile -l&quot; &quot;FROM go&quot; | cut -d '/' -f 1 | tee /tmp/goservices | xargs -I {} grep -r --include service.yml launch_type {}
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

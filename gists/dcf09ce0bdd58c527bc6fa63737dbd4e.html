@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Python access the stack trace failed functions</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-access-the-stack-trace-failed-functions">Python access the stack trace failed functions</h1>
+
+<h2 id="python-access-the-stack-trace-failed-functions-py">Python access the stack trace failed functions.py</h2>
+
+<pre><code class="language-python">import sys
+import traceback
+import logging
+
+def i_will_fail():
+    raise Exception
+
+def i_call_the_failing_function():
+    i_will_fail()
+
+try:
+    i_call_the_failing_function()
+except Exception:
+    _, _, tb = sys.exc_info()
+    for frame in traceback.extract_tb(tb):
+        logging.error('Module name: %s; scope name: %s', frame[0], frame[2])
+        
+&quot;&quot;&quot;
+ERROR:root:Module name: exception-traceback.py; scope name: &lt;module&gt;                                                                                                        
+ERROR:root:Module name: exception-traceback.py; scope name: i_call_the_failing_function                                                                                     
+ERROR:root:Module name: exception-traceback.py; scope name: i_will_fail  
+&quot;&quot;&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

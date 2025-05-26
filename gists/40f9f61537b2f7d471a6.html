@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Terminal go back up one line</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="terminal-go-back-up-one-line">Terminal go back up one line</h1>
+
+<h2 id="terminal-go-back-up-one-line-md">Terminal go back up one line.md</h2>
+
+<pre><code class="language-markdown">http://stackoverflow.com/questions/6939673/go-back-up-a-line-in-a-linux-console
+
+&gt; I know I can go back the line and overwrite its contents with \r.  
+Now how can I go up into the previous line to change that?
+
+The basic solution involves: `\x1B[1F` (which effectively is an [ANSI Escape Code](http://en.wikipedia.org/wiki/ANSI_escape_code): `Esc [ 1 F`)
+
+But in context of a Ruby CLI script: `print &quot;\r\x1B[1F\x1B[1F&quot;`
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Serialize and Deserialize Go types using gob #go #golang</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="serialize-and-deserialize-go-types-using-gob-go-golang">Serialize and Deserialize Go types using gob #go #golang</h1>
+
+<h2 id="main-go">main.go</h2>
+
+<pre><code class="language-go">// Package gob manages streams of gobs - binary values exchanged between an Encoder
+// (transmitter) and a Decoder (receiver).
+package main
+
+import (
+	&quot;bytes&quot;
+	&quot;encoding/gob&quot;
+	&quot;fmt&quot;
+	&quot;log&quot;
+)
+
+type Person struct {
+	Name    string
+	Age     int
+	Address Address
+}
+
+type Address struct {
+	Street string
+	City   string
+}
+
+func main() {
+	// Original Person object
+	originalPerson := Person{
+		Name: &quot;Alice&quot;,
+		Age:  30,
+		Address: Address{
+			Street: &quot;123 Main St&quot;,
+			City:   &quot;Anytown&quot;,
+		},
+	}
+
+	// 1. Serialization (Gob Encoding)
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&amp;buf)
+	err := enc.Encode(originalPerson)
+	if err != nil {
+		log.Fatalf(&quot;Gob encode error: %v&quot;, err)
+	}
+
+	// 2. Deserialization (Gob Decoding)
+	var decodedPerson Person
+	dec := gob.NewDecoder(&amp;buf)
+	err = dec.Decode(&amp;decodedPerson)
+	if err != nil {
+		log.Fatalf(&quot;Gob decode error: %v&quot;, err)
+	}
+
+	// Verify the decoded object
+	fmt.Printf(&quot;Original Person: %+v\n&quot;, originalPerson)
+	fmt.Printf(&quot;Decoded Person:  %+v\n&quot;, decodedPerson)
+
+	//Check that the two objects are identical
+	if originalPerson == decodedPerson {
+		fmt.Println(&quot;The objects are identical.&quot;)
+	} else {
+		fmt.Println(&quot;The objects are different.&quot;)
+	}
+}
+</code></pre>
+
+</div>
+</body>
+</html>

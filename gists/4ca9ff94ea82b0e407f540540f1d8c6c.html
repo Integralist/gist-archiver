@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Calculate Aspect Ratio] #aspect #ratio #python</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="calculate-aspect-ratio-aspect-ratio-python">[Calculate Aspect Ratio] #aspect #ratio #python</h1>
+
+<h2 id="aspect-ratio-py">aspect_ratio.py</h2>
+
+<pre><code class="language-python">def calculate_aspect(width: int, height: int) -&gt; str:
+    def gcd(a, b):
+        &quot;&quot;&quot;The GCD (greatest common divisor) is the highest number that evenly divides both width and height.&quot;&quot;&quot;
+        return a if b == 0 else gcd(b, a % b)
+
+    r = gcd(width, height)
+    x = int(width / r)
+    y = int(height / r)
+
+    return f&quot;{x}:{y}&quot;
+    
+calculate_aspect(1920, 1080) # '16:9'
+</code></pre>
+
+</div>
+</body>
+</html>

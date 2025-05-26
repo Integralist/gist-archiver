@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby Meta Programming: Dynamically create Class methods with values populated from YAML config</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-meta-programming-dynamically-create-class-methods-with-values-populated-from-yaml-config">Ruby Meta Programming: Dynamically create Class methods with values populated from YAML config</h1>
+
+<h2 id="config-yaml">Config.yaml</h2>
+
+<pre><code class="language-yaml">CERT_PATH: &quot;/Users/markmcdonnell/.pki/Certificate.pem&quot;
+CA_PATH: &quot;/Users/markmcdonnell/.pki/ca.pem&quot;
+DEV_KEY: &quot;12345a6b78d90e1f2gh345ijk6l78m90&quot;
+MEMBER_TOKEN: &quot;00000a0b00d00e0f0gh000ijk0l00m00&quot;
+JIRA_ENDPOINT: &quot;https://jira.domain.com/rest/api/2&quot;
+TRELLO_BOARD: &quot;Tasks&quot;
+TRELLO_BACKLOG: &quot;Up Next&quot;
+TRELLO_INPROGRESS: &quot;In Progress&quot;
+</code></pre>
+
+<h2 id="jello-config-rb">Jello::Config.rb</h2>
+
+<pre><code class="language-ruby">module Jello
+  class Config
+    class &lt;&lt; self
+      private
+
+      def create_methods(items)
+        items.each do |item|
+          define_singleton_method item.downcase do
+            @@config[item]
+          end
+        end
+      end
+
+      def get_config
+        @@config ||= YAML.load(File.read &quot;config/development.yaml&quot;)
+      end
+    end
+
+    create_methods get_config.keys
+  end
+end
+
+# Just verify that things that shouldn't be accessible, definitely aren't accessible
+
+Jello::Config.get_config
+# NoMethodError: private method `get_config' called for Jello::Config:Class
+
+Jello::Config.config
+# NoMethodError: undefined method `config' for Jello::Config:Class
+
+Jello::Config.DEV_KEY
+# NoMethodError: undefined method `DEV_KEY' for Jello::Config:Class
+
+Jello::Config.dev_key
+# &quot;12345a6b78d90e1f2gh345ijk6l78m90&quot; (not real dev key obviously)
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Caching strategies and headers] (see also http://fideloper.com/api-etag-conditional-get) #cache #caching #headers #stale #revalidate #memcache #redis #varnish #nginx #fastly #cdn #if-none-match #conditional #http</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="caching-strategies-and-headers-see-also-http-fideloper-com-api-etag-conditional-get-cache-caching-headers-stale-revalidate-memcache-redis-varnish-nginx-fastly-cdn-if-none-match-conditional-http"><a href="see also http://fideloper.com/api-etag-conditional-get" target="_blank">Caching strategies and headers</a> #cache #caching #headers #stale #revalidate #memcache #redis #varnish #nginx #fastly #cdn #if-none-match #conditional #http</h1>
+
+<h2 id="caching-strategies-md">caching-strategies.md</h2>
+
+<pre><code class="language-markdown">## Page Level Cache
+
+- Varnish
+- Nginx
+- CloudFront
+
+## Application Cache
+
+- In-memory service (e.g. Redis, Memcache - typically via AWS ElastiCache)
+- In-memory application (e.g. raw hash data structure managed by the app)
+
+### Redis or Memcache?
+
+The answer is that it depends on your use case.
+
+Memcache:
+
+- Scales horizontally, meaning you can dynamically add new nodes to it, but each node will have a cold cache. So it can be more problematic than you realise when scaling to meet demand
+- Memcache is _very_ simple. It does in-memory caching and that's it. So if you have some simple items you'd like to cache to improve performance then Memcache is probably what you want
+
+Redis:
+
+- Scales vertically, meaning you have to change the instance 'type', and so at _some_ point you're going to reach a size limit and have to resort to data sharding across multiple Redis instances (e.g. one Redis for blog posts, and one Redis for Comments)
+- Read replicas are available to solve the problem that Memcache has with cold cache startup (not completely avoidable, but read replicas pretty much helps mitigate this)
+- Complex data structures, pub sub, a whole host of features are available that Memcache doesn't have
+
+## HTTP Cache
+
+These are handled by HTTP headers/status code sent back with the server response
+
+e.g. `Cache-Control: private,max-age=30`
+
+### Configuration
+
+- `Cache-Control`
+  - `public`: means the response is the same for everyone and the data can be cached in browser or proxy stores. It’s the default behavior, so it’s not necessary to set it
+  - `private`: responses are intended for a single user. For example, the URL `https://myapp.com/messages` returns a set of messages unique to each logged-in user, even though both of them use the same URL. Therefore, the browser can cache the response, but proxy server caching is not permitted
+  - `max-age`: used with `public` and `private` and specifies the maximum time in seconds a response remains valid. For example, `max-age=60` indicates the browser/proxy can cache the data for one minute before making a new request (e.g. `Cache-Control: private,max-age=30`)
+  - `s-maxage`: for some cdn/proxy caches this is the same as `Surrogate-Control`, except the header is not stripped and will be respected by the cdn/proxy caches (including any caches between the cdn and the browser), but not the browser itself.
+  - `must-revalidate`: indicates that the freshness information must be obeyed strictly. Stale content cannot be served under any circumstance
+  - `no-transform`: tells caches that they are not allowed to modify the received content for performance reasons under any circumstances. This means, for instance, that the cache is not able to send compressed versions of content it did not receive from the origin server compressed and is not allowed
+  - `no-store`: stops the browser and all proxy servers caching the returned data. Every request will therefore incur a trip back to the server
+  - `no-cache`: specifies that any cached content must be re-validated on each request before being served to a client. This, in effect, marks the content as stale immediately, but allows it to use revalidation techniques to avoid re-downloading the entire item again. The browser/proxy will make a server request and pass back `Last-Modified` (date/time) and/or an Etag (response hash/checksum) in the header. These are present on subsequent requests and, if the response has not changed, the server returns a `304 Not Modified` status, which instructs the browser/proxy to use its own cached data. Otherwise, the new data is passed back with a `200 OK` status
+- `Expires`: (*deprecated*) sets a time in the future when the content will expire (probably best used only as a fall back; prefer use of `Cache-Control`)
+- `Etag`: the origin can provide a unique Etag for an item when it initially serves the content. When a cache needs to validate the content it has on-hand upon expiration, it can send back the Etag it has for the content. The origin will either tell the cache that the content is the same, or send the updated content (with the new Etag)
+- `Last-Modified`: specifies the last time that the item was modified. This may be used as part of the validation strategy to ensure fresh content
+- `Content-Length`: while not specifically involved in caching, the `Content-Length` header is important to set when defining caching policies. Certain software will refuse to cache content if it does not know in advanced the size of the content it will need to reserve space for
+- `Vary`: provides you with the ability to store different versions of the same content at the expense of diluting the entries in the cache. A cache typically uses the requested host and the path to the resource as the key with which to store the cache item. The Vary header can be used to tell caches to pay attention to an additional header when deciding whether a request is for the same item. This is most commonly used to tell caches to key by the Accept-Encoding header as well, so that the cache will know to differentiate between compressed and uncompressed content
+
+&gt; References: [W3C Specification](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html) and [MDN docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control)
+
+### no-store, no-cache, must-revalidate
+
+These headers require a little _extra_ clarification.
+
+Unlike max-age, the no-store, no-cache and must-revalidate directives are about instructing caches to not cache a resource. However, they differ in subtle ways.
+
+no-store is pretty self-explanatory, and in fact, it does even a little more than the name suggests. When present, a HTTP/1.1 compliant cache must not attempt to store anything, and must also take actions to delete any copy it might have, either in memory, or stored on disk.
+
+The no-cache directive, on the other hand, is arguably much less self-explanatory. This directive actually means to never use a local copy without first validating with the origin server. By doing so, it prevents all possibility of a cache hit, even with fresh resources.
+
+To put it another way, the no-cache directive says that caches must revalidate their representations with the origin server. But then comes another directive, awkwardly named… must-revalidate.
+
+If this starts to get confusing for you, rest assured, you are not alone. If what one wants is not to cache, it has to use no-store instead of no-cache. And if what one wants is to always revalidate, it has to use no-cache instead of must-revalidate.
+
+Confusing, indeed.
+
+As for the must-revalidate directive, it is used to forbid a cache to serve a stale resource. If a resource is fresh, must-revalidate perfectly allows a cache to serve it without forcing any revalidation, unlike with no-store and no-cache. That’s why this header should always be used with a max-age directive, to indicate a desire to cache a resource for some time and when it’s become stale, enforce a revalidation.
+
+When it comes to these last three directives, we find the choice of words to describe each of them particularly confusing: no-store and no-cache are expressed negatively whereas must-revalidate is expressed positively. Their differences would probably be more obvious if they were to be expressed in the same fashion.
+
+Therefore, it is helpful to think about each of them expressed in terms of what is not allowed:
+
+    no-store: never store anything
+    no-cache: never cache hit
+    must-revalidate: never serve stale
+    
+### stale-while-revalidate
+
+It's important to note that the ability for a cache to 'serve stale' while _revalidating_ (i.e. to see if there is a fresher version of the cached content) is reliant upon the origin providing either a `ETag` or `Last-Modified` header. If neither of these headers are sent, then the cache will not be able to update either the object's _age_ (i.e. reset it back to zero once the content is refreshed), nor its 'grace' period (i.e. how long it will be able to serve it stale) and so this will result in the cache/proxy having to make a _full_ request for content from the origin server.
+
+Each header would cause the browser/cache to issue a conditional header request using a different header itself, for example:
+
+- ETag: `If-None-Match`
+- Last-Modified: `If-Modified-Since`
+
+&gt; Reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching#Cache_validation
+
+The `If-None-Match` HTTP request header makes the request conditional. For GET and HEAD methods, the server will send back the requested resource, with a 200 status, only if it doesn't have an ETag matching the given ones. For other methods, the request will be processed only if the eventually existing resource's ETag doesn't match any of the values listed.
+
+```bash
+# typically is a HEAD request
+curl -v --head --header 'If-None-Match: &quot;e54f84f5ccb54dcf20dc2802ce8b8fae6f477f8e&quot;' https://example.com
+
+# works with GET requests too
+curl -svo /dev/null --header 'If-None-Match: &quot;e54f84f5ccb54dcf20dc2802ce8b8fae6f477f8e&quot;' https://example.com
+</code></pre>
+
+<p>The <code>If-Modified-Since</code> request HTTP header makes the request conditional: the server will send back the requested resource, with a 200 status, only if it has been last modified after the given date. If the request has not been modified since, the response will be a 304 without any body.</p>
+
+<p>It should also be noted that the official <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.3.4" target="_blank">W3C specification</a> provides &lsquo;rules&rsquo; for when to use ETag vs Last-Modified. In summary&hellip;</p>
+
+<blockquote>
+<p>the preferred behavior for an HTTP/1.1 origin server is to send both a strong entity tag and a Last-Modified value.</p>
+</blockquote>
+
+<p>Below is a sequence diagram (paste it into <a href="https://sequencediagram.org/" target="_blank">https://sequencediagram.org/</a> to see it properly) which demonstrates the <code>stale-while-revalidate</code> flow using ETags as the revalidation mechanism&hellip;</p>
+
+<pre><code>title Fastly stale-while-revalidate (ETag example)
+
+Client-&gt;CDN: GET /foo
+CDN--&gt;CDN: CACHE MISS
+CDN-&gt;Origin: GET /foo
+Origin--&gt;Origin: generate response\n(and hash response for ETag comparison)
+Origin-&gt;CDN: 200 OK\n**Content-Length**:&lt;N&gt;\n**ETag**: XYZ\n**Cache-Control**: no-store, must-revalidate\n**Surrogate-Control**: max-age=1day, stale-while-revalidate=1day, stale-if-error=1year
+note over CDN: cache response
+CDN-&gt;Client: 200 OK
+
+note over Client #yellow: max-age TTL expires
+
+Client-&gt;CDN:GET /foo
+CDN--&gt;CDN: CACHE MISS
+
+group asynchronous request flow
+  CDN-&gt;Origin: GET /foo\n**If-None-Match**: XYZ
+  Origin--&gt;Origin: generate response\n(and hash response for ETag comparison)
+  Origin-&gt;CDN: 304 Not Modified\n**Content-Length**:0
+  note over CDN: cached object not updated
+end
+
+CDN-&gt;Client: 200 OK (stale content)
+note over CDN #pink:even though we'll serve stale to client\nwhile asynchronously trying to update\nour expired cache object, this still\nmeans we'll end up hitting the origin\nagain until we get fresh content.\n\nthis is helped by Fastly's ability to do\n&quot;request collapsing&quot; so for multiple\nclient requests only one will reach the\norigin while the remaining will receive\na stale response.
+
+Client-&gt;CDN:GET /foo
+CDN--&gt;CDN: CACHE MISS
+CDN-&gt;Origin: GET /foo\n**If-None-Match**: XYZ
+Origin--&gt;Origin: generate response\n(and hash response for ETag comparison)
+Origin-&gt;CDN: 200 OK\n**Content-Length**:&lt;N&gt;\n**ETag**: XYZ\n**Cache-Control**: no-store, must-revalidate\n**Surrogate-Control**: max-age=1day, stale-while-revalidate=1day, stale-if-error=1year
+note over CDN: cached object updated with fresh max-age\nand stale-while-revalidate, stale-if-error TTLs
+</code></pre>
+
+<h3 id="surrogate-cache-control-and-proxies">surrogate/cache-control and proxies</h3>
+
+<p>the behaviour of specific <code>Cache-Control</code> values when also used alongside <code>Surrogate-Control</code> headers can become confusing so we&rsquo;ve documented them below&hellip;</p>
+
+<ul>
+<li>Disable Client Caching: <code>Cache-Control: no-store, must-revalidate</code>, you can now set <code>Surrogate-Control</code> for proxies (<a href="https://docs.fastly.com/guides/tutorials/cache-control-tutorial#applying-different-cache-rules-for-fastly-and-browsers" target="_blank">docs</a>)</li>
+<li>Disable CDN Caching: <code>Cache-Control: private</code> (<a href="https://docs.fastly.com/guides/tutorials/cache-control-tutorial#do-not-cache" target="_blank">docs</a>)</li>
+<li>Disable ALL Caching: <code>Cache-Control: no-cache, no-store, private, must-revalidate, max-age=0, max-stale=0, post-check=0, pre-check=0</code> + <code>Pragma: no-cache</code> + <code>Expires: 0</code> (<a href="https://docs.fastly.com/guides/debugging/temporarily-disabling-caching" target="_blank">docs</a>)</li>
+</ul>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

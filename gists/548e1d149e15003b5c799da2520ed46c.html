@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Hugo build script for User page] #github #hugo #build</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="hugo-build-script-for-user-page-github-hugo-build">[Hugo build script for User page] #github #hugo #build</h1>
+
+<h2 id="hugo-build-sh">hugo-build.sh</h2>
+
+<pre><code class="language-shell">#!/usr/bin/env bash
+
+function contains {
+  local e match=&quot;$1&quot;
+  shift
+  for e; do [[ &quot;$e&quot; == &quot;$match&quot; ]] &amp;&amp; return 0; done
+  return 1
+}
+
+function remove_toplevel {
+  local blacklist=(build.sh CNAME keybase.txt src)
+  local trigger=0
+
+  for i in *; do
+    if contains &quot;$i&quot; &quot;${blacklist[@]}&quot;; then
+      trigger=1
+      echo &quot;this is a blacklist file: $i&quot;
+    else
+      rm -rf &quot;$i&quot;
+    fi
+  done
+
+  if [[ $trigger -eq 1 ]]; then
+    printf &quot;\n...we won't delete these files.\n\n&quot;
+  fi
+}
+
+function build_site {
+  pushd &quot;./src&quot; 1&gt;/dev/null
+  hugo
+  cp -r ./public/ ../
+  popd 1&gt;/dev/null
+}
+
+remove_toplevel
+build_site
+</code></pre>
+
+</div>
+</body>
+</html>

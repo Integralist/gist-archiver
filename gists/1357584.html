@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Curl Example</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="curl-example">Curl Example</h1>
+
+<h2 id="person-js">Person.js</h2>
+
+<pre><code class="language-javascript">define(function() {
+	
+	return function Person(fullname) {
+		this.name = fullname;
+	}
+	
+});
+</code></pre>
+
+<h2 id="index-html">index.html</h2>
+
+<pre><code class="language-html">&lt;!doctype html&gt;
+&lt;html dir=&quot;ltr&quot; lang=&quot;en&quot;&gt;
+&lt;head&gt;
+	&lt;meta charset=&quot;utf-8&quot;&gt;
+	&lt;title&gt;Curl (Cujo Resource Loader)&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+	&lt;script type=&quot;text/javascript&quot;&gt;
+		curl = {
+		    baseUrl: 'Assets/Scripts',
+		    paths: {
+		        curl: 'Curl',
+		        jquery: 'Utils/jquery'
+		    }
+		};
+	&lt;/script&gt;
+	&lt;script src=&quot;Assets/Scripts/Curl.js&quot;&gt;&lt;/script&gt;
+	&lt;script type=&quot;text/javascript&quot;&gt;
+		curl(['App/people'], function(o) {
+			console.log(o.list, o.scripts);
+		});
+	&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre>
+
+<h2 id="people-js">people.js</h2>
+
+<pre><code class="language-javascript">define(['Models/Person', 'Utils/random', 'jquery'], function (Person, randomUtility, $) {
+	
+	var people = [],
+	    scriptsOnPage = $('script');
+	
+	people.push(new Person('Jim'));
+	people.push(new Person(randomUtility.someValue));
+  
+	return { list: people, scripts: scriptsOnPage };
+	
+});
+</code></pre>
+
+<h2 id="random-js">random.js</h2>
+
+<pre><code class="language-javascript">define(function() {
+	
+	function method (x) {
+		return x + x;
+	}
+ 
+	return {
+		someValue: 'foobar',
+		myMethod: method
+	}
+	
+});
+</code></pre>
+
+</div>
+</body>
+</html>

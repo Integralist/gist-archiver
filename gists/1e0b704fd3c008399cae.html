@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Faraday TLS Connection</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="faraday-tls-connection">Faraday TLS Connection</h1>
+
+<h2 id="faraday-tls-connection-rb">Faraday TLS Connection.rb</h2>
+
+<pre><code class="language-ruby">require &quot;faraday&quot;
+require &quot;openssl&quot;
+
+class Connection
+  def initialize(cert, key, host = nil)
+    if cert.nil? || key.nil?
+      @connection = Faraday.new host
+    else
+      @connection = ssl_connection(cert, key, host)
+    end
+  end
+
+  def get(path)
+    connection.get path
+  end
+
+  private
+
+  attr_reader :connection
+
+  def client_key(key)
+    OpenSSL::PKey::RSA.new File.read(key)
+  end
+
+  def client_cert(cert)
+    OpenSSL::X509::Certificate.new File.read(cert)
+  end
+
+  def ssl_connection(cert, key, host)
+    Faraday.new(host, :ssl =&gt; ssl_options(cert, key))
+  end
+
+  def ssl_options(cert, key)
+    {
+      :client_cert =&gt; client_cert(cert),
+      :client_key  =&gt; client_key(key),
+      :verify      =&gt; false,
+      :version     =&gt; &quot;TLSv1&quot;
+    }
+  end
+end
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby JSON Schema Generator and Validator</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-json-schema-generator-and-validator">Ruby JSON Schema Generator and Validator</h1>
+
+<h2 id="ruby-json-schema-generator-and-validator-rb">Ruby JSON Schema Generator and Validator.rb</h2>
+
+<pre><code class="language-ruby">require &quot;faraday&quot;
+require &quot;json-schema&quot;
+require &quot;json-schema-generator&quot;
+
+connection = Faraday.new &quot;http://some.domain.co.uk&quot;
+response   = connection.get &quot;some/endpoint&quot;
+body       = response.body
+fixture    = IO.read &quot;path/to/my/fixture/data.json&quot;
+schema     = JSON::SchemaGenerator.generate &quot;my schema&quot;, body, { :schema_version =&gt; &quot;draft3&quot; }
+results    = JSON::Validator.fully_validate schema, fixture
+</code></pre>
+
+</div>
+</body>
+</html>

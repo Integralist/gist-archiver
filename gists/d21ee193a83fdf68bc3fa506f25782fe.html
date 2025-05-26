@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Delete a slice entry in Go] #go #golang #slices</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="delete-a-slice-entry-in-go-go-golang-slices">[Delete a slice entry in Go] #go #golang #slices</h1>
+
+<h2 id="delete-entry-from-slice-go">delete-entry-from-slice.go</h2>
+
+<pre><code class="language-go">// zones    == complete list of dns zones
+// denyList == list of zones to remove
+for _, deniedZone := range denyList {
+	for i := 0; i &lt; len(zones); i++ {
+		if zones[i] == deniedZone {
+			zones = append(zones[:i], zones[i+1:]...)
+			i-- // Adjust index to stay at the correct position after removal
+		}
+	}
+}
+</code></pre>
+
+</div>
+</body>
+</html>

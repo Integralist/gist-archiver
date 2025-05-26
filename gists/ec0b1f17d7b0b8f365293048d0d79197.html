@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python copy file with permissions + add additional perms] #python3 #permissions #chmod</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-copy-file-with-permissions-add-additional-perms-python3-permissions-chmod">[Python copy file with permissions + add additional perms] #python3 #permissions #chmod</h1>
+
+<h2 id="copy-file-with-permissions-add-additional-perms-py">copy file with permissions + add additional perms.py</h2>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+note if you just need to ensure that you keep the original permissions 
+then using the horrifically named `shutil.copy2` will work for you.
+
+just replace the last two lines (`os.stat` and `os.chmod`) with:
+`shutil.copy2(src_file, dst_file)`
+&quot;&quot;&quot;
+
+src_file = f&quot;{src}{path}/{file}&quot;
+dst_file = f&quot;{dst}/{file}&quot;
+
+shutil.copyfile(src_file, dst_file)
+
+# we lose the execute permissions when copying a file with Python,
+# where as it seems that's not a problem when we were using Bash.
+#
+# if we don't add execute perms to the copied file, then when the docker
+# container is run we would get an &quot;OCI runtime create failed&quot; error.
+#
+# our code uses os.stat() to get the current file permissions, then uses
+# the pipe operator | to do a bitwise OR operation which ensures we get
+# both the current perms + the new perms (i.e. +x execute).
+#
+# Bitwise OR reference:
+# https://en.wikipedia.org/wiki/Logical_disjunction
+st = os.stat(src_file)
+os.chmod(dst_file, st.st_mode | stat.S_IEXEC)
+</code></pre>
+
+</div>
+</body>
+</html>

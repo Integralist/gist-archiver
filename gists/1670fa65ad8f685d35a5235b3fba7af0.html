@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Python aiohttp example using mustache (also consider https://github.com/saghul/aiodns)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-aiohttp-example-using-mustache-also-consider-https-github-com-saghul-aiodns">Python aiohttp example using mustache (also consider <a href="https://github.com/saghul/aiodns" target="_blank">https://github.com/saghul/aiodns</a>)</h1>
+
+<h2 id="python-aiohttp-example-using-mustache-py">Python aiohttp example using mustache.py</h2>
+
+<pre><code class="language-python">#!/usr/bin/env python
+import asyncio
+
+import uvloop
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+from aiohttp import web, get
+import ujson
+import pystache
+
+TEMPLATE = open('./template.mustache').read()
+
+async def fetch_json(url):
+    respone = await get(url)
+    data = await respone.json(loads=ujson.loads)
+    await respone.release()
+    return data
+
+
+async def handler(request):
+    requests = [fetch_json('https://www.example.com/some/api') for _ in range(3)]
+    results = await asyncio.gather(*requests)
+    badge = next(iter(results))
+    body = pystache.render(TEMPLATE, badge)
+    return web.Response(text=body, content_type='text/html')
+
+async def health(r):
+    return web.Response(text='OK')
+
+
+def get_app():
+    app = web.Application(debug=True)
+    app.router.add_get(r'/', handler)
+    app.router.add_get(r'/health', health)
+    return app
+
+
+if __name__ == '__main__':
+    app = get_app()
+    web.run_app(app, port=8080)
+</code></pre>
+
+<h2 id="requirements-txt">requirements.txt</h2>
+
+<pre><code class="language-pip">aiohttp==1.1.6
+async-timeout==1.1.0
+cchardet==1.1.1
+chardet==2.3.0
+multidict==2.1.4
+pystache==0.5.4
+tornado==4.4.2
+ujson==1.35
+uvloop==0.6.7
+yarl==0.8.1
+</code></pre>
+
+<h2 id="template-mustache">template.mustache</h2>
+
+<pre><code class="language-mustache">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;title&gt;Perf testing&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;p&gt;{{success}}&lt;/p&gt;
+    {{#data}}
+      &lt;p&gt;{{name}}&lt;/p&gt;
+      &lt;p&gt;{{path}}&lt;/p&gt;
+      &lt;p&gt;{{category}}&lt;/p&gt;
+    {{/data}}
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Boilerplate for AMD, Node and browser global</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="boilerplate-for-amd-node-and-browser-global">Boilerplate for AMD, Node and browser global</h1>
+
+<h2 id="define-js">define.js</h2>
+
+<pre><code class="language-javascript">(function(define) {
+    'use strict';
+
+    define(function() {
+        return LIBRARY_NAME;
+    });
+}(typeof define == 'function' &amp;&amp; define.amd
+    ? define
+    : function (factory) { typeof exports === 'object'
+        ? (module.exports = factory())
+        : (this.LIBRARY_NAME = factory());
+    }
+    // Boilerplate for AMD, Node, and browser global
+));
+</code></pre>
+
+</div>
+</body>
+</html>

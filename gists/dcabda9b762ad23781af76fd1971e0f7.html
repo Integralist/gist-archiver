@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[YAML anchors] #yaml #anchors</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="yaml-anchors-yaml-anchors">[YAML anchors] #yaml #anchors</h1>
+
+<h2 id="yaml-anchors-md">yaml-anchors.md</h2>
+
+<pre><code class="language-markdown">If you've not used YAML before you might be wondering what `&amp;&lt;name&gt;` means. 
+
+What this will do is create an 'anchor'. 
+
+Anchors allow you to inject the associated block of data any where else within your YAML configuration file. 
+
+This allows you to avoid duplicating those particular settings.
+
+The way to do that injection is to 'dereference' the anchor with an asterisk. 
+
+e.g. `log_format: *log_format` or inject it _inside_ another block using a double chevron (e.g. `&lt;&lt;: *upstreams`). 
+
+I recommend having a read through the YAML documentation to get a better feel for how these YAML features work.
+
+https://onlineyamltools.com/convert-yaml-to-json is a good site to test this out on as it can convert your YAML to JSON and you can see if it works how you expect.
+
+Below demonstrates a problem with this feature, which is it works best with objects, not arrays... 
+
+In the below example I want to inject the same `args:` array into the array entry that follows...
+
+```yaml
+- containers:
+    - args: &amp;args
+        - -cfg
+        - /vault/secrets/datasync.conf
+        - -backup
+      name: datasync
+- containers:
+    - args: *args
+      name: datasync
+</code></pre>
+
+<p>This products:</p>
+
+<pre><code class="language-json">[
+  {
+    &quot;containers&quot;: [
+      {
+        &quot;args&quot;: [
+          &quot;-cfg&quot;,
+          &quot;/vault/secrets/datasync.conf&quot;,
+          &quot;-backup&quot;
+        ],
+        &quot;name&quot;: &quot;datasync&quot;
+      }
+    ]
+  },
+  {
+    &quot;containers&quot;: [
+      {
+        &quot;args&quot;: [
+          &quot;-cfg&quot;,
+          &quot;/vault/secrets/datasync.conf&quot;,
+          &quot;-backup&quot;
+        ],
+        &quot;name&quot;: &quot;datasync&quot;
+      }
+    ]
+  }
+]
+</code></pre>
+
+<p>This is fine. But what if I want to extend <code>args</code> in the second case to have an extra argument?</p>
+
+<p>The problem with that is I can&rsquo;t <em>extend</em> the args list. This is the problem with the array data type. When working with an object you can use <code>&lt;&lt;: *whatever</code> and then extend an object&rsquo;s key/value but not with an array :-(</p>
+
+<p>Where as if it was an object instead of an array:</p>
+
+<pre><code class="language-yaml">- containers:
+    - args: &amp;args
+        foo: bar
+      name: datasync
+- containers:
+    - args: 
+        &lt;&lt;: *args
+        beep: boop
+      name: datasync
+</code></pre>
+
+<p>Then this would work fine&hellip;</p>
+
+<pre><code class="language-json">[
+  {
+    &quot;containers&quot;: [
+      {
+        &quot;args&quot;: {
+          &quot;foo&quot;: &quot;bar&quot;
+        },
+        &quot;name&quot;: &quot;datasync&quot;
+      }
+    ]
+  },
+  {
+    &quot;containers&quot;: [
+      {
+        &quot;args&quot;: {
+          &quot;foo&quot;: &quot;bar&quot;,
+          &quot;beep&quot;: &quot;boop&quot;
+        },
+        &quot;name&quot;: &quot;datasync&quot;
+      }
+    ]
+  }
+]
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

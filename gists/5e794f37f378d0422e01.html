@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Zsh tips</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="zsh-tips">Zsh tips</h1>
+
+<h2 id="zsh-md">zsh.md</h2>
+
+<pre><code class="language-markdown">## Path replacement
+
+Moving from:
+`/www/site1/media/css/main`
+to
+`/www/site2/media/css/main`
+can be a pain, but not in zsh:
+
+```sh
+cd site1 site2
+</code></pre>
+
+<h2 id="globbing-to-find-remove-files">Globbing to find / remove files</h2>
+
+<p>Find all pdf files recursively</p>
+
+<pre><code class="language-sh">ls **/*.pdf
+</code></pre>
+
+<p>Find all files bigger than 10M</p>
+
+<pre><code class="language-sh">ls **/*(.Lm+10)
+</code></pre>
+
+<p>For more examples type <code>ls **/*(</code> then <code>tab</code></p>
+
+<h2 id="jump-to-previous-directories">Jump to previous directories</h2>
+
+<p>Enter <code>dirs -v</code>. You should see all the directories from your history stack.</p>
+
+<p>You can use cd to navigate between its entries:</p>
+
+<pre><code>cd +4
+</code></pre>
+
+<h2 id="change-directories-without-cd">Change directories without cd</h2>
+
+<p>With auto_cd, no need for <code>cd</code></p>
+
+<pre><code class="language-sh">cd a_directory
+# can be replaced with:
+a_directory
+</code></pre>
+
+<h2 id="mass-rename-with-zmv">Mass rename with zmv</h2>
+
+<pre><code class="language-sh">zmv -W '*.txt' '*.markdown'
+</code></pre>
+
+<h2 id="resources">Resources</h2>
+
+<p><a href="http://reasoniamhere.com/2014/01/11/outrageously-useful-tips-to-master-your-z-shell/" target="_blank">reasoniamhere.com/2014/01/11/outrageously-useful-tips-to-master-your-z-shell</a>
+<a href="http://linuxaria.com/howto/globbing-con-zsh" target="_blank">linuxaria.com/howto/globbing-con-zsh</a>
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

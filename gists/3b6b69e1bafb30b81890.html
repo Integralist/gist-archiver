@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Data Structures</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="data-structures">Data Structures</h1>
+
+<h2 id="data-structures-md">data structures.md</h2>
+
+<pre><code class="language-markdown">## Update
+
+This gist has been superseded by https://github.com/Integralist/Data-Structures and also https://www.integralist.co.uk/data-types-and-data-structures/
+
+---
+
+&gt; Note:  
+&gt; sequential == collection keeps order of population  
+&gt; ordered == collection is re-ordered (implements a Sequence interface)
+
+**Tuple**
+
+- ordered
+- duplicates allowed
+
+**Set**
+
+- sequential
+- no duplicates
+
+&gt; Note: Clojure's Set data structure appears to be ordered `#{3 1 2}`, `(first #{3 1 2})` returns 1
+
+**Linked list**
+
+- list contains nodes
+- each node holds: 
+  - data
+  - pointer to the next node
+- the last node's pointer points to `null` 
+  - this is a singly linked list
+  - a doubly linked list will also have a pointer to the previous node
+- no direct access to individual elements
+  - you must access the head and navigate until element is found
+
+**Array/Vector**
+
+- index access
+- duplicates allowed
+- Vectors are synchronised (i.e. thread-safe)
+- Arrays allow operations across multiple threads (i.e. not thread-safe)
+- Array size is determined up front
+  - you cannot remove an element from an Array
+    - but you can put a null pointer or no value to it
+- Vector is dynamic (i.e. it can resize dynamically based on new elements added)
+- Arrays can't add elements to a specific index, only to the end. 
+- Vectors are like super Arrays.
+
+**List/Sequence**
+
+- ordered
+- duplicates allowed (but finite size)
+
+**Stack**
+
+- ordered
+- LIFO (last in, first out)
+- only actions available are `push` and `pop` (`push` directs &quot;in&quot;, `pop` directs &quot;out&quot;)
+
+**Queue**
+
+- ordered
+- FIFO (first in, first out)
+- only actions available are `enqueue` and `dequeue` (`enqueue` directs &quot;in&quot;, `dequeue` directs &quot;out&quot;)
+</code></pre>
+
+</div>
+</body>
+</html>

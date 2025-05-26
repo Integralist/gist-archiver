@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Coding Best Practices: High Level Principles</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="coding-best-practices-high-level-principles">Coding Best Practices: High Level Principles</h1>
+
+<h2 id="coding-best-practices-high-level-principles-md">Coding Best Practices: High Level Principles.md</h2>
+
+<pre><code class="language-markdown"># High Level Principles
+
+The following principles are very 'high-level' and meant to be used as a quick reference guide, as apposed to the other standards/guideline documents which will focus on specific language idioms and design patterns.
+
+- [Iceberg Classes](#iceberg-classes)
+- [Law of Demeter](#law-of-demeter)
+- [Don't Repeat Yourself](#dont-repeat-yourself)
+- [Design Patterns](#design-patterns)
+- [S.O.L.I.D](#solid)
+
+## Iceberg Classes
+
+An 'iceberg' class is one that has more private methods than public. Typically what happens is the developer builds the class and exposes only the methods that they feel should be public, whilst all implementation details are hidden away in the private methods.
+
+### Problem
+
+This is fine until it comes to testing (this is especially prevalent when *not* doing test-driven development; i.e. writing tests *after* the class has been created) where by you want to verify specific behaviour works as expected but you're unable to because your behaviour is locked away in private methods.
+
+Developers will typically try to either hack around the problem or inject additional context into the class, which makes sense in the test environment but not when the code is run in production.
+
+### Solution
+
+The solution to this problem is to group together related private behaviour and extract it into a separate class. Naming this new class can be tricky though, as the new class is no longer a noun/object, it is instead very much behavioural (verb/action). If this is proving to be a problem or a concern, then maybe consider instead of creating a class you create a reusable module and include it as runtime instance methods.
+
+&gt; e.g. Ruby offers the ability to mixin behaviour via an `include` statement
+
+## Law of Demeter
+
+The 'Law of Demeter' simply states that you should reduce the coupling between objects by identifying when you have a thread of context between them. This particular principle has the following rules:
+
+- Your method can call other methods in its class directly
+- Your method can call methods on its own fields directly (but not on the fields’ fields)
+- When your method takes parameters, your method can call methods on those parameters directly
+- When your method creates local objects, that method can call methods on the local objects
+
+### Problem
+
+Imagine you have an object `User` and this has two public methods:
+
+1. name
+2. department
+
+You might have a class that calls `User` and tries to extract their name as well as their department details.
+
+This could potentially (depending on implementation) be a violation of the law of demeter:
+
+```rb
+def user_info(user)
+  &quot;Name: #{user.name}. Dept: #{user.department.name}&quot;
+end
+</code></pre>
+
+<p>In the above example we&rsquo;re violating the law of demeter because we&rsquo;re accessing a field&rsquo;s field (e.g. we send a message to <code>user.department</code> and then act on its result by trying to access the nested field <code>name</code>).</p>
+
+<h3 id="solution">Solution</h3>
+
+<p>The <code>User</code> class should be modified to expose the department name rather than having an external class/object try to nest inside a data structure to extract that data. In other words, <code>User</code> class should have a <code>department_name</code> method that knows the context of its own data and exposes it to any consumers of the <code>User</code> class.</p>
+
+<h2 id="don-t-repeat-yourself">Don&rsquo;t Repeat Yourself</h2>
+
+<p>Most people know the concept of &ldquo;Don&rsquo;t Repeat Yourself&rdquo; as the DRY principle.</p>
+
+<p>In essence it applies to all forms of design, not just code (e.g. architecture, databases, documentation etc), but we&rsquo;ll consider the principle from the point of view of a programmer for now.</p>
+
+<h3 id="problem">Problem</h3>
+
+<p>You&rsquo;ve written some behaviour, or business logic, and you realise that implementation could be used within one or more unrelated areas of your codebase.</p>
+
+<h3 id="solution-1">Solution</h3>
+
+<p>Move the behaviour/logic into a function, class or module (whatever makes sense for the programming style you write) and make it a reusable entity by injecting its dependencies (e.g. any external references).</p>
+
+<h2 id="design-patterns">Design Patterns</h2>
+
+<p>Design Patterns are - as the name suggest - a common design/architecture/code &lsquo;pattern&rsquo; that can be applied to a problem in a generalised way. These patterns are typically very abstract and that is their purpose.</p>
+
+<p>The mistake most people make when learning about design patterns is assuming that they are an explicit solution to a particular problem. They are not. You need to consider the pattern being described and implement the pattern however you feel best suits the problem you&rsquo;re trying to solve.</p>
+
+<p>There are many official † and unofficial &lsquo;design patterns&rsquo;, and in some cases there are concepts (such as <a href="#solid">S.O.L.I.D</a> - see next section) that sometimes are mistaken for design patterns but really are just coding principles.</p>
+
+<blockquote>
+<p>† by &lsquo;official&rsquo; I refer to the classic tech book &ldquo;Design patterns: elements of reusable object-oriented software&rdquo; and was co-authored by four different people. It is nowadays recognised as being authored by the &ldquo;Gang of Four&rdquo; and their described patterns are generally known as the &ldquo;GoF design patterns&rdquo;</p>
+</blockquote>
+
+<p>For a list of creational, structural and behavioural design patterns we highly recommend the following resource:</p>
+
+<ul>
+<li><a href="https://sourcemaking.com/design_patterns" target="_blank">https://sourcemaking.com/design_patterns</a></li>
+</ul>
+
+<p>Here are some common design patterns you might want to start learning about initially:</p>
+
+<ul>
+<li><a href="https://sourcemaking.com/design_patterns/adapter" target="_blank">Adapter</a>:</li>
+<li><a href="https://sourcemaking.com/design_patterns/decorator" target="_blank">Decorator</a>:</li>
+<li><a href="https://sourcemaking.com/design_patterns/facade" target="_blank">Facade</a>:</li>
+<li><a href="https://sourcemaking.com/design_patterns/null_object" target="_blank">Null Object</a>:</li>
+<li><a href="https://sourcemaking.com/design_patterns/observer" target="_blank">Observer</a>:</li>
+<li><a href="https://sourcemaking.com/design_patterns/strategy" target="_blank">Strategy</a>:</li>
+<li><a href="https://sourcemaking.com/design_patterns/template_method" target="_blank">Template Method</a>:</li>
+</ul>
+
+<h2 id="s-o-l-i-d">S.O.L.I.D</h2>
+
+<p>The S.O.L.I.D principles were named by <a href="https://en.wikipedia.org/wiki/Robert_Cecil_Martin" target="_blank">Robert C. Martin</a> (highly respected software engineer and co-author of the Agile Manifesto).</p>
+
+<ul>
+<li><code>S</code>: Single Responsibility Principle</li>
+<li><code>O</code>: Open/Closed Principle</li>
+<li><code>L</code>: Liskov Substitution Principle</li>
+<li><code>I</code>: Interface Segregation Principle</li>
+<li><code>D</code>: Dependency Inversion Principle</li>
+</ul>
+
+<p>These principles aim to help you to design and build software that will be easy to maintain and extend.</p>
+
+<h3 id="summary-of-principles">Summary of Principles</h3>
+
+<ul>
+<li><code>S</code>: a class should have one, and only one, reason to change</li>
+<li><code>O</code>: you should be able to extend a class&rsquo;s behavior, without modifying it</li>
+<li><code>L</code>: derived classes must be substitutable for their base classes</li>
+<li><code>I</code>: make fine grained interfaces that are client specific.</li>
+<li><code>D</code>: depend on abstractions not on concrete implementations</li>
+</ul>
+
+<h3 id="references">References</h3>
+
+<p>For an example of these principles, then please refer to the following resources:</p>
+
+<ul>
+<li><a href="https://gist.github.com/Integralist/9482527" target="_blank">Ruby code examples</a></li>
+<li><a href="https://en.wikipedia.org/wiki/SOLID_(object-oriented_design)" target="_blank">Wikipedia</a></li>
+</ul>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

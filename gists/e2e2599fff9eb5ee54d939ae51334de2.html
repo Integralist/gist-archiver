@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Using Vim to format nginx file] #vim #nginx</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="using-vim-to-format-nginx-file-vim-nginx">[Using Vim to format nginx file] #vim #nginx</h1>
+
+<h2 id="using-vim-to-format-nginx-file-sh">Using Vim to format nginx file.sh</h2>
+
+<pre><code class="language-shell"># note: have to double escape the \ for the regex operator +
+# + means &quot;one or more occurrences&quot;, but in vim you need to escape it \+
+# but in execute mode you need to escape the escape as \ is a special character in execute mode
+
+# this didn't work...
+#
+# :execute &quot;normal gg/upstream .\\+ {\&lt;cr&gt;mq&quot;
+# :execute &quot;normal 'qI\&lt;cr&gt;\&lt;esc&gt;&quot;
+# 
+# nor...
+#
+# :execute &quot;normal gg/upstream .\\+ {\&lt;cr&gt;O&quot;
+
+vim -E -s site_router/nginx_rendered_dev.conf &lt;&lt;-EOF
+:execute &quot;normal gg=G&quot;
+:g/^$/normal dd
+:update
+:quit
+EOF
+
+# the following is a long form version of the above succinct version...
+
+# format nginx file
+=G
+:g/^$/normal dd
+:setf nginx
+
+# create line break before first upstream
+gg
+/upstream .\+ {
+O
+Esc
+
+# create line break before first log_format
+gg
+/log_format
+O
+Esc
+
+# create line break after last log_format (limit_req_zone is known to follow log_format)
+gg
+/limit_req_zone
+O
+Esc
+
+# create line break before each # code comment
+gg
+/#
+O
+Esc
+nn # to find next match
+
+# create line break before each server block
+gg
+/server {
+O
+Esc
+nn # to find next match
+
+# create line break before each location block
+gg
+/location \~
+O
+Esc
+nn # to find next match
+
+# create line break before each location 'fallback' block
+gg
+/location @
+O
+Esc
+nn # to find next match
+
+# create line break before each location 'health check' block
+gg
+/location =
+O
+Esc
+nn # to find next match
+</code></pre>
+
+</div>
+</body>
+</html>

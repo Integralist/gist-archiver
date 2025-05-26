@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Lightline Status Line Tweaks] #vim #lightline #powerline #statusline</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="lightline-status-line-tweaks-vim-lightline-powerline-statusline">[Lightline Status Line Tweaks] #vim #lightline #powerline #statusline</h1>
+
+<h2 id="lightline-status-line-tweaks-vim">Lightline Status Line Tweaks.vim</h2>
+
+<pre><code class="language-vim">&quot; Lightline Status Line Tweaks
+&quot;
+&quot; See documentation for details: https://github.com/itchyny/lightline.vim#advanced-configuration
+&quot;
+&quot; We use vim-fugitive to get git branch
+function! UpdateWordCount()
+  let lnum = 1
+  let n = 0
+  while lnum &lt;= line('$')
+    let n = n + len(split(getline(lnum)))
+    let lnum = lnum + 1
+  endwhile
+  let g:word_count = n . &quot; words&quot;
+  return &amp;filetype ==# 'markdown' ? g:word_count : ''
+endfunction
+
+&quot; notice we specify `gitbranch` and `wordcount` functions, and then define where they come from...
+
+let g:lightline = {
+      \ 'colorscheme': 'default',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'gitbranch', 'wordcount', 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ 'component_function': {
+      \   'gitbranch': 'fugitive#head',
+      \   'wordcount': 'UpdateWordCount',
+      \ },
+      \ }
+</code></pre>
+
+</div>
+</body>
+</html>

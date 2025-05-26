@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go compile Rust program via shell to Cargo] #go #golang #rust #rustlang #cargo #compile</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-compile-rust-program-via-shell-to-cargo-go-golang-rust-rustlang-cargo-compile">[Go compile Rust program via shell to Cargo] #go #golang #rust #rustlang #cargo #compile</h1>
+
+<h2 id="go-compile-rust-program-via-shell-to-cargo-go">Go compile Rust program via shell to Cargo.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;bytes&quot;
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;os&quot;
+	&quot;os/exec&quot;
+	&quot;strings&quot;
+)
+
+func main() {
+    // just testing to see if there are problems with spaces.
+	os.Setenv(&quot;TEST_WITH_SPACE&quot;, os.Getenv(&quot;DOES_NOT_EXIST&quot;)+` -C debuginfo=2`)
+
+	args := []string{
+		&quot;+1.49.0&quot;,
+		&quot;build&quot;,
+		&quot;--release&quot;,
+		&quot;--target&quot;,
+		&quot;wasm32-wasi&quot;,
+		&quot;--color&quot;,
+		&quot;always&quot;,
+		&quot;--verbose&quot;,
+	}
+
+	// Execute the `cargo build` commands with the Wasm WASI target, release
+	// flags and env vars.
+	cmd := NewStreamingExec(&quot;cargo&quot;, args, os.Environ(), true, os.Stdout)
+	if err := cmd.Exec(); err != nil {
+		fmt.Println(&quot;%s&quot;, err)
+	}
+}
+
+// StreamingExec models a generic command execution that consumers can use to
+// execute commands and stream their output to an io.Writer. For example
+// compute commands can use this to standardize the flow control for each
+// compiler toolchain.
+type StreamingExec struct {
+	command string
+	args    []string
+	env     []string
+	verbose bool
+	output  io.Writer
+}
+
+// NewStreamingExec constructs a new StreamingExec instance.
+func NewStreamingExec(cmd string, args, env []string, verbose bool, out io.Writer) *StreamingExec {
+	return &amp;StreamingExec{
+		cmd,
+		args,
+		env,
+		verbose,
+		out,
+	}
+}
+
+// Exec executes the compiler command and pipes the child process stdout and
+// stderr output to the supplied io.Writer, it waits for the command to exit
+// cleanly or returns an error.
+func (s StreamingExec) Exec() error {
+	cmd := exec.Command(s.command, s.args...)
+	cmd.Env = append(os.Environ(), s.env...)
+
+	// Pipe the child process stdout and stderr to our own output writer.
+	var stderrBuf bytes.Buffer
+	cmd.Stdout = s.output
+	cmd.Stderr = io.MultiWriter(s.output, &amp;stderrBuf)
+
+	if err := cmd.Run(); err != nil {
+		if !s.verbose &amp;&amp; stderrBuf.Len() &gt; 0 {
+			return fmt.Errorf(&quot;error during execution process:\n%s&quot;, strings.TrimSpace(stderrBuf.String()))
+		}
+		return fmt.Errorf(&quot;error during execution process&quot;)
+	}
+
+	return nil
+}
+</code></pre>
+
+</div>
+</body>
+</html>

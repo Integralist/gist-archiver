@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby Alephant JSON Logger</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-alephant-json-logger">Ruby Alephant JSON Logger</h1>
+
+<h2 id="example-rb">example.rb</h2>
+
+<pre><code class="language-ruby">require &quot;alephant/logger&quot;
+require &quot;pry&quot;
+
+# Setup logger (mandatory first step)
+Alephant::Logger.setup
+
+# Store off the logger
+logger = Alephant::Logger.get_logger
+
+# Defaults to app.log
+logger.info(&quot;event&quot; =&gt; &quot;foo&quot;)
+
+# {&quot;event&quot;:&quot;foo&quot;,&quot;level&quot;:&quot;info&quot;,&quot;timestamp&quot;:&quot;2015-12-18 15:51:47 +0000&quot;}
+</code></pre>
+
+<h2 id="lib-alephant-logger-json-rb">lib-alephant-logger-json.rb</h2>
+
+<pre><code class="language-ruby">define_method(level) do |hash|
+  ...
+  
+  hash[&quot;timestamp&quot;] = Time.now.to_s
+  
+  ...
+end
+</code></pre>
+
+</div>
+</body>
+</html>

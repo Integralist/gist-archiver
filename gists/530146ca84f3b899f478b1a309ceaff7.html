@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python profiling context management] #python #profiling #performance</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-profiling-context-management-python-profiling-performance">[Python profiling context management] #python #profiling #performance</h1>
+
+<h2 id="profile-ctx-py">profile_ctx.py</h2>
+
+<pre><code class="language-python">import cProfile
+import contextlib
+import io
+import pstats
+import sys
+import timeit
+
+
+@contextlib.contextmanager
+def prof(*restrictions, stdout=True, dump=None, sortby='cumulative'):
+    &quot;&quot;&quot;Profile code running in this context.
+    
+    Arguments:
+      restrictions: Passed down to https://docs.python.org/3.6/library/profile.html#pstats.Stats.print_stats
+      stdout: write profile stats to stdout
+      dump: path to dump  pstats (optional)
+      sortby: Sorting criteria: https://docs.python.org/3.6/library/profile.html#pstats.Stats.sort_stats
+
+    Usage:
+      &gt;&gt;&gt; # this will print top 10 calls sorted by 'cumtime' to stdout.
+      &gt;&gt;&gt; with prof(10, sortby='cumulative'):
+      &gt;&gt;&gt;     do_stuff()
+      &gt;&gt;&gt;     do_other_stuff()
+    &quot;&quot;&quot;
+    pr = cProfile.Profile()
+    pr.enable()
+    yield
+    pr.disable()
+    if stdout:
+        s = io.StringIO()
+        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+        ps.print_stats(*restrictions)
+        print(s.getvalue())
+    if dump:
+        pr.dump_stats(dump)
+
+
+@contextlib.contextmanager
+def time_it(name='default_timer', stream=sys.stdout):
+    start = timeit.default_timer()
+    yield
+    stream.write('time_it ({}) - {}\n'.format(name, timeit.default_timer() - start))
+</code></pre>
+
+</div>
+</body>
+</html>

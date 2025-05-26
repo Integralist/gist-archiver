@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Download a single file from a private GitHub repo. You'll need an access token as described in this GitHub Help article: https://help.github.com/articles/creating-an-access-token-for-command-line-use</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="download-a-single-file-from-a-private-github-repo-you-ll-need-an-access-token-as-described-in-this-github-help-article-https-help-github-com-articles-creating-an-access-token-for-command-line-use">Download a single file from a private GitHub repo. You&rsquo;ll need an access token as described in this GitHub Help article: <a href="https://help.github.com/articles/creating-an-access-token-for-command-line-use" target="_blank">https://help.github.com/articles/creating-an-access-token-for-command-line-use</a></h1>
+
+<h2 id="options-md">options.md</h2>
+
+<pre><code class="language-markdown">- `-H --header` Extra header to use when getting a web page. You may specify any number of extra headers
+
+- `-O --remote-name` Write output to a local file named like the remote file we get (only the file part of the remote  file  is  used, the path is cut off)
+
+- `-L --location`  If the server reports that the requested page has moved to a different  location  (indicated  with  a Location:  header  and a 3XX response code), this option will make curl redo the request on the new place
+</code></pre>
+
+<h2 id="github-curl-sh">GitHub curl.sh</h2>
+
+<pre><code class="language-shell">curl --header 'Authorization: token INSERTACCESSTOKENHERE' \
+     --header 'Accept: application/vnd.github.v3.raw' \
+     --remote-name \
+     --location https://api.github.com/repos/owner/repo/contents/path
+
+# Example...
+
+TOKEN=&quot;INSERTACCESSTOKENHERE&quot;
+OWNER=&quot;BBC-News&quot;
+REPO=&quot;responsive-news&quot;
+PATH=&quot;scripts/build/tabloid.sh&quot;
+FILE=&quot;https://api.github.com/repos/$OWNER/$REPO/contents/$PATH&quot;
+
+curl --header 'Authorization: token $TOKEN' \
+     --header 'Accept: application/vnd.github.v3.raw' \
+     --remote-name \
+     --location $FILE
+</code></pre>
+
+</div>
+</body>
+</html>

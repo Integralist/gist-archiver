@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go channel closing] #go #golang #channel #close</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-channel-closing-go-golang-channel-close">[Go channel closing] #go #golang #channel #close</h1>
+
+<h2 id="go-channel-closing-md">Go channel closing.md</h2>
+
+<pre><code class="language-markdown">A common pattern for indicating something is done is to create an unbuffered channel of type `struct{}` and then `close` the channel will unblock anything trying to retrieve a value from the channel.
+
+&gt; Note: the reason for using `struct{}` type is because it's the smallest sized type in Go (no allocations are made).
+
+Below is an example that demonstrates how closing a channel means you can still take values from the channel, but that they'll be the default value of the given type.
+
+```go
+package main
+
+import &quot;fmt&quot;
+
+func main() {
+	c := make(chan bool)
+
+	go func() {
+		c &lt;- true // blocks until someone takes value
+	}()
+
+	fmt.Println(&lt;-c) // true pulled from channel
+	close(c)
+	fmt.Println(&lt;-c) // false which is default value of bool type
+}
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

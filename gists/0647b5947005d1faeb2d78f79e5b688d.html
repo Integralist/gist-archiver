@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[vim use control key in norm Ex command] #vim #ex #command #control #ctrl</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="vim-use-control-key-in-norm-ex-command-vim-ex-command-control-ctrl">[vim use control key in norm Ex command] #vim #ex #command #control #ctrl</h1>
+
+<h2 id="vim-use-control-key-in-norm-ex-command-viml">vim use control key in norm Ex command.viml</h2>
+
+<pre><code class="language-text">&quot; https://vimhelp.org/intro.txt.html#keycodes
+&quot; https://vimhelp.org/various.txt.html#:norm
+&quot;
+&quot; Example: join every two lines
+&quot;          
+&quot;          foo
+&quot;          bar
+&quot;          baz
+&quot;          qux
+&quot;
+&quot;          becomes:
+&quot;
+&quot;          foo bar
+&quot;          baz qux
+:g/^/exe &quot;norm \&lt;s-j&gt;&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

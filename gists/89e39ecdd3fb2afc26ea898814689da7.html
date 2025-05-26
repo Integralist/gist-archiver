@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python print python version information] #python #script #shell #version</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-print-python-version-information-python-script-shell-version">[Python print python version information] #python #script #shell #version</h1>
+
+<h2 id="1-example-py">1. Example.py</h2>
+
+<pre><code class="language-python">import sys
+
+if not sys.version_info &gt;= (3, 6, 0):
+    print(&quot;this script requires the use of Python 3.6+&quot;)
+    sys.exit(1)
+</code></pre>
+
+<h2 id="example-bash">Example.bash</h2>
+
+<pre><code class="language-shell">python_version_check=$(python -c 'import sys; print(1 if sys.version_info &gt;= (3, 7, 0) else 0)')
+if [[ &quot;$python_version_check&quot; == &quot;1&quot; ]]; then
+  echo &quot;🐍  you have at least the minimum version of Python required.&quot;
+else
+  printf &quot;\n ❗️  your python version is below the minimum required - 3.7.0\n\n&quot;
+
+  read -p &quot;👉  Would you like to continue anyway? (y/N) &quot; -r
+  echo
+  if [[ $REPLY =~ ^[Nn]$ ]]; then
+    echo &quot;❌  Stopping setup. Please install or run the appropriate version of Python, then re-run this script.&quot;
+    exit 1
+  fi
+fi
+</code></pre>
+
+<h2 id="python-print-python-version-information-py">Python print python version information.py</h2>
+
+<pre><code class="language-python">#!/usr/bin/env python
+
+import platform
+import sys
+
+print(platform.python_version())
+print(sys.version)
+
+&quot;&quot;&quot;
+Output:
+
+2.7.10
+2.7.10 (default, Feb 22 2019, 21:55:15) 
+[GCC 4.2.1 Compatible Apple LLVM 10.0.1 (clang-1001.0.37.14)]
+&quot;&quot;&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

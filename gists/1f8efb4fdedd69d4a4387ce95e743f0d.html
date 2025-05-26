@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Boolean Argument Flag] #python #cli #flags</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-boolean-argument-flag-python-cli-flags">[Python Boolean Argument Flag] #python #cli #flags</h1>
+
+<h2 id="python-boolean-argument-flag-py">Python Boolean Argument Flag.py</h2>
+
+<pre><code class="language-python">import argparse
+
+parser = argparse.ArgumentParser(description=&quot;Validate READMEs&quot;)
+parser.add_argument(&quot;-d&quot;, &quot;--debug&quot;, help=&quot;Show failure details&quot;, action=&quot;store_true&quot;)
+parser.set_defaults(debug=False)
+args = parser.parse_args()
+
+if args.debug:
+  print(&quot;show debug info&quot;)
+  
+print(&quot;show normal stuff&quot;)
+
+# You could also use a custom type... 
+
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+        
+parser.add_argument(&quot;-d&quot;, &quot;--debug&quot;, help=&quot;Show failure details&quot;, type=str2bool)
+</code></pre>
+
+</div>
+</body>
+</html>

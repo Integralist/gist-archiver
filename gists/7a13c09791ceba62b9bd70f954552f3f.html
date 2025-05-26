@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Sed Date Insertion] #sed #bash #date</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="sed-date-insertion-sed-bash-date">[Sed Date Insertion] #sed #bash #date</h1>
+
+<h2 id="sed-date-insertion-sh">Sed Date Insertion.sh</h2>
+
+<pre><code class="language-shell"># for date command read...
+# https://gist.github.com/Integralist/82539776c218e590d64126d58edc5e38
+
+# linux example (no backup file created)
+echo '&quot;foo&quot;: &quot;{{date}}&quot;' &gt; foo.txt
+cat foo.txt | sed &quot;s/{{date}}/$(date -d &quot;today 1 hour&quot; +%s)/&quot;
+sed -i &quot;s/{{date}}/$(date -d &quot;today 1 hour&quot; +%s)/&quot; foo.txt
+
+# macOS example (backup file mandatory: requires manual removal)
+echo '&quot;foo&quot;: &quot;{{date}}&quot;' &gt; foo.txt
+cat foo.txt | sed &quot;s/{{date}}/$(date -u -v +1H +%s)/&quot;
+sed -i &quot;.backup&quot; &quot;s/{{date}}/$(date -u -v +1H +%s)/&quot; foo.txt
+</code></pre>
+
+</div>
+</body>
+</html>

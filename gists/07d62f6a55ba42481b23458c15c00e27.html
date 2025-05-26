@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Lambda] #aws #lambda #makefile #python #cognito</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-lambda-aws-lambda-makefile-python-cognito">[Python Lambda] #aws #lambda #makefile #python #cognito</h1>
+
+<h2 id="1-python-lambda-md">1. Python Lambda.md</h2>
+
+<pre><code class="language-markdown">The AWS Python SDK (Boto) is pre-installed with AWS Lambda, so if all we need is the `requests` library, then we can use the following trick to avoid needing to package up our lambda script and its dependencies...
+
+```py
+from botocore.vendored import requests
+</code></pre>
+
+<blockquote>
+<p>Note: the following instructions require you to be using <a href="https://gist.github.com/Integralist/9e0c5ee9c2cc2568dd1961bf370716c9" target="_blank">Pipenv</a> for handling you Python dev environment.</p>
+</blockquote>
+
+<p>To generate your dependencies and zip them (+ your lambda script) up for upload to AWS:</p>
+
+<ul>
+<li><code>pipenv run pip install -r &lt;(pipenv lock -r) --target ./</code></li>
+<li><code>zip -r lambda.zip ./</code></li>
+</ul>
+
+<p>You need to ensure the dependencies are in the same directory as the lambda script. For example&hellip;</p>
+
+<pre><code>requests/
+urllib3/
+lambda_function.py
+</code></pre>
+
+<p>You can (if you&rsquo;re not using pipenv) use <code>--target</code> flag to install dependencies to the current directory: <code>pip install requests --target .</code></p>
+
+<blockquote>
+<p><code>unzip -vl lambda.zip</code> to check contents of zip</p>
+
+<pre><code>
+## 2. Makefile
+
+```text
+SHELL := /bin/bash
+
+build: clean
+	pipenv run pip install -r &lt;(pipenv lock -r) --target ./
+	zip -r lambda.zip ./
+
+# We use `@` to prevent Make from displaying the line that was just executed (it's just noise)
+# We also use `&amp;&gt; /dev/null || true` to ensure errors are silenced
+# e.g. trying to remove files that don't exist, would normally trigger an error in Bash
+clean:
+	@# use double $$ to avoid conflict with builtin $() syntax
+	@rm -r $$(ls | egrep -v 'Makefile|Pipfile|lambda_function.py') &amp;&gt; /dev/null || true
+
+run:
+	@# env vars can be set in the AWS Lambda console
+	FOO=123 BAR=456 python lambda_function.py
+</code></pre>
+</blockquote>
+
+<h2 id="lambda-function-py">lambda_function.py</h2>
+
+<pre><code class="language-python">import os
+import requests
+
+
+def get_host():
+    tld = 'stage.example.com'
+    host = f'https://{tld}'
+
+    webapp_stage_user = os.environ[&quot;STAGE_USN&quot;]
+    webapp_stage_pass = os.environ[&quot;STAGE_PSW&quot;]
+
+    creds = f'{webapp_stage_user}:{webapp_stage_pass}'
+    host = f'https://{creds}@{tld}'
+
+    return host
+
+
+def authn_webapp(event):
+    data = {'username': event['userName'],
+            'password': event['request']['password']}
+
+    uri = f'{get_host()}/api/login'
+
+    return requests.post(uri, data=data)
+
+
+def lambda_handler(event, context):
+    &quot;&quot;&quot;
+    There are two states:
+
+    1. authentication (but before user created in cognito)
+    2. forgotten password
+
+    For authentication we log the user into our webapp and then extract their
+    details and modify the user account that is about to be created in cognito.
+    
+    This allows us to handle migrating users from our data store to cognito.
+    &quot;&quot;&quot;
+    if event['triggerSource'] == &quot;UserMigration_Authentication&quot;:
+        login_response = authn_webapp(event)
+
+        if login_response.status_code == 200:
+            d = login_response.json()
+
+            user_attr = {'username': d['username'],
+                         'name': d['display_name'],
+                         'email': d['email'],
+                         'email_verified': 'true',
+                         'custom:webapp_id': d['userid']}
+
+            event['response']['userAttributes'] = user_attr
+            event['response']['finalUserStatus'] = &quot;CONFIRMED&quot;
+            event['response']['messageAction'] = &quot;SUPPRESS&quot;
+
+            return event
+        else:
+            return None
+    else:
+        return None
+
+
+if __name__ == &quot;__main__&quot;:
+    event = {'triggerSource': 'UserMigration_Authentication',
+             'userName': 'beep',
+             'request': {'password': 'boop'},
+             'response': {}}
+
+    result = lambda_handler(event, {})
+
+    print(f'result: {result}')
+
+# Build package:
+#   make build
+#       pipenv run pip install -r &lt;(pipenv lock -r) --target ./
+#       zip -r lambda.zip ./
+#
+# Test locally:
+#   make run
+#       STAGE_USN=123 STAGE_PSW=456 python lambda_function.py
+</code></pre>
+
+</div>
+</body>
+</html>

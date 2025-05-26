@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Fakes vs Stubs vs Mocks] #fakes #stubs #mocks #testing</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="fakes-vs-stubs-vs-mocks-fakes-stubs-mocks-testing">[Fakes vs Stubs vs Mocks] #fakes #stubs #mocks #testing</h1>
+
+<h2 id="fakes-vs-stubs-vs-mocks-md">Fakes vs Stubs vs Mocks.md</h2>
+
+<pre><code class="language-markdown">## Fakes
+
+Fake objects actually have working implementations, but usually take some shortcut which makes them not suitable for production (e.g. a working version of a datastore that has a get and set method but writes to local disk rather than actually writing to a database).
+
+## Stubs
+
+Stubs provide canned answers to calls made during the test, usually not responding at all to anything outside what's programmed in for the test. Stubs may also record information about calls, such as an email gateway stub that remembers the messages it 'sent', or maybe only how many messages it 'sent'.
+
+## Mocks
+
+Mocks are what we are talking about here: objects pre-programmed with expectations which form a specification of the calls they are expected to receive.
+
+Additionally, mocks are seen as a thing that we will assert validations against. They have the responsiblity of recording how it was, or wasn't, used (e.g. &quot;assert that an API were called with xyz values&quot;, &quot;assert that an endpoint was not called&quot;, etc).
+</code></pre>
+
+</div>
+</body>
+</html>

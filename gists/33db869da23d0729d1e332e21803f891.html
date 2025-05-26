@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Running Benchmarks] #go #golang #tests #benchmarks</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-running-benchmarks-go-golang-tests-benchmarks">[Golang Running Benchmarks] #go #golang #tests #benchmarks</h1>
+
+<h2 id="running-benchmarks-md">Running Benchmarks.md</h2>
+
+<pre><code class="language-markdown">&gt; Reference: https://dave.cheney.net/2013/06/30/how-to-write-benchmarks-in-go
+
+Running benchmarks requires the `-bench` flag to be given a valid regex pattern:
+
+```go
+go test -v -bench=.
+</code></pre>
+
+<blockquote>
+<p>Note: this will still run all the tests (as you&rsquo;re using the <code>go test</code> subcommand).</p>
+</blockquote>
+
+<p>Run benchmarks but disable tests from being run:</p>
+
+<pre><code class="language-go">go test -v -bench=. -run=XXX
+</code></pre>
+
+<blockquote>
+<p>Note: we&rsquo;ve disabled the tests by passing a valid regex pattern to the <code>-run</code> flag, which will not match any known tests.
+&ldquo;`</p>
+</blockquote>
+
+</div>
+</body>
+</html>

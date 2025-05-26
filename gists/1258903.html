@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>RequireJs Build Script</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="requirejs-build-script">RequireJs Build Script</h1>
+
+<h2 id="app-build-js">app.build.js</h2>
+
+<pre><code class="language-javascript">/*
+ * http://requirejs.org/docs/optimization.html
+ *
+ * Use NodeJs to execute the r.js optimization script on this build script
+ * node r.js -o app.build.js
+ *
+ * See: https://github.com/jrburke/r.js/blob/master/build/example.build.js for an example build script
+ *
+ * If you specify just the name (with no includes/excludes) then all modules are combined into the &quot;main&quot; file.
+ * You can include/exclude specific modules though if needed
+ *
+ * You can also set optimize: &quot;none&quot; (or more specific uglifyjs settings) if you need to.
+ */
+({
+    appDir: &quot;../../&quot;,
+    baseUrl: &quot;Assets/Scripts&quot;,
+    dir: &quot;../../project-build&quot;,
+    modules: [
+        {
+            name: &quot;main&quot;
+            /*
+            include: [&quot;App/people&quot;],
+            exclude: [&quot;Utils/random&quot;]
+            */
+        }
+    ]
+})
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Rack Server Example</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="rack-server-example">Rack Server Example</h1>
+
+<h2 id="4-class-based-rack-server-config-ru">4. Class based Rack server - config.ru</h2>
+
+<pre><code class="language-ruby">$: &lt;&lt; File.dirname(__FILE__)
+
+require 'app/app'
+
+run TestComponent::Application.new
+
+</code></pre>
+
+<h2 id="1-simplest-rack-server-rb">1. Simplest Rack server.rb</h2>
+
+<pre><code class="language-ruby">run lambda { |env| [200, {&quot;Content-Type&quot;=&gt;&quot;text/html&quot;}, [&quot;Hello World&quot;]] }
+</code></pre>
+
+<h2 id="2-second-simplest-rack-server-rb">2. Second Simplest Rack server.rb</h2>
+
+<pre><code class="language-ruby">@root = File.expand_path(File.dirname(__FILE__))
+
+run lambda { |env|
+  path = Rack::Utils.unescape(env['PATH_INFO'])
+  index_file = @root + &quot;#{path}index.html&quot;
+  [200, { 'Content-Type' =&gt; 'text/html' }, [File.exists?(index_file) ? File.read(index_file) : 'Hello World']]
+}
+
+# run with: rackup config.ru
+
+</code></pre>
+
+<h2 id="3-class-based-rack-server-app-app-rb">3. Class based Rack server - app - app.rb</h2>
+
+<pre><code class="language-ruby">$: &lt;&lt; File.dirname(__FILE__)
+
+module TestComponent
+  class Application
+    def initialize
+      puts &quot;Application initialized&quot;
+    end
+
+    # Rack requires object being run to have a `call` method which returns
+    # an Array that includes the status code, http headers and a content response
+    def call(env)
+      [200, { 'Content-Type' =&gt; 'text/html' }, ['Hello World!']]
+    end
+  end
+end
+
+</code></pre>
+
+</div>
+</body>
+</html>

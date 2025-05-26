@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Distributed Tracing] #distributed #tracing</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="distributed-tracing-distributed-tracing">[Distributed Tracing] #distributed #tracing</h1>
+
+<h2 id="distributed-tracing-md">Distributed Tracing.md</h2>
+
+<pre><code class="language-markdown">Distributed Tracing is the process of tracking and analyzing what happens to a request (transaction) across all services it touches.
+
+- **Transaction**: request
+- **Trace ID**: unique request identifier
+- **Trace**: entire transaction (across all services)
+- **Span**: logical chunk of work in a given 'Trace'
+
+Spans have parent-child relationships. A parent can have multiple children. The first span is the &quot;root span&quot;. Each span has an ID and a pointer to its parent span ID.
+
+&gt; Note: this information was found on the [Nike engineering blog](https://medium.com/nikeengineering/hit-the-ground-running-with-distributed-tracing-core-concepts-ff5ad47c7058)
+</code></pre>
+
+</div>
+</body>
+</html>

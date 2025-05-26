@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Concurrency: JRuby vs MRI</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="concurrency-jruby-vs-mri">Concurrency: JRuby vs MRI</h1>
+
+<h2 id="1-test-rb">1. test.rb</h2>
+
+<pre><code class="language-ruby">require &quot;thread&quot;
+
+module ConcurrencyTest
+  def self.run!
+    mutex       = Mutex.new
+    limit       = 1200
+    shared_data = 0
+
+    # Create 1200 Threads
+    # Each Thread will attempt to increment the shared data/memory
+    # Each Thread continues until the shared data/memory is equal to the defined limit
+
+    (1..limit).map do
+      Thread.new do
+        i = 0
+
+        while i &lt; limit
+          i += 1
+          mutex.synchronize { shared_data += 1 }
+        end
+      end
+    end.each { |t| t.join }
+
+    raise shared_data.to_s if shared_data != limit * limit
+
+    shared_data.to_s
+  end
+end
+</code></pre>
+
+<h2 id="2-test-results-bash">2. test results.bash</h2>
+
+<pre><code class="language-shell"># These results were based on running the script from the shell
+
+# System Ruby: 2.0.0p481
+time ruby test.rb
+ruby test.rb  16.11s user 237.43s system 206% cpu 2:02.63 total
+
+# MRI: 2.1.3p242
+time ruby test.rb
+ruby test.rb  15.90s user 263.46s system 194% cpu 2:23.70 total
+
+# JRuby 1.7.12
+time ruby test.rb
+ruby test.rb  15.93s user 14.35s system 280% cpu 10.778 total
+
+# UPDATE: I modified test.rb to be wrapped in a module for the purposes of testing within a web application
+</code></pre>
+
+<h2 id="3-config-ru">3. config.ru</h2>
+
+<pre><code class="language-ruby">require_relative &quot;../test&quot;
+
+run -&gt; env do
+  [200, {&quot;Content-Type&quot; =&gt; &quot;text/html&quot;}, [ConcurrencyTest::run!]]
+end
+</code></pre>
+
+<h2 id="4-web-result-md">4. Web Result.md</h2>
+
+<pre><code class="language-markdown">**JRuby 1.7.12** (Puma):  
+2.0790 seconds
+
+**MRI 2.1.3p242** (Unicorn):  
+30.9189 seconds
+
+&gt; Note: these are using the default settings for both Puma and Unicorn
+
+### Update
+
+**MRI 2.1.3p242** (Unicorn - when configured with 8 processors**):  
+12.8673 seconds
+
+&gt; **see the following Unicorn config which is executed using  
+&gt; `bundle exec unicorn -c unicorn_config.rb`
+</code></pre>
+
+<h2 id="5-unicorn-config-rb">5. Unicorn Config.rb</h2>
+
+<pre><code class="language-ruby"># Unicorn forks multiple OS processes within each dyno to allow an app to
+# support multiple concurrent requests without requiring them to be thread-safe
+worker_processes Integer(ENV[&quot;WEB_CONCURRENCY&quot;] || 8)
+
+# To ensure your application’s requests do not tie up your app with zombie processes when the server timeouts early
+timeout 30
+
+# Preloading your application reduces the startup time of individual Unicorn
+# worker_processes and allows you to manage the external connections of each
+# individual worker using the before_fork and after_fork calls
+preload_app true
+
+before_fork do |server, worker|
+  Signal.trap 'TERM' do
+    puts 'Unicorn master intercepting TERM and sending myself QUIT instead'
+    Process.kill 'QUIT', Process.pid
+  end
+end
+
+after_fork do |server, worker|
+  Signal.trap 'TERM' do
+    puts 'Unicorn worker intercepting TERM and doing nothing. Wait for master to send QUIT'
+  end
+end
+</code></pre>
+
+</div>
+</body>
+</html>

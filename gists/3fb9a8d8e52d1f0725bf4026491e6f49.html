@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[golang cidr ip inspection] #cidr #ip #network #go #golang</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-cidr-ip-inspection-cidr-ip-network-go-golang">[golang cidr ip inspection] #cidr #ip #network #go #golang</h1>
+
+<h2 id="golang-cidr-ip-inspection-go">golang cidr ip inspection.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;net&quot;
+)
+
+func main() {
+	ipv4Addr, ipv4Net, err := net.ParseCIDR(&quot;10.0.0.0/8&quot;)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf(&quot;%#v %s (%T)\n&quot;, ipv4Addr, ipv4Addr, ipv4Addr)
+	fmt.Println(ipv4Net)
+	fmt.Println(ipv4Net.Contains(net.ParseIP(&quot;10.255.255.0&quot;)))
+}
+
+</code></pre>
+
+</div>
+</body>
+</html>

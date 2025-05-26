@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Using JavaScript to detect support for CSS pseudo-element selectors :before & :after (judges the width of the element)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="using-javascript-to-detect-support-for-css-pseudo-element-selectors-before-after-judges-the-width-of-the-element">Using JavaScript to detect support for CSS pseudo-element selectors :before &amp; :after (judges the width of the element)</h1>
+
+<h2 id="detect-css">detect.css</h2>
+
+<pre><code class="language-css">body {
+    font: normal small Helvetica, Arial, Verdana, sans-serif;
+}
+
+h1 {
+    border-bottom: 1px solid #C00;
+    color: #666;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+div {
+    border: 1px dashed #333;
+    padding: 10px;
+}
+
+div,
+div p {
+    margin-bottom: 10px;    
+}
+
+code {
+    color: blue;
+}
+
+ul {
+    list-style: disc;
+    margin-left: 10px;
+    padding-left: 10px;
+}
+
+.before #apply:before {
+    color: red;
+    content: &quot;before&quot;;
+    display: inline-block;
+    margin: 0 5px 5px 0;
+}
+
+.after #apply:after {
+    color: green;
+    content: &quot;after&quot;;
+    display: inline-block;
+    margin: 0 0 0 55px;
+}
+</code></pre>
+
+<h2 id="detect-html">detect.html</h2>
+
+<pre><code class="language-html">&lt;h1&gt;Detection script for CSS :before and :after support&lt;/h1&gt;
+&lt;div&gt;
+    &lt;p&gt;This script detects support of the CSS selectors &lt;code&gt;:before&lt;/code&gt; and &lt;code&gt;:after&lt;/code&gt; by:&lt;/p&gt;
+    &lt;ul&gt;
+        &lt;li&gt;Adding two empty paragraph elements to the page (effectively their width each is zero).&lt;/li&gt;
+        &lt;li&gt;Adding a style element to the page (+inserting the relevant &lt;code&gt;:before&lt;/code&gt;/&lt;code&gt;:after&lt;/code&gt; code).&lt;/li&gt;
+        &lt;li&gt;Checking the width of the element (we need to set them to &lt;code&gt;display:inline-block&lt;/code&gt;).&lt;/li&gt;
+        &lt;li&gt;If the width is greater than zero then we know the content was added so support is detected.&lt;/li&gt;
+        &lt;li&gt;Much like &lt;a href=&quot;http://www.modernizr.com/&quot;&gt;Modernizr&lt;/a&gt; we add relevant class names to the main &lt;code&gt;html&lt;/code&gt; element&lt;/li&gt;
+        &lt;li&gt;Had to go back and make changes for Internet Explorer (see code comments)&lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;
+&lt;p id=&quot;apply&quot;&gt;Paragraph 1&lt;/p&gt;
+&lt;p&gt;Paragraph 2&lt;/p&gt;
+</code></pre>
+
+<h2 id="detect-js">detect.js</h2>
+
+<pre><code class="language-javascript">// Get a style property (name) of a specific element (elem)
+function getStyle(elem, name) {
+    // If the property exists in style[], then it's been set recently (and is current)
+    if (elem.style[name]) {
+        return elem.style[name];
+    }
+    // Otherwise, try to use IE's method
+    else if (elem.currentStyle) {
+        return elem.currentStyle[name];
+    }
+    // Or the W3C's method, if it exists
+    else if (document.defaultView &amp;&amp; document.defaultView.getComputedStyle) {
+        // It uses the traditional 'text-align' style of rule writing, instead of textAlign
+        name = name.replace(/([A-Z])/g, '-$1');
+        name = name.toLowerCase();
+
+        // Get the style object and get the value of the property (if it exists)
+        var s = document.defaultView.getComputedStyle(elem, '');
+
+        return s &amp;&amp; s.getPropertyValue(name);
+    }
+    // Otherwise, we're using some other browser
+    else {
+        return null;
+    }
+}
+
+window.onload = function() {
+    var doc = document,
+        html = doc.documentElement,
+        body = doc.body,
+        paraBefore = doc.createElement('p'),
+        paraAfter = doc.createElement('p'),
+        styleBefore = doc.createElement('style'),
+        styleAfter = doc.createElement('style'),
+        widthBefore, widthAfter, selectorsBefore = '#testbefore { display:inline-block; } #testbefore:before { content: &quot;before&quot;; }',
+        selectorsAfter = '#testafter { display:inline-block; } #testafter:after { content: &quot;after&quot;; }';
+
+    // Internet Explorer seems to need a type attribute to recognise a stylesheet?
+    styleBefore.type = 'text\/css';
+    styleAfter.type = 'text\/css';
+
+    paraBefore.id = 'testbefore';
+    paraAfter.id = 'testafter';
+
+    // For Internet Explorer...
+    if (styleBefore.styleSheet) {
+        styleBefore.styleSheet.cssText = selectorsBefore;
+        styleAfter.styleSheet.cssText = selectorsAfter;
+    } else {
+        styleBefore.appendChild(doc.createTextNode(selectorsBefore));
+        styleAfter.appendChild(doc.createTextNode(selectorsAfter));
+    }
+
+    body.appendChild(styleBefore);
+    body.appendChild(styleAfter);
+    body.appendChild(paraBefore);
+    body.appendChild(paraAfter);
+
+    // Internet Explorer doesn't always play ball…
+    widthBefore = (getStyle(document.getElementById('testbefore'), 'width') === 'auto') ? document.getElementById('testbefore').offsetWidth : parseInt(getStyle(document.getElementById('testbefore'), 'width'));
+    widthAfter = (getStyle(document.getElementById('testafter'), 'width') === 'auto') ? document.getElementById('testafter').offsetWidth : parseInt(getStyle(document.getElementById('testafter'), 'width'));
+
+    if (widthBefore &gt; 0) {
+        html.className += ' before';
+        body.removeChild(styleBefore);
+        body.removeChild(paraBefore);
+    } else {
+        console.log('before failed');
+    }
+
+    if (widthAfter &gt; 0) {
+        html.className += ' after';
+        body.removeChild(styleAfter);
+        body.removeChild(paraAfter);
+    } else {
+        console.log('after failed');
+    }
+};
+</code></pre>
+
+</div>
+</body>
+</html>

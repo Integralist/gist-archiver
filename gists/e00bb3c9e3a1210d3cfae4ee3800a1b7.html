@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Generate OpenAPI schema dynamically] #openapi #template #bash #shell</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="generate-openapi-schema-dynamically-openapi-template-bash-shell">[Generate OpenAPI schema dynamically] #openapi #template #bash #shell</h1>
+
+<h2 id="template-sh">template.sh</h2>
+
+<pre><code class="language-shell">#!/bin/bash
+
+AWK_PATH=$(which awk)
+CAT_PATH=$(which cat)
+
+read -rp &quot;Enter API Version (e.g. 1.0.0): &quot; VERSION
+read -rp &quot;Enter API Title: &quot; TITLE
+read -rp &quot;Enter API Description: &quot; DESCRIPTION
+read -rp &quot;Enter Your Name (for contact info): &quot; NAME
+read -rp &quot;Enter Your Email (for contact info): &quot; EMAIL
+read -rp &quot;Enter Category (for DevHub URL, e.g. services, see common/categories.yaml): &quot; CATEGORY
+read -rp &quot;Enter Slug (for DevHub URL, e.g. backend): &quot; SLUG
+read -rp &quot;Enter API Path (e.g. /service/{service_id}/version/{version_id}/backend): &quot; PATH
+read -rp &quot;Enter Resource (e.g. backend): &quot; RESOURCE
+read -rp &quot;Enter output file name (e.g. 'backend' will generate a 'backend.yaml' file): &quot; OUTPUT_FILENAME
+
+rm &quot;${OUTPUT_FILENAME}.yaml&quot; 2&gt;/dev/null
+
+# Function to capitalize the first letter of a string
+capitalize() {
+  echo &quot;$1&quot; | $AWK_PATH '{print toupper(substr($0,1,1)) tolower(substr($0,2))}'
+}
+
+# Replace template fields in the template content
+content=$( $CAT_PATH &lt;&lt;EOF
+openapi: 3.0.3
+info:
+  version: '$VERSION'
+  title: $(capitalize &quot;$TITLE&quot;)
+  description: $DESCRIPTION.
+  termsOfService: https://www.fastly.com/terms
+  contact:
+    name: $NAME
+    email: $EMAIL
+    url: https://www.fastly.com
+
+servers:
+  - url: https://api.fastly.com
+
+security:
+  - token_engineer: []
+
+x-taxonomy:
+  category:
+    \$ref: 'common/categories.yaml#/$CATEGORY'
+  slug: $SLUG
+
+paths:
+  $PATH:
+    get:
+      summary: List $RESOURCE
+      description: List all $RESOURCE.
+      operationId: list-${RESOURCE}s
+      responses:
+        '200':
+          \$ref: '#/components/responses/response-$RESOURCE'
+
+    post:
+      summary: Create a $RESOURCE
+      description: Create a $RESOURCE.
+      operationId: create-$RESOURCE
+      requestBody:
+        \$ref: '#/components/requestBodies/requestBody-$RESOURCE'
+      responses:
+        '200':
+          \$ref: '#/components/responses/response-$RESOURCE'
+
+  '$PATH/{${RESOURCE}_id}':
+    get:
+      summary: Get a $RESOURCE
+      description: Get a $RESOURCE.
+      operationId: list-$RESOURCE-s-${RESOURCE}_id
+      parameters:
+        - \$ref: '#/components/parameters/parameter-${RESOURCE}_id'
+      responses:
+        '200':
+          \$ref: '#/components/responses/response-$RESOURCE'
+
+    patch:
+      summary: Update a $RESOURCE
+      description: Update a $RESOURCE.
+      operationId: update-$RESOURCE
+      parameters:
+        - \$ref: '#/components/parameters/parameter-${RESOURCE}_id'
+      requestBody:
+        \$ref: '#/components/requestBodies/requestBody-$RESOURCE'
+      responses:
+        '200':
+          \$ref: '#/components/responses/response-$RESOURCE'
+
+    delete:
+      summary: Delete a $RESOURCE
+      description: Delete a $RESOURCE.
+      operationId: delete-$RESOURCE
+      parameters:
+        - name: ${RESOURCE}_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: $(capitalize &quot;$RESOURCE&quot;) Identifier (UUID).
+      responses:
+        '200':
+          description: OK
+
+components:
+  examples:
+    example-requestBody-$RESOURCE:
+      value:
+        example_field_name_1: '...'
+        example_field_name_2:
+          - id: '...'
+            title: '...'
+            example_of_nullable_field: null
+
+    example-response-$RESOURCE:
+      value:
+        example_field_name_1: '...'
+        example_field_name_2:
+          - id: '...'
+            title: '...'
+            example_of_nullable_field: null
+
+  parameters:
+    parameter-${RESOURCE}_id:
+      name: ${RESOURCE}_id
+      in: path
+      required: true
+      schema:
+        type: string
+        description: $(capitalize &quot;$RESOURCE&quot;) Identifier (UUID).
+
+  requestBodies:
+    requestBody-$RESOURCE:
+      content:
+        application/json:
+          schema:
+            \$ref: '#/components/schemas/schema-requestBody-$RESOURCE'
+          examples:
+            body:
+              \$ref: '#/components/examples/example-requestBody-$RESOURCE'
+
+  responses:
+    response-$RESOURCE:
+      description: Example response.
+      content:
+        application/json:
+          schema:
+            \$ref: '#/components/schemas/schema-response-$RESOURCE'
+          examples:
+            body:
+              \$ref: '#/components/examples/example-response-$RESOURCE'
+
+  securitySchemes:
+    token_engineer:
+      \$ref: 'common/security.yaml#/token_engineer'
+
+  schemas:
+    schema-requestBody-$RESOURCE:
+      title: $RESOURCE
+      description: A $RESOURCE request body.
+      allOf:
+        - \$ref: '#/components/schemas/schema-${RESOURCE}-mulitple-schemas-example-1'
+        - \$ref: '#/components/schemas/schema-${RESOURCE}-mulitple-schemas-example-2'
+
+    schema-response-$RESOURCE:
+      title: $RESOURCE
+      description: A $RESOURCE response.
+      allOf:
+        - \$ref: '#/components/schemas/schema-${RESOURCE}-mulitple-schemas-example-1'
+        - \$ref: '#/components/schemas/schema-${RESOURCE}-mulitple-schemas-example-2'
+
+    schema-${RESOURCE}-mulitple-schemas-example-1:
+      type: object
+      properties:
+        example_field_name_1:
+          type: string
+          description: Some example description.
+
+    schema-${RESOURCE}-mulitple-schemas-example-2:
+      type: object
+      properties:
+        example_field_name_2:
+          type: array
+          items:
+            \$ref: '#/components/schemas/schema-array-items-as-object'
+
+    schema-array-items-as-object:
+      type: object
+      title: Example array item
+      description: An example array item.
+      properties:
+        id:
+          type: string
+          description: An example identifier (UUID).
+          readOnly: true
+        title:
+          type: string
+        example_of_nullable_field:
+          type: string
+          nullable: true
+          default: null
+          description: A field that can be null.
+      required:
+        - title
+EOF
+)
+
+# Write the final output to a new yaml file
+echo &quot;$content&quot; &gt; &quot;${OUTPUT_FILENAME}.yaml&quot;
+echo &quot;&quot;
+echo &quot;Script executed successfully. Output saved to ${OUTPUT_FILENAME}.yaml&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

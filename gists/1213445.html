@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Better CSS Grid System</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="better-css-grid-system">Better CSS Grid System</h1>
+
+<h2 id="grid-css">Grid.css</h2>
+
+<pre><code class="language-css">/*
+ * Algorithm taken from: 
+ * http://csswizardry.com/2011/08/building-better-grid-systems/
+ */
+
+.row {
+	width: (number of columns * width of one column) + (number of columns * width of one gutter) px;
+	margin-left: -width of one gutter px;
+	overflow: hidden;
+	clear: both;
+}
+
+.grid {
+	float: left;
+	margin-left: width of one gutter px;
+}
+</code></pre>
+
+</div>
+</body>
+</html>

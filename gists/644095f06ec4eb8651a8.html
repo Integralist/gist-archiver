@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>irssi irc connecting to network and joining a channel (and identify yourself if you seen an error about joining a channel)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="irssi-irc-connecting-to-network-and-joining-a-channel-and-identify-yourself-if-you-seen-an-error-about-joining-a-channel">irssi irc connecting to network and joining a channel (and identify yourself if you seen an error about joining a channel)</h1>
+
+<h2 id="irssi-irc-md">irssi-irc.md</h2>
+
+<pre><code class="language-markdown">- `/connect irc.freenode.net 8001`
+- `/join #nginx`
+- `/msg NickServ IDENTIFY &lt;account&gt; &lt;password&gt;` †
+- `/msg &lt;person&gt; &lt;msg&gt;` to start a private message
+
+&gt; † `/msg NickServe IDENTITY Integralist &lt;password&gt;`  
+&gt; or `/msg nickserv SENDPASS Integralist` to change password (sends link to your email)  
+&gt; Commands Reference: http://www.deepspace.org/nickserv.htm#REGISTER  
+&gt; Freenode Help: https://freenode.net/kb/answer/registration
+
+With irssi open you can do:
+
+- `/server add -network Freenode -auto irc.freenode.net`
+- `/server list` (to show it has set it up and configured it to `autoconnect`)
+- `/channel add -auto #nginx Freenode`
+- `/channel add -auto #go-nuts Freenode`
+- `/channel add -auto #rust-beginners Freenode`
+- `/channel list` (to show it has set it up and configured it to `autojoin`)
+
+For more information: https://joost.vunderink.net/blog/2012/07/01/irssi-tricks-join-channels-automatically/
+
+Below is a simple `~/.irssi/config` example:
+
+```bash
+servers = (
+  {
+    address = &quot;irc.freenode.net&quot;;
+    chatnet = &quot;Freenode&quot;;
+    port = &quot;8001&quot;;
+    autoconnect = &quot;Yes&quot;;
+  },
+);
+
+chatnets = {
+  Freenode = {
+    type = &quot;IRC&quot;;
+    max_kicks = &quot;1&quot;;
+    max_msgs = &quot;4&quot;;
+    max_whois = &quot;1&quot;;
+  };
+};
+
+channels = (
+  { name = &quot;#nginx&quot;; chatnet = &quot;Freenode&quot;; autojoin = &quot;Yes&quot;; },
+  { name = &quot;#go-nuts&quot;; chatnet = &quot;Freenode&quot;; autojoin = &quot;Yes&quot;; },
+  { name = &quot;#rust-beginners&quot;; chatnet = &quot;Freenode&quot;; autojoin = &quot;Yes&quot;; },
+);
+
+aliases = {
+  C = &quot;CLEAR&quot;;
+  EXIT = &quot;QUIT&quot;;
+  GOTO = &quot;SCROLLBACK GOTO&quot;;
+  HL = &quot;HILIGHT&quot;;
+  HOST = &quot;USERHOST&quot;;
+  J = &quot;JOIN&quot;;
+  K = &quot;KICK&quot;;
+  LEAVE = &quot;PART&quot;;
+  M = &quot;MSG&quot;;
+  N = &quot;NAMES&quot;;
+  P = &quot;PART&quot;;
+  Q = &quot;QUERY&quot;;
+  SAY = &quot;MSG *&quot;;
+  SBAR = &quot;STATUSBAR&quot;;
+  T = &quot;TOPIC&quot;;
+  W = &quot;WHO&quot;;
+  WC = &quot;WINDOW CLOSE&quot;;
+  WG = &quot;WINDOW GOTO&quot;;
+  WI = &quot;WHOIS&quot;;
+  WII = &quot;WHOIS $0 $0&quot;;
+  WL = &quot;WINDOW LIST&quot;;
+  WN = &quot;WINDOW NEW HIDDEN&quot;;
+  WQUERY = &quot;QUERY -window&quot;;
+  1 = &quot;WINDOW GOTO 1&quot;;
+  2 = &quot;WINDOW GOTO 2&quot;;
+  3 = &quot;WINDOW GOTO 3&quot;;
+  4 = &quot;WINDOW GOTO 4&quot;;
+  5 = &quot;WINDOW GOTO 5&quot;;
+  6 = &quot;WINDOW GOTO 6&quot;;
+  7 = &quot;WINDOW GOTO 7&quot;;
+  8 = &quot;WINDOW GOTO 8&quot;;
+  9 = &quot;WINDOW GOTO 9&quot;;
+  10 = &quot;WINDOW GOTO 10&quot;;
+  11 = &quot;WINDOW GOTO 11&quot;;
+  12 = &quot;WINDOW GOTO 12&quot;;
+  13 = &quot;WINDOW GOTO 13&quot;;
+  14 = &quot;WINDOW GOTO 14&quot;;
+  15 = &quot;WINDOW GOTO 15&quot;;
+  16 = &quot;WINDOW GOTO 16&quot;;
+  17 = &quot;WINDOW GOTO 17&quot;;
+  18 = &quot;WINDOW GOTO 18&quot;;
+  19 = &quot;WINDOW GOTO 19&quot;;
+  20 = &quot;WINDOW GOTO 20&quot;;
+  21 = &quot;WINDOW GOTO 21&quot;;
+  22 = &quot;WINDOW GOTO 22&quot;;
+  23 = &quot;WINDOW GOTO 23&quot;;
+  24 = &quot;WINDOW GOTO 24&quot;;
+  25 = &quot;WINDOW GOTO 25&quot;;
+  26 = &quot;WINDOW GOTO 26&quot;;
+  27 = &quot;WINDOW GOTO 27&quot;;
+  28 = &quot;WINDOW GOTO 28&quot;;
+  29 = &quot;WINDOW GOTO 29&quot;;
+  30 = &quot;WINDOW GOTO 30&quot;;
+  31 = &quot;WINDOW GOTO 31&quot;;
+  32 = &quot;WINDOW GOTO 32&quot;;
+  33 = &quot;WINDOW GOTO 33&quot;;
+  34 = &quot;WINDOW GOTO 34&quot;;
+  35 = &quot;WINDOW GOTO 35&quot;;
+  36 = &quot;WINDOW GOTO 36&quot;;
+  37 = &quot;WINDOW GOTO 37&quot;;
+  38 = &quot;WINDOW GOTO 38&quot;;
+  39 = &quot;WINDOW GOTO 39&quot;;
+  40 = &quot;WINDOW GOTO 40&quot;;
+  41 = &quot;WINDOW GOTO 41&quot;;
+  42 = &quot;WINDOW GOTO 42&quot;;
+  43 = &quot;WINDOW GOTO 43&quot;;
+  44 = &quot;WINDOW GOTO 44&quot;;
+  45 = &quot;WINDOW GOTO 45&quot;;
+  46 = &quot;WINDOW GOTO 46&quot;;
+  47 = &quot;WINDOW GOTO 47&quot;;
+  48 = &quot;WINDOW GOTO 48&quot;;
+  49 = &quot;WINDOW GOTO 49&quot;;
+  50 = &quot;WINDOW GOTO 50&quot;;
+  51 = &quot;WINDOW GOTO 51&quot;;
+  52 = &quot;WINDOW GOTO 52&quot;;
+  53 = &quot;WINDOW GOTO 53&quot;;
+  54 = &quot;WINDOW GOTO 54&quot;;
+  55 = &quot;WINDOW GOTO 55&quot;;
+  56 = &quot;WINDOW GOTO 56&quot;;
+  57 = &quot;WINDOW GOTO 57&quot;;
+  58 = &quot;WINDOW GOTO 58&quot;;
+  59 = &quot;WINDOW GOTO 59&quot;;
+  60 = &quot;WINDOW GOTO 60&quot;;
+  61 = &quot;WINDOW GOTO 61&quot;;
+  62 = &quot;WINDOW GOTO 62&quot;;
+  63 = &quot;WINDOW GOTO 63&quot;;
+  64 = &quot;WINDOW GOTO 64&quot;;
+  65 = &quot;WINDOW GOTO 65&quot;;
+  66 = &quot;WINDOW GOTO 66&quot;;
+  67 = &quot;WINDOW GOTO 67&quot;;
+  68 = &quot;WINDOW GOTO 68&quot;;
+  69 = &quot;WINDOW GOTO 69&quot;;
+  70 = &quot;WINDOW GOTO 70&quot;;
+  71 = &quot;WINDOW GOTO 71&quot;;
+  72 = &quot;WINDOW GOTO 72&quot;;
+  73 = &quot;WINDOW GOTO 73&quot;;
+  74 = &quot;WINDOW GOTO 74&quot;;
+  75 = &quot;WINDOW GOTO 75&quot;;
+  76 = &quot;WINDOW GOTO 76&quot;;
+  77 = &quot;WINDOW GOTO 77&quot;;
+  78 = &quot;WINDOW GOTO 78&quot;;
+  79 = &quot;WINDOW GOTO 79&quot;;
+  80 = &quot;WINDOW GOTO 80&quot;;
+  81 = &quot;WINDOW GOTO 81&quot;;
+  82 = &quot;WINDOW GOTO 82&quot;;
+  83 = &quot;WINDOW GOTO 83&quot;;
+  84 = &quot;WINDOW GOTO 84&quot;;
+  85 = &quot;WINDOW GOTO 85&quot;;
+  86 = &quot;WINDOW GOTO 86&quot;;
+  87 = &quot;WINDOW GOTO 87&quot;;
+  88 = &quot;WINDOW GOTO 88&quot;;
+  89 = &quot;WINDOW GOTO 89&quot;;
+  90 = &quot;WINDOW GOTO 90&quot;;
+  91 = &quot;WINDOW GOTO 91&quot;;
+  92 = &quot;WINDOW GOTO 92&quot;;
+  93 = &quot;WINDOW GOTO 93&quot;;
+  94 = &quot;WINDOW GOTO 94&quot;;
+  95 = &quot;WINDOW GOTO 95&quot;;
+  96 = &quot;WINDOW GOTO 96&quot;;
+  97 = &quot;WINDOW GOTO 97&quot;;
+  98 = &quot;WINDOW GOTO 98&quot;;
+  99 = &quot;WINDOW GOTO 99&quot;;
+};
+
+statusbar = {
+  items = {
+    barstart = &quot;{sbstart}&quot;;
+    barend = &quot;{sbend}&quot;;
+
+    topicbarstart = &quot;{topicsbstart}&quot;;
+    topicbarend = &quot;{topicsbend}&quot;;
+
+    time = &quot;{sb $Z}&quot;;
+    user = &quot;{sb {sbnickmode $cumode}$N{sbmode $usermode}{sbaway $A}}&quot;;
+
+    window = &quot;{sb $winref:$tag/$itemname{sbmode $M}}&quot;;
+    window_empty = &quot;{sb $winref{sbservertag $tag}}&quot;;
+
+    prompt = &quot;{prompt $[.15]itemname}&quot;;
+    prompt_empty = &quot;{prompt $winname}&quot;;
+
+    topic = &quot; $topic&quot;;
+    topic_empty = &quot; Irssi v$J - http://www.irssi.org&quot;;
+
+    lag = &quot;{sb Lag: $0-}&quot;;
+    act = &quot;{sb Act: $0-}&quot;;
+    more = &quot;-- more --&quot;;
+  };
+
+  default = {
+    window = {
+      disabled = &quot;no&quot;;
+      type = &quot;window&quot;;
+      placement = &quot;bottom&quot;;
+      position = &quot;1&quot;;
+      visible = &quot;active&quot;;
+      items = {
+        barstart = { priority = &quot;100&quot;; };
+        time = { };
+        user = { };
+        window = { };
+        window_empty = { };
+        lag = { priority = &quot;-1&quot;; };
+        act = { priority = &quot;10&quot;; };
+        more = { priority = &quot;-1&quot;; alignment = &quot;right&quot;; };
+        barend = { priority = &quot;100&quot;; alignment = &quot;right&quot;; };
+      };
+    };
+
+    window_inact = {
+      type = &quot;window&quot;;
+      placement = &quot;bottom&quot;;
+      position = &quot;1&quot;;
+      visible = &quot;inactive&quot;;
+      items = {
+        barstart = { priority = &quot;100&quot;; };
+        window = { };
+        window_empty = { };
+        more = { priority = &quot;-1&quot;; alignment = &quot;right&quot;; };
+        barend = { priority = &quot;100&quot;; alignment = &quot;right&quot;; };
+      };
+    };
+
+    prompt = {
+      type = &quot;root&quot;;
+      placement = &quot;bottom&quot;;
+      position = &quot;100&quot;;
+      visible = &quot;always&quot;;
+      items = {
+        prompt = { priority = &quot;-1&quot;; };
+        prompt_empty = { priority = &quot;-1&quot;; };
+        input = { priority = &quot;10&quot;; };
+      };
+    };
+
+    topic = {
+      type = &quot;root&quot;;
+      placement = &quot;top&quot;;
+      position = &quot;1&quot;;
+      visible = &quot;always&quot;;
+      items = {
+        topicbarstart = { priority = &quot;100&quot;; };
+        topic = { };
+        topic_empty = { };
+        topicbarend = { priority = &quot;100&quot;; alignment = &quot;right&quot;; };
+      };
+    };
+  };
+};
+
+settings = {
+  core = {
+    real_name = &quot;Mark McDonnell&quot;;
+    user_name = &quot;Integralist&quot;;
+    nick = &quot;Integralist&quot;;
+  };
+  &quot;fe-text&quot; = { actlist_sort = &quot;refnum&quot;; };
+};
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

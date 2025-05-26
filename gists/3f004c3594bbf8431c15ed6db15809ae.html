@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Python TCP Client Server Example</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-tcp-client-server-example">Python TCP Client Server Example</h1>
+
+<h2 id="python-tcp-client-example-py">Python TCP Client Example.py</h2>
+
+<pre><code class="language-python">import socket
+
+hostname, sld, tld, port = 'www', 'integralist', 'co.uk', 80
+target = '{}.{}.{}'.format(hostname, sld, tld)
+
+# create an ipv4 (AF_INET) socket object using the tcp protocol (SOCK_STREAM)
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# connect the client
+# client.connect((target, port))
+client.connect(('0.0.0.0', 9999))
+
+# send some data (in this case a HTTP GET request)
+client.send('GET /index.html HTTP/1.1\r\nHost: {}.{}\r\n\r\n'.format(sld, tld))
+
+# receive the response data (4096 is recommended buffer size)
+response = client.recv(4096)
+
+print response
+</code></pre>
+
+<h2 id="python-tcp-server-example-py">Python TCP Server Example.py</h2>
+
+<pre><code class="language-python">import socket
+import threading
+
+bind_ip = '0.0.0.0'
+bind_port = 9999
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind((bind_ip, bind_port))
+server.listen(5)  # max backlog of connections
+
+print 'Listening on {}:{}'.format(bind_ip, bind_port)
+
+
+def handle_client_connection(client_socket):
+    request = client_socket.recv(1024)
+    print 'Received {}'.format(request)
+    client_socket.send('ACK!')
+    client_socket.close()
+
+while True:
+    client_sock, address = server.accept()
+    print 'Accepted connection from {}:{}'.format(address[0], address[1])
+    client_handler = threading.Thread(
+        target=handle_client_connection,
+        args=(client_sock,)  # without comma you'd get a... TypeError: handle_client_connection() argument after * must be a sequence, not _socketobject
+    )
+    client_handler.start()
+</code></pre>
+
+</div>
+</body>
+</html>

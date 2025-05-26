@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Docker Cleanup Remove Prune] #docker #remove #cleanup #prune</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="docker-cleanup-remove-prune-docker-remove-cleanup-prune">[Docker Cleanup Remove Prune] #docker #remove #cleanup #prune</h1>
+
+<h2 id="docker-cleanup-remove-prune-bash">Docker Cleanup Remove Prune.bash</h2>
+
+<pre><code class="language-shell"># the following command is a 'scorched earth' approach and could make the other commands redundant
+docker system prune -a
+
+# stop and Remove all containers
+alias drf='docker stop $(docker ps -a -q) &amp;&amp; docker rm $(docker ps -a -q)'
+
+# remove all images
+dri() { docker rmi -f $(docker images -q); }
+
+# remove all &lt;none&gt; images
+drn() { docker rmi -f $(docker images --filter &quot;dangling=true&quot; -q); }
+</code></pre>
+
+</div>
+</body>
+</html>

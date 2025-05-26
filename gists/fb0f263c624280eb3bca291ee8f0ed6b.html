@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Simple Log Example with Configuration Overrides] #go #golang #log #config #override</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="simple-log-example-with-configuration-overrides-go-golang-log-config-override">[Simple Log Example with Configuration Overrides] #go #golang #log #config #override</h1>
+
+<h2 id="simple-log-example-with-configuration-overrides-go">Simple Log Example with Configuration Overrides.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;os&quot;
+)
+
+type LogOption func(*Log)
+
+type Log struct {
+	logger *log.Logger
+	rate   int
+}
+
+func NewLog(logger *log.Logger, opts ...LogOption) *Log {
+	l := &amp;Log{
+		logger: logger,
+		rate:   100,
+	}
+
+	for _, opt := range opts {
+		opt(l)
+	}
+
+	return l
+}
+
+func ModifyLoggerConfiguration(l *Log) {
+	l.rate = 20
+}
+
+func main() {
+	logger := log.New(os.Stdout, &quot;SOME_PREFIX: &quot;, log.Ldate|log.Ltime|log.Lshortfile)
+	l := NewLog(logger)
+
+	fmt.Printf(&quot;l = %+v\n\n&quot;, l)
+
+	l.logger.Print(&quot;foo&quot;) // SOME_PREFIX: 2009/11/10 23:00:00 prog.go:33: foo
+	l.logger.Print(&quot;bar&quot;) // SOME_PREFIX: 2009/11/10 23:00:00 prog.go:34: bar
+	l.logger.Print(&quot;baz&quot;) // SOME_PREFIX: 2009/11/10 23:00:00 prog.go:35: baz
+
+	l2 := NewLog(logger, ModifyLoggerConfiguration)
+
+	fmt.Printf(&quot;\nl = %+v\n\n&quot;, l2)
+}
+</code></pre>
+
+</div>
+</body>
+</html>

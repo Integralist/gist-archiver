@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Docker Compose: Example Ruby Application</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="docker-compose-example-ruby-application">Docker Compose: Example Ruby Application</h1>
+
+<h2 id="docker-bootstrap-app-sh">docker-bootstrap-app.sh</h2>
+
+<pre><code class="language-shell">#!/bin/bash
+
+a=$(bundle check)
+b=&quot;The Gemfile's dependencies are satisfied&quot;
+
+if [ &quot;$a&quot; != &quot;$b&quot; ]; then
+  # building the image locally on a poor network
+  # can result in gems not being installed
+  bundle install --retry 10
+fi
+
+bundle exec sequel -E -m db/migrations/ postgres://$(echo &quot;postgres:$DB_ENV_POSTGRES_PASSWORD@$DB_PORT_5432_TCP_ADDR:$DB_PORT_5432_TCP_PORT/$DB_ENV_POSTGRES_DB&quot;)
+bundle exec rackup config.ru -p 9292 -o 0.0.0.0
+</code></pre>
+
+<h2 id="docker-compose-yml">docker-compose.yml</h2>
+
+<pre><code class="language-yaml">api:
+  build: ./
+  restart: &quot;always&quot;
+  command: &quot;/bin/bash -c 'source /bootstrap.sh'&quot;
+  ports:
+    - &quot;8080:9292&quot;
+  volumes:
+    - &quot;./docker-bootstrap-app.sh:/bootstrap.sh&quot;
+    - &quot;./src:/app&quot;
+  links:
+    - &quot;db&quot;
+  labels:
+    uk.co.bbci.api.mozart: &quot;true&quot;
+
+db:
+  image: &quot;postgres&quot;
+  container_name: &quot;local_postgres&quot;
+  environment:
+    - &quot;POSTGRES_DB=mozart&quot;
+    - &quot;POSTGRES_PASSWORD=mysecretpassword&quot;
+  ports:
+    - &quot;5000:5432&quot;
+  labels:
+    uk.co.bbci.db.mozart: &quot;true&quot;
+</code></pre>
+
+<h2 id="dockerfile">Dockerfile</h2>
+
+<pre><code class="language-dockerfile">FROM ruby:2.1.2
+MAINTAINER Mark McDonnell &lt;mark.mcdonnell@bbc.co.uk&gt;
+
+LABEL uk.co.bbci.api.mozart=&quot;true&quot;
+
+RUN mkdir /app
+WORKDIR /app
+
+ADD src/Gemfile /app/Gemfile
+RUN bundle install --retry 10 --jobs 4
+
+EXPOSE 9292
+</code></pre>
+
+</div>
+</body>
+</html>

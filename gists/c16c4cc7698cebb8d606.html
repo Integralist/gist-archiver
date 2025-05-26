@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Basic Bash Configuration (superseded by https://gist.github.com/Integralist/970b8e4a595b118acdd3)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="basic-bash-configuration-superseded-by-https-gist-github-com-integralist-970b8e4a595b118acdd3">Basic Bash Configuration (superseded by <a href="https://gist.github.com/Integralist/970b8e4a595b118acdd3" target="_blank">https://gist.github.com/Integralist/970b8e4a595b118acdd3</a>)</h1>
+
+<h2 id="bash-configuration-sh">bash configuration.sh</h2>
+
+<pre><code class="language-shell"># update Bash version
+# apt-get install bash bash-completion
+# brew install bash; echo /usr/local/bin/bash|sudo tee -a /etc/shells; chsh -s /usr/local/bin/bash
+# for mac osx remember to add the following to your ~/.bash_profile
+#
+# if [ -f $HOME/.bashrc ]; then
+#   source ~/.bashrc
+#   cd .
+# fi
+#
+# if [ -f $(brew --prefix)/etc/bash_completion ]; then
+#   source $(brew --prefix)/etc/bash_completion
+# fi
+
+# tells Readline to perform filename completion in a case-insensitive fashion
+bind &quot;set completion-ignore-case on&quot;
+
+# filename matching during completion will treat hyphens and underscores as equivalent
+bind &quot;set completion-map-case on&quot;
+
+# will get Readline to display all possible matches for an ambiguous pattern at the first &lt;Tab&gt; press instead of at the second
+bind &quot;set show-all-if-ambiguous on&quot;
+
+# enable vi like bindings (http://blog.sanctum.geek.nz/vi-mode-in-bash/)
+set -o vi
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# save multi-line commands as one command
+shopt -s cmdhist
+
+# record each line as it gets issued
+PROMPT_COMMAND='history -a'
+
+# set a larger history
+HISTSIZE=500000
+HISTFILESIZE=100000
+
+# avoid duplicate entries
+HISTCONTROL=&quot;erasedups:ignoreboth&quot;
+
+# don't record some commands
+export HISTIGNORE=&quot;&amp;:[ ]*:exit:ls:bg:fg:history&quot;
+
+# useful timestamp format
+HISTTIMEFORMAT='%F %T '
+
+# no need to type cd (works for .. but not -, although alias -- -='cd -' fixes it)
+shopt -s autocd
+
+# autocorrect minor spelling errors
+shopt -s dirspell
+shopt -s cdspell
+
+# specify other paths to look inside of when autocompleting
+CDPATH=&quot;.:~/Projects&quot;
+
+# use cd command for variable paths
+shopt -s cdable_vars
+export dropbox=&quot;$HOME/Dropbox&quot;
+export bbc=&quot;$HOME/Projects/BBC&quot;
+export GITHUB_USER=&quot;integralist&quot;
+export DEV_CERT_PATH=&quot;$HOME/.pki/bbc&quot;
+export DEV_CERT_PEM=&quot;$HOME/.pki/bbc/Certificate.pem&quot;
+export DEV_CERT_P12=&quot;$HOME/.pki/bbc/Certificate.p12&quot;
+export CLOUD_CERT_PEM=&quot;$HOME/.pki/bbc/cloud-ca.pem&quot;
+export GREP_OPTIONS=&quot;--color=auto&quot;
+export GREP_COLOR=&quot;1;32&quot;
+export MANPAGER=&quot;less -X&quot; # Don't clear the screen after quitting a manual page
+export DOCKER_TLS_VERIFY=1
+export BBC_COSMOS_TOOLS_CERT=$DEV_CERT_PEM
+export GOPATH=$HOME/Projects/golang
+export PATH=$HOME/Projects/golang/bin:$PATH
+
+# force colours
+force_color_prompt=yes
+
+# use colour prompt
+color_prompt=yes
+
+# \e indicates escape sequence (sometimes you'll see \033)
+# the m indicates you've provided a colour sequence
+#
+# 30: Black
+# 31: Red
+# 32: Green
+# 33: Yellow
+# 34: Blue
+# 35: Purple
+# 36: Cyan
+# 37: White
+#
+# a semicolon allows additional attributes:
+#
+# 0: Normal text
+# 1: Bold or light, depending on terminal
+# 4: Underline text
+#
+# there are also background colours (put before additional attributes with ; separator):
+#
+# 40: Black background
+# 41: Red background
+# 42: Green background
+# 43: Yellow background
+# 44: Blue background
+# 45: Purple background
+# 46: Cyan background
+# 47: White background
+
+# simple left prompt example:
+# PS1='\e[01;33m\]\u:\[\e[31m\]\w\[\e[00m\] (\j) (\A)\$ '
+
+# Much more complex left AND right solution (http://superuser.com/a/517110)
+# Which also dynamically displays the number of background jobs \j in the current terminal
+# As well as dynamically displays git branch if available
+
+num_jobs=$(jobs | wc -l)
+
+if [ $num_jobs -eq 0 ]; then
+  num_jobs=&quot;&quot;
+else
+  num_jobs=&quot; (\j)&quot;
+fi
+
+function prompt_right() {
+  # need the correct number of spaces after \A to allow for 00:00 time display
+  echo -e &quot;\e[0;36m\A   \e[0m&quot;
+}
+function prompt_left() {
+  echo -e &quot;\e[33m\]\u. \[\e[31m\]\w\[\e[00m\]$num_jobs\e[32m\]$git_branch\e[00m\]\$ &quot;
+}
+function prompt() {
+    compensate=11
+    PS1=$(printf &quot;%*s\r%s\n\$ &quot; &quot;$(($(tput cols)+${compensate}))&quot; &quot;$(prompt_right)&quot; &quot;$(prompt_left)&quot;)
+}
+
+# override builtin cd so it also checks current directory for git branch
+function cd {
+  builtin cd &quot;$@&quot;
+  RET=$?
+
+  # check if we're inside a git repository (hide any errors)
+  $(git rev-parse --is-inside-work-tree &gt;&amp; /dev/null)
+
+  if [ &quot;$?&quot; -eq &quot;128&quot; ]; then
+    git_branch=&quot;&quot;
+  else
+    git_branch=&quot; ($(git branch | grep '^*' | cut -d ' ' -f 2))&quot;
+  fi
+
+  PROMPT_COMMAND=prompt
+
+  return $RET
+}
+
+function rubo() {
+  docker run \
+    --cpu-shares 1024 \
+    --rm=true \
+    --volume $(pwd):/app \
+    bbcnews/rubocop-config --format simple --fail-level F | grep '^F:\|=='
+}
+
+alias dotfiles=&quot;ls -a | grep '^\.' | grep --invert-match '\.DS_Store\|\.$'&quot;
+alias getcommit=&quot;git log -1 | cut -d ' ' -f 2 | head -n 1 | pbcopy&quot;
+alias vp=&quot;vim +PluginInstall! +qall&quot;
+alias sshkey=&quot;ssh-keygen -t rsa -b 4096 -C 'mark.mcdx@gmail.com'&quot;
+alias irc=&quot;irssi&quot;
+alias r=&quot;source ~/.bashrc&quot;
+
+eval &quot;$(rbenv init -)&quot;
+eval &quot;$(docker-machine env dev)&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

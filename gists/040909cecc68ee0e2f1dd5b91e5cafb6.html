@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang handle unknown json data structure] #go #golang #json #marshal #unmarshal</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-handle-unknown-json-data-structure-go-golang-json-marshal-unmarshal">[Golang handle unknown json data structure] #go #golang #json #marshal #unmarshal</h1>
+
+<h2 id="handle-unknown-json-data-structure-go">handle unknown json data structure.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;encoding/json&quot;
+	&quot;fmt&quot;
+	&quot;log&quot;
+)
+
+func main() {
+	var (
+		i    interface{}
+		m    map[string]interface{}
+		ok   bool
+		err  error
+		data []byte
+	)
+
+	data = []byte(`{&quot;name&quot;:&quot;example&quot;, &quot;foo&quot;:123, &quot;bar&quot;:true, &quot;baz&quot;:&quot;something&quot;}`)
+	if err = json.Unmarshal(data, &amp;i); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf(&quot;i: %+v\n&quot;, i)
+
+	if m, ok = i.(map[string]interface{}); !ok {
+		log.Fatal(&quot;failed to type assert data&quot;)
+	}
+
+	fmt.Printf(&quot;m: %+v\n&quot;, m)
+
+	if _, ok := m[&quot;name&quot;]; ok {
+		m[&quot;name&quot;] = &quot;dynamic&quot;
+	}
+
+	fmt.Printf(&quot;m: %+v\n&quot;, m)
+
+	if data, err = json.Marshal(m); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf(&quot;data: %+v\n&quot;, string(data))
+}
+</code></pre>
+
+</div>
+</body>
+</html>

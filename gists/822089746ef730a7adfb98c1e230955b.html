@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Named Tuples Default Values] #python #defaults #namedtuple</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-named-tuples-default-values-python-defaults-namedtuple">[Python Named Tuples Default Values] #python #defaults #namedtuple</h1>
+
+<h2 id="example-usage-py">Example Usage.py</h2>
+
+<pre><code class="language-python">def client_adapter(client):
+    &quot;&quot;&quot;Mimic interface for a specific concrete client implementation.
+    
+    The requirement for the 'fetcher' is that there needs to be 'post' and 'get' methods.
+    &quot;&quot;&quot;
+
+    a = namedtuple('_', ['get', 'post'])
+    a.__new__.__defaults__ = (client.fetch, ) * len(a._fields)
+    return a()
+
+  
+AsyncHTTPClient.configure(None, defaults=dict(user_agent=&quot;MyCustomAgent&quot;))
+
+fetcher = configure_fetch(client_adapter(AsyncHTTPClient()))
+
+# fetcher.get(...)
+# fetcher.post(...)
+</code></pre>
+
+<h2 id="python-named-tuples-default-values-py">Python Named Tuples Default Values.py</h2>
+
+<pre><code class="language-python"># Pre-Python 3.7.1
+
+x = namedtuple('_', ['get', 'post'])
+x.__new__.__defaults__ = (1, ) * len(x._fields)
+
+y = x()
+y.get
+1
+y.post
+1
+
+# Python 3.7.1+
+
+fields = ('get', 'post')
+x = namedtuple('_', fields, defaults=(1, ) * len(('get', 'post')))
+
+y = x()
+y.get
+1
+y.post
+1
+</code></pre>
+
+</div>
+</body>
+</html>

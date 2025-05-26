@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Example of a r.js build script for AMD formatted modules loaded using RequireJS</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="example-of-a-r-js-build-script-for-amd-formatted-modules-loaded-using-requirejs">Example of a r.js build script for AMD formatted modules loaded using RequireJS</h1>
+
+<h2 id="build-js">build.js</h2>
+
+<pre><code class="language-javascript">/*
+  https://github.com/jrburke/r.js/blob/master/build/example.build.js
+  
+  node r.js -o app.build.js
+*/
+({  
+    // 
+    appDir: './',
+    
+    // 
+    baseUrl: './js',
+    
+    // output directory
+    dir: './dist',
+    
+    // modules to optimise
+    modules: [
+        {
+            name: 'main'
+            /*
+            include: ['module'],
+            exclude: ['module']
+            */
+        }
+    ],
+    
+    // files/directories matched aren't copied to output directory
+    fileExclusionRegExp: /^(r|build)\.js$/,
+    
+    // “uglify” (default), “uglify2”, “closure”, “closure.keepLines”, “none”
+    optimize: 'none',
+    
+    // “none”, “standard”, “standard.keepLines”, “standard.keepComments”, “standard.keepComments.keepLines”
+    optimizeCss: 'none',
+    
+    // removes concatenated files from the output directory
+    removeCombined: true,
+    
+    // relative paths of modules (relative to baseUrl)
+    paths: {
+        jquery: 'lib/jquery',
+        underscore: 'lib/underscore',
+        backbone: 'lib/backbone/backbone',
+        backboneLocalstorage: 'lib/backbone/backbone.localStorage',
+        text: 'lib/require/text'
+    },
+    
+    // dependencies and exports for “browser globals” scripts, that do not use define() to declare the dependencies and set a module value
+    shim: {
+        underscore: {
+            exports: '_'
+        },
+        backbone: {
+            deps: [
+                'underscore',
+                'jquery'
+            ],
+            exports: 'Backbone'
+        },
+        backboneLocalstorage: {
+            deps: ['backbone'],
+            exports: 'Store'
+        }
+    }
+})
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Example Editor Config] #editorconfig</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="example-editor-config-editorconfig">[Example Editor Config] #editorconfig</h1>
+
+<h2 id="editorconfig">.editorconfig</h2>
+
+<pre><code class="language-editorconfig">root = true
+
+[*]
+indent_size = 2
+charset = utf-8
+end_of_line = lf
+indent_style = tab
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[{Makefile,go.mod,go.sum,*.go,.gitmodules,*.cue}]
+indent_size = 4
+indent_style = tab
+
+[*.md]
+indent_size = 4
+eclint_indent_style = unset
+trim_trailing_whitespace = false
+
+[Dockerfile*]
+indent_size = 8
+indent_style = space
+
+[*.{yml,yaml}]
+indent_size = 2
+indent_style = space
+eclint_indent_style = unset
+trim_trailing_whitespace = false
+</code></pre>
+
+</div>
+</body>
+</html>

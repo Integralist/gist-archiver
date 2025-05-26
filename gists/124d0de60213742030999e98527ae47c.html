@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[golang don't follow 301 redirect] #go #golang #http #client #301 #redirect #follow</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-don-t-follow-301-redirect-go-golang-http-client-301-redirect-follow">[golang don&rsquo;t follow 301 redirect] #go #golang #http #client #301 #redirect #follow</h1>
+
+<h2 id="golang-don-t-follow-301-redirect-md">golang don&rsquo;t follow 301 redirect.md</h2>
+
+<pre><code class="language-markdown">```go
+client: &amp;http.Client{
+    CheckRedirect: func(req *http.Request, via []*http.Request) error {
+        return http.ErrUseLastResponse
+    },
+}
+</code></pre>
+
+<blockquote>
+<p>if <code>CheckRedirect</code> returns <code>http.ErrUseLastResponse</code>, then the most recent response is returned with its body unclosed, along with a <code>nil</code> error.
+&ldquo;`</p>
+</blockquote>
+
+</div>
+</body>
+</html>

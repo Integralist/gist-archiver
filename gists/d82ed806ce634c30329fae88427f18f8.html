@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Homebrew Setup] #homebrew #package</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="homebrew-setup-homebrew-package">[Homebrew Setup] #homebrew #package</h1>
+
+<h2 id="homebrew-example-rb">homebrew-example.rb</h2>
+
+<pre><code class="language-ruby">class Kpop &lt; Formula
+  desc &quot;Mac CLI utility to quickly kill a process that is hogging a port&quot;
+  version &quot;0.2&quot;
+  homepage &quot;&quot;
+  url &quot;https://github.com/tmaslen/kpop/archive/0.2.zip&quot;
+  sha256 &quot;1ed1f832baa759f9dfb53dc362fd6b1f2ee21a7e88cd8c75a1d77a204be5cc92&quot;
+
+  def install
+    system &quot;./configure&quot;, &quot;--disable-debug&quot;,
+                          &quot;--disable-dependency-tracking&quot;,
+                          &quot;--disable-silent-rules&quot;,
+                          &quot;--prefix=#{prefix}&quot;
+    system &quot;make&quot;, &quot;install&quot;
+  end
+end
+</code></pre>
+
+</div>
+</body>
+</html>

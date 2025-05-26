@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Vim filtering with global command, sorting and then filtering out duplicate lines for unique results</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="vim-filtering-with-global-command-sorting-and-then-filtering-out-duplicate-lines-for-unique-results">Vim filtering with global command, sorting and then filtering out duplicate lines for unique results</h1>
+
+<h2 id="vim-filtering-viml">vim filtering.viml</h2>
+
+<pre><code class="language-text">&quot; Store data we're interested in, inside a capture group and print on separate line
+:%s/\vGET (\/.+) H/\r\r\1\r\r/
+
+&quot; Delete any lines that don't start with a forward slash (leaving our capture group output)
+:g!/^\//d
+
+&quot; Sort the results and then filter out all duplicates so we have unique results
+:sort u
+</code></pre>
+
+</div>
+</body>
+</html>

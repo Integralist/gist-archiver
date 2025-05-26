@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[PHP: setup Composer with local code] #php #composer #local</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="php-setup-composer-with-local-code-php-composer-local">[PHP: setup Composer with local code] #php #composer #local</h1>
+
+<h2 id="php-setup-composer-with-local-code-md">PHP - setup Composer with local code.md</h2>
+
+<pre><code class="language-markdown">## Install Composer
+- macOS comes with php version 7.3.24
+- Download composer ([instructions](https://getcomposer.org/download/)) and move binary to your `$PATH`
+- Create a new project directory (e.g. `~/path/to/your/code/project`)
+- Run `$ composer init` and select the 'project' package type.
+
+### Debugging
+
+For debugging use https://github.com/tacnoman/dephpugger (e.g. `composer require tacnoman/dephpugger`). 
+
+You'll need `xdebug` too, which has to be installed via `pecl` and _that_ is only available on PHP when installed via macOS Homebrew. 
+
+Also, with latest version of xdebug you'll find some properties have been updated and so until there is a newer version of dephpugger that supports xdebug 3 you'll have to manually update `vendor/tacnoman/dephpugger/src/Dephpug/Console/CliCommand.php` with renamed fields (see https://xdebug.org/docs/errors#CFG-C-CHANGED and the upgrade guide for details).
+
+The summary of those changes being:
+
+```diff
+- $command = &quot;{$configVar} {$phpPath} -dxdebug.remote_enable=1 -dxdebug.remote_mode=req -dxdebug.remote_port={$debuggerPort} -dxdebug.remote_host=127.0.0.1 {$phpFile}&quot;;
++ $command = &quot;{$configVar} {$phpPath} -dxdebug.mode=debug -dxdebug.start_with_request=trigger -dxdebug.client_port={$debuggerPort} -dxdebug.client_host=127.0.0.1 {$phpFile}&quot;;
+</code></pre>
+
+<p>Now you can open three shells:</p>
+
+<ol>
+<li>In your code add <code>xdebug_break();</code> where necessary.</li>
+<li>Start the debugger server: <code>$ php vendor/bin/dephpugger debugger</code>.</li>
+<li>Run your code using the debugger&rsquo;s <code>cli</code> client: <code>$ php vendor/bin/dephpugger cli main.php</code>.</li>
+</ol>
+
+<h2 id="set-local-code-as-a-project-dependency">Set local code as a project dependency</h2>
+
+<pre><code class="language-bash">$ cd ~/path/to/local/package
+$ git init
+$ echo -e &quot;vendor\ncomposer.lock&quot; &gt; .gitignore
+$ git add ./
+$ git commit -m &quot;Initial Commit&quot;
+</code></pre>
+
+<p>Ensure the local package&rsquo;s <code>composer.json</code> file has a <code>name</code> key defined with an appropriate value, as you&rsquo;ll need to reference that shortly.</p>
+
+<p>Now go back to your project directory and update the <code>composer.json</code> to reference the local package code as a dependency:</p>
+
+<pre><code class="language-json">{
+    …
+    &quot;require&quot;: {
+        &quot;foo/bar&quot;: &quot;dev-main&quot;
+    },
+    &quot;repositories&quot;: [{
+        &quot;type&quot;: &quot;vcs&quot;,
+        &quot;url&quot;: &quot;/path/to/local/package&quot;
+    }]
+}
+</code></pre>
+
+<blockquote>
+<p><strong>NOTE</strong>: The <code>dev-</code> prefix inside the <code>require</code> block denotes a development branch, where typically a semver value (like <code>1.0.0</code>) would otherwise be required.
+&ldquo;`</p>
+</blockquote>
+
+</div>
+</body>
+</html>

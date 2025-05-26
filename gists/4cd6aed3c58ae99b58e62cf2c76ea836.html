@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go Standard Lib HTTP Routing] #go #golang #http #routing #mux #http</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-standard-lib-http-routing-go-golang-http-routing-mux-http">[Go Standard Lib HTTP Routing] #go #golang #http #routing #mux #http</h1>
+
+<h2 id="1-simple-and-non-confusing-go">1. Simple and Non-Confusing.go</h2>
+
+<pre><code class="language-go">package main
+
+type App struct {
+    // We could use http.Handler as a type here; using the specific type has
+    // the advantage that static analysis tools can link directly from
+    // h.UserHandler.ServeHTTP to the correct definition. The disadvantage is
+    // that we have slightly stronger coupling. Do the tradeoff yourself.
+    UserHandler *UserHandler
+}
+
+func (h *App) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+    var head string
+    head, req.URL.Path = ShiftPath(req.URL.Path)
+    if head == &quot;user&quot; {
+        h.UserHandler.ServeHTTP(res, req)
+        return
+    }
+    http.Error(res, &quot;Not Found&quot;, http.StatusNotFound)
+}
+
+type UserHandler struct {
+}
+
+func (h *UserHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+    var head string
+    head, req.URL.Path = ShiftPath(req.URL.Path)
+  
+    id, err := strconv.Atoi(head)
+    if err != nil {
+        http.Error(res, fmt.Sprintf(&quot;Invalid user id %q&quot;, head), http.StatusBadRequest)
+        return
+    }
+  
+    switch req.Method {
+    case &quot;GET&quot;:
+        h.handleGet(id)
+    case &quot;PUT&quot;:
+        h.handlePut(id)
+    default:
+        http.Error(res, &quot;Only GET and PUT are allowed&quot;, http.StatusMethodNotAllowed)
+    }
+}
+
+func main() {
+    a := &amp;App{
+        UserHandler: new(UserHandler),
+    }
+    http.ListenAndServe(&quot;:8000&quot;, a)
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// ADDITIONAL MODIFICATION FOR NESTED HANDLERS
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+type UserHandler struct{
+    ProfileHandler *ProfileHandler
+}
+
+func (h *UserHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+    var head string
+    head, req.URL.Path = ShiftPath(req.URL.Path)
+    id, err := strconv.Atoi(head)
+    if err != nil {
+        http.Error(res, fmt.Sprintf(&quot;Invalid user id %q&quot;, head), http.StatusBadRequest)
+        return
+    }
+
+    if req.URL.Path != &quot;/&quot; {
+        head, tail := ShiftPath(req.URL.Path)
+        switch head {
+        case &quot;profile&quot;:
+            // We can't just make ProfileHandler an http.Handler; it needs the
+            // user id. Let's instead…
+            h.ProfileHandler.Handler(id).ServeHTTP(res, req)
+        case &quot;account&quot;:
+            // Left as an exercise to the reader.
+        default:
+            http.Error(res, &quot;Not Found&quot;, http.StatusNotFound)
+        }
+        return
+    }
+    // As before
+    ...
+}
+
+type ProfileHandler struct {
+}
+
+func (h *ProfileHandler) Handler(id int) http.Handler {
+    return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+        // Do whatever
+    })
+}
+</code></pre>
+
+<h2 id="2-go-standard-lib-http-routing-go">2. Go Standard Lib HTTP Routing.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;net/http&quot;
+)
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case &quot;GET&quot;:
+		// Serve the resource.
+		fmt.Fprintf(w, &quot;Hello %s&quot;, r.URL.Path[1:])
+	case &quot;POST&quot;:
+		// Create a new record.
+		http.Error(w, &quot;Nope. Method Not Allowed&quot;, http.StatusMethodNotAllowed)
+	case &quot;PUT&quot;:
+		// Update an existing record.
+		http.Error(w, &quot;Nope. Method Not Allowed&quot;, http.StatusMethodNotAllowed)
+	case &quot;DELETE&quot;:
+		// Remove the record.
+		http.Error(w, &quot;Nope. Method Not Allowed&quot;, http.StatusMethodNotAllowed)
+	default:
+		// Give an error message.
+		http.Error(w, &quot;Nope. Method Not Allowed&quot;, http.StatusMethodNotAllowed)
+	}
+}
+
+type statusHandler int
+
+func (s statusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	code := int(s)
+	w.WriteHeader(code)
+	io.WriteString(w, http.StatusText(code))
+}
+
+// this is functionally equivalent to http.HandleFunc
+type convertFunctionToHandler func(w http.ResponseWriter, r *http.Request)
+
+func (c convertFunctionToHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// calls whatever non-standard function was converted into this type
+	// e.g. we do that like so: convertFunctionToHandler(randomHandler)
+	c(w, r)
+}
+
+// normally this function wouldn't valid when used as a handler passed into a
+// http.Handle call, and so we don't do that. Instead we pass this function
+// into convertFunctionToHandler to ensure this function is then converted into
+// a type that would be valid for using with http.Handle
+func randomHandler(w http.ResponseWriter, r *http.Request) {
+	// called by convertFunctionToHandler.ServeHTTP
+	io.WriteString(w, &quot;Random World!&quot;)
+}
+
+var (
+	notFoundHandler    = statusHandler(404)
+	serverErrorHandler = statusHandler(500)
+)
+
+/*
+types
+go doc http.Handler
+go doc http.HandlerFunc
+
+funcs
+go doc http.Handle
+go doc http.HandleFunc
+
+`go doc` also displays any methods attached to a type, such as with
+`go doc http.Handler` and `go doc http.HandlerFunc`
+*/
+func main() {
+	// HandleFunc is functionally equivalent to convertFunctionToHandler in that
+	// it internally converts the given non-standard function into something that
+	// supports the http.Handler interface (required by DefaultServeMux or your
+	// own custom mux instance). It does this by passing the non-standard
+	// function into http.HandlerFunc which does have a ServeHTTP method and that
+	// method calls your original non-standard function.
+	http.HandleFunc(&quot;/&quot;, indexHandler)
+
+	// http.Handle is similar to http.HandleFunc, but instead it doesn't attempt
+	// to coerce the given non-standard function into something that supports
+	// http.Handler, it instead will just fail to compile if it doesn't support
+	// the right interface.
+	http.Handle(&quot;/beepboop&quot;, convertFunctionToHandler(randomHandler))
+
+	http.Handle(&quot;/notfound&quot;, statusHandler(404))
+	http.Handle(&quot;/notfound2&quot;, notFoundHandler)
+	http.Handle(&quot;/error&quot;, statusHandler(500))
+	http.Handle(&quot;/error2&quot;, serverErrorHandler)
+
+	// notice we can't use statusHandler with http.HandleFunc because the type is
+	// an int and not a func type with the expected signature.
+	//
+	// http.HandleFunc(&quot;/error&quot;, statusHandler(500))
+
+	http.ListenAndServe(&quot;:9000&quot;, nil)
+}
+
+/*
+http.Handler = interface
+you support http.Handler if you have a `ServeHTTP(w http.ResponseWriter, r *http.Request)` method available.
+
+http.Handle(&quot;/&quot;, &lt;give me something that supports the http.Handler interface&gt;)
+e.g. an object with a ServeHTTP method
+
+http.HandleFunc(&quot;/&quot;, &lt;give me any function with the same signature as ServeHTTP &gt;)
+e.g. a function that accepts the arguments `(w http.ResponseWriter, r *http.Request)`
+
+http.HandlerFunc = func type used internally by http.HandleFunc
+e.g. it adapts the given function to the http.HandlerFunc type and that has a ServeHTTP method which then calls your given function
+*/
+</code></pre>
+
+</div>
+</body>
+</html>

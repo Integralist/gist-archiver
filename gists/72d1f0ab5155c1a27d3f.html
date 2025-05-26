@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby Mock Redis</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-mock-redis">Ruby Mock Redis</h1>
+
+<h2 id="ruby-mock-redis-rb">Ruby Mock Redis.rb</h2>
+
+<pre><code class="language-ruby"># in your spec helper...
+
+require &quot;pry&quot;
+require &quot;redis&quot;
+require &quot;mock_redis&quot;
+
+RSpec.configure do |config|
+  config.before(:each) do
+    mock_redis = MockRedis.new
+    allow(Redis).to receive(:new).and_return(mock_redis)
+  end
+end
+
+# Also you can do...
+
+require 'mock_redis'
+&gt;&gt; mr = MockRedis.new
+&gt;&gt; mr.set('some key', 'some value')
+=&gt; &quot;OK&quot;
+&gt;&gt; mr.get('some key')
+=&gt; &quot;some value&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

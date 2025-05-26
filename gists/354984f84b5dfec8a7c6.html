@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Docker Machine on Mac OS X</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="docker-machine-on-mac-os-x">Docker Machine on Mac OS X</h1>
+
+<h2 id="docker-machine-mac-osx-md">docker-machine-mac-osx.md</h2>
+
+<pre><code class="language-markdown">## VirtualBox
+
+- https://www.docker.com/toolbox
+- `docker-machine create --driver virtualbox dev`
+- `docker-machine env dev` (add values to `~/.zshrc`)
+  - e.g. `echo eval &quot;$(docker-machine env dev)&quot; &gt;&gt; ~/.zshrc`
+- `docker-machine ls`
+- `docker ps` (might need to re-source `.zshrc` file; e.g. `. ~/.zshrc`)
+- `docker run hello-world`
+- `docker-machine ip dev`
+- `docker-machine stop dev`
+- `docker-machine start dev`
+- `docker-machine &lt;command&gt; --help`
+
+---
+
+## VMWare Fusion
+
+- `docker-machine rm dev`
+- `docker-machine create --driver=vmwarefusion dev`
+- `docker-machine create --driver vmwarefusion --vmwarefusion-cpu-count 2 --vmwarefusion-disk-size 80000 --vmwarefusion-memory-size 4096 default`
+
+&gt; http://blog.javabien.net/2015/08/20/better-docker-on-osx-with-docker-machine-boot2docker-and-vmware/
+</code></pre>
+
+</div>
+</body>
+</html>

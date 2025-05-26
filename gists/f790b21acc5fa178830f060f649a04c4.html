@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Python subclass dictionary</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-subclass-dictionary">Python subclass dictionary</h1>
+
+<h2 id="python-subclass-dictionary-py">python subclass dictionary.py</h2>
+
+<pre><code class="language-python">class MyDict(OrderedDict):
+    def __init__(self):
+        super().__init__()
+
+    def __setitem__(self, key, value):
+        # set device_type to mobile by default, and allow override to be provided
+        value = {'device_type': 'mobile', **value} if not value.get('device_type') else {**value}
+        print('value set is {}'.format(value))
+        super().__setitem__(key, value)
+
+d = MyDict()
+dict(d)  # {}
+
+d['foo'] = {'beep': 'boop'}
+# value set is {'device_type': 'mobile', 'beep': 'boop'}
+
+d['bar'] = {'device_type': 'something', 'beep': 'boop'}
+# value set is {'device_type': 'something', 'beep': 'boop'}
+
+dict(d)  
+# {'bar': {'beep': 'boop', 'device_type': 'something'}, 'foo': {'beep': 'boop', 'device_type': 'mobile'}}
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Taken from "Python for Programmers" https://leanpub.com/pythonforprogrammers</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="taken-from-python-for-programmers-https-leanpub-com-pythonforprogrammers">Taken from &ldquo;Python for Programmers&rdquo; <a href="https://leanpub.com/pythonforprogrammers" target="_blank">https://leanpub.com/pythonforprogrammers</a></h1>
+
+<h2 id="parallelism-md">Parallelism.md</h2>
+
+<pre><code class="language-markdown">```py
+import asyncio
+import time
+from concurrent.futures import ProcessPoolExecutor
+
+loop = asyncio.get_event_loop()
+executor = ProcessPoolExecutor()
+
+def slow_cpu_bound(secs): 
+    time.sleep(secs)
+    return &quot;some slowly returned value&quot;
+
+def wrapper(secs):
+    # run_in_executor returns a coroutine function
+    return loop.run_in_executor(executor, slow_cpu_bound, secs)
+
+async def main():
+    resp1, resp2 = await asyncio.gather(wrapper(5), wrapper(5)) 
+    print(&quot;{}, {}&quot;.format(resp1, resp2))
+
+loop.run_until_complete(main())
+</code></pre>
+
+<p>In the above example we:</p>
+
+<ul>
+<li>tell the event loop to run until the task <code>main()</code> has completed</li>
+<li>the coroutine function <code>main()</code> gathers/waits for two other tasks (<code>wrapper</code>)</li>
+<li>the <code>wrapper</code> function returns a coroutine function (setup by <code>run_in_executor</code>)</li>
+<li>the <code>run_in_executor</code> calls <code>slow_cpu_bound</code> and passes an argument to it (using <code>ProcessPoolExecutor</code>)</li>
+<li>the <code>slow_cpu_bound</code> function is CPU bound (notice the use of <code>time.sleep</code> to cause blocking behaviour)</li>
+</ul>
+
+<p>Now this example code is ultimately calling a function that sleeps for the specified number of seconds. So we call it twice with 5 both times, meaning the overall time would typically be ten seconds if we were using a single thread (as the thread would be blocked for five seconds, then again for five seconds).</p>
+
+<blockquote>
+<p>Note: if you change this example to use <code>ThreadPoolExecutor</code> instead of <code>ProcessPoolExecutor</code> that is exactly what you’ll see: the overall execution time is ten seconds</p>
+</blockquote>
+
+<p>Running this example reveals that the running time is actually only five seconds. This is because both tasks were started within a forked process and not a thread. If they were using threads, then they would have been restricted by the Python’s GIL.</p>
+
+<p>The benefit of using the asyncio module to handle forked process execution is because it ties in nicely with the other asyncio functionality you are likely going to be already using. It’s much simpler at the point to use than the directly running the lower level <code>subprocess</code> module.</p>
+
+<p>Now you might also be interested to see yet another way to do this (still using <code>ProcessPoolExecutor</code> but swapping <code>asyncio.gather</code> for <code>asyncio.wait</code>):</p>
+
+<pre><code class="language-py">import asyncio
+import time
+from concurrent.futures import ProcessPoolExecutor
+
+loop = asyncio.get_event_loop()
+executor = ProcessPoolExecutor()
+
+def slow_cpu_bound(secs):
+    time.sleep(secs)
+    return &quot;another example&quot;
+
+async def main(executor):
+  tasks = [
+      loop.run_in_executor(executor, slow_cpu_bound, 5),
+      loop.run_in_executor(executor, slow_cpu_bound, 5)
+  ]
+  completed, pending = await asyncio.wait(tasks)
+  print(pending) # this would only show tasks that didn't complete
+  results = [f.result() for f in completed]
+  print('results: {!r}'.format(results))
+
+loop.run_until_complete(main(executor))
+</code></pre>
+
+<p>One other interesting aspect of these ‘executors’ is that their abstract base class <code>concurrent.futures.Executor</code> defines specific functional behaviour such as a <code>map</code> function.</p>
+
+<p>Which is an asynchronous equivalent to the standard library’s own <code>map</code> function.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

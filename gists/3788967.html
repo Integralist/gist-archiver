@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>My mammoth View file (this needs refactoring for sure - maybe into sub views?)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="my-mammoth-view-file-this-needs-refactoring-for-sure-maybe-into-sub-views">My mammoth View file (this needs refactoring for sure - maybe into sub views?)</h1>
+
+<h2 id="model-js">Model.js</h2>
+
+<pre><code class="language-javascript">define(['Backbone'], function(){
+
+    var min = 50;
+    var max = 400;
+
+    return Backbone.Model.extend({
+        defaults: {
+            amount: 0,
+            code: null,
+            date: (new Date())
+        },
+
+        initialize: function(){
+            this.on('error', this.handle_errors);
+        },  
+                      
+        validate: function (attributes) {
+            var errors = [];
+            var amount = parseInt(attributes.amount, 10);
+
+            /*
+                We first parse the amount (as it comes through as a String)
+                Once it's converted to a number we check that the value is NaN.
+                We also check if the amount entered fits within the allowed range.
+             */
+            if (_.isNaN(amount) || amount &lt; min || amount &gt; max) {
+                errors.push({
+                    field: 'amount',
+                    error: 'The amount was invalid'
+                });
+            } 
+            // If there were no errors validating this particular attribute...
+            else {
+                /*
+                   We use the following attribute 'event_type' to decide whether the user means to process the application or not.
+
+                   What happens is: regardless of whether the user changes the loan amount, or if they click on the 'apply' button, 
+                   the amount is validated before proceeding.
+
+                   So if the user is changing the amount within the popup then the keyup event will fire, 
+                   and so although the amount may be valid we don't want to suddenly automatically start processing the application!
+                   We only want that to happen if a click on the 'apply' button was made.
+
+                   So to work-around this we need to set a View property so the receiving method knows what's happening.
+                 */
+                
+                if (attributes.event_type === 'keyup') {
+                    this.view.allow_app_process = false; // don't allow application to be processed (because they've changed the amount, NOT pressed 'apply')
+                } 
+                /*
+                    Noticed an issue with setting this value to true when it shouldn't have been
+                    It was getting set to true by the focus event of the amount input (outside the popup)
+                    So we worked around that by ignoring the focus event (could have set 'click' but not sure if that would be valid on mobile device?)
+                 */
+                else if (attributes.event_type !== 'focusin') {
+                    this.view.allow_app_process = true; // allow application to be processed
+                }
+
+                /*
+                    OK I can imagine this manual trigger of the custom event 'amount:changed' might seem strange at first 
+                    (as Model's accept event listeners on their initialize method), but there apparently was no other work-around.
+
+                    Talking to the Backbone.js maintainers they suggested that I manually trigger the custom event like this.
+                    Which was instead of having: this.on('change:amount', this.amount_change); =&gt; which itself then ran: this.trigger('amount:changed');
+
+                    The problem was/is as follows:
+                    
+                    If a user enters a valid amount `123` and then enters an invalid amount like zero then the attribute value isn't changed.
+                    But if the user then enters the correct amount `123` again the change event can't be fired because nothing has actually changed.
+                    So we relying on the change event firing, to tell if the application should go through, but this logic was flawed here.
+                    
+                    This meant we needed to manually trigger the 'amount:changed' event after successfully validating the data, 
+                    rather than relying on the Model to trigger a change event.
+                 */
+                this.trigger('amount:changed');
+            }
+
+            if (errors.length) {
+                // We pass some info through to the View so it knows that the validation failed
+                this.view.validation_pass = false;
+                this.view.allow_app_process = false;
+                
+                return errors
+            }
+        },
+
+        handle_errors: function (model, error) {
+            // Context of &quot;this&quot; gets lost within _.each()
+            var self = this;
+            
+            _.each(error, function (item, iterator) {
+                self.trigger('item:invalid', item);
+            });
+        }
+    });
+
+});
+</code></pre>
+
+<h2 id="view-js">View.js</h2>
+
+<pre><code class="language-javascript">define(['../Utils/Templating/hogan', '../Utils/Datepicker/kalendae', '../Models/LoanApplication', '../Utils/DOM/getEl', 'Backbone'], function (hogan, Kalendae, LoanApplication, getElement) {
+
+    return Backbone.View.extend({
+        model: new LoanApplication(),
+
+        initialize: function(){
+            // Store other elements that will be interacted with.
+            // Any element that will potentially utilise jQuery we pre-wrap in a single jQuery instance.
+            this.promocode = getElement('js-promocode');
+            this.amount = getElement('js-amount');
+            this.error_amount = $('#js-amounterror');
+            this.error_amount_popup = $('#js-amounterror-popup');
+            this.popup = $('#js-loanpopup');
+            this.popup_amount = getElement('js-popupamount');
+            this.loan_details = getElement('js-loandetails');
+            this.apply_now = $('#js-applynow');
+
+            // We use this to tell whether the calendar widget has already been rendered,
+            // as there is no point re-rendering it every time the popup is closed then opened again.
+            this.is_calendar_rendered = false;
+
+            // Details that will be passed around in different methods
+            this.days_to_pay = null;
+            this.amount_to_borrow = null;
+
+            // This holds the template file we'll compile with data pulled from server
+            this.template = null;
+            this.template_content = null;
+
+            // The Model triggers custom events when certain actions happen which the View should ideally handle
+            this.model.on('item:invalid', this.process_errors, this);
+            this.model.on('amount:changed', this.validation_success, this);
+
+            // There is one instance where we need the Model to have access to the View (so we can set a shared property)
+            this.model.view = this;
+
+            // Used within 'validate_amount' method
+            this.allow_app_process = false;
+
+            // Used to determine if the application can proceed
+            this.valid_date = false;
+
+            // Used to determine if the validation passed
+            this.validation_pass = false;
+        },
+
+        // The containing element
+        el: getElement('js-loanapplication'),
+
+        // Selectors are scoped to the parent element
+        events: {
+            'focus #js-pickdate': 'validate_amount',
+            'click #js-calendarclose': 'close_popup',
+            'click #js-applynow': 'validate_amount',
+            'keyup #js-popupamount': 'validate_amount'
+        },
+
+        validate_amount: function (e) {
+            /*
+                First thing we need to do is to lose focus on the #js-pickdate input element
+                Otherwise, if the user has the popup open and then decides to view a different screen and comes back.
+                Returning back causes the input to gain focus again.
+             */
+            getElement('js-pickdate').blur();
+
+            /*
+                We validate a different field depending on whether the popup is open (the popup has its own copy of the application fields)
+                Note: Model's &quot;set&quot; method calls Backbone validation by default (see Model for validation rules)
+             */
+
+            // If popup is hidden
+            if (this.popup.hasClass('hide')) {
+                this.model.set({
+                    amount: this.amount.value,
+                    event_type: e.type
+                });
+            } 
+            // If popup is visible
+            else {
+                if (e.type === 'keyup') {
+                    /*
+                        We don't want to validate the amount if the user is just pressing the shift key or the left/right/up/down arrow keys:
+                        Shift = 16 | Left = 37 | Up = 38 | Right = 39 | Down = 40
+                     */
+                    if (!_.contains([16, 37, 38, 39, 40], e.keyCode)) {
+                        this.model.set({
+                            amount: this.popup_amount.value,
+                            event_type: e.type // passing through the event type means we can prevent the 'remove_error' method from processing the application
+                        });
+                    }
+                }
+                else {
+                    this.model.set({
+                        amount: this.popup_amount.value,
+                        event_type: e.type
+                    });
+                }
+            }
+        },
+
+        process_errors: function (item) {
+            // Hide the 'apply' button if it's already viewable
+            this.apply_now.addClass('hide');
+
+            // Check what field was invalid and display corresponding error message
+            switch (item.field) {
+                case 'amount':
+                    // We display the error message in a different place depending on whether the popup is open
+                    
+                    // If the popup is NOT visible
+                    if (this.popup.hasClass('hide')) {
+                        this.error_amount.removeClass('invisible');
+                    } else {
+                        this.error_amount_popup.removeClass('invisible');
+                    }
+                    
+                    break;
+            }
+        },
+
+        validation_success: function(){
+            this.validation_pass = true;
+            this.check_apply_display();
+        },
+
+        check_apply_display: function(){
+            // If there is a valid date then we can show the 'apply' button
+            if (this.valid_date) {
+                this.apply_now.removeClass('hide');
+            }
+
+            // Now we hide any errors
+            this.remove_error();
+        },
+
+        // TODO: refactor this function - surely the inner if statement logic can be abstracted into a separate function?
+        remove_error: function(){
+            // We remove the error message from different places depending on whether the popup is open
+
+            // If the popup is NOT visible
+            if (this.popup.hasClass('hide')) {
+                this.error_amount.addClass('invisible');
+                this.display_calendar();
+            } else {
+                this.error_amount_popup.addClass('invisible');
+
+                // Only process the application if the user has explictly clicked on the 'apply' button and their data has been validate
+                if (this.allow_app_process &amp;&amp; this.valid_date) {
+                    alert('NOW PROCESS THE APPLICATION!');
+                } else {
+                    // Only trigger a calculation to be made if a date has been selected
+                    if (this.valid_date) {
+                        this.calculate();
+                    } else {
+                        // Noticed issue with keyup event constantly firing, so safer just to force the input to lose focus
+                        this.popup_amount.blur();
+                    }
+                }
+            }
+        },
+
+        display_calendar: function(){
+            // We only load the calendar on screens large enough to display it
+            // And we make sure to only render it once by check &quot;is_calendar_rendered&quot; is false
+            if (document.documentElement.clientWidth &gt;= 585 &amp;&amp; !this.is_calendar_rendered) {
+                this.render_calendar();
+            }
+
+            // Pass through the value into this new popup view
+            this.popup_amount.value = this.amount.value;
+
+            // Make the popup visible
+            this.popup.removeClass('hide');
+        },
+
+        render_calendar: function(){
+            this.is_calendar_rendered = true;
+
+            // Context of &quot;this&quot; gets lost within the Kalendae script
+            var self = this;
+
+            // the following variables are used for calculating the difference between 
+            // today's date and the selected date to pay back the loan
+            var calendar_container = getElement('js-calendar');
+            var curent_date = new Date();
+            var current_day = curent_date.getDate();
+            var current_month = curent_date.getMonth();
+            var current_year = curent_date.getFullYear();
+            var today, calendar;
+            
+            // we correct current_month to include a zero prefix if the number is less than 10
+            current_month = (current_month &lt; 10) ? ('0' + current_month) : current_month;
+            
+            // construct a date for today which is used for calculating diff
+            today = new Date(current_year, current_month, current_day);
+            
+            calendar = new Kalendae({
+                // element to attach the calendar to
+                attachTo: calendar_container,
+                
+                // blackout days after 45 days from current date
+                blackout: function (date) {
+                    return Kalendae.moment().yearDay() + 45 &lt; date.yearDay(); // yearDay() is an extension Kalendae adds to moment.js to calculate the total number of days since epoch.
+                },
+                
+                // how many characters from the week day name to display (e.g. we've gone with 3 = Mon, Tue, Wed, Thu, Fri, Sat, Sun)
+                columnHeaderLength: 3,
+                
+                // restricts date selectability to past or future ('future' blacks out all days previous to current date)
+                direction: 'future',
+                
+                // only allows selection of one day
+                mode: 'single',
+                
+                // determines the number of months to display
+                months: 2,
+                
+                // determines when the week should start (Sunday = 0 [default] or Monday = 1 etc)
+                weekStart: 1,
+                
+                // causes the &lt;input&gt; to update to the selected date
+                subscribe: {
+                    'date-clicked': function(){
+                        // This event is fire before the selection is changed
+                        if (!self.validation_pass) {
+                            return false;
+                        }
+                    },
+                    'change': function(){
+                        // We don't want to let the user select a date if the amount is invalid
+                        // allow_app_process is being used to determine if the app can move to stage 1 of application
+                        // but it's set every time validation is carried out so we can use it here
+                        if (self.validation_pass) {
+                            // We know a date was selected so we store that information
+                            self.valid_date = true;
+
+                            /*
+                                There could be an instance where the user enters a valid amount *before* the popup is shown, 
+                                and then selects a date from the date picker, but that wont trigger a change event on the amount 
+                                and so the model doesn't validate the amount and doesn't then cause the 'apply' button to appear.
+
+                                This means we need to check here (once a date is picked) if the user should see the 'apply' button.
+                                We do this by setting the attribute value again (thus causing the validation to be triggered)
+                             */
+                            self.model.set({
+                                amount: self.popup_amount.value
+                            });
+
+                            // The following code works out the number of days selected to pay back the loan
+                            
+                            var selected_date = this.getSelected();
+                            var temp_integer_month;
+                            var one_day;
+                            var payback_date;
+                            var days_to_pay;
+
+                            days_to_pay = selected_date.split('-');
+                            
+                            // the date is returned as non-zero index format, so put it back to be zero-indexed
+                            temp_integer_month = parseInt(days_to_pay[1], 10);
+                            days_to_pay[1] = '0' + --temp_integer_month;
+                            
+                            one_day = 24*60*60*1000; // hours * minutes * seconds * milliseconds
+                            payback_date = new Date(days_to_pay[0], days_to_pay[1], days_to_pay[2]);
+                            days_to_pay = Math.round(Math.abs((today.getTime() - payback_date.getTime()) / (one_day)));
+                            
+                            // Keep reference to number of days to pay
+                            self.days_to_pay = days_to_pay;
+
+                            // call function which will pull in the relevant template and populate with relevant costs
+                            self.calculate();
+                        }
+                    }
+                }
+            });
+        },
+
+        close_popup: function(){
+            this.amount.value = ''; // We reset the value so the Model's &quot;change&quot; event can be fired (which is what we rely upon to trigger the popup)
+            this.popup.addClass('hide');
+            this.loan_details.innerHTML = '&lt;dt&gt;&lt;/dt&gt;&lt;dd&gt;&lt;/dd&gt;'; // if the user re-opens the popup then we don't want the old details to be there still
+        },
+
+        calculate: function(){
+            // Noticed issue with keyup event constantly firing, so safer just to force the input to lose focus
+            this.popup_amount.blur();
+
+            // Context of &quot;this&quot; gets lost within the Kalendae script
+            var self = this;
+
+            // Wait for async functions to finish before inserting HTML
+            function process(){
+                $.when(self.get_costs(self.popup_amount.value)).then(function (data) {
+                    // Take the JSON data and compile it into the template file
+                    self.template_content = self.template.render(JSON.parse(data));
+
+                    // Generate the HTML code
+                    self.generate_html();
+                });
+            }
+            
+            // The following code prevents calling the server to load/compile the same template code every time the button is pressed.
+            // Instead we retrieve the template and compile it once
+            if (self.template) {
+                process();
+            } else {
+                $.ajax({
+                    url: 'Assets/Templates/Application-Calculator.txt',
+                    dataType: 'html',
+                    success: function (tmp) {
+                        self.template = hogan.compile(tmp);
+                        process();
+                    }
+                });
+            }
+        },
+
+        get_costs: function (amount) {
+            var dfd = $.Deferred();
+            
+            $.ajax({
+                url: 'Assets/PHP/calculator.php',
+                type: 'POST',
+                data: 'amount=' + amount + '&amp;days=' + this.days_to_pay,
+                success: function (data) {
+                    dfd.resolve(data);
+                }
+            });
+            
+            return dfd.promise();
+        },
+
+        generate_html: function(){
+            // Insert the template content into the DOM
+            this.loan_details.innerHTML = this.template_content;
+        }
+
+    });
+
+});
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Measure the elapsed time between two code sections in Rust] #rust #debug</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="measure-the-elapsed-time-between-two-code-sections-in-rust-rust-debug">[Measure the elapsed time between two code sections in Rust] #rust #debug</h1>
+
+<h2 id="main-rs">main.rs</h2>
+
+<pre><code class="language-rust">use std::time::{Duration, Instant};
+
+fn main() {
+    let start = Instant::now();
+    expensive_function();
+    let duration = start.elapsed();
+
+    println!(&quot;Time elapsed in expensive_function() is: {:?}&quot;, duration);
+}
+</code></pre>
+
+</div>
+</body>
+</html>

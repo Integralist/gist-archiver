@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Why choose tailscale.com/util/ctxkey over Go standard context package #go #golang #ctx</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="why-choose-tailscale-com-util-ctxkey-over-go-standard-context-package-go-golang-ctx">Why choose tailscale.com/util/ctxkey over Go standard context package #go #golang #ctx</h1>
+
+<h2 id="ctxkey-md">ctxkey.md</h2>
+
+<pre><code class="language-markdown">https://pkg.go.dev/tailscale.com/util/ctxkey
+
+Example Playground: https://play.golang.com/p/aZ0joNec3Xl
+
+```go
+package main
+
+import (
+	&quot;context&quot;
+	&quot;fmt&quot;
+	&quot;time&quot;
+
+	&quot;tailscale.com/util/ctxkey&quot;
+)
+
+var TimeoutKey = ctxkey.New(&quot;mapreduce.Timeout&quot;, 5*time.Second)
+
+func main() {
+	ctx := context.Background()
+	fmt.Println(TimeoutKey.Value(ctx))
+
+	// Have to overwrite the ctx with the returned value.
+	// Otherwise the default value will still be associated with ctx.
+	ctx = TimeoutKey.WithValue(ctx, 10*time.Second)
+	fmt.Println(TimeoutKey.Value(ctx))
+}
+</code></pre>
+
+<h2 id="why-choose-ctxkey-over-standard-go-context">Why choose <code>ctxkey</code> over standard Go <code>context</code>?</h2>
+
+<p>The core difference lies in <strong>type safety</strong>.</p>
+
+<ol>
+<li><p><strong>Standard <code>context</code> Package (<code>context.WithValue</code>, <code>ctx.Value</code>)</strong></p>
+
+<ul>
+<li><strong>How it works:</strong> You associate a value with a key using <code>context.WithValue(parentCtx, key, value)</code>. The <code>key</code> is typically an unexported custom type (like <code>type myKey struct{}</code>) to prevent collisions. You retrieve the value using <code>val := ctx.Value(key)</code>.</li>
+<li><strong>The Drawback:</strong> <code>ctx.Value(key)</code> returns a value of type <code>interface{}</code>. This means you <em>must</em> perform a type assertion to get the value back in its original type: <code>realVal, ok := val.(ExpectedType)</code>.</li>
+<li><strong>The Problem:</strong> This check happens at <strong>runtime</strong>. ^1^ If you make a mistake (e.g., assert the wrong type, forget to check the <code>ok</code> boolean), your program might panic or behave unexpectedly <em>only when that specific code path is executed</em>. There&rsquo;s no compile-time guarantee that the value associated with a key is of the type you expect. This can lead to subtle bugs that are harder to catch during development.</li>
+</ul></li>
+
+<li><p><strong><code>tailscale.com/util/ctxkey</code></strong></p>
+
+<ul>
+<li><strong>How it works:</strong> This package leverages Go generics (introduced in Go 1.18). You define a key specifically for a certain <em>type</em> of value, e.g. <code>uniqueCtxKey = ctxkey.New(&quot;&quot;unique-key-name&quot;&quot;, uint32(1))</code> (and you can assign a DEFAULT value, 1 in this case).</li>
+<li><strong>Setting Values:</strong> You use <code>uniqueCtxKey.WithValue(ctx, 2)</code>.</li>
+<li><strong>Getting Values:</strong> You use <code>uniqueCtxKey.Value(ctx)</code>.</li>
+<li><strong>The Advantage:</strong> Notice there&rsquo;s <strong>no type assertion needed</strong> when retrieving the value. The <code>Value</code> function returns the specific type associated with the key (<code>uint32</code> in the example above). The Go compiler checks this at <strong>compile time</strong>.</li>
+<li><strong>The Benefit:</strong> If you try to retrieve a value using a key that expects a different type, or if you try to use the retrieved value as the wrong type, the compiler will flag it as an error <em>before you even run the program</em>. This significantly reduces the risk of runtime type errors related to context values. It makes your code safer and easier to refactor.</li>
+</ul></li>
+</ol>
+
+<h2 id="in-summary-why-choose-tailscale-com-util-ctxkey">In Summary: Why Choose <code>tailscale.com/util/ctxkey</code>?</h2>
+
+<ul>
+<li><strong>Compile-Time Type Safety:</strong> This is the primary reason. It catches type mismatches related to context values during compilation, preventing a class of runtime errors.</li>
+<li><strong>Reduced Boilerplate:</strong> You don&rsquo;t need the <code>val.(ExpectedType)</code> type assertion when retrieving values.</li>
+<li><strong>Improved Readability/Intent:</strong> The key definition <code>ctxkey.NewKey[ValueType]</code> explicitly states the type of value the key is intended for.</li>
+</ul>
+
+<h2 id="why-stick-with-standard-context">Why Stick with Standard <code>context</code>?</h2>
+
+<ul>
+<li><strong>No External Dependencies:</strong> The <code>context</code> package is part of the Go standard library. Using <code>ctxkey</code> introduces a dependency on <code>tailscale.com/util/ctxkey</code>.</li>
+<li><strong>Simplicity (for basic cases):</strong> If you only have one or two context values and are diligent about type assertions, the standard library might feel sufficient.</li>
+<li><strong>Universality:</strong> Every Go developer knows the standard <code>context</code> package.</li>
+</ul>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>You would want to use <code>tailscale.com/util/ctxkey</code> primarily when you want <strong>stronger, compile-time guarantees</strong> about the types of values stored in your context. This is particularly beneficial in larger projects or teams where maintaining type consistency across different parts of the codebase is crucial for preventing runtime errors and improving maintainability. The trade-off is adding an external dependency.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

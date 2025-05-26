@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>RPC: Remote Procedure Call</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="rpc-remote-procedure-call">RPC: Remote Procedure Call</h1>
+
+<h2 id="rpc-remote-procedure-call-md">RPC: Remote Procedure Call.md</h2>
+
+<pre><code class="language-markdown">RPC is a way of connecting two separate services via a raw TCP socket
+
+&gt; Note: SOAP, Thrift, REST APIs, message queues such as RabbitMQ, and key value stores such as Etcd are examples of other tools and protocols
+
+## Basic outline
+
+The fundamental principle is, you define an RPC service:
+
+- Write a function
+- Add some RPC configuration
+- Register our function as a RPC service
+- Start the service and have it listen for messages on a specific port
+
+From here we have a client service that calls the RPC service:
+
+- Write code which calls RPC function
+- Call the function via a specific ip/port
+- The 'message' is passed over as valid JSON
+
+## JSON-RPC
+
+The client JSON could look like:
+
+- `method`: name of method/service
+- `params`: Array of arguments to be passed
+- `id`: usually an integer; makes it easier for client to know which request it got a response to (if the RPC calls are done asynchroneously)
+ 
+```json
+{&quot;method&quot;: &quot;Arith.Multiply&quot;, &quot;params&quot;: [{&quot;A&quot;: 2, &quot;B&quot;: 3}], &quot;id&quot;: 1}
+</code></pre>
+
+<p>The RPC server JSON response could look like:</p>
+
+<ul>
+<li><code>result</code>: contains return value of method called (<code>null</code> if error ocurred)</li>
+<li><code>error</code>: if error occurred, indicates error code or error message, otherwise <code>null</code></li>
+<li><code>id</code>: the id of the request it is responding to</li>
+</ul>
+
+<pre><code class="language-json">{&quot;result&quot;: 6, &quot;error&quot;: null, &quot;id&quot;: 1}
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

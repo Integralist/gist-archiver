@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Spawning Actors in Celluloid</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="spawning-actors-in-celluloid">Spawning Actors in Celluloid</h1>
+
+<h2 id="spawning-actors-in-celluloid-md">Spawning Actors in Celluloid.md</h2>
+
+<pre><code class="language-markdown">// Taken from http://uberfork.com/post/30510463110/spawning-actors-in-celluloid
+
+There are four built-in classes that help managing Actor instances:
+
+1. Actor
+2. Supervisor
+3. PoolManager
+4. SupervisionGroup
+
+```ruby
+class Cat
+  include Celluloid
+  class DeadCatError &lt; StandardError; end
+ 
+  def initialize name=nil
+    @name = name
+    @lives_left = 9
+  end
+  
+  def spray
+    † if @lives_left == 0
+ 
+    # spraying is dangerous
+    # http://www.youtube.com/watch?v=uIbkLjjlMV8 
+    @lives_left -= 1
+  end
+ 
+  def †
+    who = if name
+      &quot;known as '#{@name}'&quot;
+    else
+      &quot;unknown vagrant&quot;
+    end
+    raise DeadCatError, &quot;Yet another cat in heaven.. (#{who})&quot;
+  end
+end
+</code></pre>
+
+<p>// Each time a cat sprays it will loose one of its lives. When a cat sprays too often, it will just die*.</p>
+
+<p>The simpliest example to use an Actor is just to call Actor.new, like using a plain Ruby object. This works totally fine, until the Actor thread dies, because then it won’t come back by itself. Instead it is up to you to catch such a case and deal with it.</p>
+
+<pre><code class="language-ruby"># instantiate a cat object named 'Garfield' within its own actor thread
+cat = Cat.new 'Garfield'
+ 
+# blocking (the main thread waits until the cat has finished..)
+cat.spray
+ 
+# non-blocking
+cat.spray!
+ 
+# cats do what cats do
+7.times { cat.spray } 
+ 
+# this will kill the actor thread (because spraying ain't petty crime!)
+# however, when using the non-blocking call the main thread won't receive
+# any exceptions raised within the actor thread (even a dead actor call is not
+# harmful)
+cat.spray!
+ 
+# false, the actor thread died
+puts cat.alive?
+</code></pre>
+
+<p>When you don’t like to loose your Actor instance and you want to have it respawn automatically you can just use the Actor.supervise method. This will spawn a second thread that respawns the Actor thread every time it dies.</p>
+
+<pre><code class="language-ruby"># here there are two threads, one for the actor and one for the supervisor, that
+# will respawn the actor if the actor dies
+Cat.supervise_as :cat, 'Garfield'
+ 
+cats_died = 0
+50.times do
+  begin
+    Celluloid::Actor[:cat].spray
+  rescue Cat::DeadCatError =&gt; e
+    cats_died += 1
+    sleep 0.05 # wait a bit to let respawn take place
+  end
+end
+ 
+# when cat actors die, the supervisor will respawn..
+puts cats_died # more than 1
+</code></pre>
+
+<p>Sometimes you may not want just one Actor instance but whole group. This can be useful when you want to gain performance by parallelization. You can do this easily by using the Actor.pool method to spawn a PoolManager instance. The PoolManager will then spawn multiple Actor threads of the same Actor class.  Similar to using the Supervisor the PoolManager will also respawn Actor threads if they fail. For maximum performance the default pool size matches the size of CPU cores your system provides.</p>
+
+<pre><code class="language-ruby"># a pool of actors spawns one additional thread for the pool manager. the pool
+# manager then spawns (and respawns in case of failure) the actor threads.
+# per default the pool size (the number of actor threads) is equal to the number
+# of cpu cores.
+gang_of_cats = Cat.pool size: 2
+ 
+cats_died = 0
+50.times do
+  begin
+    gang_of_cats.spray
+  rescue Cat::DeadCatError =&gt; e
+    cats_died += 1
+    sleep 0.05
+  end
+end
+ 
+puts cats_died # more than 1
+</code></pre>
+
+<p>Finally there is the SupervisionGroup. In contrast to the previous examples the SupervisionGroup is designed to be used as a base class. It offers a declarative approach to combine a set of actors to a group together and make them depend on each other. So if one member of the group dies, the whole group will die. Of course, you can also add whole pool of Actors to the group. Hereby the group would only become dependent on the PoolManager itself. So when the PoolManager dies, the group dies. But when a member of the pool dies, it is respawned by the PoolManager. The following examples illustrates this.</p>
+
+<pre><code class="language-ruby"># define a gang of cats with a leader
+class CatGangWithLeader &lt; Celluloid::SupervisionGroup
+  # this
+  supervise Cat, as: :alpha_leader, args: 'Garfield'
+  supervise Cat, as: :gang_of_cats, size: 2, method: 'pool'
+end
+ 
+# this starts 5 threads in total:
+#   - 2x for the alpha leader (supervisor + actor)
+#   - 3x for the gang member (supervisor + 2x actor)
+CatGangWithLeader.run!
+sleep 0.05
+ 
+alpha_leader_died = 0
+member_died = 0
+ 
+200.times do
+  begin
+    # most of the time a member will be used
+    if rand &gt; 0.1
+      Celluloid::Actor[:gang_of_cats].spray
+    else
+      Celluloid::Actor[:alpha_leader].spray
+    end
+ 
+  # as soon as the alpha leader dies, the whole supervision group is dead
+  # then this error will happen and we can stop the loop
+  rescue Celluloid::DeadActorError =&gt; e
+    break
+  rescue Cat::DeadCatError =&gt; e
+    if e.message =~ /Garfield/
+      alpha_leader_died += 1
+    else
+      member_died += 1
+    end
+    sleep 0.01
+  end
+end
+ 
+# this is a strange or interesting behaviour. death of a vagrant (a pool member)
+# usally happens more than 1 time (max. 20). but as soon as the leader dies, the 
+# whole supervision group dies and the loop ends. so the typical ratio is 9:1.
+puts &quot;The gang members died #{member_died} times.\n&quot;\
+     &quot;The leader (Garfield) died #{alpha_leader_died} times.&quot;
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

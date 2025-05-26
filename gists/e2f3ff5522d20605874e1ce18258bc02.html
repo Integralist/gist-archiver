@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Dockerize Node] #docker #node</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="dockerize-node-docker-node">[Dockerize Node] #docker #node</h1>
+
+<h2 id="dockerfile">Dockerfile</h2>
+
+<pre><code class="language-dockerfile">FROM node:9.11.1
+
+ENV NPM_CONFIG_LOGLEVEL warn
+ENV NODE_PATH=/node_modules
+
+# Seems react drops path-expected binaries, so we just add node’s bin folder to the PATH
+ENV PATH=$PATH:/node_modules/.bin
+
+COPY app/package.json /
+RUN cd /
+RUN npm install
+
+COPY app /application
+WORKDIR /application
+
+CMD [&quot;npm&quot;, &quot;run&quot;, &quot;start&quot;]
+# CMD [&quot;bash&quot;, &quot;/app/scripts/run&quot;]
+</code></pre>
+
+</div>
+</body>
+</html>

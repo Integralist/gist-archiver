@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Fastly Clustering and Shielding Example] #fastly #varnish #vcl #clustering #shielding #cluster #shield</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="fastly-clustering-and-shielding-example-fastly-varnish-vcl-clustering-shielding-cluster-shield">[Fastly Clustering and Shielding Example] #fastly #varnish #vcl #clustering #shielding #cluster #shield</h1>
+
+<h2 id="fastly-clustering-and-shielding-example-md">Fastly Clustering and Shielding Example.md</h2>
+
+<pre><code class="language-markdown">The below VCL snippets are expected to be run on https://fiddle.fastlydemo.net/
+
+&gt; Note: they are copied verbatim from https://fiddle.fastlydemo.net/fiddle/72e0d619
+
+## vcl_recv
+
+```vcl
+if (req.backend.is_shield)
+{
+  set req.http.shield = &quot;This is on the Edge PoP (req.backend.is_shield)&quot;;
+}
+else {
+  set req.http.shield = &quot;This is on the shield PoP(!req.backend.is_shield)&quot;;
+}
+if(req.backend.is_cluster)
+{
+  set req.http.cluster = &quot;this is in a clustering state (hit/miss-cluster)(req.backend.is_cluster)&quot;;
+}
+else {
+ set req.http.cluster = &quot;this is not in a clustering state (hit/miss-cluster)(!req.backend.is_cluster)&quot;;
+}
+if (!req.http.Fastly-FF) {
+  set req.http.x-status = &quot;edge node(!req.http.Fastly-FF)&quot;;
+}
+else {
+  set req.http.x-status = &quot;fetch/cluster node(req.http.Fastly-FF)&quot;;
+}
+
+if (req.http.Fastly-FF) {
+  set req.http.x-otherstatus = &quot;fetch/cluster node(req.http.Fastly-FF)&quot;;
+}
+else {
+  set req.http.x-otherstatus = &quot;edge node(!req.http.Fastly-FF)&quot;;
+}
+
+log req.http.shield;
+log req.http.cluster;
+log req.http.x-status;
+log req.http.x-otherstatus;
+</code></pre>
+
+<h2 id="vcl-hit">vcl_hit</h2>
+
+<pre><code class="language-vcl">if (req.backend.is_shield)
+{
+  set req.http.shield = &quot;This is on the Edge PoP (req.backend.is_shield)&quot;;
+}
+else {
+  set req.http.shield = &quot;This is on the shield PoP(!req.backend.is_shield)&quot;;
+}
+if(req.backend.is_cluster)
+{
+  set req.http.cluster = &quot;this is in a clustering state (hit/miss-cluster)(req.backend.is_cluster)&quot;;
+}
+else {
+ set req.http.cluster = &quot;this is not in a clustering state (hit/miss-cluster)(!req.backend.is_cluster)&quot;;
+}
+if (!req.http.Fastly-FF) {
+  set req.http.x-status = &quot;edge node(!req.http.Fastly-FF)&quot;;
+}
+else {
+  set req.http.x-status = &quot;fetch/cluster node(req.http.Fastly-FF)&quot;;
+}
+
+if (req.http.Fastly-FF) {
+  set req.http.x-otherstatus = &quot;fetch/cluster node(req.http.Fastly-FF)&quot;;
+}
+else {
+  set req.http.x-otherstatus = &quot;edge node(!req.http.Fastly-FF)&quot;;
+}
+
+log req.http.shield;
+log req.http.cluster;
+log req.http.x-status;
+log req.http.x-otherstatus;
+</code></pre>
+
+<h2 id="vcl-miss">vcl_miss</h2>
+
+<pre><code class="language-vcl">if(req.backend.is_origin){
+  set req.http.origin = &quot;I am fetching the origin's contents(req.backend.is_origin)&quot;;
+}
+else{
+ set req.http.origin = &quot;I am not fetching the origin's contents(!req.backend.is_origin)&quot;;
+}
+
+if (req.backend.is_shield)
+{
+  set req.http.shield = &quot;This is on the Edge PoP (req.backend.is_shield)&quot;;
+}
+else {
+  set req.http.shield = &quot;This is on the shield PoP(!req.backend.is_shield)&quot;;
+}
+if(req.backend.is_cluster)
+{
+  set req.http.cluster = &quot;this is in a clustering state (hit/miss-cluster)(req.backend.is_cluster)&quot;;
+}
+else {
+ set req.http.cluster = &quot;this is not in a clustering state (hit/miss-cluster)(!req.backend.is_cluster)&quot;;
+}
+if (!req.http.Fastly-FF) {
+  set req.http.x-status = &quot;edge node(!req.http.Fastly-FF)&quot;;
+}
+else {
+  set req.http.x-status = &quot;fetch/cluster node(req.http.Fastly-FF)&quot;;
+}
+
+if (req.http.Fastly-FF) {
+  set req.http.x-otherstatus = &quot;fetch/cluster node(req.http.Fastly-FF)&quot;;
+}
+else {
+  set req.http.x-otherstatus = &quot;edge node(!req.http.Fastly-FF)&quot;;
+}
+
+log req.http.shield;
+log req.http.cluster;
+log req.http.origin;
+log req.http.x-status;
+log req.http.x-otherstatus;
+</code></pre>
+
+<h2 id="vcl-fetch">vcl_fetch</h2>
+
+<pre><code class="language-vcl">if (req.backend.is_shield)
+{
+  set req.http.shield = &quot;This is on the Edge PoP (req.backend.is_shield)&quot;;
+}
+else {
+  set req.http.shield = &quot;This is on the shield PoP(!req.backend.is_shield)&quot;;
+}
+if(req.backend.is_cluster)
+{
+  set req.http.cluster = &quot;this is in a clustering state (hit/miss-cluster)(req.backend.is_cluster)&quot;;
+}
+else {
+ set req.http.cluster = &quot;this is not in a clustering state (hit/miss-cluster)(!req.backend.is_cluster)&quot;;
+}
+if (!req.http.Fastly-FF) {
+  set req.http.x-status = &quot;edge node(!req.http.Fastly-FF)&quot;;
+}
+else {
+  set req.http.x-status = &quot;fetch/cluster node(req.http.Fastly-FF)&quot;;
+}
+
+if (req.http.Fastly-FF) {
+  set req.http.x-otherstatus = &quot;fetch/cluster node(req.http.Fastly-FF)&quot;;
+}
+else {
+  set req.http.x-otherstatus = &quot;edge node(!req.http.Fastly-FF)&quot;;
+}
+
+log req.http.shield;
+log req.http.cluster;
+log req.http.x-status;
+log req.http.x-otherstatus;
+</code></pre>
+
+<h2 id="vcl-deliver">vcl_deliver</h2>
+
+<pre><code class="language-vcl">if (req.backend.is_shield)
+{
+  set req.http.shield = &quot;This is on the Edge PoP (req.backend.is_shield)&quot;;
+}
+else {
+  set req.http.shield = &quot;This is on the shield PoP(!req.backend.is_shield)&quot;;
+}
+if(req.backend.is_cluster)
+{
+  set req.http.cluster = &quot;this is in a clustering state (hit/miss-cluster)(req.backend.is_cluster)&quot;;
+}
+else {
+ set req.http.cluster = &quot;this is not clustering(!req.backend.is_cluster)&quot;;
+}
+if (!req.http.Fastly-FF) {
+  set req.http.x-status = &quot;edge node(!req.http.Fastly-FF)&quot;;
+}
+else {
+  set req.http.x-status = &quot;fetch/cluster node(req.http.Fastly-FF)&quot;;
+}
+
+if (req.http.Fastly-FF) {
+  set req.http.x-otherstatus = &quot;fetch/cluster node(req.http.Fastly-FF)&quot;;
+}
+else {
+  set req.http.x-otherstatus = &quot;edge node(!req.http.Fastly-FF)&quot;;
+}
+
+log req.http.shield;
+log req.http.cluster;
+log req.http.x-status;
+log req.http.x-otherstatus;
+
+if (req.restarts == 0) {
+  log &quot;return(restart) once to see if edge nodes now show is_cluster:1&quot;;
+  set req.url = &quot;/status/201&quot;;
+  set req.http.Fastly-Force-Shield = &quot;1&quot;;
+  return(restart);
+}
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

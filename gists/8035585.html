@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Is there a more elegant way in Ruby to filter data from an object and store it in another object. We're searching for a key (which can appear multiple times) and I only want to store the key once, but to also increment that key's value every time the key is found.</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="is-there-a-more-elegant-way-in-ruby-to-filter-data-from-an-object-and-store-it-in-another-object-we-re-searching-for-a-key-which-can-appear-multiple-times-and-i-only-want-to-store-the-key-once-but-to-also-increment-that-key-s-value-every-time-the-key-is-found">Is there a more elegant way in Ruby to filter data from an object and store it in another object. We&rsquo;re searching for a key (which can appear multiple times) and I only want to store the key once, but to also increment that key&rsquo;s value every time the key is found.</h1>
+
+<h2 id="object-to-object-filtering-rb">object to object filtering.rb</h2>
+
+<pre><code class="language-ruby">require 'httparty'
+
+data = HTTParty.get('http://some_url/')
+
+browsers = {}
+
+data.each do |item|
+  browser = item['browser']['family']
+
+  if browsers[browser]
+    browsers[browser] = browsers[browser] + 1
+  else
+    browsers[browser] = 1
+  end
+
+  # yes we *could* use a tertiary conditional but that can be a bit too terse sometimes
+  # browsers[browser] = browsers[browser] ? browsers[browser] + 1 : 1 
+  # i would argue that's actually harder to read than the expanded if/else
+end
+
+puts browsers # {&quot;Chrome Mobile&quot;=&gt;3, &quot;IE Mobile&quot;=&gt;2}
+
+# Update: the following refactor from Kenoir did the trick...
+browsers = data.reduce({}) do | obj, item |
+  browser = item['browser']['family']
+  obj[browser] = (obj[browser].nil?) ? 1 : obj[browser] + 1
+  obj
+end
+</code></pre>
+
+</div>
+</body>
+</html>

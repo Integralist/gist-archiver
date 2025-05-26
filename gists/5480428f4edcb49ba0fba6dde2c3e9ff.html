@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Local Memcache and ElastiCache</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="local-memcache-and-elasticache">Local Memcache and ElastiCache</h1>
+
+<h2 id="local-memcache-and-elasticache-md">Local Memcache and ElastiCache.md</h2>
+
+<pre><code class="language-markdown">## Single Node
+
+- `brew install memcached` (or `docker run -d -p 11211:11211 memcached`)
+- `memcached` (optional `-d` to background &amp; `-p` to change port)
+- `telnet localhost 11211`
+- `stats`
+- `quit`
+
+&gt; http://blog.elijaa.org/2010/05/21/memcached-telnet-command-summary
+
+Notice the line break for the value (when using `set` or `add` etc) is required...
+
+</code></pre>
+
+<p>set foo 0 60 3
+bar
+STORED</p>
+
+<p>get foo
+VALUE foo 0 3
+bar
+END</p>
+
+<pre><code>
+## AWS ElastiCache Cluster Endpoint
+
+- `gem install fake_elasticache`
+- `fake_elasticache` (run in a separate shell as it's run in the foreground)
+- `telnet localhost 11212` (fyi that's a non-standard port)
+- `config get cluster`
+- `quit`
+
+## Go Client
+
+Here's a Go client that interacts with the AWS ElastiCache endpoint and parses out the data.
+
+To run this script you'll need `memcached` running locally along with `fake_elasticache` which looks up the locally running memcache at the default location of `localhost` and port `11211`.
+
+```go
+package main
+
+import (
+	&quot;bufio&quot;
+	&quot;fmt&quot;
+	&quot;net&quot;
+	&quot;strconv&quot;
+	&quot;strings&quot;
+
+	&quot;github.com/bradfitz/gomemcache/memcache&quot;
+)
+
+// Node is a single ElastiCache instance node
+type Node struct {
+	URL  string
+	Host string
+	IP   string
+	Port int
+}
+
+func main() {
+	var response string
+	var nodes []Node
+	var urls []string
+
+	conn, err := net.Dial(&quot;tcp&quot;, &quot;127.0.0.1:11212&quot;)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	defer conn.Close()
+
+	command := &quot;config get cluster\r\n&quot;
+
+	fmt.Fprintf(conn, command)
+
+	count := 0
+	location := 3 // AWS docs suggest that nodes will always be listed on line 3
+
+	scanner := bufio.NewScanner(conn)
+	for scanner.Scan() {
+		count++
+		if count == location {
+			response = scanner.Text()
+		}
+		if scanner.Text() == &quot;END&quot; {
+			break
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	items := strings.Split(response, &quot; &quot;)
+
+	for _, v := range items {
+		fields := strings.Split(v, &quot;|&quot;) // [&quot;host&quot;, &quot;ip&quot;, &quot;port&quot;]
+
+		port, err := strconv.Atoi(fields[2])
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
+		node := Node{fmt.Sprintf(&quot;%s:%d&quot;, fields[1], port), fields[0], fields[1], port}
+		nodes = append(nodes, node)
+		urls = append(urls, node.URL)
+
+		fmt.Printf(&quot;Host: %s\n&quot;, node.Host)
+		fmt.Printf(&quot;IP: %s\n&quot;, node.IP)
+		fmt.Printf(&quot;Port: %d\n&quot;, node.Port)
+		fmt.Printf(&quot;URL: %s\n\n&quot;, node.URL)
+	}
+
+	mc := memcache.New(urls...)
+	mc.Set(&amp;memcache.Item{Key: &quot;foo&quot;, Value: []byte(&quot;my value&quot;)})
+
+	it, err := mc.Get(&quot;foo&quot;)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Printf(&quot;%+v&quot;, it)
+}
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

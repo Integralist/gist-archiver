@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Complex golang mapstructure example] #go #golang #mapstructure</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="complex-golang-mapstructure-example-go-golang-mapstructure">[Complex golang mapstructure example] #go #golang #mapstructure</h1>
+
+<h2 id="complex-golang-mapstructure-example-go">Complex golang mapstructure example.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;encoding/json&quot;
+	&quot;errors&quot;
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;log&quot;
+	&quot;net/http&quot;
+	&quot;reflect&quot;
+	&quot;strings&quot;
+	&quot;time&quot;
+
+	&quot;github.com/mitchellh/mapstructure&quot;
+)
+
+func main() {
+	var rd *ResponseData
+
+	// The 1 should be converted to `bool` type with value of `true`.
+	// The null should become `nil` due to pointer type in ResponseData field.
+	r := strings.NewReader(`{&quot;bool&quot;: 1, &quot;possibly_null&quot;: null}`)
+	rc := io.NopCloser(r)
+
+	if err := decodeBodyMap(rc, &amp;rd); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf(&quot;%+v\n&quot;, rd) // &amp;{Bool:true PossiblyNull:&lt;nil&gt;}
+}
+
+type ResponseData struct {
+	Bool         bool `mapstructure:&quot;bool&quot;`
+	PossiblyNull *int `mapstructure:&quot;possibly_null&quot;`
+}
+
+// decodeBodyMap is used to decode an HTTP response body into a mapstructure struct.
+// It closes `body`.
+func decodeBodyMap(body io.ReadCloser, out any) error {
+	defer body.Close()
+
+	var parsed any
+	dec := json.NewDecoder(body)
+	if err := dec.Decode(&amp;parsed); err != nil {
+		return err
+	}
+
+	return decodeMap(parsed, out)
+}
+
+// decodeMap decodes an `in` struct or map to a mapstructure tagged `out`.
+// It applies the decoder defaults used throughout go-fastly.
+// Note that this uses opposite argument order from Go's copy().
+func decodeMap(in, out any) error {
+	decoder, err := mapstructure.NewDecoder(&amp;mapstructure.DecoderConfig{
+		DecodeHook: mapstructure.ComposeDecodeHookFunc(
+			mapToHTTPHeaderHookFunc(),
+			stringToTimeHookFunc(),
+		),
+		WeaklyTypedInput: true,
+		Result:           out,
+	})
+	if err != nil {
+		return err
+	}
+	return decoder.Decode(in)
+}
+
+// mapToHTTPHeaderHookFunc returns a function that converts maps into an
+// http.Header value.
+func mapToHTTPHeaderHookFunc() mapstructure.DecodeHookFunc {
+	return func(
+		f reflect.Type,
+		t reflect.Type,
+		data any,
+	) (any, error) {
+		if f.Kind() != reflect.Map {
+			return data, nil
+		}
+		if t != reflect.TypeOf(new(http.Header)) {
+			return data, nil
+		}
+
+		typed, ok := data.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf(&quot;cannot convert %T to http.Header&quot;, data)
+		}
+
+		n := map[string][]string{}
+		for k, v := range typed {
+			switch tv := v.(type) {
+			case string:
+				n[k] = []string{tv}
+			case []string:
+				n[k] = tv
+			case int, int8, int16, int32, int64:
+				n[k] = []string{fmt.Sprintf(&quot;%d&quot;, tv)}
+			case float32, float64:
+				n[k] = []string{fmt.Sprintf(&quot;%f&quot;, tv)}
+			default:
+				return nil, fmt.Errorf(&quot;cannot convert %T to http.Header&quot;, v)
+			}
+		}
+
+		return n, nil
+	}
+}
+
+// stringToTimeHookFunc returns a function that converts strings to a time.Time
+// value.
+func stringToTimeHookFunc() mapstructure.DecodeHookFunc {
+	return func(
+		f reflect.Type,
+		t reflect.Type,
+		data any,
+	) (any, error) {
+		if f.Kind() != reflect.String {
+			return data, nil
+		}
+		if t != reflect.TypeOf(time.Now()) {
+			return data, nil
+		}
+
+		// Convert it by parsing
+		d, ok := data.(string)
+		if !ok {
+			return nil, errors.New(&quot;failed to type assert `data` to a string&quot;)
+		}
+		v, err := time.Parse(time.RFC3339, d)
+		if err != nil {
+			// DictionaryInfo#get uses it's own special time format for now.
+			return time.Parse(&quot;2006-01-02 15:04:05&quot;, d)
+		}
+		return v, err
+	}
+}
+</code></pre>
+
+</div>
+</body>
+</html>

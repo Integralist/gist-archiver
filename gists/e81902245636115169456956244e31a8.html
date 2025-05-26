@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Run foreground process in background (odd I know)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="run-foreground-process-in-background-odd-i-know">Run foreground process in background (odd I know)</h1>
+
+<h2 id="run-foreground-process-in-background-sh">Run foreground process in background.sh</h2>
+
+<pre><code class="language-shell">nohup cron -f &amp;
+
+# nohup: invoke a utility immune to hangups (ignore SIGHUP &quot;signal hang up&quot;)
+# cron -f: run cron process in foreground
+# &amp;: run in background
+</code></pre>
+
+</div>
+</body>
+</html>

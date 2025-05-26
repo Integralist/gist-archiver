@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Animating image slides in ActionScript</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="animating-image-slides-in-actionscript">Animating image slides in ActionScript</h1>
+
+<h2 id="app-as">app.as</h2>
+
+<pre><code class="language-actionscript">stop();
+
+const SPEED = 5;
+
+var counter = 0;
+var list = [{ mc: one, delay: 10 }, 
+			{ mc: two, delay: 10 }, 
+			{ mc: three, delay: 10 }, 
+			{ mc: four, delay: 10 }, 
+			{ mc: five, delay: 10 }, 
+			{ mc: six, delay: 10 }, 
+			{ mc: seven, delay: 10 }, 
+			{ mc: eight, delay: 10 }, 
+			{ mc: nine, delay: 10 }, 
+			{ mc: ten, delay: 10 }, 
+			{ mc: eleven, delay: 10 }]; // list of MovieClip instance names and their associated delays
+
+function animate(){
+	Tweener.addTween(list[counter].mc, {
+		alpha: 0,
+		delay: list[counter].delay,
+		time: SPEED,
+		onComplete: function(){			
+			if (counter == list.length - 1) {
+				counter = 0;
+				list.forEach(function (item) {
+					item.mc.alpha = 1;
+				});
+				gotoAndPlay(1);
+			} else {
+				counter++;
+				animate();
+			}
+		}
+	});
+}
+
+// Just before we start the animation lets set all screens to be blank so we can fade the first one into view
+list.forEach(function (item) {
+	item.mc.alpha = 0;
+});
+
+Tweener.addTween(list[0].mc, {
+	alpha: 1,
+	time: SPEED,
+	onComplete: function(){
+		// Now the first screen is faded in, we'll reset all movie clips back to having full alpha
+		list.forEach(function (item) {
+			item.mc.alpha = 1;
+		});
+		animate();
+	}
+});
+</code></pre>
+
+</div>
+</body>
+</html>

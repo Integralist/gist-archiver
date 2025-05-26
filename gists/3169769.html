@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>I'm glad ES4 never happened. Couldn't imagine writing bullshit JavaScript like this ActionScript code...</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="i-m-glad-es4-never-happened-couldn-t-imagine-writing-bullshit-javascript-like-this-actionscript-code">I&rsquo;m glad ES4 never happened. Couldn&rsquo;t imagine writing bullshit JavaScript like this ActionScript code&hellip;</h1>
+
+<h2 id="event-as">event.as</h2>
+
+<pre><code class="language-actionscript">// All this code is used for is to add a hyperlink to a button...
+
+import flash.net.URLRequest;
+
+function open_url(e:MouseEvent):void {
+	var url:URLRequest = new URLRequest('http://www.google.com/')
+	navigateToURL(url);
+}
+
+link.addEventListener(MouseEvent.CLICK, open_url);
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[The problem with Terraform's schema.TypeSet] #terraform</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="the-problem-with-terraform-s-schema-typeset-terraform">[The problem with Terraform&rsquo;s schema.TypeSet] #terraform</h1>
+
+<h2 id="the-problem-with-terraform-s-schema-typeset-md">The problem with Terraform&rsquo;s schema.TypeSet.md</h2>
+
+<pre><code class="language-markdown">Set elements are viewed as opaque values that are added/removed. 
+
+If any elements &quot;change&quot;, then the set's &quot;identity&quot; has changed. 
+
+The contents of the set is hashed, and so the changing of the content results in the set _as a whole_ needing to be recreated.
+
+This is why if you update a field inside a `schema.TypeSet` in Terraform, and you run a `terraform plan` you'll see the entire resource marked as needing to be deleted and recreated.
+
+Official GitHub discussion: https://github.com/hashicorp/terraform/pull/2336#issuecomment-115744243
+</code></pre>
+
+</div>
+</body>
+</html>

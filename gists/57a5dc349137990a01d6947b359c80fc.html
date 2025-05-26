@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go Range List and Goroutine Async Processing with Errors] #go #golang #concurrency #goroutines #thread #map</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-range-list-and-goroutine-async-processing-with-errors-go-golang-concurrency-goroutines-thread-map">[Go Range List and Goroutine Async Processing with Errors] #go #golang #concurrency #goroutines #thread #map</h1>
+
+<h2 id="go-range-list-and-goroutine-async-processing-with-errors-go">Go Range List and Goroutine Async Processing with Errors.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;errors&quot;
+	&quot;fmt&quot;
+	&quot;sync&quot;
+)
+
+var count400 int = 1
+var count404 int = 1
+var count410 int = 1
+var count500 int = 1
+
+var mapping map[int]interface{} = map[int]interface{}{
+	400: count400,
+	404: count404,
+	410: count410,
+	500: count500,
+}
+
+func getPage(statusCode int) (string, error) {
+	fmt.Println(&quot;statusCode:&quot;, statusCode, &quot;count:&quot;, mapping[statusCode])
+
+	typeAssertCountToInt := mapping[statusCode].(int)
+
+	if mapping[statusCode] == 1 {
+		mapping[statusCode] = typeAssertCountToInt + 1
+		return &quot;&quot;, errors.New(&quot;whoops 1&quot;)
+	} else if mapping[statusCode] == 2 {
+		mapping[statusCode] = typeAssertCountToInt + 1
+		return &quot;&quot;, errors.New(&quot;whoops 2&quot;)
+
+	} else {
+		return &quot;yay&quot;, nil
+	}
+}
+
+func preWarm(statusCode int, wg *sync.WaitGroup) string {
+	page, err := getPage(statusCode)
+	if err != nil {
+		fmt.Println(&quot;error from get page:&quot;, statusCode , err)
+		return preWarm(statusCode, wg)
+	}
+
+	fmt.Println(&quot;SUCCESS (&quot;, statusCode, &quot;)&quot;, page)
+	fmt.Println(&quot;now cache page&quot;, statusCode)
+	wg.Done()
+	return page
+
+}
+
+func main() {
+	statusCodes := []int{400, 404, 410, 500}
+
+	wg := &amp;sync.WaitGroup{}
+	wg.Add(len(statusCodes))
+
+	for _, statusCode := range statusCodes {
+		go preWarm(statusCode, wg)
+	}
+
+	wg.Wait()
+}
+
+/* OUTPUT: I think https://play.golang.org/p/ckWSx7yJEJE sequentializes the goroutines?
+
+
+statusCode: 500 count: 1
+error from get page: 500 whoops 1
+statusCode: 500 count: 2
+error from get page: 500 whoops 2
+statusCode: 500 count: 3
+SUCCESS ( 500 ) yay
+now cache page 500
+
+statusCode: 400 count: 1
+error from get page: 400 whoops 1
+statusCode: 400 count: 2
+error from get page: 400 whoops 2
+statusCode: 400 count: 3
+SUCCESS ( 400 ) yay
+now cache page 400
+
+statusCode: 404 count: 1
+error from get page: 404 whoops 1
+statusCode: 404 count: 2
+error from get page: 404 whoops 2
+statusCode: 404 count: 3
+SUCCESS ( 404 ) yay
+now cache page 404
+
+statusCode: 410 count: 1
+error from get page: 410 whoops 1
+statusCode: 410 count: 2
+error from get page: 410 whoops 2
+statusCode: 410 count: 3
+SUCCESS ( 410 ) yay
+now cache page 410
+*/
+</code></pre>
+
+</div>
+</body>
+</html>

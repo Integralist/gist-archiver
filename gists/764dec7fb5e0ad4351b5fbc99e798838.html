@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go: recursively walk tree looking for go files and analysing their imports] #go #golang #ast</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-recursively-walk-tree-looking-for-go-files-and-analysing-their-imports-go-golang-ast">[Go: recursively walk tree looking for go files and analysing their imports] #go #golang #ast</h1>
+
+<h2 id="parse-go-go">parse_go.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;go/ast&quot;
+	&quot;go/parser&quot;
+	&quot;go/token&quot;
+	&quot;log&quot;
+	&quot;os&quot;
+	&quot;path/filepath&quot;
+	&quot;sort&quot;
+	&quot;strings&quot;
+)
+
+func main() {
+	// Create a new file set
+	fs := token.NewFileSet()
+
+	// Create a map to track imported packages
+	importedPackages := make(map[string]bool)
+
+	// Create a slice to store the import paths
+	var importPaths []string
+
+	// Walk through the current directory and its subdirectories
+	root := &quot;/Users/integralist/Code/fastly/cli&quot; // You can change this to the desired directory path
+	err := filepath.Walk(root, func(path string, _ os.FileInfo, _ error) error {
+		// Check if the file is a Go source file
+		if strings.HasSuffix(path, &quot;.go&quot;) {
+			// Read the content of the Go file
+			goCode, err := os.ReadFile(path)
+			if err != nil {
+				log.Printf(&quot;Error reading file %s: %v&quot;, path, err)
+				return nil
+			}
+
+			// Parse the Go code into an AST
+			node, err := parser.ParseFile(fs, path, string(goCode), parser.AllErrors)
+			if err != nil {
+				log.Printf(&quot;Error parsing file %s: %v&quot;, path, err)
+				return nil
+			}
+
+			// Extract and store import declarations in the slice
+			for _, decl := range node.Decls {
+				if gd, isGenDecl := decl.(*ast.GenDecl); isGenDecl &amp;&amp; gd.Tok == token.IMPORT {
+					for _, spec := range gd.Specs {
+						if ispec, isImportSpec := spec.(*ast.ImportSpec); isImportSpec {
+							importPath := strings.TrimSpace(ispec.Path.Value)
+							if !importedPackages[importPath] {
+								importPaths = append(importPaths, importPath)
+								importedPackages[importPath] = true
+							}
+						}
+					}
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		log.Fatalf(&quot;Error walking directory: %v&quot;, err)
+	}
+
+	// Print the unique import paths
+	sort.Strings(importPaths)
+	for _, path := range importPaths {
+		fmt.Println(&quot;Import:&quot;, path)
+	}
+}
+</code></pre>
+
+<h2 id="parse-js-go">parse_js.go</h2>
+
+<pre><code class="language-go">// IMCOMPLETE (started but never finished).
+// Two formats to account for (CommonJS and ES Modules).
+//
+// CommonJS...
+//
+// const {add, subtract} = require('./util')
+// const {
+//   add, 
+//   subtract
+// } = require('./util')
+// 
+// ES Modules...
+//
+// import {add, subtract} from './util.mjs'
+// import {
+//   add, 
+//   subtract
+// } from './util.mjs' 
+// import defaultExport from &quot;module-name&quot;;
+// import * as name from &quot;module-name&quot;;
+// import { 
+//   export1 
+// } from &quot;module-name&quot;;
+// import { export1 as alias1 } from &quot;module-name&quot;;
+// import { default as alias } from &quot;module-name&quot;;
+// import { export1, export2 } from &quot;module-name&quot;;
+// import { export1, export2 as alias2, /* … */ } from &quot;module-name&quot;;
+// import { &quot;string name&quot; as alias } from &quot;module-name&quot;;
+// import defaultExport, { export1, /* … */ } from &quot;module-name&quot;;
+// import defaultExport, * as name from &quot;module-name&quot;;
+// import &quot;module-name&quot;;
+
+// Variables used as part of parsing imports from JavaScript source files.
+var (
+	importSingleLineBlockPattern = regexp.MustCompile(`^import (\{ [^;]+);`)
+	importAsPattern              = regexp.MustCompile(`as [^\s]+\s*`)
+)
+
+// Imports returns all source code imported packages.
+func (j *JavaScript) Imports() []string {
+	importedPackages := make(map[string]bool)
+
+	var importPaths []string
+
+	root := &quot;.&quot;
+	_ = filepath.Walk(root, func(path string, _ os.FileInfo, _ error) error {
+		if strings.HasSuffix(path, &quot;.js&quot;) {
+			if strings.Contains(path, &quot;node_modules&quot;) {
+				return nil
+			}
+
+			f, err := os.Open(path)
+			if err != nil {
+				return nil
+			}
+			defer f.Close()
+
+			scanner := bufio.NewScanner(f)
+
+			for scanner.Scan() {
+				line := scanner.Text()
+				match := importSingleLineBlockPattern.FindStringSubmatch(line)
+				if len(match) &gt;= 2 {
+					item := importAsPattern.ReplaceAllString(match[1], &quot;&quot;)
+					if !importedPackages[item] {
+						importPaths = append(importPaths, item)
+						importedPackages[item] = true
+					}
+				}
+			}
+		}
+		return nil
+	})
+
+	sort.Strings(importPaths)
+	return importPaths
+}
+</code></pre>
+
+<h2 id="parse-rust-go">parse_rust.go</h2>
+
+<pre><code class="language-go">/*
+Works with...
+
+use wasi_common::I32Exit;
+use fastly::http::{header, Method, StatusCode}
+
+use fastly::http::{header, Method, StatusCode};
+use fastly::{mime, Error, Request, Response};
+
+use {
+    fastly::http::header,
+    fastly::http::Method,
+    fastly::http::StatusCode,
+    fastly::{mime, Error, Request, Response},
+};
+
+use {
+    fastly::http::header,
+    fastly::http::Method,
+    fastly::http::StatusCode,
+    fastly::{
+        mime, Error, Request, Response,
+    },
+};
+
+use {
+    fastly::http::{
+      header,
+    },
+    fastly::http::Method,
+    fastly::http::StatusCode,
+    fastly::{
+        mime, Error, Request, Response,
+    },
+};
+
+use {
+    fastly::http::*,
+    fastly::{
+        mime, Error, Request, Response,
+    },
+};
+*/
+
+package main
+
+import (
+	&quot;bufio&quot;
+	&quot;fmt&quot;
+	&quot;os&quot;
+	&quot;path/filepath&quot;
+	&quot;regexp&quot;
+	&quot;sort&quot;
+	&quot;strings&quot;
+)
+
+var (
+	useSinglePattern               = regexp.MustCompile(`^\s*use\s+([^;]+);`)
+	useMultilineStartPattern       = regexp.MustCompile(`^\s*use\s+\{$`)
+	useMultilineEndPattern         = regexp.MustCompile(`^\s*};$`)
+  	useMultilineNestedStartPattern = regexp.MustCompile(`^\s*((\w+::)+)\{$`)
+	useMultilineNestedEndPattern   = regexp.MustCompile(`^\s*}$`)
+	multilineNested                bool
+	multilineNestedPrefix          string
+)
+
+func main() {
+	importedPackages := make(map[string]bool)
+
+	var importPaths []string
+
+	root := &quot;/Users/integralist/Code/test-projects/testing-fastly-cli&quot;
+	_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if strings.HasSuffix(path, &quot;.rs&quot;) {
+			if strings.Contains(path, &quot;/target/&quot;) {
+				return nil
+			}
+			file, err := os.Open(path)
+			if err != nil {
+				return nil
+			}
+			defer file.Close()
+
+			scanner := bufio.NewScanner(file)
+
+			var multilineUse bool
+
+			for scanner.Scan() {
+				line := scanner.Text()
+
+				// Parse single `use` declaration
+				match := useSinglePattern.FindStringSubmatch(line)
+				if len(match) &gt;= 2 {
+					usePath := strings.TrimSpace(match[1])
+					var cont bool
+					importPaths, cont = parseUseDeclarations(usePath, importPaths, importedPackages)
+					if cont {
+						continue
+					}
+				}
+
+				// Parse multiline `use` declaration
+				if useMultilineStartPattern.MatchString(line) {
+					multilineUse = true
+					continue
+				}
+				if useMultilineEndPattern.MatchString(line) {
+					multilineUse = false
+					continue
+				}
+				if multilineUse &amp;&amp; !useMultilineEndPattern.MatchString(line) {
+					usePath := strings.TrimSpace(line)
+					usePath = strings.TrimSuffix(line, &quot;,&quot;)
+					var cont bool
+					importPaths, cont = parseUseDeclarations(usePath, importPaths, importedPackages)
+					if cont {
+						continue // TODO: is this needed?
+					}
+				}
+			}
+		}
+		return nil
+	})
+
+	sort.Strings(importPaths)
+	for _, path := range importPaths {
+		fmt.Println(path)
+	}
+}
+
+func parseUseDeclarations(
+	usePath string,
+	importPaths []string,
+	importedPackages map[string]bool,
+) ([]string, bool) {
+	// Parse a nested multiline crate declaration
+	//
+	// e.g.
+	// use {
+	//     fastly::http::header,
+	//     fastly::http::Method,
+	//     fastly::http::StatusCode,
+	//     fastly::{                           &lt;&lt;&lt; this
+	//         mime, Error, Request, Response, &lt;&lt;&lt; this
+	//     },                                  &lt;&lt;&lt; this
+	// };
+	match := useMultilineNestedStartPattern.FindStringSubmatch(usePath)
+	if len(match) &gt;= 2 {
+		multilineNested = true
+		multilineNestedPrefix = strings.TrimSpace(match[1])
+		return importPaths, true
+	}
+	if useMultilineNestedEndPattern.MatchString(usePath) {
+		multilineNested = false
+		multilineNestedPrefix = &quot;&quot;
+		return importPaths, true
+	}
+	if multilineNested &amp;&amp; !useMultilineNestedEndPattern.MatchString(usePath) {
+		usePath := strings.TrimSpace(usePath)
+		usePath = strings.TrimSuffix(usePath, &quot;,&quot;)
+		for _, v := range strings.Split(usePath, &quot;,&quot;) {
+			item := fmt.Sprintf(&quot;%s%s&quot;, multilineNestedPrefix, strings.TrimSpace(v))
+			if !importedPackages[item] {
+				importPaths = append(importPaths, item)
+				importedPackages[item] = true
+			}
+		}
+		return importPaths, true
+	}
+
+	// Find the position of the opening and closing curly braces
+	openBraceIndex := strings.Index(usePath, &quot;{&quot;)
+	closeBraceIndex := strings.Index(usePath, &quot;}&quot;)
+
+	// Parse `use &lt;path&gt;::{&lt;path&gt;, &lt;path&gt;, &lt;path&gt;}`
+	if openBraceIndex != -1 &amp;&amp; closeBraceIndex != -1 {
+		// Extract the prefix before the opening curly brace
+		prefix := usePath[:openBraceIndex]
+		// Extract the contents inside the curly braces
+		contents := usePath[openBraceIndex+1 : closeBraceIndex]
+
+		for _, item := range strings.Split(contents, &quot;,&quot;) {
+			item = fmt.Sprintf(&quot;%s%s&quot;, strings.TrimSpace(prefix), strings.TrimSpace(item))
+			if !importedPackages[item] {
+				importPaths = append(importPaths, item)
+				importedPackages[item] = true
+			}
+		}
+		return importPaths, true
+	}
+
+	// Parse `use &lt;path&gt;;`
+	usePath = strings.TrimSpace(usePath)
+	if !importedPackages[usePath] {
+		importPaths = append(importPaths, usePath)
+		importedPackages[usePath] = true
+	}
+
+	return importPaths, false
+}
+</code></pre>
+
+</div>
+</body>
+</html>

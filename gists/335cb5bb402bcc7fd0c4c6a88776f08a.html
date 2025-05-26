@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Terminal Resize Images with ImageMagick</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="terminal-resize-images-with-imagemagick">Terminal Resize Images with ImageMagick</h1>
+
+<h2 id="terminal-resize-images-with-imagemagick-md">Terminal Resize Images with ImageMagick.md</h2>
+
+<pre><code class="language-markdown">## Installation
+
+```bash
+brew install imagemagick
+</code></pre>
+
+<h2 id="commands">Commands</h2>
+
+<p>The ImageMagick commands that modify images are <code>mogrify</code> and <code>convert</code>.</p>
+
+<p>By default, the <code>mogrify</code> command overwrites the existing image with the modified image unless you specify an output folder into which modified image will be saved.</p>
+
+<p>The <code>convert</code> command saves a new modified image and leaves the original unchanged so it is safer to use.</p>
+
+<h2 id="add-border">Add Border</h2>
+
+<pre><code class="language-bash">mogrify -path Newimage/ -border 1x1 -bordercolor &quot;#000000&quot; image.png
+</code></pre>
+
+<p>or</p>
+
+<pre><code class="language-bash">convert -border 1x1 -bordercolor &quot;#000000&quot; image.png Newimage/new-image.png
+</code></pre>
+
+<h2 id="resize">Resize</h2>
+
+<p>To reduce an image’s width to 790 pixels while maintaining the aspect ratio, and to avoid increasing the size of the image if it is already smaller than 790 pixels wide, use either of the commands:</p>
+
+<pre><code class="language-bash">mogrify -path Newimage/ -resize &quot;790&gt;&quot; image.png
+</code></pre>
+
+<p>or</p>
+
+<pre><code class="language-bash">convert -resize &quot;790&gt;&quot; image.png Newimage/image.png
+</code></pre>
+
+<h2 id="change-file-type">Change File Type</h2>
+
+<pre><code class="language-bash">convert image.png Newimage/image.jpg
+</code></pre>
+
+<h2 id="quality">Quality</h2>
+
+<p>The default JPEG qualilty is 92% but you may set it to any value from 0% to 100%.</p>
+
+<p>For example, to convert all the PNG images in a directory to JPEG with 70% quality, enter the command:</p>
+
+<pre><code class="language-bash">convert -quality 70 image.png Newimage/image.jpg
+</code></pre>
+
+<h2 id="combining-transformations">Combining Transformations</h2>
+
+<pre><code class="language-bash">convert -resize &quot;790&gt;&quot; -border 1x1 -bordercolor &quot;#000000&quot; -quality 70 image.png converted.jpg
+</code></pre>
+
+<p>You can also use wildcards to batch process (but not change format or rename):</p>
+
+<pre><code class="language-bash">mogrify -path Newimage/ -resize &quot;790&gt;&quot; -border 1x1 -bordercolor &quot;#000000&quot; *.*
+</code></pre>
+
+<p>If you want to change the format or rename a file in a batch, then you need the <code>convert</code> command, but that doesn&rsquo;t handle wildcards so you need to do something like:</p>
+
+<pre><code class="language-bash">mkdir Newimage
+for i in *.png; do convert &quot;$i&quot; &quot;Newimage/${i%.*}.jpg&quot;; done
+</code></pre>
+
+<p>To then combine those transformations:</p>
+
+<pre><code class="language-bash">for i in *.png; do convert -resize &quot;790&gt;&quot; -border 1x1 -bordercolor &quot;#000000&quot; -quality 70 &quot;$i&quot; &quot;Newimage/${i%.*}.jpg&quot;; done
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

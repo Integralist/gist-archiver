@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>The importance of refactoring...</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="the-importance-of-refactoring">The importance of refactoring&hellip;</h1>
+
+<h2 id="2-refactoring-refactored-js">2. Refactoring - Refactored.js</h2>
+
+<pre><code class="language-javascript">var cutsTheMustard = 'querySelector' in document &amp;&amp; 'localStorage' in window &amp;&amp; 'addEventListener' in window,
+    isNotProxyBased = !/S40[\w]{3,5}Browser|Opera\sMini\//i.test(navigator.userAgent),
+    modernDevice = cutsTheMustard &amp;&amp; isNotProxyBased,
+    holepunched = isIE &gt; 6 &amp;&amp; document.getElementById('js-holepunched');
+ 
+if (modernDevice || holepunched) {
+    // do stuff
+}
+</code></pre>
+
+<h2 id="3-refactoring-notes-md">3. Refactoring - Notes.md</h2>
+
+<pre><code class="language-markdown">I refactored this code by making just a couple of very basic tweaks...
+
+1. move all logic out of the conditional and into variables
+2. removed unnecessary syntax cruft from `isProxyBrowser`
+3. give the variables descriptive names
+4. further break down the logic (e.g. group the checks for 'cutting the mustard' and 'being a proxy based browser')
+5. reversed the `isProxyBased` logic so it becomes `isNotProxyBased` (this meant we didn't clutter `modernDevice` with extra syntax and made it as readable as possible)
+6. use selected variables within the conditional
+</code></pre>
+
+<h2 id="4-refactoring-extra-refactoring-md">4. Refactoring - Extra refactoring.md</h2>
+
+<pre><code class="language-markdown">Is there any thing more we could do with this code to make it as simple as possible to understand?
+
+Well, one small tweak we *could* make would be to simplify the conditional even further. We could do this by creating another variable (again with a helpfully descriptive identifier) to hold the check of `modernDevice || holepunched`, like so...
+
+```js
+var cutsTheMustard = 'querySelector' in document &amp;&amp; 'localStorage' in window &amp;&amp; 'addEventListener' in window,
+    isNotProxyBased = !/S40[\w]{3,5}Browser|Opera\sMini\//i.test(navigator.userAgent),
+    modernDevice = cutsTheMustard &amp;&amp; isNotProxyBased,
+    holepunched = isIE &gt; 6 &amp;&amp; document.getElementById('js-holepunched'),
+    enhancedExperience = modernDevice || holepunched;
+ 
+if (enhancedExperience) {
+    // do stuff
+}
+</code></pre>
+
+<p>One thing to be aware of is: refactoring can actually be a bad thing if you don&rsquo;t know why you&rsquo;re doing it. If you&rsquo;re just blindly following predefined rules of refactoring then the above small tweak could end up making the code harder to read.</p>
+
+<p>Imagine if we were in a situation where there wasn&rsquo;t a logical association between <code>modernDevice</code> and <code>holepunched</code>. We could end up creating a variable like <code>passesOurChecks</code> (this is a poor example I know). Which would mean this new variable would actually make the code slightly harder to read because it wouldn&rsquo;t be descriptive enough and would likely mean the reader would need to check what the value of that variable was to better understand the code.</p>
+
+<p>Just something to keep in mind.</p>
+
+<pre><code>
+## 1. Refactoring - Original.js
+
+```javascript
+var isProxyBased = (/S40[\w]{3,5}Browser|Opera\sMini\//i).test(navigator.userAgent);
+
+if (('querySelector' in document &amp;&amp; 'localStorage' in window &amp;&amp; 'addEventListener' in window &amp;&amp; !isProxyBased) || (isIE &gt; 6 &amp;&amp; document.getElementById('js-holepunched'))) {
+    // do stuff
+}
+</code></pre>
+
+</div>
+</body>
+</html>

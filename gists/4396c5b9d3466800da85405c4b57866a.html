@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Line Counter Alternative] #go #golang #line #counter</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-line-counter-alternative-go-golang-line-counter">[Golang Line Counter Alternative] #go #golang #line #counter</h1>
+
+<h2 id="golang-line-counter-alternative-go">Golang Line Counter Alternative.go</h2>
+
+<pre><code class="language-go">// Alternative line counter that benefits from assembly optimized functions
+// offered by the bytes package to search characters in a byte slice.
+func lineCounter(r io.Reader) (int, error) {
+	// my file 'lines' are ~80 bytes in length
+	buf := make([]byte, 80*1024)
+	count := 0
+	lineSep := []byte{'\n'}
+
+	for {
+		c, err := r.Read(buf)
+		count += bytes.Count(buf[:c], lineSep)
+
+		switch {
+		case err == io.EOF:
+			return count, nil
+
+		case err != nil:
+			return count, err
+		}
+	}
+}
+
+</code></pre>
+
+</div>
+</body>
+</html>

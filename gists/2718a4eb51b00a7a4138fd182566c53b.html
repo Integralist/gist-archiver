@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Check TLS version using by Python] #python #tls #ssl</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="check-tls-version-using-by-python-python-tls-ssl">[Check TLS version using by Python] #python #tls #ssl</h1>
+
+<h2 id="check-tls-version-using-by-python-py">Check TLS version using by Python.py</h2>
+
+<pre><code class="language-python"># Python 3.5.2-slim
+
+import json
+from tornado.httpclient import HTTPClient
+
+response = HTTPClient().fetch(&quot;https://www.howsmyssl.com/a/check&quot;).body.decode()
+data = json.loads(response)
+tls_version = data[&quot;tls_version&quot;]
+
+print(tls_version)&quot;  # TLS 1.2
+</code></pre>
+
+</div>
+</body>
+</html>

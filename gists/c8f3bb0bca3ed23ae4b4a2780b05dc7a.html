@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Setup DNSMASQ</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="setup-dnsmasq">Setup DNSMASQ</h1>
+
+<h2 id="setup-dnsmasq-sh">Setup DNSMASQ.sh</h2>
+
+<pre><code class="language-shell">function configure_dnsmasq {
+  # https://help.ubuntu.com/community/Dnsmasq
+  apt-get install -y dnsmasq
+  sed -i 's/#listen-address=/listen-address=127.0.0.1/' /etc/dnsmasq.conf
+  sed -i 's/#user=/user=root/' /etc/dnsmasq.conf
+  sed -i 's/#prepend domain-name-servers 127.0.0.1;/prepend domain-name-servers 127.0.0.1;/' /etc/dhcp/dhclient.conf
+
+  # You can't use sed -i on a file that's bind mounted by Docker
+  # But you can 'edit' it still...
+  vi -E -s /etc/resolv.conf &lt;&lt;-EOF
+  :1s/^/nameserver 127.0.0.1\r/
+  :update
+  :quit
+EOF
+
+  echo 'addn-hosts=/etc/hosts' &gt;&gt; /etc/dnsmasq.d/hosts.conf
+  /etc/init.d/dnsmasq restart
+}
+</code></pre>
+
+<h2 id="update-etc-hosts-py">Update etc hosts.py</h2>
+
+<pre><code class="language-python">import yaml
+
+
+def upstreams(path):
+    with open(path, 'r') as f:
+        config = yaml.load(f)['default']['config']
+        return config['upstreams']
+
+
+def parse_host(v):
+    return v.split(':')[0]
+
+
+def sort(ups):
+    s = set()
+    for k, v in ups.items():
+        if isinstance(v, list):
+            for i in v:
+                s.add(parse_host(i))
+        else:
+            s.add(parse_host(v))
+    return s
+
+
+def update_hosts(dns):
+    with open('/etc/hosts', 'a') as f:
+        f.write('\n######################## new hosts added by test suite #########################\n\n')
+        for host in dns:
+            f.write('127.0.0.1 {}\n'.format(host))
+
+
+def show_hosts():
+    print('================================= /etc/hosts ===================================')
+    with open('/etc/hosts', 'r') as f:
+        print(f.read())
+
+update_hosts(sort(upstreams('app/config.yml')))
+show_hosts()
+</code></pre>
+
+</div>
+</body>
+</html>

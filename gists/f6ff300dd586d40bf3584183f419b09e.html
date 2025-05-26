@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Python2: YAML convert to OrderedDict (http://stackoverflow.com/questions/5121931/in-python-how-can-you-load-yaml-mappings-as-ordereddicts/21912744#21912744)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python2-yaml-convert-to-ordereddict-http-stackoverflow-com-questions-5121931-in-python-how-can-you-load-yaml-mappings-as-ordereddicts-21912744-21912744">Python2: YAML convert to OrderedDict (<a href="http://stackoverflow.com/questions/5121931/in-python-how-can-you-load-yaml-mappings-as-ordereddicts/21912744#21912744" target="_blank">http://stackoverflow.com/questions/5121931/in-python-how-can-you-load-yaml-mappings-as-ordereddicts/21912744#21912744</a>)</h1>
+
+<h2 id="python2-yaml-convert-to-ordereddict-py">Python2: YAML convert to OrderedDict.py</h2>
+
+<pre><code class="language-python">from collections import OrderedDict
+import yaml
+import yamlordereddictloader
+
+for data in yaml.load_all('foo: beep\nbar: 123\nbaz: 456'):
+    print data
+# {'bar': 123, 'foo': 'beep', 'baz': 456}
+
+datas = yaml.load(
+    'foo: beep\nbar: 123\nbaz: 456',
+    Loader=yamlordereddictloader.Loader
+)
+
+print datas
+# OrderedDict([('foo', 'beep'), ('bar', 123), ('baz', 456)])
+
+
+# Following works with safe_load
+# And no need for external library `yamlordereddictloader`
+def ordered_load(stream, loader=yaml.Loader, object_pairs_hook=OrderedDict):
+    class OrderedLoader(loader):
+        pass
+
+    def construct_mapping(loader, node):
+        loader.flatten_mapping(node)
+        return object_pairs_hook(loader.construct_pairs(node))
+
+    OrderedLoader.add_constructor(
+        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+        construct_mapping
+    )
+    return yaml.load(stream, OrderedLoader)
+
+print ordered_load('foo: beep\nbar: 123\nbaz: 456', yaml.SafeLoader)
+# OrderedDict([('foo', 'beep'), ('bar', 123), ('baz', 456)])
+</code></pre>
+
+</div>
+</body>
+</html>

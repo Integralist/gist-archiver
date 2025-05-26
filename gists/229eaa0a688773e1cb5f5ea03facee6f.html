@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Multiple asynchronous HTTP GET requests with Python's aiohttp and asyncio</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="multiple-asynchronous-http-get-requests-with-python-s-aiohttp-and-asyncio">Multiple asynchronous HTTP GET requests with Python&rsquo;s aiohttp and asyncio</h1>
+
+<h2 id="multiple-asynchronous-http-get-requests-with-python-s-aiohttp-and-asyncio-py">Multiple asynchronous HTTP GET requests with Python&rsquo;s aiohttp and asyncio.py</h2>
+
+<pre><code class="language-python">import time
+import datetime
+import asyncio
+import aiohttp
+
+domain = 'http://integralist.co.uk'
+a = '{}/foo?run={}'.format(domain, time.time())
+b = '{}/bar?run={}'.format(domain, time.time())
+
+async def get(url):
+    print('GET: ', url)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            t = '{0:%H:%M:%S}'.format(datetime.datetime.now())
+            print('Done: {}, {} ({})'.format(t, response.url, response.status))
+
+loop = asyncio.get_event_loop()
+tasks = [
+    asyncio.ensure_future(get(a)),
+    asyncio.ensure_future(get(b))
+]
+loop.run_until_complete(asyncio.wait(tasks))
+</code></pre>
+
+</div>
+</body>
+</html>

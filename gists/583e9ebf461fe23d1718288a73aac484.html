@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python3 Stream Server] #python3 #asyncio #stream #server</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python3-stream-server-python3-asyncio-stream-server">[Python3 Stream Server] #python3 #asyncio #stream #server</h1>
+
+<h2 id="python3-stream-server-py">Python3 Stream Server.py</h2>
+
+<pre><code class="language-python">import asyncio
+import contextvars
+
+client_addr_var = contextvars.ContextVar('client_addr')  # type:ignore
+
+
+def render_goodbye():
+    # The address of the currently handled client can be accessed
+    # without passing it explicitly to this function.
+
+    client_addr = client_addr_var.get()
+    return f'Good bye, client @ {client_addr}\n'.encode()
+
+
+# https://docs.python.org/3/library/asyncio-stream.html#asyncio.StreamReader
+async def handle_request(reader, writer):
+    addr = writer.transport.get_extra_info('socket').getpeername()
+    client_addr_var.set(addr)
+
+    # In any code that we call is now possible to get
+    # client's address by calling 'client_addr_var.get()'.
+
+    while True:
+        line = await reader.readline()
+        print(line)
+        writer.write(render_goodbye())
+        writer.close()
+        if reader.at_eof():
+            print('BREAK')
+            break
+
+
+async def main():
+    # https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.Server
+    srv = await asyncio.start_server(handle_request, '127.0.0.1', 8081)
+
+    async with srv:
+        await srv.serve_forever()
+
+asyncio.run(main())
+
+</code></pre>
+
+</div>
+</body>
+</html>

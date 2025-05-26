@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Bash Associative Arrays</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="bash-associative-arrays">Bash Associative Arrays</h1>
+
+<h2 id="bash-associative-arrays-sh">Bash Associative Arrays.sh</h2>
+
+<pre><code class="language-shell">#!/bin/bash
+
+declare -A arr
+
+arr=(
+  [foo1.foo.foo]=bar
+  [baz]=qux
+)
+
+echo &quot;${arr[foo1.foo.foo]}&quot;
+
+for item in &quot;${arr[@]}&quot;
+do
+  echo &quot;value: $item&quot;
+done
+
+declare -A arr2
+
+arr2[foo]=bar
+arr2[baz]=qux
+
+for i in &quot;${!arr2[@]}&quot;  # access keys with !
+do
+  echo &quot;key: $i&quot;
+  echo &quot;value: ${arr2[$i]}&quot;
+done
+</code></pre>
+
+</div>
+</body>
+</html>

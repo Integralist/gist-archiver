@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Different Linux utility commands (e.g. top, ps, strace, lsof, netstat, ifconfig, iftop, iptraf, tcpdump, wireshark)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="different-linux-utility-commands-e-g-top-ps-strace-lsof-netstat-ifconfig-iftop-iptraf-tcpdump-wireshark">Different Linux utility commands (e.g. top, ps, strace, lsof, netstat, ifconfig, iftop, iptraf, tcpdump, wireshark)</h1>
+
+<h2 id="ifconfig-md">ifconfig.md</h2>
+
+<pre><code class="language-markdown">## ifconfig
+
+The `ifconfig` command is used to configure a network interface. 
+
+For a breakdown of the following ouput see: http://www.aboutlinux.info/2006/11/ifconfig-dissected-and-demystified.html
+
+If you don't want to configure a network interface then running the command without any arguments will display existing network interfaces.
+
+```bash
+eth0      Link encap:Ethernet  HWaddr 0A:05:1E:A5:6F:FF  
+          inet addr:10.6.4.51  Bcast:10.6.7.255  Mask:255.255.248.0
+          inet6 addr: fe80::805:1eff:fea5:6fff/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:9001  Metric:1
+          RX packets:8776319 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:4212889 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:10239965628 (9.5 GiB)  TX bytes:10967533931 (10.2 GiB)
+          Interrupt:155 
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:341240 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:341240 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:31612016 (30.1 MiB)  TX bytes:31612016 (30.1 MiB)
+</code></pre>
+
+<p>We can see above that we have a single Ethernet card (<code>eth0</code>) and a loop back interface (<code>lo</code>)</p>
+
+<blockquote>
+<p>In newer Linux OS&rsquo; <code>eth&lt;n&gt;</code> is replaced by <code>p2p&lt;n&gt;</code></p>
+</blockquote>
+
+<p>For more information on Network ips and how they&rsquo;re created then read: <a href="https://gist.github.com/Integralist/cff468ba808fbca09602" target="_blank">https://gist.github.com/Integralist/cff468ba808fbca09602</a></p>
+
+<pre><code>
+## iptraf.md
+
+```markdown
+## iptraf
+
+The `iptraf` tool monitors Inbound and Outbound network traffic passing through a network interface. 
+
+We can monitor various connections like TCP, UDP, ICMP, non-IP counts and also Ethernet load information.
+
+To install:
+
+```bash
+yum install iptraf     # CentOS
+apt-get install iptraf # Ubuntu
+</code></pre>
+
+<p>Of particular interest is the menu <code>Statistical breakdowns... &gt; By TCP/UDP port &gt; eth0</code> which shows packets for all TCP and UDP ports such as <code>22</code> for SSH and <code>443</code> for HTTPS.</p>
+
+<pre><code>
+## lsof.md
+
+```markdown
+## lsof
+
+An open file may be a regular file, a directory, a block special file, a character special file, an executing text reference, a library, a stream or a network file (Internet socket, NFS file or UNIX domain socket)
+
+- `lsof -u &lt;user&gt;`: filter results by specific user
+- `lsof -i TCP:22 -n`: lists all running processes on port 22 (ssh)
+- `lsof -i 4`: display only IPv4 network files
+</code></pre>
+
+<h2 id="netstat-md">netstat.md</h2>
+
+<pre><code class="language-markdown">## netstat
+
+netstat (network statistics) is a command-line tool that displays network connections for the Transmission Control Protocol (both incoming and outgoing), routing tables, and a number of network interface and network protocol statistics
+
+- `netstat -a`: show both listening and non-listening sockets (for TCP this means established connections)
+- `netstat -l`: show just listening sockets
+- `netstat -lt`: show just tcp sockets
+- `netstat -lu`: show just udp sockets
+- `netstat -aep`: extend to show the user and also the pids
+- `netstat -aepn`: don't translate host names (e.g. show ip instead)
+- `netstat -aepT`: show host name but don't truncate it
+- `netstat -ax`: show just UNIX domain sockets
+- `netstat -st`: shows summary of connections (useful for identifying TCP connection issues)
+- `netstat -lc &lt;n_seconds&gt;`: continously refreshing every n seconds
+- `netstat -atepn`: nice all-rounder output (see below for example output)
+
+```bash
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address               Foreign Address             State       User       Inode      PID/Program name   
+tcp        0      0 0.0.0.0:8126                0.0.0.0:*                   LISTEN      0          8934       1071/statsd         
+tcp        0      0 0.0.0.0:8080                0.0.0.0:*                   LISTEN      498        10087      1355/puma 2.14.0 (t 
+tcp        0      0 0.0.0.0:22                  0.0.0.0:*                   LISTEN      0          8763       1196/sshd           
+tcp        0      0 127.0.0.1:24220             0.0.0.0:*                   LISTEN      497        9296       1307/ruby           
+tcp        0      0 10.6.4.51:57228             10.6.31.176:6379            ESTABLISHED 498        218757     1355/puma 2.14.0 (t 
+tcp        0      0 10.6.4.51:57224             10.6.31.176:6379            ESTABLISHED 498        218743     1355/puma 2.14.0 (t 
+tcp        0      0 10.6.4.51:8080              10.6.8.80:48205             ESTABLISHED 498        229190     1355/puma 2.14.0 (t 
+tcp        0      0 10.6.4.51:57231             10.6.31.176:6379            ESTABLISHED 498        218766     1355/puma 2.14.0 (t 
+tcp        0      0 10.6.4.51:57225             10.6.31.176:6379            ESTABLISHED 498        218747     1355/puma 2.14.0 (t 
+tcp        0      0 10.6.4.51:8080              10.6.6.76:51764             ESTABLISHED 498        10111      1355/puma 2.14.0 (t 
+tcp       53      0 10.6.4.51:56870             54.231.142.40:443           ESTABLISHED 497        229141     1307/ruby           
+tcp        1      0 127.0.0.1:34704             127.0.0.1:8080              CLOSE_WAIT  48         226010     20286/httpd
+</code></pre>
+
+<ul>
+<li><code>netstat -r</code>: shows routing table (see below for example output)</li>
+</ul>
+
+<pre><code class="language-bash">Kernel IP routing table
+Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
+10.6.0.0        *               255.255.248.0   U         0 0          0 eth0
+link-local      *               255.255.0.0     U         0 0          0 eth0
+default         ip-xx-x-x-x.eu- 0.0.0.0         UG        0 0          0 eth0
+</code></pre>
+
+<pre><code>
+## strace.md
+
+```markdown
+## strace
+
+strace monitors interactions between processes, such as: system calls, signal deliveries, and changes of process state
+
+Install `strace` (Ubuntu):
+
+```bash
+apt-get install man -y
+apt-get install strace
+man strace
+</code></pre>
+
+<p>Install <code>strace</code> (CentOS):</p>
+
+<pre><code class="language-bash">yum install strace -y
+</code></pre>
+
+<blockquote>
+<p>With Docker:<br />
+<code>--privileged</code> required for <code>ptrace</code> to be allowed<br />
+<code>--security-opt seccomp:unconfined</code> is an alternative</p>
+</blockquote>
+
+<pre><code class="language-bash">strace &lt;binary_executable&gt;
+</code></pre>
+
+<p>The end of the <code>strace</code> output will be the output of the specified binary executable.</p>
+
+<p>Filter results using an &lsquo;expression&rsquo;:</p>
+
+<pre><code class="language-bash">strace -e trace=open ls
+</code></pre>
+
+<blockquote>
+<p>specify multiple system calls with comma-separated list<br />
+<code>-e trace=open,read</code></p>
+</blockquote>
+
+<p>Attach <code>strace</code> to a running process:</p>
+
+<pre><code class="language-bash">strace -p &lt;process_id&gt;
+</code></pre>
+
+<blockquote>
+<p><code>ps aux</code> to locate process id</p>
+</blockquote>
+
+<p>Be careful with backgrounded processes. If you attach to a backgrounded process running in the same shell instance as your <code>strace</code> execution, then you&rsquo;ll be locked up.</p>
+
+<p>With Docker you can fix this by executing the following within a new shell:</p>
+
+<pre><code class="language-bash">docker exec -it &lt;container_id&gt; /bin/bash
+</code></pre>
+
+<p>Then <code>kill -9 &lt;strace_pid|application_pid&gt;</code></p>
+
+<p>Add a timestamp to your output using <code>-t</code></p>
+
+<p>Statistical summary <code>-c</code> displays output in a graphical table:</p>
+
+<blockquote>
+<p>output with <code>-c</code> comes <em>after</em> the binary&rsquo;s output</p>
+</blockquote>
+
+<p>Redirect and pipe output:</p>
+
+<pre><code class="language-bash">strace php 2&gt;&amp;1 | grep php.ini
+</code></pre>
+
+<pre><code>
+## tcpdump.md
+
+```markdown
+## tcpdump
+
+`tcpdump` is a powerful and widely used command-line packets sniffer or package analyzer tool which is used to capture or filter TCP/IP packets that received or transferred over a network on a specific interface
+
+We can save the output into a pcap file format, that can be viewed by either tcpdump itself or via an open source GUI based tool called Wireshark (Network Protocol Analyzier) that reads tcpdump pcap format files
+
+To install:
+
+```bash
+yum install tcpdump -y     # CentOS
+apt-get install tcpdump -y # Ubuntu
+</code></pre>
+
+<h3 id="usage">Usage</h3>
+
+<ul>
+<li><code>tcpdump -D</code>: show available network interfaces</li>
+<li><code>tcpdump -i eth0 -c 5</code>: capture packets from specific network interface (and only set number of packets)</li>
+<li><code>tcpdump -i eth0 -c 5 -w 0001.pcap</code>: send output to pcap file</li>
+<li><code>tcpdump -r 0001.pcap</code>: read back out the pcap file content</li>
+<li><code>tcpdump -n -i eth0 -c 1</code>: converts dns hostnames into ip addresses instead</li>
+<li><code>tcpdump -n -i eth0 -c 10 tcp</code>: capture only tcp packets</li>
+<li><code>tcpdump -n -i eth0 -c 10 port 22</code>: capture packets from specific port (e.g. <code>22</code>)</li>
+<li><code>tcpdump -i eth0 src &lt;ip&gt;</code>: capture packets from a specific source ip</li>
+<li><code>tcpdump -i eth0 dst &lt;ip&gt;</code>: capture packets for a specific destination ip</li>
+<li><code>tcpdump -i eth0 src port 80 or dst port 80</code>: filter all HTTP traffic to or from port 80</li>
+<li><code>tcpdump -i eth0 -s 0</code>: include contents of each packet (not just the packet header)</li>
+<li><code>tcpdump -vvv -s 0 -l -n port 53 -XX</code>: watch all DNS traffic (which happens on port 53)</li>
+</ul>
+
+<blockquote>
+<p>SCP file from AWS remote to local (run on local machine)<br />
+<code>scp -v -r &lt;user_name&gt;@&lt;ip&gt;,eu-west-1:&lt;remote_path&gt; &lt;local_path&gt;</code><br />
+Make sure the local directory exists</p>
+</blockquote>
+
+<h3 id="flags">Flags</h3>
+
+<ul>
+<li><code>URGENT pointer</code>: used to identify incoming data as &lsquo;urgent&rsquo;. Such incoming segments do not have to wait until the previous segments are consumed by the receiving end but are sent directly and processed immediately</li>
+<li><code>ACK</code>: used to acknowledge the successful receipt of packets</li>
+<li><code>Push</code>: exists to ensure that the data is given the priority (used quite frequently at the beginning and end of a data transfer, affecting the way the data is handled at both ends)</li>
+<li><code>RST</code>: used when a segment arrives that is not intended for the current connection (remote host rejects packet and resets connection)</li>
+<li><code>SYN</code>: initially sent when establishing the classic 3-way handshake between two hosts (one sent by Host A and one sent back with ACK by Host B)</li>
+<li><code>FIN</code>: used to tear down the virtual connections created using the previous flag (SYN)</li>
+</ul>
+
+<p>Note: <code>FIN</code> wont necessarily be the last packet sent. For example&hellip;</p>
+
+<ul>
+<li>Host A receives what it believes to be the last data packet</li>
+<li>So Host A sends a <code>FIN</code> to tell Host B it&rsquo;s closing it&rsquo;s connection, along with an <code>ACK</code> to acknowledge Host B&rsquo;s last data packet</li>
+<li>Host B sends an <code>ACK</code> to acknowledge receipt of Host A&rsquo;s <code>FIN</code></li>
+<li>Host B then sends its own <code>FIN</code> and <code>ACK</code> to close its connection down</li>
+<li>Host A sends a final <code>ACK</code> to acknowledge Host B&rsquo;s last communication was received</li>
+</ul>
+
+<pre><code>
+## telnet.md
+
+```markdown
+## telnet
+
+Telnet is a Network Protocol and the tool which uses that protocol (i.e `telnet`) is also known as Telnet.
+
+The `telnet` utility is used for interactive communication to a remote/extern host on a given port. Once the connection to the remote host is established, an HTTP request can be send to the host by typing it in the prompt.
+
+The following example shows that the google domain carries out a 302 redirect:
+
+```bash
+$ telnet www.google.com 80
+Trying 87.237.19.30...
+Connected to www.google.com.
+Escape character is '^]'.
+GET #q=cars HTTP/1.1                   
+
+HTTP/1.1 302 Found
+Location: http://www.google.co.uk/?gws_rd=cr&amp;ei=k7BjV-GbFOLOgAbd3JbADw#q=cars
+Cache-Control: private
+Content-Type: text/html; charset=UTF-8
+P3P: CP=&quot;This is not a P3P policy! See https://www.google.com/support/accounts/answer/151657?hl=en for more info.&quot;
+Date: Fri, 17 Jun 2016 08:10:59 GMT
+Server: gws
+Content-Length: 268
+X-XSS-Protection: 1; mode=block
+X-Frame-Options: SAMEORIGIN
+Set-Cookie: NID=80=R8K0WhuF432ccZzjpchtEPHx-vv1n-9tuoe8P6V2yyNC2h1sd_JB7Q1afFZPo5W9MjvP8UL1ZZ_8UQDHeb3OpGDRNlSNfPkJWqE9JKa9hAJG02wlk7s8eIRy786p7-8U; expires=Sat, 17-Dec-2016 08:10:59 GMT; path=/; domain=.google.com; HttpOnly
+
+&lt;HTML&gt;&lt;HEAD&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;
+&lt;TITLE&gt;302 Moved&lt;/TITLE&gt;&lt;/HEAD&gt;&lt;BODY&gt;
+&lt;H1&gt;302 Moved&lt;/H1&gt;
+The document has moved
+&lt;A HREF=&quot;http://www.google.co.uk/?gws_rd=cr&amp;amp;ei=k7BjV-GbFOLOgAbd3JbADw#q=cars&quot;&gt;here&lt;/A&gt;.
+&lt;/BODY&gt;&lt;/HTML&gt;
+Connection closed by foreign host.
+</code></pre>
+
+<p>The BBC site gives us a 404 not found:</p>
+
+<pre><code class="language-bash">$ telnet www.bbc.co.uk 80
+Trying 212.58.244.66...
+Connected to www.bbc.net.uk.
+Escape character is '^]'.
+GET /news HTTP/1.1
+
+HTTP/1.1 404 Not Found
+Content-Type: text/html
+Date: Fri, 17 Jun 2016 08:13:29 GMT
+Connection: Keep-Alive
+Content-Length: 50591
+</code></pre>
+
+<pre><code>
+## 1. linux utilities.md
+
+```markdown
+Start up a container (whichever Linux flavour takes your fancy):
+
+```bash
+docker run -it ubuntu /bin/bash
+docker run -it centos /bin/bash
+</code></pre>
+
+<ul>
+<li><a href="#top"><code>top</code></a>: check what CPU and Memory running processes are utilising</li>
+<li><a href="#ps"><code>ps</code></a>: see what processes are running</li>
+<li><a href="#strace"><code>strace</code></a>: monitor interactions between processes</li>
+<li><a href="#lsof"><code>lsof</code></a>: list of open files</li>
+<li><a href="#netstat"><code>netstat</code></a>: monitoring network traffic</li>
+<li><a href="#ifconfig"><code>ifconfig</code></a>: configure or review your network interfaces</li>
+<li><a href="#iftop"><code>iftop</code></a>: monitors network traffic and displays table of bandwidth usage</li>
+<li><a href="#iptraf"><code>iptraf</code></a>: monitoring network traffic (more visual than <code>netstat</code>, but not as detailed)</li>
+<li><a href="#tcpdump"><code>tcpdump</code></a>: network packet sniffer</li>
+<li><a href="#wireshark"><code>wireshark/tshark</code></a>: network packet sniffer and analyser (create pcaps with <code>tcpdump</code> and analyse with <code>tshark</code>)</li>
+<li><a href="#telnet"><code>telnet</code></a>: utility for communicating with another host</li>
+</ul>
+
+<h2 id="osi-model">OSI Model</h2>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="left">Layer</th>
+<th align="left">Protocols</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>7.</td>
+<td align="left">Application</td>
+<td align="left"><code>HTTP</code>, <code>FTP</code>, <code>SMTP</code></td>
+<td align="left">Window for user app processes</td>
+</tr>
+
+<tr>
+<td>6.</td>
+<td align="left">Presentation</td>
+<td align="left"><code>JPEG</code>, <code>GIF</code>, <code>MPEG</code></td>
+<td align="left">Format the data to be presented to the Application layer (network translator)</td>
+</tr>
+
+<tr>
+<td>5.</td>
+<td align="left">Session</td>
+<td align="left"><code>RPC</code>, <code>SQL</code>, <code>NFS</code></td>
+<td align="left">Allow session establishment between processes running on different stations</td>
+</tr>
+
+<tr>
+<td>4.</td>
+<td align="left">Transport</td>
+<td align="left"><code>TCP</code>, <code>UDP</code>, <code>SPX</code></td>
+<td align="left">Flow control, ensures all messages are delivered error-free, in sequence, no losses or duplications</td>
+</tr>
+
+<tr>
+<td>3.</td>
+<td align="left">Network</td>
+<td align="left"><code>IP</code>, <code>IPX</code>, <code>ICMP</code></td>
+<td align="left">Routers control operation of subnet, deciding physical path data takes</td>
+</tr>
+
+<tr>
+<td>2.</td>
+<td align="left">Data Link</td>
+<td align="left"><code>PPP/SLIP</code></td>
+<td align="left">Provides error-free transfer of data over physical layer</td>
+</tr>
+
+<tr>
+<td>1.</td>
+<td align="left">Physical</td>
+<td align="left"><code>Hub</code></td>
+<td align="left">Physical structure (cables, hubs etc)</td>
+</tr>
+</tbody>
+</table>
+
+<pre><code>
+## iftop.md
+
+```markdown
+## iftop
+
+iftop does for network usage what top(1) does for CPU usage. It listens to network traffic on a named interface and displays a table of current bandwidth usage by pairs of hosts. Handy for answering the question &quot;why is our ADSL link so slow?&quot;
+
+To install (Ubuntu):
+
+```bash
+apt-get update
+apt-get install iftop
+</code></pre>
+
+<p>To install (CentOS):</p>
+
+<pre><code class="language-bash">yum install wget libpcap -y
+wget http://pkgs.repoforge.org/iftop/iftop-0.17-1.el6.rf.x86_64.rpm
+rpm -ivh iftop-0.17-1.el6.rf.x86_64.rpm
+</code></pre>
+
+<ul>
+<li><code>iftop -P</code>: show port numbers</li>
+</ul>
+
+<pre><code>
+## ps.md
+
+```markdown
+## ps
+
+- `ps aux`: shows all running processes
+- `ps axjf`: shows ppids (parent process) with nested children pids (`j` = ppid &amp; `f` = formatting)
+- `pstree -aupn &lt;user_to_filter_by&gt;`: displays a tree of processes inc. pids and sort by them
+
+&gt; `a` needs to be used with `x` to give you _all_ processes  
+&gt; `u` provides additional output such as `CPU` and `MEM`  
+&gt; so `axu` would be more accurate, but I'm more used to `aux`
+</code></pre>
+
+<h2 id="top-md">top.md</h2>
+
+<pre><code class="language-markdown">## top
+
+The `top` command displays processor activity and also displays tasks managed by the kernel in real-time.
+
+- `top -u &lt;user&gt;`: filter processes by those run by specified user
+- `top -n 10`: stops command running after 10 intervals (otherwise runs forever or until `&lt;Ctrl-c&gt;`)
+
+The following key strokes should be executed whilst `top` is running...
+
+- `&lt;Shift-o&gt;`: display menu so you can change sorting field
+- `&lt;Shift-p&gt;`: changes sorting back to CPU (CPU is already the default behaviour)
+- `z`: toggles on/off ability to have currently running processes highlighted
+- `c`: toggles on/off absolute path for the COMMAND
+- `d`: change interval for screen/data refresh
+- `k`: followed by PID of process you want to kill
+</code></pre>
+
+<h2 id="wireshark-md">wireshark.md</h2>
+
+<pre><code class="language-markdown">## wireshark
+
+Wireshark is a network protocol analyzer. 
+
+It lets you see what's happening on your network at a microscopic level.
+
+To install (Mac OS X):
+
+```bash
+brew options wireshark           # check for options before installing
+brew install wireshark --with-qt # install gui version
+brew install tshark              # terminal oriented version of Wireshark designed for capturing and displaying packets without need for a gui
+</code></pre>
+
+<p>For CentOS:</p>
+
+<pre><code class="language-bash">yum install wireshark
+</code></pre>
+
+<blockquote>
+<p>With Docker:<br />
+<code>--privileged</code> required (otherwise: <code>can't run /usr/sbin/dumpcap: Operation not permitted</code>)<br />
+<code>--security-opt seccomp:unconfined</code> is an alternative</p>
+</blockquote>
+
+<p>Once you have your pcap formatted file (see <a href="#tcpdump">tcpdump</a>) you can open Wireshark&rsquo;s gui via your terminal by executing the shell command: <code>wireshark</code></p>
+
+<p>Once open you can use the gui to select &ldquo;Open Capture File&rdquo;, browse to your pcap file and select it.</p>
+
+<p>Now you can start analysing your network traffic.</p>
+
+<p>You can automate this process by reading in the capture file directly from the shell:</p>
+
+<pre><code class="language-bash">wireshark -r ~/Downloads/tcpdump-tests/0001.pcap
+</code></pre>
+
+<p>You can also specify the interface to connect to using <code>-i</code> (notice I had to use <code>sudo</code> in order to authorise Wireshark):</p>
+
+<pre><code class="language-bash">sudo wireshark -i en0
+</code></pre>
+
+<p>To see available interfaces execute: <code>sudo wireshark -D</code> (again you <em>need</em> <code>sudo</code>):</p>
+
+<pre><code class="language-bash">Capture-Message: Capture Interface List ...
+Capture-Message: Loading External Capture Interface List ...
+1. en0 (Wi-Fi)
+2. awdl0
+3. bridge0 (Thunderbolt Bridge)
+4. en1 (Thunderbolt 1)
+5. vboxnet1
+6. en2 (Thunderbolt 2)
+7. p2p0
+8. lo0 (Loopback)
+</code></pre>
+
+<p>Every time there is (for example) a HTTP request, that might end up being 200 TCP packets, which is difficult to recognize and make sense of manually. But this can be simplified within Wireshark by clicking on Statistics -&gt; Conversations, where it organizes all these disparate packets into TCP sessions.</p>
+
+<h3 id="tshark">tshark</h3>
+
+<p>When installing Wireshark you&rsquo;ll also get a <code>tshark</code> command, which is a command line version of <code>wireshark</code>.</p>
+
+<p>So you can read in your pcap file like so:</p>
+
+<pre><code class="language-bash">tshark -r ~/Downloads/tcpdump-tests/0001.pcap
+</code></pre>
+
+<p>This will display clearer formatted analysis than <code>tcpdump -r</code> provides.</p>
+
+<p><code>tcpdump</code> doesn&rsquo;t know about HTTP or other network protocols. It knows pretty much everything about TCP but it doesn&rsquo;t care what you put inside your TCP packets. <code>tshark</code> on the other hand knows all about what&rsquo;s inside your TCP packets.</p>
+
+<pre><code class="language-bash">sudo tshark -i any \
+            -R 'http.request.method == &quot;GET&quot;' \
+            -T fields \
+            -e http.request.method -e http.request.uri -e ip.dst
+</code></pre>
+
+<p>The above filters for just packets which have a <code>HTTP GET</code> request in them, and then prints out the request method and the URI for each one.</p>
+
+<p>The way you filter results is by specifying <code>-T</code> and changing to the <code>fields</code> value. From there you can use the <code>-e</code> flag to specify how to filter data. So if you wanted to filter out all the DNS ttls from a tcpdump of just DNS traffic you could use something like:</p>
+
+<pre><code class="language-bash">tshark -r ~/dns-traffic.pcap -T fields -e dns.resp.ttl -e dns.resp.name
+</code></pre>
+
+<blockquote>
+<p>Note: if you open the pcap in wireshark, you can find the filter you need by selecting the data manually via the UI and then right-click&rsquo;ing and selecting &ldquo;Prepare a Filter &gt; Selected&rdquo;
+&ldquo;`</p>
+</blockquote>
+
+</div>
+</body>
+</html>

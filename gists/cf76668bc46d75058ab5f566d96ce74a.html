@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Testing Go Web Applications http://www.meetspaceapp.com/2016/05/16/acceptance-testing-go-webapps-with-cookies.html</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="testing-go-web-applications-http-www-meetspaceapp-com-2016-05-16-acceptance-testing-go-webapps-with-cookies-html">Testing Go Web Applications <a href="http://www.meetspaceapp.com/2016/05/16/acceptance-testing-go-webapps-with-cookies.html" target="_blank">http://www.meetspaceapp.com/2016/05/16/acceptance-testing-go-webapps-with-cookies.html</a></h1>
+
+<h2 id="1-main-go">1. main.go</h2>
+
+<pre><code class="language-go">// package main is used here just for ease of running the demo.
+// In reality, this would be package app
+package main
+
+import (
+	&quot;flag&quot;
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;net/http&quot;
+)
+
+// App is our Application's base http.Handler
+type App struct {
+	*http.ServeMux
+}
+
+// NewApp constructs a new App and initializes our routing
+func NewApp() *App {
+	mux := http.NewServeMux()
+	app := &amp;App{mux}
+	mux.HandleFunc(&quot;/&quot;, app.Root)
+	return app
+}
+
+// Root is the root page of our application
+func (a *App) Root(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, &quot;Hello!&quot;)
+}
+
+var port = flag.Int(&quot;port&quot;, 8080, &quot;Port to serve on&quot;)
+
+func main() {
+	flag.Parse()
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(&quot;:%d&quot;, *port), NewApp()))
+}
+</code></pre>
+
+<h2 id="2-main-test-go">2. main_test.go</h2>
+
+<pre><code class="language-go">func TestAppRoot(t *testing.T) {
+	app := NewApp()
+	server := httptest.NewServer(app)
+	defer server.Close()
+
+	resp, err := http.Get(server.URL + &quot;/&quot;)
+	if err != nil {
+		t.Error(err)
+	}
+
+	buf := &amp;bytes.Buffer{}
+	buf.ReadFrom(resp.Body)
+	if strings.Index(buf.String(), &quot;Hello!&quot;) == -1 {
+		t.Error(&quot;Root should say hello&quot;)
+	}
+}
+</code></pre>
+
+<h2 id="3-cookie-go">3. cookie.go</h2>
+
+<pre><code class="language-go">// Root is the root page of our application
+func (a *App) Root(w http.ResponseWriter, r *http.Request) {
+	var name string
+
+	nameCookie, err := r.Cookie(&quot;name&quot;)
+	if err == nil {
+		name = nameCookie.Value
+	} else if err != http.ErrNoCookie {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	
+	t := template.Must(template.New(&quot;root&quot;).Parse(`
+	&lt;!doctype html&gt;
+	&lt;html&gt;
+	&lt;head&gt;&lt;title&gt;greeter&lt;/title&gt;&lt;/head&gt;
+	&lt;body&gt;
+	{{if .}}
+	  &lt;h1&gt;Hi {{.}}!&lt;/h1&gt;
+	{{else}}
+	  &lt;h1&gt;Welcome! Who are you?&lt;/h1&gt;
+	  &lt;form method=&quot;POST&quot; action=&quot;/name&quot;&gt;
+	    &lt;input type=&quot;text&quot; placeholder=&quot;Your name&quot; name=&quot;name&quot;&gt;
+	    &lt;input type=&quot;submit&quot; value=&quot;Set Name&quot;&gt;
+	  &lt;/form&gt;
+	{{end}}
+	&lt;/body&gt;
+	&lt;/html&gt;
+	`))
+	if err := t.Execute(w, name); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+// NewApp constructs a new App and initializes our routing
+func NewApp() *App {
+	mux := http.NewServeMux()
+	app := &amp;App{mux}
+	mux.HandleFunc(&quot;/&quot;, app.Root)
+	mux.HandleFunc(&quot;/name&quot;, app.SetName) // &lt;- NEW
+	return app
+}
+
+func (a *App) SetName(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &amp;http.Cookie{
+		Name:     &quot;name&quot;,
+		Value:    r.FormValue(&quot;name&quot;),
+		HttpOnly: true,
+		Expires:  time.Now().Add(24 * 14 * time.Hour),
+	})
+	http.Redirect(w, r, &quot;/&quot;, http.StatusFound)
+}
+</code></pre>
+
+<h2 id="4-cookie-test-go">4. cookie_test.go</h2>
+
+<pre><code class="language-go">func TestSetName(t *testing.T) {
+	app := NewApp()
+	server := httptest.NewServer(app)
+	defer server.Close()
+
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		t.Error(err)
+	}
+	client := &amp;http.Client{Jar: jar}
+
+	resp, err := client.Get(server.URL + &quot;/&quot;)
+	if err != nil {
+		t.Error(err)
+	}
+
+	buf := &amp;bytes.Buffer{}
+	buf.ReadFrom(resp.Body)
+	if strings.Index(buf.String(), &quot;Welcome&quot;) == -1 {
+		t.Errorf(&quot;Root should say Welcome!:\n%s&quot;, buf.String())
+	}
+
+	resp, err = client.PostForm(
+        	server.URL+&quot;/name&quot;,
+        	url.Values{&quot;name&quot;: {&quot;Nick&quot;}},
+        )
+	if err != nil {
+		t.Error(err)
+	}
+
+	buf.Reset()
+	buf.ReadFrom(resp.Body)
+	if strings.Index(buf.String(), &quot;Hi Nick!&quot;) == -1 {
+		t.Errorf(&quot;Root should say Hi Nick!:\n%s&quot;, buf.String())
+	}
+}
+</code></pre>
+
+</div>
+</body>
+</html>

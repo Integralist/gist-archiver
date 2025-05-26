@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Feature Testing a Host Method</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="feature-testing-a-host-method">Feature Testing a Host Method</h1>
+
+<h2 id="ishostmethod-js">isHostMethod.js</h2>
+
+<pre><code class="language-javascript">        /*
+	 * Feature Testing a Host Method
+	 * Because a callable host object can legitimately have any typeof result then it can't be relied upon.
+	 *
+	 * @notes:
+	 * The reason for the &amp;&amp; !!object[property] is because in ECMAScript version 3, 
+	 * a null object has typeof result 'object' (which is considered a bug).
+	 * In future versions (ECMAScript 5+) the typeof result will be 'null' (as it should be).
+	 * 
+	 * @reference: http://michaux.ca/articles/feature-detection-state-of-the-art-browser-scripting
+	 */
+
+	function isHostMethod(object, property) {
+		var type = typeof object[property];
+
+		return type == 'function' || // For Safari 3 typeof result being 'function' instead of 'object'
+			   (type == 'object' &amp;&amp; !!object[property]) || // Protect against ES3 'null' typeof result being 'object'
+			   type == 'unknown' || // For IE &lt; 9 when Microsoft used ActiveX objects for Native Functions
+			   type == 'string'; // typeof for 'document.body[outerHTML]' results in 'string'
+	}
+</code></pre>
+
+</div>
+</body>
+</html>

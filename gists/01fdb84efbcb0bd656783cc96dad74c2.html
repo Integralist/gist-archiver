@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Python Sort List by Dictionary Key</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-sort-list-by-dictionary-key">Python Sort List by Dictionary Key</h1>
+
+<h2 id="sort-list-by-dictionary-key-py">Sort List by Dictionary Key.py</h2>
+
+<pre><code class="language-python">order = {
+    1: 'foo',
+    2: 'bar',
+    3: 'baz'
+}
+
+def sort_by_key(i):
+    for k, v in order.items():
+        if i == v:
+            return k
+
+sorted(['bar', 'baz', 'foo'], key=sort_by_key) 
+
+# ['foo', 'bar', 'baz']
+</code></pre>
+
+</div>
+</body>
+</html>

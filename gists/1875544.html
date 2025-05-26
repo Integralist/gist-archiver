@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Basic set-up of remote git repository on a standard server</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="basic-set-up-of-remote-git-repository-on-a-standard-server">Basic set-up of remote git repository on a standard server</h1>
+
+<h2 id="remote-git-md">remote-git.md</h2>
+
+<pre><code class="language-markdown">Set-up remote git repository on a standard server
+===
+
+The first thing to do is to install Git on the remote server.
+
+Once you do that the rest of the process is split into three sections:
+
+1. Server set-up
+2. Local set-up (push commits)
+3. Server (pull commits)
+
+Server set-up
+---
+* `ssh -pxxxx username@xxx.xxx.xxx.xxx` (this is you connecting to your remote server)
+* `cd ../` (this gets you to the 'absolute root' of the server)
+* `cd www/..../` (navigate to the directory one level above your website directory - e.g. your website directory being where you would upload your `HTML` files etc)
+
+*Note*: if (for example) your web directory is `httpdocs` then move up one level from there.
+
+The following example assumes `httpdocs` is your web directory...
+
+* `rm -rf httpdocs` (remove the web directory - you'll recreate it again in a minute)
+* `mkdir httpdocs &amp;&amp; cd httpdocs` (create new web directory folder and move inside it)
+* `git init` (initiate new git repo)
+* `cd ../` (jump back up a directory level)
+
+The following three commands are the *black magic* for getting a remote git repo setup:
+
+* `git clone --bare httpdocs httpdocs.git`
+* `mv httpdocs httpdocs.backup`
+* `git clone httpdocs.git`
+
+Local set-up (push commits)
+---
+* `cd ~/Desktop/Sites/myWebsite`
+* `git init`
+* `git add *`
+* `git commit -m 'Start of new project'`
+* `git remote add origin ssh://username@xxx.xxx.xxx.xxx:xxxx/www/.../httpdocs.git`
+* `git push origin master`
+
+Server (pull commits)
+---
+* `cd ../`
+* `cd www/..../httpdocs/`
+* `git fetch`
+* `git diff origin/master`
+* `git merge origin/master`
+</code></pre>
+
+</div>
+</body>
+</html>

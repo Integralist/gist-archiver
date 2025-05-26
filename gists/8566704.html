@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Looking at the Thread API in Ruby</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="looking-at-the-thread-api-in-ruby">Looking at the Thread API in Ruby</h1>
+
+<h2 id="threads-rb">threads.rb</h2>
+
+<pre><code class="language-ruby">threads = []
+
+10.times do |i|
+  puts &quot;Creating a new Thread (#{i} of 10):\n\n&quot;
+  thread = Thread.new do
+    # When you create a thread,
+    # it can access any variables that are within scope
+    # at that point.
+    # Any local variables that are then created
+    # within the thread are entirely local to that thread.
+    10.times do |j|
+      puts &quot;Inside Thread #{i} (#{j} of 10)\n\n&quot;
+      sleep rand(2)
+    end
+  end
+
+  # we'll keep track of all our threads
+  threads &lt;&lt; thread
+end
+
+# The join method makes the main program wait
+# until a thread’s execution is complete before continuing.
+# In this way, you make sure all the threads are complete
+# before exiting.
+threads.each { |thread| thread.join }
+
+# We can provide a timeout for our threads
+# Below is a one second timeout
+# thread.join(1)
+
+# Thread.list holds a global list of threads
+# Thread.list includes Thread.main
+# Thread.current is the currently executing thread
+# Thread.stop only pauses the thread (t.status == 'sleep')
+# Thread.run resumes a stopped thread
+# Thread.kill(thread) causes that thread to exit
+# Thread.exit
+# Thread.pass passes control to another thread
+# Thread.abort_on_exception = true (all threads will abort)
+# t.value is the returned value from a finished thread
+
+</code></pre>
+
+</div>
+</body>
+</html>

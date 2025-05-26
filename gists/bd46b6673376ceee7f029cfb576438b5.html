@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go Multiple Status' Handler Abstraction] #go #golang #http #status #handler #abstraction</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-multiple-status-handler-abstraction-go-golang-http-status-handler-abstraction">[Go Multiple Status&rsquo; Handler Abstraction] #go #golang #http #status #handler #abstraction</h1>
+
+<h2 id="status-handler-abstraction-go">status_handler_abstraction.go</h2>
+
+<pre><code class="language-go">type StatusHandler int
+
+func (s StatusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	code := int(s)
+	w.WriteHeader(code)
+	io.WriteString(w, http.StatusText(code))
+}
+
+var (
+	NotFoundHandler = StatusHandler(404)
+	NotImplementedHandler = StatusHandler(501)
+	NotLegalHandler = StatusHandler(451)
+)
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Web Scraping with NodeJS (copied from http://www.storminthecastle.com/2013/08/25/use-node-js-to-extract-data-from-the-web-for-fun-and-profit/)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="web-scraping-with-nodejs-copied-from-http-www-storminthecastle-com-2013-08-25-use-node-js-to-extract-data-from-the-web-for-fun-and-profit">Web Scraping with NodeJS (copied from <a href="http://www.storminthecastle.com/2013/08/25/use-node-js-to-extract-data-from-the-web-for-fun-and-profit/" target="_blank">http://www.storminthecastle.com/2013/08/25/use-node-js-to-extract-data-from-the-web-for-fun-and-profit/</a>)</h1>
+
+<h2 id="1-package-json">1. package.json</h2>
+
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;WebScraping&quot;,
+  &quot;main&quot;: &quot;scrap.js&quot;,
+  &quot;dependencies&quot;: {
+    &quot;cheerio&quot;: &quot;~0.13.1&quot;
+  }
+}
+</code></pre>
+
+<h2 id="2-scrap-js">2. scrap.js</h2>
+
+<pre><code class="language-javascript">var http = require('http');
+
+function download(url, callback) {
+    http.get(url, function(res) {
+        var data = '';
+
+        res.on('data', function(chunk) {
+            data += chunk;
+        });
+
+        res.on('end', function() {
+            callback(data);
+        });
+    }).on('error', function() {
+        callback(null)
+    });
+}
+
+module.exports = download;
+</code></pre>
+
+<h2 id="3-download-js">3.download.js</h2>
+
+<pre><code class="language-javascript">var cheerio  = require('cheerio'); // converts string into dom tree and provides querying (and other) methods
+var download = require('./scrap.js');
+
+download('http://www.integralist.co.uk/', function(data) {
+    if (data) {
+        var $ = cheerio.load(data)
+
+        $('h2').each(function(index, item) {
+            console.log($(item).text());
+        });
+    }
+    else console.log('error');
+});
+</code></pre>
+
+</div>
+</body>
+</html>

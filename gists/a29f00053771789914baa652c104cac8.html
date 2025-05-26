@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[ElasticSearch] #elasticsearch</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="elasticsearch-elasticsearch">[ElasticSearch] #elasticsearch</h1>
+
+<h2 id="elasticsearch-md">ElasticSearch.md</h2>
+
+<pre><code class="language-markdown">```bash
+curl -XPUT 'localhost:9200/foo/bar/1?pretty' -d '{&quot;name&quot;: &quot;Elasticsearch Denver&quot;, &quot;organizer&quot;: &quot;Lee&quot;}'
+</code></pre>
+
+<p>Response&hellip;</p>
+
+<pre><code class="language-json">{
+  &quot;_index&quot; : &quot;foo&quot;,
+  &quot;_type&quot; : &quot;bar&quot;,
+  &quot;_id&quot; : &quot;1&quot;,
+  &quot;_version&quot; : 1,
+  &quot;created&quot; : true
+}
+</code></pre>
+
+<blockquote>
+<p>Creating the index itself takes more time than creating a document, so you might want to have the index ready beforehand.</p>
+</blockquote>
+
+<pre><code class="language-bash">curl -XPUT 'localhost:9200/new-index'
+
+{&quot;acknowledged&quot;:true}
+</code></pre>
+
+<p>Example population script from the book &ldquo;ElasticSearch in Action&rdquo;&hellip;</p>
+
+<p><a href="https://github.com/dakrone/elasticsearch-in-action/blob/master/populate.sh" target="_blank">https://github.com/dakrone/elasticsearch-in-action/blob/master/populate.sh</a></p>
+
+<pre><code class="language-bash">#!/usr/bin/env bash
+
+ADDRESS=$1
+
+if [ -z $ADDRESS ]; then
+  ADDRESS=&quot;localhost:9200&quot;
+fi
+
+# Check that Elasticsearch is running
+curl -s &quot;http://$ADDRESS&quot; 2&gt;&amp;1 &gt; /dev/null
+if [ $? != 0 ]; then
+    echo &quot;Unable to contact Elasticsearch at $ADDRESS&quot;
+    echo &quot;Please ensure Elasticsearch is running and can be reached at http://$ADDRESS/&quot;
+    exit -1
+fi
+
+echo &quot;WARNING, this script will delete the 'get-together' and the 'myindex' indices and re-index all data!&quot;
+echo &quot;Press Control-C to cancel this operation.&quot;
+echo
+echo &quot;Press [Enter] to continue.&quot;
+read
+
+# Delete the old index, swallow failures if it doesn't exist
+curl -s -XDELETE &quot;$ADDRESS/get-together&quot; &gt; /dev/null
+
+# Create the next index using mapping.json
+echo &quot;Creating 'get-together' index...&quot;
+curl -s -XPOST &quot;$ADDRESS/get-together&quot; -d@$(dirname $0)/mapping.json
+
+# Wait for index to become yellow
+curl -s &quot;$ADDRESS/get-together/_health?wait_for_status=yellow&amp;timeout=10s&quot; &gt; /dev/null
+echo
+echo &quot;Done creating 'get-together' index.&quot;
+
+echo
+echo &quot;Indexing data...&quot;
+
+echo &quot;Indexing groups...&quot;
+curl -s -XPOST &quot;$ADDRESS/get-together/group/1&quot; -d'{
+  &quot;name&quot;: &quot;Denver Clojure&quot;,
+  &quot;organizer&quot;: [&quot;Daniel&quot;, &quot;Lee&quot;],
+  &quot;description&quot;: &quot;Group of Clojure enthusiasts from Denver who want to hack on code together and learn more about Clojure&quot;,
+  &quot;created_on&quot;: &quot;2012-06-15&quot;,
+  &quot;tags&quot;: [&quot;clojure&quot;, &quot;denver&quot;, &quot;functional programming&quot;, &quot;jvm&quot;, &quot;java&quot;],
+  &quot;members&quot;: [&quot;Lee&quot;, &quot;Daniel&quot;, &quot;Mike&quot;],
+  &quot;location_group&quot;: &quot;Denver, Colorado, USA&quot;
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/group/2&quot; -d'{
+  &quot;name&quot;: &quot;Elasticsearch Denver&quot;,
+  &quot;organizer&quot;: &quot;Lee&quot;,
+  &quot;description&quot;: &quot;Get together to learn more about using Elasticsearch, the applications and neat things you can do with ES!&quot;,
+  &quot;created_on&quot;: &quot;2013-03-15&quot;,
+  &quot;tags&quot;: [&quot;denver&quot;, &quot;elasticsearch&quot;, &quot;big data&quot;, &quot;lucene&quot;, &quot;solr&quot;],
+  &quot;members&quot;: [&quot;Lee&quot;, &quot;Mike&quot;],
+  &quot;location_group&quot;: &quot;Denver, Colorado, USA&quot;
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/group/3&quot; -d'{
+  &quot;name&quot;: &quot;Elasticsearch San Francisco&quot;,
+  &quot;organizer&quot;: &quot;Mik&quot;,
+  &quot;description&quot;: &quot;Elasticsearch group for ES users of all knowledge levels&quot;,
+  &quot;created_on&quot;: &quot;2012-08-07&quot;,
+  &quot;tags&quot;: [&quot;elasticsearch&quot;, &quot;big data&quot;, &quot;lucene&quot;, &quot;open source&quot;],
+  &quot;members&quot;: [&quot;Lee&quot;, &quot;Igor&quot;],
+  &quot;location_group&quot;: &quot;San Francisco, California, USA&quot;
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/group/4&quot; -d'{
+  &quot;name&quot;: &quot;Boulder/Denver big data get-together&quot;,
+  &quot;organizer&quot;: &quot;Andy&quot;,
+  &quot;description&quot;: &quot;Come learn and share your experience with nosql &amp; big data technologies, no experience required&quot;,
+  &quot;created_on&quot;: &quot;2010-04-02&quot;,
+  &quot;tags&quot;: [&quot;big data&quot;, &quot;data visualization&quot;, &quot;open source&quot;, &quot;cloud computing&quot;, &quot;hadoop&quot;],
+  &quot;members&quot;: [&quot;Greg&quot;, &quot;Bill&quot;],
+  &quot;location_group&quot;: &quot;Boulder, Colorado, USA&quot;
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/group/5&quot; -d'{
+  &quot;name&quot;: &quot;Enterprise search London get-together&quot;,
+  &quot;organizer&quot;: &quot;Tyler&quot;,
+  &quot;description&quot;: &quot;Enterprise search get-togethers are an opportunity to get together with other people doing search.&quot;,
+  &quot;created_on&quot;: &quot;2009-11-25&quot;,
+  &quot;tags&quot;: [&quot;enterprise search&quot;, &quot;apache lucene&quot;, &quot;solr&quot;, &quot;open source&quot;, &quot;text analytics&quot;],
+  &quot;members&quot;: [&quot;Clint&quot;, &quot;James&quot;],
+  &quot;location_group&quot;: &quot;London, England, UK&quot;
+}'
+
+echo
+echo &quot;Done indexing groups.&quot;
+
+echo &quot;Indexing events...&quot;
+
+curl -s -XPOST &quot;$ADDRESS/get-together/event/100?parent=1&quot; -d'{
+  &quot;host&quot;: [&quot;Lee&quot;, &quot;Troy&quot;],
+  &quot;title&quot;: &quot;Liberator and Immutant&quot;,
+  &quot;description&quot;: &quot;We will discuss two different frameworks in Clojure for doing different things. Liberator is a ring-compatible web framework based on Erlang Webmachine. Immutant is an all-in-one enterprise application based on JBoss.&quot;,
+  &quot;attendees&quot;: [&quot;Lee&quot;, &quot;Troy&quot;, &quot;Daniel&quot;, &quot;Tom&quot;],
+  &quot;date&quot;: &quot;2013-09-05T18:00&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;Stoneys Full Steam Tavern&quot;,
+    &quot;geolocation&quot;: &quot;39.752337,-105.00083&quot;
+  },
+  &quot;reviews&quot;: 4
+}'
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/101?parent=1&quot; -d'{
+  &quot;host&quot;: &quot;Sean&quot;,
+  &quot;title&quot;: &quot;Sunday, Surly Sunday&quot;,
+  &quot;description&quot;: &quot;Sort out any setup issues and work on Surlybird issues. We can use the EC2 node as a bounce point for pairing.&quot;,
+  &quot;attendees&quot;: [&quot;Daniel&quot;, &quot;Michael&quot;, &quot;Sean&quot;],
+  &quot;date&quot;: &quot;2013-07-21T18:30&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;IRC, #denofclojure&quot;
+  },
+  &quot;reviews&quot;: 2
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/102?parent=1&quot; -d'{
+  &quot;host&quot;: &quot;Daniel&quot;,
+  &quot;title&quot;: &quot;10 Clojure coding techniques you should know, and project openbike&quot;,
+  &quot;description&quot;: &quot;What are ten Clojure coding techniques that you wish everyone knew? We will also check on the status of Project Openbike.&quot;,
+  &quot;attendees&quot;: [&quot;Lee&quot;, &quot;Tyler&quot;, &quot;Daniel&quot;, &quot;Stuart&quot;, &quot;Lance&quot;],
+  &quot;date&quot;: &quot;2013-07-11T18:00&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;Stoneys Full Steam Tavern&quot;,
+    &quot;geolocation&quot;: &quot;39.752337,-105.00083&quot;
+  },
+  &quot;reviews&quot;: 3
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/103?parent=2&quot; -d'{
+  &quot;host&quot;: &quot;Lee&quot;,
+  &quot;title&quot;: &quot;Introduction to Elasticsearch&quot;,
+  &quot;description&quot;: &quot;An introduction to ES and each other. We can meet and greet and I will present on some Elasticsearch basics and how we use it.&quot;,
+  &quot;attendees&quot;: [&quot;Lee&quot;, &quot;Martin&quot;, &quot;Greg&quot;, &quot;Mike&quot;],
+  &quot;date&quot;: &quot;2013-04-17T19:00&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;Stoneys Full Steam Tavern&quot;,
+    &quot;geolocation&quot;: &quot;39.752337,-105.00083&quot;
+  },
+  &quot;reviews&quot;: 5
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/104?parent=2&quot; -d'{
+  &quot;host&quot;: &quot;Lee&quot;,
+  &quot;title&quot;: &quot;Queries and Filters&quot;,
+  &quot;description&quot;: &quot;A get together to talk about different ways to query Elasticsearch, what works best for different kinds of applications.&quot;,
+  &quot;attendees&quot;: [&quot;Lee&quot;, &quot;Greg&quot;, &quot;Richard&quot;],
+  &quot;date&quot;: &quot;2013-06-17T18:00&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;Stoneys Full Steam Tavern&quot;,
+    &quot;geolocation&quot;: &quot;39.752337,-105.00083&quot;
+  },
+  &quot;reviews&quot;: 1
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/105?parent=2&quot; -d'{
+  &quot;host&quot;: &quot;Lee&quot;,
+  &quot;title&quot;: &quot;Elasticsearch and Logstash&quot;,
+  &quot;description&quot;: &quot;We can get together and talk about Logstash - http://logstash.net with a sneak peek at Kibana&quot;,
+  &quot;attendees&quot;: [&quot;Lee&quot;, &quot;Greg&quot;, &quot;Mike&quot;, &quot;Delilah&quot;],
+  &quot;date&quot;: &quot;2013-07-17T18:30&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;Stoneys Full Steam Tavern&quot;,
+    &quot;geolocation&quot;: &quot;39.752337,-105.00083&quot;
+  },
+  &quot;reviews&quot;: null
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/106?parent=3&quot; -d'{
+  &quot;host&quot;: &quot;Mik&quot;,
+  &quot;title&quot;: &quot;Social management and monitoring tools&quot;,
+  &quot;description&quot;: &quot;Shay Banon will be there to answer questions and we can talk about management tools.&quot;,
+  &quot;attendees&quot;: [&quot;Shay&quot;, &quot;Mik&quot;, &quot;John&quot;, &quot;Chris&quot;],
+  &quot;date&quot;: &quot;2013-03-06T18:00&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;Quid Inc&quot;,
+    &quot;geolocation&quot;: &quot;37.798442,-122.399801&quot;
+  },
+  &quot;reviews&quot;: 5
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/107?parent=3&quot; -d'{
+  &quot;host&quot;: &quot;Mik&quot;,
+  &quot;title&quot;: &quot;Logging and Elasticsearch&quot;,
+  &quot;description&quot;: &quot;Get a deep dive for what Elasticsearch is and how it can be used for logging with Logstash as well as Kibana!&quot;,
+  &quot;attendees&quot;: [&quot;Shay&quot;, &quot;Rashid&quot;, &quot;Erik&quot;, &quot;Grant&quot;, &quot;Mik&quot;],
+  &quot;date&quot;: &quot;2013-04-08T18:00&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;Salesforce headquarters&quot;,
+    &quot;geolocation&quot;: &quot;37.793592,-122.397033&quot;
+  },
+  &quot;reviews&quot;: 3
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/108?parent=3&quot; -d'{
+  &quot;host&quot;: &quot;Elyse&quot;,
+  &quot;title&quot;: &quot;Piggyback on Elasticsearch training in San Francisco&quot;,
+  &quot;description&quot;: &quot;We can piggyback on training by Elasticsearch to have some Q&amp;A time with the ES devs&quot;,
+  &quot;attendees&quot;: [&quot;Shay&quot;, &quot;Igor&quot;, &quot;Uri&quot;, &quot;Elyse&quot;],
+  &quot;date&quot;: &quot;2013-05-23T19:00&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;NoSQL Roadshow&quot;,
+    &quot;geolocation&quot;: &quot;37.787742,-122.398964&quot;
+  },
+  &quot;reviews&quot;: 5
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/109?parent=4&quot; -d'{
+  &quot;host&quot;: &quot;Andy&quot;,
+  &quot;title&quot;: &quot;Hortonworks, the future of Hadoop and big data&quot;,
+  &quot;description&quot;: &quot;Presentation on the work that hortonworks is doing on Hadoop&quot;,
+  &quot;attendees&quot;: [&quot;Andy&quot;, &quot;Simon&quot;, &quot;David&quot;, &quot;Sam&quot;],
+  &quot;date&quot;: &quot;2013-06-19T18:00&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;SendGrid Denver office&quot;,
+    &quot;geolocation&quot;: &quot;39.748477,-104.998852&quot;
+  },
+  &quot;reviews&quot;: 2
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/110?parent=4&quot; -d'{
+  &quot;host&quot;: &quot;Andy&quot;,
+  &quot;title&quot;: &quot;Big Data and the cloud at Microsoft&quot;,
+  &quot;description&quot;: &quot;Discussion about the Microsoft Azure cloud and HDInsight.&quot;,
+  &quot;attendees&quot;: [&quot;Andy&quot;, &quot;Michael&quot;, &quot;Ben&quot;, &quot;David&quot;],
+  &quot;date&quot;: &quot;2013-07-31T18:00&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;Bing Boulder office&quot;,
+    &quot;geolocation&quot;: &quot;40.018528,-105.275806&quot;
+  },
+  &quot;reviews&quot;: 1
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/111?parent=4&quot; -d'{
+  &quot;host&quot;: &quot;Andy&quot;,
+  &quot;title&quot;: &quot;Moving Hadoop to the mainstream&quot;,
+  &quot;description&quot;: &quot;Come hear about how Hadoop is moving to the main stream&quot;,
+  &quot;attendees&quot;: [&quot;Andy&quot;, &quot;Matt&quot;, &quot;Bill&quot;],
+  &quot;date&quot;: &quot;2013-07-21T18:00&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;Courtyard Boulder Louisville&quot;,
+    &quot;geolocation&quot;: &quot;39.959409,-105.163497&quot;
+  },
+  &quot;reviews&quot;: 4
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/112?parent=5&quot; -d'{
+  &quot;host&quot;: &quot;Dave Nolan&quot;,
+  &quot;title&quot;: &quot;real-time Elasticsearch&quot;,
+  &quot;description&quot;: &quot;We will discuss using Elasticsearch to index data in real time&quot;,
+  &quot;attendees&quot;: [&quot;Dave&quot;, &quot;Shay&quot;, &quot;John&quot;, &quot;Harry&quot;],
+  &quot;date&quot;: &quot;2013-02-18T18:30&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;SkillsMatter Exchange&quot;,
+    &quot;geolocation&quot;: &quot;51.524806,-0.099095&quot;
+  },
+  &quot;reviews&quot;: 3
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/113?parent=5&quot; -d'{
+  &quot;host&quot;: &quot;Dave&quot;,
+  &quot;title&quot;: &quot;Elasticsearch at Rangespan and Exonar&quot;,
+  &quot;description&quot;: &quot;Representatives from Rangespan and Exonar will come and discuss how they use Elasticsearch&quot;,
+  &quot;attendees&quot;: [&quot;Dave&quot;, &quot;Andrew&quot;, &quot;David&quot;, &quot;Clint&quot;],
+  &quot;date&quot;: &quot;2013-06-24T18:30&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;Alumni Theatre&quot;,
+    &quot;geolocation&quot;: &quot;51.51558,-0.117699&quot;
+  },
+  &quot;reviews&quot;: 3
+}'
+
+echo
+curl -s -XPOST &quot;$ADDRESS/get-together/event/114?parent=5&quot; -d'{
+  &quot;host&quot;: &quot;Yann&quot;,
+  &quot;title&quot;: &quot;Using Hadoop with Elasticsearch&quot;,
+  &quot;description&quot;: &quot;We will walk through using Hadoop with Elasticsearch for big data crunching!&quot;,
+  &quot;attendees&quot;: [&quot;Yann&quot;, &quot;Bill&quot;, &quot;James&quot;],
+  &quot;date&quot;: &quot;2013-09-09T18:30&quot;,
+  &quot;location_event&quot;: {
+    &quot;name&quot;: &quot;SkillsMatter Exchange&quot;,
+    &quot;geolocation&quot;: &quot;51.524806,-0.099095&quot;
+  },
+  &quot;reviews&quot;: 2
+}'
+
+echo
+echo &quot;Done indexing events.&quot;
+
+# Refresh so data is available
+curl -s -XPOST &quot;$ADDRESS/get-together/_refresh&quot;
+
+echo
+echo &quot;Done indexing data.&quot;
+echo
+
+echo
+echo &quot;Creating Templates.&quot;
+curl -s -XPUT &quot;http://$ADDRESS/_template/logging_index_all&quot; -d'{
+    &quot;template&quot; : &quot;logstash-09-*&quot;,
+    &quot;order&quot; : 1,
+    &quot;settings&quot; : {
+        &quot;number_of_shards&quot; : 2,
+        &quot;number_of_replicas&quot; : 1
+   },
+    &quot;mappings&quot; : {
+        &quot;date&quot; : { &quot;store&quot;: false }
+    },
+    &quot;alias&quot; : { &quot;november&quot; : {} }
+}'
+
+echo
+curl -s -XPUT &quot;http://$ADDRESS/_template/logging_index&quot; -d '{
+    &quot;template&quot; : &quot;logstash-*&quot;,
+    &quot;order&quot; : 0,
+    &quot;settings&quot; : {
+        &quot;number_of_shards&quot; : 2,
+        “number_of_replicas” : 1
+   },
+    &quot;mappings&quot; : {
+     &quot;date&quot; : { &quot;store&quot;: true }
+    }
+}'
+echo
+echo &quot;Done Creating Templates.&quot;
+
+
+echo
+echo &quot;Adding Dynamic Mapping&quot;
+curl -s -XDELETE &quot;http://$ADDRESS/myindex&quot; &gt; /dev/null
+curl -s -XPUT &quot;http://$ADDRESS/myindex&quot; -d'
+{
+    &quot;mappings&quot; : {
+        &quot;my_type&quot; : {
+            &quot;dynamic_templates&quot; : [{
+                &quot;UUID&quot; : {
+                    &quot;match&quot; : &quot;*_guid&quot;,
+                    &quot;match_mapping_type&quot; : &quot;string&quot;,
+                    &quot;mapping&quot; : {
+                        &quot;type&quot; : &quot;string&quot;,
+                        &quot;index&quot; : &quot;not_analyzed&quot;
+                    }
+                }
+            }]
+        }
+    }
+}'
+echo
+echo &quot;Done Adding Dynamic Mapping&quot;
+
+echo
+echo &quot;Adding Aliases&quot;
+curl -s -XDELETE &quot;http://$ADDRESS/november_2014_invoices&quot; &gt; /dev/null
+curl -s -XDELETE &quot;http://$ADDRESS/december_2014_invoices&quot; &gt; /dev/null
+curl -s -XPOST &quot;http://$ADDRESS/november_2014_invoices&quot; -d'{}'
+echo
+curl -s -XPOST &quot;http://$ADDRESS/december_2014_invoices&quot; -d'
+{
+    &quot;mappings&quot; :
+    {
+        &quot;invoice&quot; :
+        {
+            &quot;properties&quot; :
+            {
+                &quot;revenue&quot; : { &quot;type&quot; : &quot;integer&quot; }
+            }
+        }
+    }
+}'
+
+echo
+
+curl -s -XPOST &quot;http://$ADDRESS/_aliases&quot; -d'
+{
+    &quot;actions&quot; : [
+	{
+		&quot;add&quot; :
+		{
+			&quot;index&quot; : &quot;november_2014_invoices&quot;,
+			&quot;alias&quot; : &quot;2014_invoices&quot;
+		},
+		&quot;add&quot; :
+		{
+			&quot;index&quot; : &quot;december_2014_invoices&quot;,
+			&quot;alias&quot; : &quot;2014_invoices&quot;
+		},
+		&quot;remove&quot; :
+		{
+		  &quot;index&quot; : &quot;myindex&quot;,
+		  &quot;alias&quot; : &quot;december_2014_invoices&quot;
+		}
+	}
+    ]
+}'
+echo
+echo &quot;Done Adding Aliases&quot;
+
+echo &quot;Adding Filter Alias&quot;
+curl -s -XPOST &quot;http://$ADDRESS/_aliases&quot; -d '
+{
+    &quot;actions&quot; : [
+        {
+            &quot;add&quot; : {
+                 &quot;index&quot; : &quot;december_2014_invoices&quot;,
+                 &quot;alias&quot; : &quot;bigmoney&quot;,
+                 &quot;filter&quot; :
+                 {
+                    &quot;range&quot; :
+                    {
+                      &quot;revenue&quot; :
+                      {
+                        &quot;gt&quot; : 1000
+                      }
+                    }
+                 }
+            }
+        }
+    ]
+}'
+echo
+echo &quot;Done Adding Filter Alias&quot;
+
+echo
+echo &quot;Adding Routing Alias&quot;
+curl -s -XPOST &quot;http://$ADDRESS/_aliases&quot; -d '
+{
+    &quot;actions&quot; : [
+        {
+            &quot;add&quot; : {
+                 &quot;index&quot; : &quot;december_2014_invoices&quot;,
+                 &quot;alias&quot; : &quot;2014_invoices&quot;,
+                 &quot;search_routing&quot; : &quot;en,es&quot;,
+                 &quot;index_routing&quot; : &quot;en&quot;
+            }
+        }
+    ]
+}'
+echo
+echo &quot;Done Adding Routing Alias&quot;
+
+echo
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang IO] #go #golang #io #bufio #ioutil #os</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-io-go-golang-io-bufio-ioutil-os">[Golang IO] #go #golang #io #bufio #ioutil #os</h1>
+
+<h2 id="golang-io-md">Golang IO.md</h2>
+
+<pre><code class="language-markdown"># Sections
+
+- [Package io](#package-io)
+- [Package ioutil](#package-ioutil)
+- [Package bufio](#package-bufio)
+- [Package os](#package-os)
+- [Miscellaneous Notes](#miscellaneous-notes)
+- [Other Examples](#examples)
+
+## Package io
+
+&gt; Package io provides basic interfaces to I/O primitives. Its primary job is to wrap existing implementations of such primitives, such as those in package os, into shared public interfaces that abstract the functionality, plus some other related primitives.
+&gt;
+&gt; Because these interfaces and primitives wrap lower-level operations with various implementations, unless otherwise informed clients should not assume they are safe for parallel execution.
+
+Example functionality: read section of a file into memory
+
+```go
+package main
+
+import (
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;log&quot;
+	&quot;strings&quot;
+)
+
+func main() {
+	r := strings.NewReader(&quot;some io.Reader stream to be read\n&quot;)
+
+	buf := make([]byte, 4)
+	if _, err := io.ReadFull(r, buf); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf(&quot;%s\n&quot;, buf) // &quot;some&quot;
+}
+</code></pre>
+
+<h2 id="package-ioutil">Package ioutil</h2>
+
+<blockquote>
+<p>Package ioutil implements some I/O utility functions.</p>
+</blockquote>
+
+<p>Example functionality: read entire file into memory</p>
+
+<pre><code class="language-go">import &quot;io/ioutil&quot;
+
+func main() {
+	dat, err := ioutil.ReadFile(&quot;/tmp/dat&quot;)
+	if err != nil {
+        panic(err)
+    }
+}
+</code></pre>
+
+<h2 id="package-bufio">Package bufio</h2>
+
+<blockquote>
+<p>Package bufio implements buffered I/O. It wraps an io.Reader or io.Writer object, creating another object (Reader or Writer) that also implements the interface but provides buffering and some help for textual I/O.</p>
+</blockquote>
+
+<p>Example functionality: scan a file line-by-line, but grab the text from the 3rd line</p>
+
+<pre><code class="language-go">func parseNodes(input io.Reader) (string, error) {
+	var txt string
+    
+	count := 0
+	line := 3
+
+	scanner := bufio.NewScanner(input)
+	for scanner.Scan() {
+		count++
+		if count == line {
+			txt = scanner.Text()
+		}
+		if scanner.Text() == &quot;END&quot; {
+			break
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		logger.Println(&quot;Scanner Error: &quot;, err.Error())
+		return &quot;&quot;, err
+	}
+
+	return txt, nil
+}
+</code></pre>
+
+<p>The bufio package implements a buffered reader that may be useful both for its efficiency with many small reads and because of the additional reading methods it provides.</p>
+
+<h2 id="package-os">Package os</h2>
+
+<blockquote>
+<p>Package os provides a platform-independent interface to operating system functionality. The design is Unix-like, although the error handling is Go-like; failing calls return values of type error rather than error numbers. Often, more information is available within the error. For example, if a call that takes a file name fails, such as Open or Stat, the error will include the failing file name when printed and will be of type *PathError, which may be unpacked for more information.</p>
+</blockquote>
+
+<p>Example functionality: opening a file with very granular control over how, and what parts, are read</p>
+
+<pre><code class="language-go">file, err := os.Open(&quot;file.go&quot;) // read access
+if err != nil {
+	log.Fatal(err)
+}
+
+// the file's data can then be read into a slice of bytes...
+data := make([]byte, 100)
+count, err := file.Read(data)
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Printf(&quot;read %d bytes: %q\n&quot;, count, data[:count])
+</code></pre>
+
+<h2 id="miscellaneous-notes">Miscellaneous Notes</h2>
+
+<p>Type <code>os.File</code> represents a file on the local system. It implements both <code>io.Reader</code> and <code>io.Writer</code> and, therefore, can be used in any streaming IO contexts.</p>
+
+<p>The <code>os</code> package exposes three variables, <code>os.Stdout</code>, <code>os.Stdin</code>, and <code>os.Stderr</code>, that are of type <code>*os.File</code> to represent file handles for the OS&rsquo;s standard output, input, and error respectively.</p>
+
+<p>Function <code>io.Copy()</code> makes it easy to stream data from a source reader to a target writer. It abstracts out the for-loop pattern (we&rsquo;ve seen so far) and properly handle <code>io.EOF</code> and byte counts.</p>
+
+<p><code>io.WriteString</code> provides the convenience of writing a string value into a specified writer.</p>
+
+<p>Types <code>io.PipeWriter</code> and <code>io.PipeReader</code> model IO operations as in memory pipes. Data is written to the pipe’s writer-end and is read on the pipe’s reader-end using separate go routines.</p>
+
+<p>Go supports buffered IO via package <code>bufio</code> which makes it easy to work with textual content. For example, we could use <code>bufio.Reader.ReadString</code> to read the content of a file line-by-line but using a specific delimeter like <code>'\n'</code>.</p>
+
+<p>Package <code>ioutil</code>, a sub-package of <code>io</code>, offers several convenience functions for IO. For example, the function <code>io/ioutil.ReadFile</code> can load the content of a file into a <code>[]byte</code>.</p>
+
+<p>Package <code>httputil</code> provides HTTP utility functions and interfaces, some of which relate to IO and buffers. For example, <code>httputil.BufferPool</code> is an interface for getting and returning temporary byte slices for use by <code>io.CopyBuffer</code> (<code>CopyBuffer</code> is identical to <code>Copy</code> except that it stages through the provided buffer, if one is required, rather than allocating a temporary one. If <code>buf</code> is <code>nil</code>, one is allocated; otherwise if it has zero length, <code>CopyBuffer</code> panics). This can also be tied back into resources such as <code>net/http/httputil.ReverseProxy</code> which provides a <code>BufferPool</code> field such that it can help with copying HTTP response bodies in a more efficient way.</p>
+
+<h2 id="examples">Examples</h2>
+
+<blockquote>
+<p>Examples grouped together on Play&hellip; <a href="https://play.golang.org/p/4gtvoCJENwr" target="_blank">https://play.golang.org/p/4gtvoCJENwr</a></p>
+</blockquote>
+
+<h3 id="reading">Reading</h3>
+
+<pre><code class="language-go">reader := strings.NewReader(&quot;Clear is better than     clever&quot;)
+p := make([]byte, 4)
+
+for {
+  n, err := reader.Read(p)
+  if err != nil {
+    if err == io.EOF {
+      fmt.Println(string(p[:n])) //should handle any remainding bytes.
+      break
+    }
+    fmt.Println(err)
+    os.Exit(1)
+  }
+  fmt.Println(string(p[:n]))
+}
+</code></pre>
+
+<h3 id="writing">Writing</h3>
+
+<pre><code class="language-go">proverbs := []string{
+  &quot;Channels orchestrate mutexes serialize&quot;,
+  &quot;Cgo is not Go&quot;,
+  &quot;Errors are values&quot;,
+  &quot;Don't panic&quot;,
+}
+var writer bytes.Buffer
+
+for _, p := range proverbs {
+  n, err := writer.Write([]byte(p))
+  if err != nil {
+    fmt.Println(err)
+    os.Exit(1)
+  }
+
+  if n != len(p) {
+    fmt.Println(&quot;failed to write data&quot;)
+    os.Exit(1)
+  }
+
+  writer.Write([]byte(&quot;, &quot;)) // just so we can read the output a bit better
+}
+
+fmt.Println(writer.String())
+</code></pre>
+
+<h3 id="simplified-write-read-using-copy-and-readfile">Simplified write/read using <code>Copy</code> and <code>ReadFile</code></h3>
+
+<pre><code class="language-go">pverbs := new(bytes.Buffer)
+pverbs.WriteString(&quot;Channels orchestrate mutexes serialize\n&quot;)
+pverbs.WriteString(&quot;Cgo is not Go\n&quot;)
+pverbs.WriteString(&quot;Errors are values\n&quot;)
+pverbs.WriteString(&quot;Don't panic\n&quot;)
+
+file, err := os.Create(&quot;./proverbs.txt&quot;)
+if err != nil {
+  fmt.Println(err)
+  os.Exit(1)
+}
+defer file.Close()
+
+// copy from reader data into writer file
+if _, err := io.Copy(file, pverbs); err != nil {
+  fmt.Println(err)
+  os.Exit(1)
+}
+dat, _ := ioutil.ReadFile(&quot;./proverbs.txt&quot;)
+fmt.Print(&quot;\n&quot;, string(dat))
+</code></pre>
+
+<h3 id="simplified-read-from-os-file-and-write-to-os-stdout-using-copy">Simplified read from <code>os.File</code>, and write to <code>os.Stdout</code> using <code>Copy</code></h3>
+
+<pre><code class="language-go">file1, err := os.Open(&quot;./proverbs.txt&quot;)
+if err != nil {
+  fmt.Println(err)
+  os.Exit(1)
+}
+defer file1.Close()
+
+// Copy to Stdout is going to cause output to be immediately displayed (e.g. no need for fmt.Print style functions)
+if _, err := io.Copy(os.Stdout, file1); err != nil {
+  fmt.Println(err)
+  os.Exit(1)
+}
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

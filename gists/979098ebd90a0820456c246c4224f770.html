@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Fastly VCL Boilerplate for handling mutliple subdomains] #fastly #vcl #boilerplate</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="fastly-vcl-boilerplate-for-handling-mutliple-subdomains-fastly-vcl-boilerplate">[Fastly VCL Boilerplate for handling mutliple subdomains] #fastly #vcl #boilerplate</h1>
+
+<h2 id="fastly-vcl-boilerplate-for-handling-mutliple-subdomains-vcl">Fastly VCL Boilerplate for handling mutliple subdomains.vcl</h2>
+
+<pre><code class="language-vcl">######################################################################################
+#
+# detailed blog post on fastly's implementation details:
+# http://www.integralist.co.uk/posts/fastly-varnish/
+#
+# fastly custom vcl boilerplate:
+# https://docs.fastly.com/vcl/custom-vcl/creating-custom-vcl/#fastlys-vcl-boilerplate
+#
+# vcl_recv
+# vcl_error
+# vcl_hash
+# vcl_pass
+# vcl_miss
+# vcl_hit
+# vcl_fetch
+# vcl_deliver
+#
+######################################################################################
+
+table deny_list {
+  &quot;/bad-thing-1&quot;: &quot;true&quot;,
+  &quot;/bad-thing-2&quot;: &quot;true&quot;,
+}
+
+sub set_backend {
+  set req.backend = F_httpbin;
+
+  if (req.http.Host == &quot;example-stage.acme.com/&quot;) {
+   set req.backend = F_httpbin_stage;
+  }
+}
+
+sub vcl_recv {
+  #FASTLY recv
+
+  call set_backend;
+
+  # configure purges to require api authentication:
+  # https://docs.fastly.com/en/guides/authenticating-api-purge-requests
+  #
+  if (req.method == &quot;FASTLYPURGE&quot;) {
+      set req.http.Fastly-Purge-Requires-Auth = &quot;1&quot;;
+  }
+
+  # force HTTP to HTTPS
+  #
+  # related: req.http.Fastly-SSL
+  # https://docs.fastly.com/en/guides/tls-termination
+  #
+  if (req.protocol != &quot;https&quot;) {
+    error 601 &quot;Force SSL&quot;;
+  }
+
+  # fastly 'tables' are different to 'edge dictionaries':
+  # https://docs.fastly.com/en/guides/about-edge-dictionaries
+  #
+  if (table.lookup(deny_list, req.url.path)) {
+    error 600 &quot;Not found&quot;;
+  }
+
+  # don't bother doing a cache lookup for a request type that isn't cacheable
+  if (req.method !~ &quot;(GET|HEAD|FASTLYPURGE)&quot;) {
+    return(pass);
+  }
+
+  if (req.restarts == 0) {
+    # nagios/monitoring cache bypass
+    #
+    if (req.url ~ &quot;123&quot;) {
+      set req.http.X-Monitoring = &quot;true&quot;;
+      return(pass);
+    }
+  }
+
+  return(lookup);
+}
+
+sub vcl_error {
+  #FASTLY error
+
+  # fastly synthetic error responses:
+  # https://docs.fastly.com/en/guides/creating-error-pages-with-custom-responses
+  #
+  if (obj.status == 600) {
+    set obj.status = 404;
+
+    synthetic {&quot;
+      &lt;!doctype html&gt;
+      &lt;html&gt;
+        &lt;head&gt;
+          &lt;meta charset=&quot;utf-8&quot;&gt;
+          &lt;title&gt;Error&lt;/title&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
+          &lt;h1&gt;404 Not Found (varnish)&lt;/h1&gt;
+        &lt;/body&gt;
+      &lt;/html&gt;
+      &quot;};
+
+    return(deliver);
+  }
+
+  # fastly HTTP to HTTPS 301 redirect:
+  # https://docs.fastly.com/en/guides/generating-http-redirects-at-the-edge
+  #
+  # example:
+  # curl -sD - http://example.acme.com/
+  # curl -H Fastly-Debug:1 -sLD - -o /dev/null http://example.acme.com/?cachebust=$(uuidgen)
+  #
+  if (obj.status == 601 &amp;&amp; obj.response == &quot;Force SSL&quot;) {
+    set obj.status = 301;
+    set obj.response = &quot;Moved Permanently&quot;;
+    set obj.http.Location = &quot;https://&quot; req.http.host req.url;
+    synthetic {&quot;&quot;};
+    return (deliver);
+  }
+}
+
+sub vcl_hash {
+  #FASTLY hash
+
+  set req.hash += req.url;
+  set req.hash += req.http.host;
+
+  # call debug_info_hash;
+
+  return(hash);
+}
+
+sub vcl_pass {
+  #FASTLY pass
+}
+
+sub vcl_miss {
+  #FASTLY miss
+
+  return(fetch);
+}
+
+sub vcl_hit {
+  #FASTLY hit
+}
+
+sub vcl_fetch {
+  #FASTLY fetch
+
+  # fastly caching directive:
+  # https://docs.fastly.com/en/guides/cache-control-tutorial
+  #
+  # example:
+  # define stale behaviour if none provided by origin
+  #
+  if (beresp.http.Surrogate-Control !~ &quot;(stale-while-revalidate|stale-if-error)&quot;) {
+    set beresp.stale_if_error = 31536000s; // 1 year
+    set beresp.stale_while_revalidate = 60s; // 1 minute
+  }
+
+  # fastly stale-if-error:
+  # https://docs.fastly.com/en/guides/serving-stale-content
+  #
+  if (beresp.status &gt;= 500 &amp;&amp; beresp.status &lt; 600) {
+    if (stale.exists) {
+      return(deliver_stale);
+    }
+  }
+
+  # hit-for-pass:
+  # https://www.integralist.co.uk/posts/fastly-varnish/#hit-for-pass
+  #
+  if (beresp.http.Cache-Control ~ &quot;private&quot;) {
+    return(pass);
+  }
+  
+  # ensure we set our own default cache TTL if no caching directives found
+  if (beresp.cacheable &amp;&amp; !beresp.http.Surrogate-Control:max-age &amp;&amp; !beresp.http.Cache-Control:max-age) {
+    set beresp.ttl = 1h; # 1 hour
+  }
+
+  return(deliver);
+}
+
+sub vcl_deliver {
+  #FASTLY deliver
+
+  # fastly internal state information:
+  # https://docs.fastly.com/en/guides/useful-variables-to-log
+  #
+  set resp.http.Fastly-State = fastly_info.state;
+
+  if (req.http.X-Monitoring == &quot;true&quot;) {
+    set resp.http.X-Monitoring = req.http.X-Monitoring;
+  }
+
+  return(deliver);
+}
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Fastly Edge Dictionaries API Examples] #fastly #api #cdn #edge #dictionaries #bash #shell</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="fastly-edge-dictionaries-api-examples-fastly-api-cdn-edge-dictionaries-bash-shell">[Fastly Edge Dictionaries API Examples] #fastly #api #cdn #edge #dictionaries #bash #shell</h1>
+
+<h2 id="fastly-edge-dictionaries-api-examples-bash">Fastly Edge Dictionaries API Examples.bash</h2>
+
+<pre><code class="language-shell">#!/usr/bin/env bash
+
+# API documentation here...
+# https://docs.fastly.com/api/config
+#
+# at the end of the day, these are just simple `curl` requests
+# along with a HTTP header that holds our api token.
+#
+# meaning, you could rewrite all of this much more cleanly in
+# a more fully feature language such as Go or Python.
+
+set -e
+
+myservice=&quot;123&quot;
+
+api_token=&quot;Fastly-Key: $FASTLY_API_TOKEN_ADMIN&quot;
+api_host=&quot;https://api.fastly.com&quot;
+
+#-----------------------------------------------------------------------------------------------
+
+# GET LATEST SERVICE VERSION
+
+service_latest=$(curl -s -H &quot;$api_token&quot; &quot;$api_host/service/$myservice&quot; | jq .versions[-1])
+printf &quot;\\nlatest service:\\n\\n&quot;
+echo &quot;$service_latest&quot; | jq
+
+service_version=$(echo &quot;$service_latest&quot; | jq .number)
+
+#-----------------------------------------------------------------------------------------------
+
+# LIST ALL DICTIONARIES FOR LATEST SERVICE VERSION
+
+printf &quot;\\nlist of edge dictionaries:\\n\\n&quot;
+dict_list=$(curl -s -H &quot;$api_token&quot; &quot;$api_host/service/$myservice/version/$service_version/dictionary&quot;)
+echo &quot;$dict_list&quot; | jq
+
+#-----------------------------------------------------------------------------------------------
+
+# LIST METADATA FOR A SPECIFIC DICTIONARY (e.g. the foo_bar dictionary already exists)
+
+dict_name=&quot;foo_bar&quot;
+dict_id=$(echo &quot;$dict_list&quot; | jq -r &quot;.[] | select(.name == \&quot;$dict_name\&quot;) | .id&quot;)
+
+printf &quot;\\nlist dictionary meta data:\\n\\n&quot;
+curl -s -H &quot;$api_token&quot; &quot;$api_host/service/$myservice/version/$service_version/dictionary/$dict_id/info&quot; | jq
+
+printf &quot;\\nlist dictionary content:\\n\\n&quot;
+curl -s -H &quot;$api_token&quot; &quot;$api_host/service/$myservice/dictionary/$dict_id/items&quot; | jq
+
+#-----------------------------------------------------------------------------------------------
+
+# CREATE NEW DICTIONARY FOR SERVICE
+
+printf &quot;\\ncreate new service version (required before we can create a new edge dictionary):\\n\\n&quot;
+service_latest=$(curl -s -H &quot;$api_token&quot; -X PUT &quot;$api_host/service/$myservice/version/$service_version/clone&quot;)
+echo &quot;$service_latest&quot; | jq
+service_version=$(echo &quot;$service_latest&quot; | jq .number)
+
+printf &quot;\\ncreate new edge dictionary:\\n\\n&quot;
+dict_name=&quot;my_new_edge_dict&quot;
+curl -s -H &quot;$api_token&quot; -X POST -d &quot;name=$dict_name&quot; &quot;$api_host/service/$myservice/version/$service_version/dictionary&quot; | jq
+
+printf &quot;\\nlist of edge dictionaries:\\n\\n&quot;
+dict_list=$(curl -s -H &quot;$api_token&quot; &quot;$api_host/service/$myservice/version/$service_version/dictionary&quot;)
+echo &quot;$dict_list&quot; | jq
+
+printf &quot;\\nlist of edge dictionaries:\\n\\n&quot;
+curl -s -H &quot;$api_token&quot; &quot;$api_host/service/$myservice/version/$service_version/dictionary&quot; | jq
+
+#-----------------------------------------------------------------------------------------------
+
+# LIST METADATA FOR A SPECIFIC DICTIONARY (e.g. my_new_edge_dict)
+
+dict_id=$(echo &quot;$dict_list&quot; | jq -r &quot;.[] | select(.name == \&quot;$dict_name\&quot;) | .id&quot;)
+
+printf &quot;\\nlist dictionary meta data:\\n\\n&quot;
+curl -s -H &quot;$api_token&quot; &quot;$api_host/service/$myservice/version/$service_version/dictionary/$dict_id/info&quot; | jq
+
+printf &quot;\\nlist dictionary content:\\n\\n&quot;
+curl -s -H &quot;$api_token&quot; &quot;$api_host/service/$myservice/dictionary/$dict_id/items&quot; | jq
+
+#-----------------------------------------------------------------------------------------------
+
+# CREATE NEW KEY/VALUE FOR NEW DICTIONARY
+
+printf &quot;\\ncreate new key/value:\\n\\n&quot;
+dict_key=&quot;west&quot;
+dict_val=&quot;false&quot;
+curl -s -H &quot;$api_token&quot; -X POST -d &quot;item_key=$dict_key&amp;item_value=$dict_val&quot; &quot;$api_host/service/$myservice/dictionary/$dict_id/item&quot; | jq
+
+printf &quot;\\nlist dictionary content:\\n\\n&quot;
+curl -s -H &quot;$api_token&quot; &quot;$api_host/service/$myservice/dictionary/$dict_id/items&quot; | jq
+
+#-----------------------------------------------------------------------------------------------
+
+# if you need to delete a dictionary...
+#
+# curl -s -H &quot;$api_token&quot; -X DELETE &quot;$api_host/service/$myservice/version/$service_version/dictionary/www_buzzfeed_com&quot;
+#
+# if you need to delete a dictionary key/value...
+#
+# curl -s -H &quot;$api_token&quot; -X DELETE &quot;$api_host/service/$myservice/dictionary/$dict_id/item/$dict_key&quot; | jq
+#
+# if you need to update a dictionary key/value...
+#
+# dict_val=&quot;true&quot;
+# curl -s -H &quot;$api_token&quot; -X PATCH -d &quot;item_value=$dict_val&quot; &quot;$api_host/service/$myservice/dictionary/$dict_id/item/$dict_key&quot; | jq
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Github GPG Commit Signing Key] #gpg #github #commit #sign #key</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="github-gpg-commit-signing-key-gpg-github-commit-sign-key">[Github GPG Commit Signing Key] #gpg #github #commit #sign #key</h1>
+
+<h2 id="github-gpg-commit-signing-key-md">Github GPG Commit Signing Key.md</h2>
+
+<pre><code class="language-markdown">https://gist.github.com/troyfontaine/18c9146295168ee9ca2b30c00bd1b41e
+
+## PROBLEM 0: Quick Fix?
+
+Whatever your problem, try restarting your GPG Agent (it will auto-restart the next time gpg is used): 
+
+</code></pre>
+
+<p>gpgconf &ndash;kill gpg-agent
+killall gpg-agent</p>
+
+<pre><code>
+Also try `GIT_TRACE=1 ...` to see which internal command is failing and try running the command to get at the underlying error. 
+
+## PROBLEM 1: Homebrew changes install locations
+
+My global `~/.gitconfig` had a `[gpg]` section which was configured to the location of the `gpp` binary. I installed a newer Homebrew version (as part of a new laptop setup) and discovered that Homebrew changed the location of where binaries are installed so I needed to `which gpg` to find the new location and update my global git config.
+
+## PROBLEM 2: New Laptop
+
+I pulled down a project from GitHub but forgot that originally (on my old laptop) I would have updated the project's local `.git/config` file to include my user details, and the fact I want to sign my commits (see &quot;Project Specific Summary&quot; below). So just make sure that data is added.
+
+## PROBLEM 3: Missing GPG_TTY
+
+I was finding, after a long time of being able to sign commits using the instructions from this gist, that I couldn't sign my commits all of a sudden. 
+
+There's a few things you can try.
+
+In one instance I needed an esoteric way to tell Git about my user...
+
+```bash
+export GPG_TTY=$(tty)
+</code></pre>
+
+<h2 id="problem-4-conflicting-branch-names">PROBLEM 4: Conflicting branch names</h2>
+
+<p>Another issue I found was I shouldn&rsquo;t have a branch named the same as the tag version because git won&rsquo;t know what to do (make sure to delete the branch if it&rsquo;s already merged into your primary branch, or rename it otherwise). So now I don&rsquo;t name my branches <code>v1.0.0</code> but <code>integralist/v1.0.0</code> as this means when I add the tag <code>v1.0.0</code> there&rsquo;s no confusion as to what&rsquo;s being referenced.</p>
+
+<p>If your GPG key expires then you can&rsquo;t just update the expiry. You need to delete the public key from your GitHub account and re-add it in the GitHub UI like you did when first creating the public key (<a href="https://docs.github.com/en/authentication/troubleshooting-commit-signature-verification/updating-an-expired-gpg-key" target="_blank">docs</a>).</p>
+
+<hr />
+
+<h2 id="project-specific-summary">Project Specific Summary</h2>
+
+<pre><code class="language-ini">vim .git/config
+
+[user]
+  name = Foo Bar
+  email = foobar@example.com
+  signingkey = 123
+[commit]
+	gpgsign = true
+    
+git tag -s v1.1.0 -m &quot;v1.1.0&quot; &amp;&amp; git push origin v1.1.0
+</code></pre>
+
+<h2 id="full-details">Full details</h2>
+
+<pre><code class="language-bash">gpg --full-generate-key
+</code></pre>
+
+<pre><code class="language-bash">git config --global --edit
+</code></pre>
+
+<pre><code class="language-ini">[user]
+    signingkey = &lt;&gt;
+    name = &lt;&gt;
+    email = &lt;&gt;
+</code></pre>
+
+<pre><code class="language-bash">cd ~/path/to/some/repo/you/want/to/sign/commits/for
+git config --local --edit
+</code></pre>
+
+<pre><code class="language-ini">[commit]
+    gpgsign = true
+</code></pre>
+
+<pre><code class="language-bash">git config --local user.signingkey &lt;&gt;
+</code></pre>
+
+<blockquote>
+<p><strong>NOTE</strong>: feel free to add <code>gpgsign</code> to global settings if you prefer.</p>
+</blockquote>
+
+<p>You need to generate the public key to paste into GitHub. First get the identifier&hellip;</p>
+
+<pre><code class="language-bash">gpg --list-secret-keys --keyid-format LONG
+
+sec   4096R/&lt;GRAB_THIS&gt; ...
+...
+</code></pre>
+
+<p>Now you can export your public key&hellip;</p>
+
+<pre><code class="language-bash">gpg --armor --export &lt;identifier&gt; | pbcopy
+</code></pre>
+
+<p>Then go to GitHub &gt; Settings &gt; SSH and GPG keys.</p>
+
+<blockquote>
+<p><strong>NOTE</strong>: If using a different email to what your GitHub account is associated with, then go to <a href="https://github.com/settings/emails" target="_blank">https://github.com/settings/emails</a> and add the new email so it can be verified (otherwise github won&rsquo;t verify the email in the gpg key).</p>
+</blockquote>
+
+<h2 id="macos-keychain">macOS Keychain</h2>
+
+<p>See the ~/.gnupg/ files in <a href="https://github.com/integralist/dotfiles" target="_blank">my dotfiles repo</a>.</p>
+
+<pre><code class="language-bash">chmod 700 ~/.gnupg
+</code></pre>
+
+<h2 id="changing-commit-author">Changing Commit Author</h2>
+
+<p>If like me you have multiple users (one work, one personal) then you might want to change a personal commit signing with a work identity if you had used your personal one by accident.</p>
+
+<p>To do that you can use:</p>
+
+<pre><code class="language-bash">git commit --amend --reset-author
+</code></pre>
+
+<h2 id="references">References</h2>
+
+<p>I recently stumbled across: <a href="https://gist.github.com/troyfontaine/18c9146295168ee9ca2b30c00bd1b41e" target="_blank">https://gist.github.com/troyfontaine/18c9146295168ee9ca2b30c00bd1b41e</a>
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

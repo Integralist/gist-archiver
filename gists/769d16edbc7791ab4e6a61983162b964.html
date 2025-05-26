@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Fastly Create Users + API tokens for Auditing purposes] #fastly #cli #auth #api</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="fastly-create-users-api-tokens-for-auditing-purposes-fastly-cli-auth-api">[Fastly Create Users + API tokens for Auditing purposes] #fastly #cli #auth #api</h1>
+
+<h2 id="example-md">Example.md</h2>
+
+<pre><code class="language-markdown">Create a new user (using an API token that has 'superuser' permissions):
+
+
+```bash
+curl -v -H &quot;Fastly-Key: $FASTLY_API_TOKEN_SUPERUSER&quot; -X POST -d &quot;name=Foo Bar&amp;login=foo.bar%40example.com&quot; https://api.fastly.com/user
+</code></pre>
+
+<p>Response (notice no 2FA, no password, no force password reset etc):</p>
+
+<pre><code class="language-json">{
+  &quot;id&quot;:&quot;001&quot;,
+  &quot;created_at&quot;:&quot;2019-04-16T13:32:41Z&quot;,
+  &quot;updated_at&quot;:&quot;2019-04-16T13:32:41Z&quot;,
+  &quot;name&quot;:&quot;Foo Bar&quot;,
+  &quot;customer_id&quot;:&quot;123&quot;,
+  &quot;require_new_password&quot;:false,
+  &quot;role&quot;:&quot;user&quot;,
+  &quot;login&quot;:&quot;foo.bar@example.com&quot;,
+  &quot;deleted_at&quot;:null,
+  &quot;locked&quot;:false,
+  &quot;two_factor_auth_enabled&quot;:false,
+  &quot;limit_services&quot;:false,
+  &quot;email_hash&quot;:&quot;456&quot;,
+  &quot;two_factor_setup_required&quot;:true
+}
+</code></pre>
+
+<p>Set our own initial password for the user:</p>
+
+<pre><code class="language-bash">curl -v -H &quot;Fastly-Key: $FASTLY_API_TOKEN_SUPERUSER&quot; -X POST -d &quot;new_password=foobar&quot; https://api.fastly.com/user/&lt;id&gt;/password
+</code></pre>
+
+<p>Response (notice <code>require_new_password</code> is set to <code>true</code> now we&rsquo;ve set a password for the user):</p>
+
+<pre><code class="language-json">{
+  &quot;id&quot;:&quot;001&quot;,
+  &quot;created_at&quot;:&quot;2019-04-16T13:32:41Z&quot;,
+  &quot;updated_at&quot;:&quot;2019-04-16T13:51:38Z&quot;,
+  &quot;name&quot;:&quot;Foo Bar&quot;,
+  &quot;customer_id&quot;:&quot;123&quot;,
+  &quot;require_new_password&quot;:true,
+  &quot;role&quot;:&quot;user&quot;,
+  &quot;login&quot;:&quot;foo.bar@example.com&quot;,
+  &quot;deleted_at&quot;:null,
+  &quot;locked&quot;:false,
+  &quot;two_factor_auth_enabled&quot;:false,
+  &quot;limit_services&quot;:false,
+  &quot;email_hash&quot;:&quot;456&quot;,
+  &quot;two_factor_setup_required&quot;:true
+}
+</code></pre>
+
+<p>When signing in with this user, they are forced to setup 2FA. The concern at this point, is that this user is able to log into the Fastly UI and start creating both READ and WRITE API tokens for <em>any service</em>. Meaning, we should probably create the user but never set a password and see if we can still create API tokens for that user&rsquo;s account and have them be usable to query the Fastly API.</p>
+
+<p>In order to create a new token for a user account, we first need to call a <code>/sudo</code> endpoint:</p>
+
+<pre><code class="language-bash"># don't forget to escape any special characters with a backslash \
+export ADMIN_PASS=123456
+
+curl -v -H &quot;Fastly-Key: $FASTLY_API_TOKEN_SUPERUSER&quot; -H &quot;Fastly-OTP: 123456&quot; -X POST -d &quot;username=admin@example.com&amp;password=$ADMIN_PASS&quot; https://api.fastly.com/sudo
+</code></pre>
+
+<p>You can then request the token creation:</p>
+
+<pre><code class="language-bash">curl -H &quot;Fastly-Key: $FASTLY_API_TOKEN_SUPERUSER&quot; -X POST -d &quot;username=&lt;user&gt;&amp;password=&lt;pass&gt;&amp;services[]=&lt;service&gt;&quot; https://api.fastly.com/tokens
+</code></pre>
+
+<p>Response:</p>
+
+<pre><code class="language-json">{
+  &quot;id&quot;:&quot;000&quot;,
+  &quot;name&quot;:&quot;Fastly API Token&quot;,
+  &quot;user_id&quot;:&quot;123&quot;,
+  &quot;service_id&quot;:&quot;456&quot;,
+  &quot;expires_at&quot;:null,
+  &quot;created_at&quot;:&quot;2019-04-16T15:10:16Z&quot;,
+  &quot;updated_at&quot;:&quot;2019-04-16T15:10:16Z&quot;,
+  &quot;scope&quot;:&quot;global&quot;,
+  &quot;services&quot;:[&quot;&lt;service_id&gt;&quot;],
+  &quot;access_token&quot;:&quot;&lt;a_new_token&gt;&quot;
+}
+</code></pre>
+
+<blockquote>
+<p>Note: this token is generated for the superuser, and unfortunately not the specified username in the post formdata (which is what we wanted). Doesn&rsquo;t matter what creds you provide at this point. As you used the superuser account for <code>/sudo</code> it means the token will be setup for that user. This means as don&rsquo;t <em>know</em> anything about our user&rsquo;s or their creds (or OTP codes), we won&rsquo;t be able to create API tokens on their behalf.</p>
+
+<pre><code>
+## Fastly Create Users + API tokens for Auditing purposes.md
+
+```markdown
+&gt; Note: the following was a brief 'step-by-step' provided by Fastly.
+
+First, we create the user: 
+
+</code></pre>
+
+<p><a href="https://docs.fastly.com/api/account#user_00b606002596bac1c652614de98bd260" target="_blank">https://docs.fastly.com/api/account#user_00b606002596bac1c652614de98bd260</a></p>
+
+<pre><code>
+Because we can’t create the user with an specific password, we manually update the recently created user’s password with this API call:
+
+</code></pre>
+
+<p>POST /user/<user-id>/password
+Authentication: Using the API key of a superuser. Send that API key using the Fastly-Key header.
+Content-Type: application/x-www-form-urlencoded
+Payload: The new password should be sent as formdata within the field new_password</p>
+
+<pre><code>
+Then, knowing the user and password, we can create a personal token: 
+
+</code></pre>
+
+<p><a href="https://docs.fastly.com/api/auth#tokens_db4655a45a0107448eb0676577446e40" target="_blank">https://docs.fastly.com/api/auth#tokens_db4655a45a0107448eb0676577446e40</a></p>
+
+<pre><code>
+I’d also finish by requesting a password reset for the user, so they can set whatever they want: 
+
+</code></pre>
+
+<p><a href="https://docs.fastly.com/api/account#user_cee4dbb44c07d9ed078424cbbd353e1a" target="_blank">https://docs.fastly.com/api/account#user_cee4dbb44c07d9ed078424cbbd353e1a</a></p>
+
+<pre><code></code></pre>
+</blockquote>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python -m cli flag] #python #cli #flag</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-m-cli-flag-python-cli-flag">[Python -m cli flag] #python #cli #flag</h1>
+
+<h2 id="python-m-cli-flag-md">Python -m cli flag.md</h2>
+
+<pre><code class="language-markdown">Install package using pip that's associated with the currently running Python interpreter:
+
+```python
+python3 -m pip install -e rig
+</code></pre>
+
+<p>Create simple virtual environments for the currently running Python interpreter using <a href="https://docs.python.org/3/library/venv.html" target="_blank"><code>venv</code></a>:</p>
+
+<pre><code class="language-python"># create the virtual environment
+python3 -m venv /path/to/new/virtual/environment
+
+# activate the virtual environment
+source /path/to/new/virtual/environment/bin/activate
+</code></pre>
+
+<p>For a great breakdown of virtual environments and how they work, read: <a href="https://spurin.com/2019/03/12/Python-Virtual-Environments/" target="_blank">https://spurin.com/2019/03/12/Python-Virtual-Environments/</a>. In short, the <code>activate</code> command simply prefixes <code>/path/to/new/virtual/environment/bin</code> to your <code>$PATH</code> environment variable so it&rsquo;ll look there for <code>pip</code> and for installing/importing modules.</p>
+
+<blockquote>
+<p>Note: subset was built into Python 3.3+ as <code>venv</code> module, otherwise use <a href="https://virtualenv.pypa.io/en/stable/" target="_blank">virtualenv.pypa.io</a> for more features.</p>
+</blockquote>
+
+<p>Use existing Python packages with <code>-m</code> to do processing, like JSON formatting:</p>
+
+<pre><code class="language-python">curl -sL http://j.mp/1IuxaLD | python -m json.tool
+</code></pre>
+
+<blockquote>
+<p>See also: <a href="http://pythonwise.blogspot.com/2015/01/python-m.html" target="_blank">http://pythonwise.blogspot.com/2015/01/python-m.html</a>
+&ldquo;`</p>
+</blockquote>
+
+</div>
+</body>
+</html>

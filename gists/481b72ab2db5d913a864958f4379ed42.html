@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Redirect stdout and stderr</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="redirect-stdout-and-stderr">Redirect stdout and stderr</h1>
+
+<h2 id="redirect-stdout-and-stderr-md">redirect stdout and stderr.md</h2>
+
+<pre><code class="language-markdown">- File descriptor 0 is the standard input (`stdin`).  
+- File descriptor 1 is the standard output (`stdout`).  
+- File descriptor 2 is the standard error (`stderr`).
+
+Example redirection(s)...
+
+```bash
+docker ps 1&gt; /dev/null 2&gt;&amp;1
+</code></pre>
+
+<p>The above example will redirect <code>stdout</code> (1) to <code>/dev/null</code>.</p>
+
+<p>It then redirects <code>stderr</code> (2) to wherever <code>stdout</code> is pointing.</p>
+
+<p>At first, <code>2&gt;1</code> may look like a good way to redirect <code>stderr</code> to <code>stdout</code>. However, it will actually be interpreted as &ldquo;redirect stderr to a file named 1&rdquo;. <code>&amp;</code> indicates that what follows is a file descriptor and not a filename. So the construct becomes: <code>2&gt;&amp;1</code>.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

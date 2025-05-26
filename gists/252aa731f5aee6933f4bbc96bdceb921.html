@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Basic `tree` command written in Go] #go #golang #tree</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="basic-tree-command-written-in-go-go-golang-tree">[Basic <code>tree</code> command written in Go] #go #golang #tree</h1>
+
+<h2 id="basic-tree-command-written-in-go-go">Basic tree command written in Go.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;io/ioutil&quot;
+	&quot;log&quot;
+	&quot;os&quot;
+	&quot;path/filepath&quot;
+)
+
+func main() {
+	args := []string{&quot;.&quot;}
+	if len(os.Args) &gt; 1 {
+		args = os.Args[1:]
+	}
+
+	for _, arg := range args {
+		err := tree(arg, &quot;&quot;)
+		if err != nil {
+			log.Printf(&quot;tree %s: %v\n&quot;, arg, err)
+		}
+	}
+}
+
+func tree(root, indent string) error {
+	fi, err := os.Stat(root)
+	if err != nil {
+		return fmt.Errorf(&quot;could not stat %s: %v&quot;, root, err)
+	}
+
+	fmt.Println(fi.Name())
+	if !fi.IsDir() {
+		return nil
+	}
+
+	fis, err := ioutil.ReadDir(root)
+	if err != nil {
+		return fmt.Errorf(&quot;could not read dir %s: %v&quot;, root, err)
+	}
+
+	var names []string
+	for _, fi := range fis {
+		if fi.Name()[0] != '.' {
+			names = append(names, fi.Name())
+		}
+	}
+
+	for i, name := range names {
+		add := &quot;│  &quot;
+		if i == len(names)-1 {
+			fmt.Printf(indent + &quot;└──&quot;)
+			add = &quot;   &quot;
+		} else {
+			fmt.Printf(indent + &quot;├──&quot;)
+		}
+
+		if err := tree(filepath.Join(root, name), indent+add); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+</code></pre>
+
+</div>
+</body>
+</html>

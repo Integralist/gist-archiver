@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby parsing of complex nested data structures from the Query String</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-parsing-of-complex-nested-data-structures-from-the-query-string">Ruby parsing of complex nested data structures from the Query String</h1>
+
+<h2 id="ruby-query-string-nested-data-structure-rb">ruby-query-string-nested-data-structure.rb</h2>
+
+<pre><code class="language-ruby">require &quot;rack&quot;
+require &quot;cgi&quot;
+require &quot;addressable/uri&quot;
+require &quot;pry&quot;
+
+class HelloWorldApp
+  def self.call(env)
+    p CGI.parse(env[&quot;QUERY_STRING&quot;]) # {&quot;a&quot;=&gt;[&quot;a&quot;], &quot;b[c]&quot;=&gt;[&quot;c&quot;], &quot;b[d]&quot;=&gt;[&quot;d&quot;]}
+
+    uri = Addressable::URI.parse(env[&quot;REQUEST_URI&quot;])
+    p uri.query_values # {&quot;a&quot;=&gt;&quot;a&quot;, &quot;b[c]&quot;=&gt;&quot;c&quot;, &quot;b[d]&quot;=&gt;&quot;d&quot;}
+
+    binding.pry
+    [200, {}, &quot;Hello World&quot;]
+  end
+end
+
+Rack::Server.start :app =&gt; HelloWorldApp
+
+# http://localhost:8080/?a=a&amp;b[0][c]=c&amp;b[0][d]=d&amp;b[1][e]=e&amp;b[1][f]=f
+</code></pre>
+
+</div>
+</body>
+</html>

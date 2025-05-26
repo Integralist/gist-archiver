@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>A extremely basic selector engine for mobiles that support querySelectorAll /via @WebReflection (Andrea Giammarchi)</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="a-extremely-basic-selector-engine-for-mobiles-that-support-queryselectorall-via-webreflection-andrea-giammarchi">A extremely basic selector engine for mobiles that support querySelectorAll /via @WebReflection (Andrea Giammarchi)</h1>
+
+<h2 id="mobile-selector-engine">Mobile Selector Engine</h2>
+
+<pre><code class="language-text">var $ = (function (s) {
+    return function $(q) {
+        return s.call(document.querySelectorAll(q))
+    }
+}([].slice));
+</code></pre>
+
+</div>
+</body>
+</html>

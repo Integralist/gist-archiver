@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Try to cancel all jQuery AJAX requests currently running</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="try-to-cancel-all-jquery-ajax-requests-currently-running">Try to cancel all jQuery AJAX requests currently running</h1>
+
+<h2 id="cancelajax-js">cancelAJAX.js</h2>
+
+<pre><code class="language-javascript">$.xhrPool = [];
+
+$.xhrPool.abortAll = function() {
+  /* Original example used _underscore api
+    _.each(this, function(jqXHR) {
+        jqXHR.abort();
+    });
+  */
+    $.each(this, function(jqXHR) { 
+        jqXHR.abort(); 
+    });
+};
+
+$.ajaxSetup({
+    beforeSend: function(jqXHR) {
+        $.xhrPool.push(jqXHR);
+    }
+});
+</code></pre>
+
+</div>
+</body>
+</html>

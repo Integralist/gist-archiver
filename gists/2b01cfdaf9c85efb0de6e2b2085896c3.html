@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Vim handling stdin] #vim #stdin</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="vim-handling-stdin-vim-stdin">[Vim handling stdin] #vim #stdin</h1>
+
+<h2 id="vim-handling-stdin-md">Vim handling stdin.md</h2>
+
+<pre><code class="language-markdown">&gt; Note: for full details, read https://vimways.org/2018/vims-social-life/
+
+Vim doesn't handle stdin like other posix commands...
+
+```bash
+$ echo foo | vim
+
+Vim: Warning: Input is not from a terminal
+Vim: Error reading input, exiting...
+Vim: Finished.
+</code></pre>
+
+<p>If you pass <code>-</code> to vim, then it will accept the stdin and copy it to a new buffer&hellip;</p>
+
+<pre><code class="language-bash">$ echo foo | vim -
+</code></pre>
+
+<p>Before we look ahead at how to handle stdin a bit better, let&rsquo;s consider the <code>+</code> flag which tells vim what line to start on (the following example tells vim to jump to line 10):</p>
+
+<pre><code class="language-bash">$ vim ~/.vimrc +10
+</code></pre>
+
+<p>This will become relevant when we look at two other flags <code>-e</code> and <code>-s</code> (see <code>vim -h</code> for more information on available flags)&hellip;</p>
+
+<pre><code class="language-bash">$ echo foo | vim - -es +'%p' +'qa!'
+
+Vim: Reading from stdin...
+foo
+</code></pre>
+
+<p>When using the <code>-e</code> and <code>-s</code> flags, we&rsquo;re able to use <code>+</code> to execute Ex mode commands (see <code>:help -s-ex</code>).</p>
+
+<blockquote>
+<p>Note: if you don&rsquo;t use <code>+'qa!'</code> then vim will cause the terminal to hang (you also need the <code>!</code> otherwise <code>qa</code> would &ndash; if dealing with a traditional vim UI &ndash; show a message saying the buffer has been edited and can&rsquo;t be quite).</p>
+</blockquote>
+
+<p>To avoid the <code>Vim: Reading from stdin...</code> message we need an additional flag <code>--not-a-term</code>:</p>
+
+<pre><code class="language-bash">$ echo foo | vim - -es +'%p' +'qa!' --not-a-term
+
+foo
+</code></pre>
+
+<p>So now if we want to manipulate the content (let&rsquo;s say uppercase the word <code>foo</code> to <code>FOO</code>) we can do:</p>
+
+<pre><code>$ echo foo | vim - -es --not-a-term +'norm VgU' +'%p' +'qa!'
+
+FOO
+</code></pre>
+
+<blockquote>
+<p>Note: <code>norm</code> says execute the following characters as if the user is typing them, so <code>V</code> selects the entire line and <code>gU</code> uppercases the selection. We then print the output to stdout <code>%p</code> and then quit without trying to save the modifications.
+&ldquo;`</p>
+</blockquote>
+
+</div>
+</body>
+</html>

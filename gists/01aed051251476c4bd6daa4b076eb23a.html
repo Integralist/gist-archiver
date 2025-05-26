@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[python progress bar] #python #python3 #ansi #escape #progress</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-progress-bar-python-python3-ansi-escape-progress">[python progress bar] #python #python3 #ansi #escape #progress</h1>
+
+<h2 id="python-progress-bar-py">python progress bar.py</h2>
+
+<pre><code class="language-python"># https://mdk.fr/blog/how-apt-does-its-fancy-progress-bar.html
+#
+# For the record here's what's used (\033 is ESC):
+#
+# `ESC 7`           is DECSC   (Save Cursor)
+# `ESC 8`           is DECRC   (Restore Cursor)
+# `ESC [ Pn ; Pn r` is DECSTBM (Set Top and Bottom Margins)
+# `ESC [ Pn A`      is CUU     (Cursor Up)
+# `ESC [ Pn ; Pn f` is HVP     (Horizontal and Vertical Position)
+# `ESC [ Ps K`      is EL      (Erase In Line)
+
+import os
+import time
+from datetime import datetime
+
+columns, lines = os.get_terminal_size()
+
+
+def write(s):
+    print(s, end=&quot;&quot;)
+    time.sleep(1)
+
+
+write(&quot;\n&quot;)                  # Ensure the last line is available.
+write(&quot;\0337&quot;)               # Save cursor position
+write(f&quot;\033[0;{lines-1}r&quot;)  # Reserve the bottom line
+write(&quot;\0338&quot;)               # Restore the cursor position
+write(&quot;\033[1A&quot;)             # Move up one line
+
+try:
+    for i in range(250):
+        time.sleep(0.2)
+        write(f&quot;Hello {i}&quot;)
+        write(&quot;\0337&quot;)                     # Save cursor position
+        write(f&quot;\033[{lines};0f&quot;)          # Move cursor to the bottom margin
+        write(datetime.now().isoformat())  # Write the date
+        write(&quot;\0338&quot;)                     # Restore cursor position
+        write(&quot;\n&quot;)
+except KeyboardInterrupt:
+    pass
+finally:
+    write(&quot;\0337&quot;)             # Save cursor position
+    write(f&quot;\033[0;{lines}r&quot;)  # Drop margin reservation
+    write(f&quot;\033[{lines};0f&quot;)  # Move the cursor to the bottom line
+    write(&quot;\033[0K&quot;)           # Clean that line
+    write(&quot;\0338&quot;)             # Restore cursor position
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Internals] #python #internals</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-internals-python-internals">[Python Internals] #python #internals</h1>
+
+<h2 id="python-internals-py">Python Internals.py</h2>
+
+<pre><code class="language-python">import builtins
+
+dir(builtins)  # lists all objects that are globally available (e.g. builtins.object is available as 'object', no need to import `builtins` explicitly)
+
+help(object)  # help(builtins.object) is the same output...
+
+&quot;&quot;&quot;
+Help on class object in module builtins:
+
+class object
+ |  The most base type
+&quot;&quot;&quot;
+
+help(str)  # prints signature, return types, descriptions and all methods.
+</code></pre>
+
+</div>
+</body>
+</html>

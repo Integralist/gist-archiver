@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Passing through key and value to a reduce method block rather than just the item</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="passing-through-key-and-value-to-a-reduce-method-block-rather-than-just-the-item">Passing through key and value to a reduce method block rather than just the item</h1>
+
+<h2 id="reduce-with-key-and-value-rb">reduce with key and value.rb</h2>
+
+<pre><code class="language-ruby"># As expected the output is the key, then the value...
+
+({ :key =&gt; :value, :foo =&gt; :bar }).reduce([]) { |pass_through, item|
+  puts item
+}
+
+# key
+# value
+# foo
+# bar
+
+# The following example is better, as we get the key AND value passed through at once...
+
+({ :key =&gt; :value, :foo =&gt; :bar }).reduce([]) { |pass_through, (item_key, item_val) |
+  puts &quot;#{item_key} / #{item_val}&quot;
+}
+
+# key / value
+# foo / bar
+</code></pre>
+
+</div>
+</body>
+</html>

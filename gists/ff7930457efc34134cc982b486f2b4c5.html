@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Tornado Generic Exception Handling] #python #tornado #exceptions #handling</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-tornado-generic-exception-handling-python-tornado-exceptions-handling">[Python Tornado Generic Exception Handling] #python #tornado #exceptions #handling</h1>
+
+<h2 id="python-tornado-generic-exception-handling-py">Python Tornado Generic Exception Handling.py</h2>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+Exception is still sent to stdout, so if your service is configured
+to send all stdout to a log aggregator you'll get both a load of 
+log noise followed by a single log call that consolidates it all.
+
+See https://gist.github.com/1140bcd773616ecdae9bb4d2e9e55b34 for a
+logging/metrics abstraction (+ tornado implementation) that ties 
+this write_error function together nicely.
+&quot;&quot;&quot;
+
+import tornado
+import traceback
+
+class CustomHandler(tornado.web.RequestHandler):
+    def write_error(self, status_code, **kwargs):
+        if kwargs.get('exc_info'):
+            # dealing with an unhandled exception
+            stack_trace = '\n'.join([line for line in traceback.format_exception(*kwargs[&quot;exc_info&quot;])])
+            logger.error('uh-oh', stack=stack_trace)
+            self.set_status(500)
+            self.finish()
+</code></pre>
+
+</div>
+</body>
+</html>

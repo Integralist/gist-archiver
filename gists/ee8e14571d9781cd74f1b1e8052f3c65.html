@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python API Design] #api #design #python</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-api-design-api-design-python">[Python API Design] #api #design #python</h1>
+
+<h2 id="python-api-design-md">Python API Design.md</h2>
+
+<pre><code class="language-markdown">## Rules
+
+1. Raise exceptions near to the source of the error.
+2. Raise custom exceptions that are a subclass of a custom parent exception.
+3. Catch the custom parent exception near the top level of your application.
+4. Return `True` if an otherwise impure/side-effect driven operation succeeded.
+5. Send (and document) standardized error messages (e.g. `NOUN_STATE` == `INPUT_INVALID`)
+6. Send appropriate response status codes so callers can handle errors without parsing response structure.
+
+## Example
+
+```py
+class CustomError(Exception):
+	def __init__(self, exc='exception raised', code=500):
+		super().__init__(exc)
+		self.code = code
+        
+class NetworkException(CustomError):
+	pass
+    
+# example function that raises a subclass exception...
+
+def call_something_that_will_error() -&gt; bool:
+	# we catch the exception near the source of where it happened...
+	try:
+    	some_built_in_network_exception_fires('bad_url')
+    except Exception as exc:
+    	raise NetworkException('whoops!', code=400)
+        
+    # let's pretend this function would otherwise mutate a table record,
+    # in that case we want to know it succeeded
+    return True
+    
+# somewhere near your application's top-level entry point...
+
+def app_entry_point():
+	try:
+		call_something_that_will_error()
+	except CustomError as err:
+		# although NetworkException was raised, 
+		# we catch the parent custom exception
+		#
+		# also, we set an appropriate response status code,
+		# which means regardless of our actual body's response structure
+		# the caller of this API only needs to check the status code
+		set_status(500)
+		return {'state': 'error', code: 500, 'message': GENERIC_MESSAGE}
+        
+   	return {'state': 'success'}
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

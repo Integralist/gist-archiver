@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Auto Currying JavaScript Function</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="auto-currying-javascript-function">Auto Currying JavaScript Function</h1>
+
+<h2 id="auto-currying-javascript-function-js">Auto Currying JavaScript Function.js</h2>
+
+<pre><code class="language-javascript">// Copied from http://javascriptweblog.wordpress.com/2010/06/14/dipping-into-wu-js-autocurry/
+var autoCurry = (function () {
+ 
+    var toArray = function toArray(arr, from) {
+        return Array.prototype.slice.call(arr, from || 0);
+    },
+ 
+    curry = function curry(fn /* variadic number of args */) {
+        var args = toArray(arguments, 1);
+        return function curried() {
+            return fn.apply(this, args.concat(toArray(arguments)));
+        };
+    };
+ 
+    return function autoCurry(fn, numArgs) {
+        numArgs = numArgs || fn.length;
+        return function autoCurried() {
+            if (arguments.length &lt; numArgs) {
+                return numArgs - arguments.length &gt; 0 ?
+                    autoCurry(curry.apply(this, [fn].concat(toArray(arguments))),
+                              numArgs - arguments.length) :
+                    curry.apply(this, [fn].concat(toArray(arguments)));
+            }
+            else {
+                return fn.apply(this, arguments);
+            }
+        };
+    };
+ 
+}());
+
+marks = autoCurry(name)('Mark');
+bobs = marks('Bob Smith');
+bobs('McDonnell'); // =&gt; &quot;Mark Bob Smith McDonnell&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

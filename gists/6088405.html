@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Is this good flow control? Or would Promises (or Generators) make this much simpler and easier to read? I write my code in such a way that I try to be as 'functional' as possible, and that the code reads in a linear fashion (as if telling a story, there is a start, middle and an end).</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="is-this-good-flow-control-or-would-promises-or-generators-make-this-much-simpler-and-easier-to-read-i-write-my-code-in-such-a-way-that-i-try-to-be-as-functional-as-possible-and-that-the-code-reads-in-a-linear-fashion-as-if-telling-a-story-there-is-a-start-middle-and-an-end">Is this good flow control? Or would Promises (or Generators) make this much simpler and easier to read? I write my code in such a way that I try to be as &lsquo;functional&rsquo; as possible, and that the code reads in a linear fashion (as if telling a story, there is a start, middle and an end).</h1>
+
+<h2 id="example-js">example.js</h2>
+
+<pre><code class="language-javascript">var http = require('http'),
+    fs   = require('fs');
+
+var server = http.createServer(processRequest);
+    server.listen(8080);
+    
+function processRequest (request, response) {
+    console.log('INCOMING REQUEST: ' + request.method + ', ' + request.url);
+
+    loadAlbumList(handleAlbumList);
+    
+    /*
+        I'd really like to move these inner functions outside of the `processRequest` but that would mean
+        I would need to pass around the `request` and `response` parameters as well which would start 
+        feeling a little messy to me? Is this just the way it is or do you think there is a better way 
+        to handle this type of situation?
+     */
+
+    function handleAlbumList (err, albums) {
+        if (err) {
+            displayError(err);
+            return;
+        }
+
+        displaySuccess(albums);
+    }
+
+    function displayError (err) {
+        response.writeHead(503, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify(err) + '\n');
+    }
+
+    function displaySuccess (albums) {
+        var output = {
+            error: null,
+            data: { albums: albums }
+        };
+
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify(output) + '\n');
+    }
+}
+
+function loadAlbumList (callback) {
+    fs.readdir('albums/', function (err, files) {
+        if (err) {
+            callback(err);
+            return;
+        }
+
+        files = files.filter(function (value) {
+            if (/^\./i.test(value)) {
+                return false;
+            }
+            
+            return true;
+        });
+
+        callback(null, files);
+    });
+}
+</code></pre>
+
+</div>
+</body>
+</html>

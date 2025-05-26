@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python String Formatting] #python #string #formatting</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-string-formatting-python-string-formatting">[Python String Formatting] #python #string #formatting</h1>
+
+<h2 id="python-string-formatting-md">Python String Formatting.md</h2>
+
+<pre><code class="language-markdown">## f-string
+
+```py
+f'approx pi: {math.pi:.3f}'  # 'approx pi: 3.142'
+f'approx pi: {math.pi:.10f}'  # 'approx pi: 3.1415926536'
+
+# padding...
+foo = 'bar'
+baz = 'qux'
+
+f'{foo:10}'  # 'bar       '
+f'{foo:10} =&gt; {baz}'  # 'bar        =&gt; qux'
+</code></pre>
+
+<h2 id="string-format">string .format()</h2>
+
+<pre><code class="language-py">'{}'.format('foo')  # 'foo'
+'{1}'.format('foo', 'bar')  # 'bar'
+'{foo} {baz}'.format(foo='bar', baz='qux')  # 'bar qux'
+'{0[foo]} {0[baz]}'.format({'foo': 'bar', 'baz': 'qux'})  # 'bar qux'
+'{0[foo]:f} {0[baz]:f}'.format({'foo': 1.23, 'baz': 4.5})  # '1.230000 4.500000'
+</code></pre>
+
+<blockquote>
+<p>Note: in last example, if you would use the type to trigger an exception if the input didn&rsquo;t match: <code>'{0[foo]:f} {0[baz]:d}'.format({'foo': 1.23, 'baz': 4.5})</code> would raise a <code>ValueError: Unknown format code 'd' for object of type 'float'</code>.</p>
+</blockquote>
+
+<h2 id="traditional-sprintf">traditional sprintf</h2>
+
+<pre><code class="language-py">'foo%s' % 'bar'  # foobar
+'foo%(bar)s' % {'foo': 'FOO', 'bar': 'BAR'}  # fooBAR
+'num: %f' % 1.2  # 'num: 1.200000'
+'pi: %5.3f' % math.pi  # 'pi: 3.142'
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

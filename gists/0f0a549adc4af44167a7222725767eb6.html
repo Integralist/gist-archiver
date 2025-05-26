@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Rust flatten vector of Results] #rust</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="rust-flatten-vector-of-results-rust">[Rust flatten vector of Results] #rust</h1>
+
+<h2 id="main-rs">main.rs</h2>
+
+<pre><code class="language-rust">use std::result::Result::{Ok, Err};
+
+fn main() {
+    let v = vec![Ok(&quot;foo&quot;), Ok(&quot;bar&quot;), Err(&quot;whoops&quot;), Ok(&quot;baz&quot;)]; // Err should be skipped
+    for r in v.into_iter().flatten() {
+        println!(&quot;{:#?}&quot;, r);
+    }
+}
+
+/*
+&quot;foo&quot;
+&quot;bar&quot;
+&quot;baz&quot;
+*/
+</code></pre>
+
+</div>
+</body>
+</html>
