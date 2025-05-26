@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang merge two structs] #go #golang #merge #structs #embed</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-merge-two-structs-go-golang-merge-structs-embed">[Golang merge two structs] #go #golang #merge #structs #embed</h1>
+
+<h2 id="merge-two-structs-go">merge two structs.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+)
+
+type foo struct {
+	f int
+}
+
+type bar struct {
+	b int
+}
+
+type baz struct {
+	*foo
+	*bar
+}
+
+type qux struct {
+	f *foo
+	b *bar
+}
+
+type combined struct {
+	*baz
+}
+
+func acceptsFoo(f *foo) {
+	fmt.Printf(&quot;accepted foo: %+v\n&quot;, f)
+}
+
+func acceptsAnything(f *foo, x interface{}) {
+	fmt.Printf(&quot;f: %+v\n&quot;, f)
+	fmt.Printf(&quot;x: %+v\n&quot;, x)
+}
+
+func main() {
+	f := &amp;foo{1}
+	b := &amp;bar{2}
+	z := &amp;baz{f, b}
+	q := &amp;baz{foo: f, bar: b}
+	c := &amp;combined{z}
+
+	fmt.Printf(&quot;%+v\n&quot;, f)
+	fmt.Printf(&quot;%+v\n&quot;, b)
+	fmt.Printf(&quot;%+v\n&quot;, z)
+	fmt.Printf(&quot;%+v\n&quot;, q)
+
+	fmt.Printf(&quot;z.f %+v\n&quot;, z.f)
+	fmt.Printf(&quot;z.b %+v\n&quot;, z.b)
+	fmt.Printf(&quot;z.foo.f %+v\n&quot;, z.foo.f)
+	fmt.Printf(&quot;z.bar.b %+v\n&quot;, z.bar.b)
+
+	fmt.Printf(&quot;q.f %+v\n&quot;, q.f)
+	fmt.Printf(&quot;q.b %+v\n&quot;, q.b)
+	fmt.Printf(&quot;q.foo.f %+v\n&quot;, q.foo.f)
+	fmt.Printf(&quot;q.bar.b %+v\n&quot;, q.bar.b)
+
+	fmt.Printf(&quot;c.f %+v\n&quot;, c.f)
+	fmt.Printf(&quot;c.b %+v\n&quot;, c.b)
+	fmt.Printf(&quot;c.foo.f %+v\n&quot;, c.foo.f)
+	fmt.Printf(&quot;c.bar.b %+v\n&quot;, c.bar.b)
+	fmt.Printf(&quot;c.baz.foo.f %+v\n&quot;, c.baz.foo.f)
+	fmt.Printf(&quot;c.baz.bar.b %+v\n&quot;, c.baz.bar.b)
+
+	acceptsFoo(f)
+	acceptsAnything(f, b)
+}
+</code></pre>
+
+</div>
+</body>
+</html>

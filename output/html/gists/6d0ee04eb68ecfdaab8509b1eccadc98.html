@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Memory Sharing] #python #rss #resident #virtual #memory</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="memory-sharing-python-rss-resident-virtual-memory">[Memory Sharing] #python #rss #resident #virtual #memory</h1>
+
+<h2 id="memory-sharing-md">Memory Sharing.md</h2>
+
+<pre><code class="language-markdown">ECS Task has memory allocation of 500mb.
+
+It's a multi-process tornado service with 4 processes.
+
+Each process is reporting 200+ mb of RSS (resident) memory usage, which would mean total memory should be larger than 500mb.
+
+But as processes share memory, the total RSS is likely to be the sum of the memory shared across all child processes + the &quot;unique&quot; memory used by each child process as they diverge from one another.
+</code></pre>
+
+</div>
+</body>
+</html>

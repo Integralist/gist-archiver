@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Apple Curl Issues</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="apple-curl-issues">Apple Curl Issues</h1>
+
+<h2 id="apple-curl-issues-sh">Apple Curl Issues.sh</h2>
+
+<pre><code class="language-shell">brew rm curl # only if you have an earlier verion installed
+
+# work around Apple using their own system's Secure Transport library instead of OpenSSL
+brew install curl --with-openssl
+
+# use the new brew install of curl
+brew link curl --force
+</code></pre>
+
+</div>
+</body>
+</html>

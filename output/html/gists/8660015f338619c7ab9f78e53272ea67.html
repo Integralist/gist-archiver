@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[ANSI Escape Code Clear Line] #rust #ansi</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ansi-escape-code-clear-line-rust-ansi">[ANSI Escape Code Clear Line] #rust #ansi</h1>
+
+<h2 id="ansi-escape-code-clear-line-rs">ANSI Escape Code Clear Line.rs</h2>
+
+<pre><code class="language-rust">use std::{thread::sleep, time::Duration};
+
+const CLEAR: &amp;str = &quot;\x1B[2J\x1B[1;1H&quot;; // clears the line before printing the next character
+
+fn expensive_calculation(_n: &amp;i32) {
+    sleep(Duration::from_secs(1));
+}
+
+fn main() {
+    let v: Vec&lt;i32&gt; = vec![1, 2, 3];
+    let mut i: usize = 1;
+    for n in v.iter() {
+        println!(&quot;{}{}&quot;, CLEAR, &quot;*&quot;.repeat(i));
+        i += 1;
+        expensive_calculation(n);
+    }
+}
+</code></pre>
+
+<h2 id="clear-line-go">clear line.go</h2>
+
+<pre><code class="language-go">// Something I noticed in a CLI tool...
+
+func (p *InteractiveProgress) replaceLine(format string, args ...interface{}) {
+	// Clear the current line.
+	n := utf8.RuneCountInString(p.currentOutput)
+	switch runtime.GOOS {
+	case &quot;windows&quot;:
+		fmt.Fprintf(p.output, &quot;%s\r&quot;, strings.Repeat(&quot; &quot;, n))
+	default:
+		del, _ := hex.DecodeString(&quot;7f&quot;)
+		sequence := fmt.Sprintf(&quot;\b%s\b\033[K&quot;, del)
+		fmt.Fprintf(p.output, &quot;%s\r&quot;, strings.Repeat(sequence, n))
+	}
+
+	// Generate the new line.
+	s := fmt.Sprintf(format, args...)
+	p.currentOutput = s
+	fmt.Fprint(p.output, p.currentOutput)
+}
+</code></pre>
+
+</div>
+</body>
+</html>

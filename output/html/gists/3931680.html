@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Sass Mixin for CSS3 Animations</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="sass-mixin-for-css3-animations">Sass Mixin for CSS3 Animations</h1>
+
+<h2 id="1-example-scss">1. Example.scss</h2>
+
+<pre><code class="language-scss">@include keyframe(fadeout) {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@include keyframe(changecolour) {
+    0% {
+        color: #000;
+    }
+
+    100% {
+        color: #FFF;
+    }
+}
+</code></pre>
+
+<h2 id="2-keyframe-scss">2. Keyframe.scss</h2>
+
+<pre><code class="language-scss">@mixin keyframe ($animation_name) {
+    @-webkit-keyframes $animation_name {
+        @content;
+    }
+
+    @-moz-keyframes $animation_name {
+        @content;
+    }
+
+    @-o-keyframes $animation_name {
+        @content;
+    }
+
+    @keyframes $animation_name {
+        @content;
+    }
+}
+</code></pre>
+
+<h2 id="3-animation-scss">3. animation.scss</h2>
+
+<pre><code class="language-scss">/*
+    Example usage: 
+    @include animation(10s, 5s, changecolour)
+ */
+@mixin animation ($delay, $duration, $animation) {
+    -webkit-animation-delay: $delay;
+    -webkit-animation-duration: $duration;
+    -webkit-animation-name: $animation;
+    -webkit-animation-fill-mode: forwards; /* this prevents the animation from restarting! */
+
+    -moz-animation-delay: $delay;
+    -moz-animation-duration: $duration;
+    -moz-animation-name: $animation;
+    -moz-animation-fill-mode: forwards; /* this prevents the animation from restarting! */
+
+    -o-animation-delay: $delay;
+    -o-animation-duration: $duration;
+    -o-animation-name: $animation;
+    -o-animation-fill-mode: forwards; /* this prevents the animation from restarting! */
+
+    animation-delay: $delay;
+    animation-duration: $duration;
+    animation-name: $animation;
+    animation-fill-mode: forwards; /* this prevents the animation from restarting! */
+}
+</code></pre>
+
+</div>
+</body>
+</html>

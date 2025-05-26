@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[vim searching files and contents] #vim #search #find #grep</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="vim-searching-files-and-contents-vim-search-find-grep">[vim searching files and contents] #vim #search #find #grep</h1>
+
+<h2 id="vim-searching-md">vim searching.md</h2>
+
+<pre><code class="language-markdown">The following are native vim solutions to finding files and also searching multiple files for content.
+
+They require no plugins to be installed.
+
+&gt; Note: at the end of this gist I'll demonstrate some plugins that remove the need to use the native solutions, and in fact I use these plugins for day-to-day vim'ing instead.
+
+- [Finding a single file](#finding-a-single-file)
+- [Finding content within one or more files](#finding-content-within-one-or-more-files)
+  - [Example basic vim configuration](#example-basic-vim-configuration)
+- [Plugins](#plugins)
+
+## Finding a single file
+
+To find a _single_ file you can use the `:find` Ex command and pass it a wildcard glob character to help search recursively for the specified file pattern.
+
+Example: we want to find a file called `next.config.js`:
+
+```viml
+:find **/next.*.js 
+</code></pre>
+
+<blockquote>
+<p>Note: we could have just done <code>**/next.config.js</code> but in case you weren&rsquo;t familiar with the filename this helps to narrow things down.</p>
+</blockquote>
+
+<h2 id="finding-content-within-one-or-more-files">Finding content within one or more files</h2>
+
+<p>You have two options for locating a string within a file (or multiple files) and that&rsquo;s the following Ex commands&hellip;</p>
+
+<ol>
+<li><code>:vimgrep</code></li>
+<li><code>:lvimgrep</code></li>
+</ol>
+
+<p>The difference is that <code>lvimgrep</code> opens the results in a &lsquo;location&rsquo; window and every open split window can have its own location window, while <code>vimgrep</code> opens the results in a &lsquo;quickfix&rsquo; window and there can only be one of those shown.</p>
+
+<p>Meaning if you ran <code>vimgrep</code> in one split window and then ran it again (e.g. you&rsquo;re looking for something different now) from another window, then your first set of results would be replaced with the latter results. If you instead used <code>lvimgrep</code> then you could have multiple search results displayed (one for each split window).</p>
+
+<p>Example: you&rsquo;re looking for every file that has the contents <code>module.</code> (e.g. <code>module.foo</code>, <code>module.bar</code> etc):</p>
+
+<pre><code class="language-viml">:lvimgrep 'module\.' **/*
+</code></pre>
+
+<blockquote>
+<p>Note: I have found that lvimgrep has an empty location window of results which I <em>think</em> is caused by something else in my <code>.vimrc</code> file. If you notice a similar issue then you can debug by running vim without your vim configuration (e.g. <code>vim -u /Users/integralist/.vimrc_basic</code>).</p>
+</blockquote>
+
+<h3 id="example-basic-vim-configuration">Example basic vim configuration</h3>
+
+<pre><code class="language-viml">set nocompatible number cursorline expandtab hlsearch visualbell tabstop=2 shiftwidth=2
+</code></pre>
+
+<h2 id="plugins">Plugins</h2>
+
+<p>While in my day-to-day vim usage I&rsquo;ll use <code>:FZF</code> to find files or <code>:Ack! '&lt;regex&gt;' &lt;path&gt;</code> to find files that contain a particular string.</p>
+
+<blockquote>
+<p>Note: Although I use the Ack vim plugin I configure it to use the <code>ag</code> &lsquo;<a href="https://github.com/ggreer/the_silver_searcher" target="_blank">Silver Searcher</a>&rsquo; shell command.</p>
+</blockquote>
+
+<pre><code class="language-viml">&quot; Plugin Managment
+&quot; https://github.com/junegunn/vim-plug#example
+&quot;
+&quot; Reload .vimrc and :PlugInstall to install plugins.
+&quot; Use single quotes as requested by vim-plug.
+&quot;
+&quot; Specify a directory for plugins
+call plug#begin('~/.vim/plugged')
+
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim' &quot; Tab to select multiple results
+Plug 'mileszs/ack.vim'
+
+&quot; Initialize plugin system
+call plug#end()
+
+&quot; PLUGIN CONFIGURATION...
+
+&quot; FZF (search files)
+&quot;
+&quot; Shift-Tab to select multiple files
+&quot;
+&quot; Ctrl-t = tab
+&quot; Ctrl-x = split
+&quot; Ctrl-v = vertical
+&quot;
+&quot; We can also set FZF_DEFAULT_COMMAND in ~/.bashrc
+&quot; Also we can use --ignore-dir multiple times
+&quot;
+&quot; Note use :map command to see current mappings (also :vmap, :nmap, :omap).
+&quot; Can also restrict to specific mapping `:map &lt;Leader&gt;w`
+&quot; https://vi.stackexchange.com/questions/7722/how-to-debug-a-mapping
+map &lt;leader&gt;f :FZF&lt;CR&gt;
+map &lt;leader&gt;b :Buffers&lt;CR&gt;
+set wildignore+=*/.git/*,*/node_modules/*,*/.hg/*,*/.svn/*.,*/.DS_Store &quot; Files matched are ignored when expanding wildcards
+set wildmode=list:longest,list:full
+
+&quot; Ack
+let g:ackprg = 'ag --vimgrep --smart-case --ignore-dir=node_modules'
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

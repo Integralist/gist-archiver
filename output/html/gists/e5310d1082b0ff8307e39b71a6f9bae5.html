@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Comprehensions] #python3 #comprehensions</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-comprehensions-python3-comprehensions">[Python Comprehensions] #python3 #comprehensions</h1>
+
+<h2 id="python-comprehensions-md">Python Comprehensions.md</h2>
+
+<pre><code class="language-markdown">## Comprehensions
+
+A comprehension is a fancy way of saying: &quot;a more compact way of looping over, as well as filtering, a collection and generating a new collection from that process&quot;.
+
+There are three types of 'comprehensions' in Python to align with the various 'collection' types:
+
+1. List
+2. Dict
+3. Set
+
+They all work the same but differ in the type that is generated at the end.
+
+The syntax structure for each type looks like this:
+
+</code></pre>
+
+<h1 id="list">List</h1>
+
+<p>(values) = [ (expression) for (item) in (collection) if condition ]</p>
+
+<h1 id="dict-set">Dict/Set</h1>
+
+<p>(values) = { (expression) for (item) in (collection) if condition }</p>
+
+<pre><code>
+&gt; Note: yes the Dict and Set syntax structure is the same but the output type will be different (as we'll see in the following examples) because the Dict will output key/value pairs, while the Set will output individual element values.
+
+Here are examples of each...
+
+</code></pre>
+
+<h1 id="list-output">List Output:</h1>
+
+<h1 id="0-4-16-36-64">[0, 4, 16, 36, 64]</h1>
+
+<p>[x * x for x in range(10) if x % 2 == 0]</p>
+
+<h1 id="set-output">Set Output</h1>
+
+<h1 id="0-4-16-36-64-1">{0, 4, 16, 36, 64}</h1>
+
+<p>{x * x for x in range(10) if x % 2 == 0}</p>
+
+<h1 id="dict-output">Dict Output</h1>
+
+<h1 id="0-0-2-4-4-16-6-36-8-64">{0: 0, 2: 4, 4: 16, 6: 36, 8: 64}</h1>
+
+<p>{x: x * x for x in range(10) if x % 2 == 0}</p>
+
+<pre><code>
+&gt; Note: I've used the full syntax structure, but you don't have to. You could just use `for (item) in (collection)` and not include the `if condition` part.
+
+If we were to write this code without comprehensions, then it would look like the following (yes it is a lot more verbose, but ultimately just a multi-lined version):
+
+</code></pre>
+
+<h1 id="list-1">List</h1>
+
+<p>output = []
+for x in range(10):</p>
+
+<pre><code>if x % 2 == 0:
+    output.append(x * x)
+</code></pre>
+
+<h1 id="set">Set</h1>
+
+<p>output = set()
+for x in range(10):</p>
+
+<pre><code>if x % 2 == 0:
+    output.add(x * x)
+</code></pre>
+
+<h1 id="dict">Dict</h1>
+
+<p>output = dict()
+for x in range(10):</p>
+
+<pre><code>if x % 2 == 0:
+    output.update({x: x * x})
+</code></pre>
+
+<pre><code></code></pre>
+
+</div>
+</body>
+</html>

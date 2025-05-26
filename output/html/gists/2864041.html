@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Create basic site using Ruby and Sinatra (and external templates)</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="create-basic-site-using-ruby-and-sinatra-and-external-templates">Create basic site using Ruby and Sinatra (and external templates)</h1>
+
+<h2 id="1-sinatra-basic-with-comments-rb">1. sinatra-basic-with-comments.rb</h2>
+
+<pre><code class="language-ruby">#!/usr/bin/env ruby
+
+=begin
+    install Sinatra: gem install sinatra
+    install Shotgun: gem install shotgun (this auto-reloads sinatra on every http request - which means every time you make a change in your code you don't have to stop then start sinatra)
+
+    To just run your code using Sinatra: ruby name-of-file.rb
+    To run your code using Shotgun (which is just Sinatra but with ability to auto-reload when changes are made to files): shotgun name-of-file.rb
+
+    The following examples are run using Shotgun and the URL is: http://127.0.0.1:9393/
+    Note: When you run 'shotgun' it might well give you a different URL port number.
+=end
+
+require &quot;sinatra&quot;
+
+=begin
+    The following line helps direct the requests for static resources (e.g. styles &amp; scripts) 
+    to the correct location by telling it what the 'public' folder should be. 
+
+    e.g. if there is a request for 'Assets/Styles/test.css then the styles wont be found.
+    This is because the request is coming from a template file which is loaded from /views/
+    so we need to set the default route back to &quot;/&quot; so even though the template is within 
+    /views/ the request will correct locate Assets/Styles/test.css
+=end
+
+set :public_folder, File.dirname(__FILE__)
+
+=begin
+    The following is an example of generating some HTML that submits the form data
+    back to the current page &quot;/&quot; and then uses a &quot;post&quot; check to display the posted
+    form data
+=end
+
+get &quot;/&quot; do
+    %q{
+        Hello World!&lt;br&gt;&lt;f&gt;&lt;a href=&quot;http://www.google.com&quot;&gt;Google&lt;/a&gt;
+        &lt;form method=&quot;post&quot;&gt;
+        Enter your name: &lt;input type=&quot;text&quot; name=&quot;name&quot; /&gt;
+        &lt;input type=&quot;submit&quot; value=&quot;Go!&quot; /&gt;
+        &lt;/form&gt;
+    }
+end
+
+post &quot;/&quot; do
+    # When receiving post data from a form field we need to use a &quot;Named Parameter&quot;
+    &quot;Hello #{params[:name]}&quot;
+end
+
+=begin
+    The following examples show how to set-up code to run when accessing a specific
+    URL route like http://127.0.0.1:9393/add/5/1 
+=end
+
+# This example uses 'Named Parameters' (e.g. params[:name])
+get &quot;/add/:a/:b&quot; do
+    # http://127.0.0.1:9393/add/5/1 which should display 6 (5+1)
+    (params[:a].to_i + params[:b].to_i).to_s
+end
+
+# This example uses 'block parameters' (e.g. |x, y, z|)
+get &quot;/subtract/:a/:b&quot; do |a, b|
+    # Go to http://127.0.0.1:9393/subtract/5/1 which should display 4 (5-1)
+    (a.to_i - b.to_i).to_s
+end
+
+=begin
+    The following example shows how to use Templates and Layouts.
+    A Template is HTML code interpolated with dynamic content.
+    A Layout is a wrapper around the Template (e.g. &lt;html&gt;&lt;body&gt;TEMPLATE&lt;/body&gt;&lt;/html&gt; which means you don't have to include the same page content around your Template)
+
+    Templating is handled via Erb, but there are other template languages you can use
+    instead such as HAML or Builder
+=end
+
+# The &quot;before&quot; code block is executed before ALL requests
+before do
+    @people = [
+        { :name =&gt; &quot;Mark&quot;, :age =&gt; 30 },
+        { :name =&gt; &quot;Brad&quot;, :age =&gt; 21 },
+        { :name =&gt; &quot;Ash&quot;, :age =&gt; 21 }
+    ] 
+end
+
+# you must have a folder called 'views' with your template &amp; layout files within it
+# e.g. /views/mylayout.erb and /views/mytemplate.erb (see additional files below for the content of these files)
+get &quot;/erb-template-external&quot; do
+    erb :mytemplate, :layout =&gt; :mylayout
+end
+</code></pre>
+
+<h2 id="mylayout-erb">mylayout.erb</h2>
+
+<pre><code class="language-html+erb">&lt;html lang=&quot;en&quot; dir=&quot;ltr&quot;&gt;
+    &lt;head&gt;
+        &lt;meta charset=&quot;utf-8&quot;&gt;
+        &lt;title&gt;Using Erb Templates&lt;/title&gt;
+        &lt;link rel=&quot;stylesheet&quot; href=&quot;Assets/Styles/test.css&quot;&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h2&gt;Erb Templates&lt;/h2&gt;
+        &lt;%= yield %&gt;
+        &lt;script src=&quot;Assets/Scripts/test.js&quot;&gt;&lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<h2 id="mytemplate-erb">mytemplate.erb</h2>
+
+<pre><code class="language-html+erb">&lt;% @people.each do |person| %&gt;
+   &lt;p&gt;&lt;strong&gt;&lt;%= person[:name] %&gt;&lt;/strong&gt; is &lt;%= person[:age] %&gt; years old&lt;/p&gt;     
+&lt;% end %&gt;
+</code></pre>
+
+<h2 id="test-css">test.css</h2>
+
+<pre><code class="language-css">body {
+    color: #CC0;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 100%;
+    margin: 1em;
+    padding: 1em;
+}
+</code></pre>
+
+<h2 id="test-js">test.js</h2>
+
+<pre><code class="language-javascript">window.setTimeout(function(){
+    alert(&quot;This was delayed by five seconds&quot;);
+}, 5000);
+</code></pre>
+
+</div>
+</body>
+</html>

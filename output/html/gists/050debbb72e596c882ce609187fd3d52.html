@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[AWS Security Group Rule - Ingress vs Egress] #aws #security #sg #sgr #rule</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="aws-security-group-rule-ingress-vs-egress-aws-security-sg-sgr-rule">[AWS Security Group Rule - Ingress vs Egress] #aws #security #sg #sgr #rule</h1>
+
+<h2 id="aws-security-group-rule-ingress-vs-egress-md">AWS Security Group Rule - Ingress vs Egress.md</h2>
+
+<pre><code class="language-markdown">The ever wonderful [twitter.com/sweetpavement](https://twitter.com/sweetpavement) gave me the following analogy to help me understand the difference between ingress and egress with regards to defining them on 'rules' assigned to Security Groups.
+
+---
+
+My understanding was helped here when I started thinking of ingress and egress as two separate doors to a building.
+
+Ingress needs to be told where things are coming from, even if they're coming from the service, because they are entering the &quot;in&quot; door, which faces an open street. Specifying the source on these rules is like having an ID badge that lets you through that in door, instead of having to send you to the desk. Even if the request comes from &quot;inside the service&quot;, to the perspective of the service it's coming in the in door and so explicitly needs to know whether it has a badge (i.e. is from the 'source' security group).
+
+Egress on the other hand is an out door. The service already knows who is &quot;inside&quot; the building, and it's just trying to send them out the door and to the correct place. Since it knows who is in the building (what traffic is coming from itself towards the &quot;out&quot; door) it only needs rules about where that door should lead, so it's not dumping VIPs into a dark alley where they'll be mugged.
+</code></pre>
+
+</div>
+</body>
+</html>

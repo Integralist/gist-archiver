@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go file lock] #go #golang #flock</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-file-lock-go-golang-flock">[Go file lock] #go #golang #flock</h1>
+
+<h2 id="main-go">main.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;context&quot;
+	&quot;fmt&quot;
+	&quot;os&quot;
+	&quot;time&quot;
+
+	&quot;github.com/gofrs/flock&quot;
+)
+
+const (
+	// FileLockTimeout is the amount of time to wait trying to acquire a lock.
+	FileLockTimeout = 30 * time.Second
+
+	// FileLockRetryDelay is the mount of time to wait before attempting a retry.
+	FileLockRetryDelay = 500 * time.Millisecond
+)
+
+func main() {
+	filename := &quot;go.mod&quot;
+
+	// NOTE: We stat the file because if we didn't, and we provided a file path
+	// that didn't exist, then flock will cause the file to exist!
+	// That is confusing behaviour obviously.
+	if _, err := os.Stat(filename); err != nil {
+		fmt.Printf(&quot;error stating file '%s': %v&quot;, filename, err)
+		return
+	}
+
+	fileLock := flock.New(filename)
+	lockCtx, cancel := context.WithTimeout(context.Background(), FileLockTimeout)
+	defer cancel()
+
+	locked, err := fileLock.TryLockContext(lockCtx, FileLockRetryDelay)
+	if err != nil {
+		fmt.Printf(&quot;error acquiring file lock for '%s': %v&quot;, fileLock.Path(), err)
+		return
+	}
+
+	if locked {
+		data, err := os.ReadFile(fileLock.Path())
+		if err != nil {
+			fmt.Printf(&quot;error reading file '%s': %v&quot;, fileLock.Path(), err)
+			return
+		}
+		fmt.Printf(&quot;file content: %+v\n&quot;, string(data))
+
+		// Add some friction to demonstrate how multiple instances of this app
+		// cannot access the go.mod file at the same time.
+		time.Sleep(20 * time.Second)
+
+		if err := fileLock.Unlock(); err != nil {
+			fmt.Printf(&quot;error releasing file lock for '%s': %v&quot;, fileLock.Path(), err)
+		}
+	}
+}
+</code></pre>
+
+</div>
+</body>
+</html>

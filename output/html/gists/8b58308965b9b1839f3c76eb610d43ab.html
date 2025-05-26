@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[list, download and extract S3 log files] careful, this can exhaust process resources (no process pool implementation) #s3 #aws #logs</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="list-download-and-extract-s3-log-files-careful-this-can-exhaust-process-resources-no-process-pool-implementation-s3-aws-logs">[list, download and extract S3 log files] careful, this can exhaust process resources (no process pool implementation) #s3 #aws #logs</h1>
+
+<h2 id="list-download-and-extract-s3-log-files-sh">list, download and extract S3 log files.sh</h2>
+
+<pre><code class="language-shell">#!/usr/bin/env bash
+
+function get_logs {
+  aws s3 ls &quot;bf-logs-archive/Fastly/$1/&quot; &gt; ls_results.txt
+}
+
+function copy_log {
+  aws s3 cp &quot;s3://bf-logs-archive/Fastly/$1/$2&quot; ./logs/ &amp;
+}
+
+function process {
+  local dir=$1
+  local logs=$2
+  local file
+
+  while read -r line; do
+    file=$(echo &quot;$line&quot; | cut -d ' ' -f 10)
+
+    if [[ $file != &quot;&quot; ]]; then
+      copy_log &quot;$dir&quot; &quot;$file&quot;
+    fi
+  done &lt; &quot;$logs&quot;
+
+  wait
+}
+
+function decode_gzipped_files {
+  # note: this will replace .gz with the extract log file
+  find ./logs -name '*.gz' -exec gzip -d {} \;
+}
+
+time get_logs &quot;video-player.buzzfeed.com&quot;
+time process &quot;video-player.buzzfeed.com&quot; &quot;ls_results.txt&quot;
+time decode_gzipped_files
+</code></pre>
+
+</div>
+</body>
+</html>

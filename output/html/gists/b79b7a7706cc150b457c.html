@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby: pass a block to a function that has zero arity (i.e. don't define &block inside of our initialize method). The point of this demonstration is that you are able to pass a block through to another method whilst not initially defining an argument for the block to be passed by. This way we gain better performance (calling a proc is very slow compared to yielding), and regardless we're not able to pass a yield through to another method.</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-pass-a-block-to-a-function-that-has-zero-arity-i-e-don-t-define-block-inside-of-our-initialize-method-the-point-of-this-demonstration-is-that-you-are-able-to-pass-a-block-through-to-another-method-whilst-not-initially-defining-an-argument-for-the-block-to-be-passed-by-this-way-we-gain-better-performance-calling-a-proc-is-very-slow-compared-to-yielding-and-regardless-we-re-not-able-to-pass-a-yield-through-to-another-method">Ruby: pass a block to a function that has zero arity (i.e. don&rsquo;t define &amp;block inside of our initialize method). The point of this demonstration is that you are able to pass a block through to another method whilst not initially defining an argument for the block to be passed by. This way we gain better performance (calling a proc is very slow compared to yielding), and regardless we&rsquo;re not able to pass a yield through to another method.</h1>
+
+<h2 id="pass-block-with-zero-arity-md">Pass block with zero arity.md</h2>
+
+<pre><code class="language-markdown">I saw this in some code written by BBC principle developer @kenoir and later located the following useful post: http://mudge.name/2011/01/26/passing-blocks-in-ruby-without-block.html
+
+```ruby
+class Foo
+  def initialize
+    bar &amp;Proc.new # voodoo
+  end
+  def bar(&amp;block)
+    block.call
+  end
+end
+
+Foo.new { puts &quot;hai&quot; }
+</code></pre>
+
+<p>In short, the reason it works is this:</p>
+
+<blockquote>
+<p>If <code>Proc.new</code> is called from inside a method without any arguments of its own, it will return a new Proc containing the block given to its surrounding method.</p>
+</blockquote>
+
+<p>Very nice!
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

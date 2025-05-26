@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Atomic Counter] #python3 #concurrency #threadsafe #lock #atomic #counter</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-atomic-counter-python3-concurrency-threadsafe-lock-atomic-counter">[Python Atomic Counter] #python3 #concurrency #threadsafe #lock #atomic #counter</h1>
+
+<h2 id="python-atomiccounter-py">Python AtomicCounter.py</h2>
+
+<pre><code class="language-python">import threading
+
+
+class AtomicCounter(object):
+    &quot;&quot;&quot;An atomic, thread-safe counter&quot;&quot;&quot;
+    
+    def __init__(self, initial=0):
+        &quot;&quot;&quot;Initialize a new atomic counter to given initial value&quot;&quot;&quot;
+        self._value = initial
+        self._lock = threading.Lock()
+    
+    def inc(self, num=1):
+        &quot;&quot;&quot;Atomically increment the counter by num and return the new value&quot;&quot;&quot;
+        with self._lock:
+            self._value += num
+            return self._value
+    
+    def dec(self, num=1):
+        &quot;&quot;&quot;Atomically decrement the counter by num and return the new value&quot;&quot;&quot;
+        with self._lock:
+            self._value -= num
+            return self._value
+    
+    @property
+    def value(self):
+        return self._value
+      
+counter = AtomicCounter()
+counter.value  # 0
+counter.inc()  # 1
+counter.inc()  # 2
+counter.dec()  # 1
+counter.dec()  # 0
+counter.dec()  # -1
+</code></pre>
+
+</div>
+</body>
+</html>

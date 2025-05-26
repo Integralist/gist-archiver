@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>The Checkbox CSS Hack (doesn't work in IE <= 8, but all other browsers fine)</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="the-checkbox-css-hack-doesn-t-work-in-ie-8-but-all-other-browsers-fine">The Checkbox CSS Hack (doesn&rsquo;t work in IE &lt;= 8, but all other browsers fine)</h1>
+
+<h2 id="1-elements-html">1. elements.html</h2>
+
+<pre><code class="language-html">&lt;label for=&quot;toggle-1&quot;&gt;I'm a toggle&lt;/label&gt;
+&lt;input type=&quot;checkbox&quot; id=&quot;toggle-1&quot;&gt;
+&lt;div&gt;I'm controlled by toggle. No JavaScript!&lt;/div&gt;
+</code></pre>
+
+<h2 id="2-styles-css">2. styles.css</h2>
+
+<pre><code class="language-css">/* Checkbox Hack */
+
+input[type=checkbox] {
+   position: absolute;
+   top: -9999px;
+   left: -9999px;
+}
+label { 
+  -webkit-appearance: push-button;
+  -moz-appearance: button; 
+  display: inline-block;
+  margin: 60px 0 10px 0;
+  cursor: pointer;
+}
+
+/* Default State */
+div {
+   background: green;
+   width: 400px;
+   height: 100px;
+   line-height: 100px;
+   color: white;
+   text-align: center;
+}
+
+/* Toggled State */
+input[type=checkbox]:checked ~ div {
+   background: red;
+}
+
+</code></pre>
+
+</div>
+</body>
+</html>

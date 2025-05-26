@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Unit Testing with BusterJS</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="unit-testing-with-busterjs">Unit Testing with BusterJS</h1>
+
+<h2 id="buster-js">buster.js</h2>
+
+<pre><code class="language-javascript">var config = module.exports;
+
+config['My tests'] = {
+    rootPath: '../',				// Set root path which is relative to where the config file is found
+    environment: 'browser',			// or &quot;node&quot;
+    sources: [
+        'example.js' 				// Paths are relative to config file or rootPath
+        //'../**/*.js'				// Glob patterns supported
+    ],
+    tests: [
+        'test/*-test.js'			// All files named [whatever]-test.js will be run
+    ]
+}
+</code></pre>
+
+<h2 id="description-md">description.md</h2>
+
+<pre><code class="language-markdown">Folder structure:  
+
+* example.js
+* index.html
+* /test/
+  * buster.js
+  * example-test.js
+
+When in the terminal application I move to the `/test/` folder and after running `buster server` and opening port 1111 in my browsers of choice (or in this case just one browser FF 10.0.2) I then open a new terminal tab and execute `buster test --reporter specification` but the terminal just hangs there doing nothing (where originally it would run the `example-test.js` test case and show what failed/succeeded).
+
+Can you advise if I've missed something really obvious? I'm using the latest busterjs version (uninstalled and re-installed via NPM)
+
+</code></pre>
+
+<h2 id="example-test-js">example-test.js</h2>
+
+<pre><code class="language-javascript">// Create a new assertion
+buster.assertions.add('myIsArray', {
+	assert: function (obj) {
+		return Object.prototype.toString.call(obj).slice(8, -1) === 'Array';
+	}
+});
+
+// Typically, you have one test case per file
+buster.testCase('My test module', {
+    
+    // Can't have empty setUp/tearDown methods, but I leave them here to remember the syntax
+    
+    setUp: function(){
+    	this.clock = this.useFakeTimers(); // needed for async tests - modifies setTimeout/Interval to be synchronous (see: http://sinonjs.org/docs/#clock)
+    },
+    
+    tearDown: function(){
+        this.clock.restore(); // put back the original asynchronous versions of setTimeout/Interval
+    },
+    
+    // Two forward slashes at the start of a test case's name indicates that it should be ignored but shown in the results as 'deferred'    
+    '//A test that I want to comment out for a while but not hide from the test results': function(){
+    	var num = 123;
+    	assert.match(num, 123);
+    },
+    
+    'an async test': function(){
+    	var num;
+    	
+        window.setTimeout(function(){
+    		num = 123;
+    	}, 10000);
+    	
+    	this.clock.tick(10000);
+    	
+    	assert.match(num, 123);
+    },
+    
+    // Test case
+    'A bad test (as it tests random stuff when it should test specific functionality)': function(){
+    	// See all assertions: http://busterjs.org/docs/assertions/
+		
+		/* Assertion: assert
+		 *******************/
+		
+		var user = canDrink(18);
+		assert(user);
+		
+		/*
+		var mytest = false;
+		assert(mytest, 'my failure message taken from the assert that failed!');
+		*/
+		
+		/* Assertion: match (regex)
+		 **************************/
+		
+		var test = 'This is my string with some {{data}} inside of {{template}} brackets';
+		assert.match(test, /{{[a-z]+}}/i);
+		
+		/* Assertion: match (element)
+		 ****************************/
+		
+		var elem = document.createElement('h1'),
+			txt = document.createTextNode('some text');
+		
+		elem.className = 'myClass';
+		elem.appendChild(txt);
+		
+		assert.match(elem, {
+			tagName: 'h1',
+			className: 'myClass',
+			innerHTML: 'some text'
+		});
+		
+		/* Assertion: same (===)
+		 ***********************/
+		 
+		var str1 = 'a',
+			str2 = 'a',
+			str3 = 'c',
+			str4 = 'd';
+			
+		assert.same(str1, str2);
+		refute.same(str3, str4);
+		
+		/* Assertion: equals (checks properties)
+		 ***************************************/
+
+		var obj1 = { name:'bob', age:123 },
+			obj2 = { name:'bob', age:123 },
+			obj3 = { name:'sam', age:123 },
+			obj4 = { name:'jon', age:456 };
+			
+		assert.equals(obj1, obj2);
+		refute.equals(obj3, obj4);
+		
+		/* Assertion: typeOf
+		 *******************/
+
+		assert.typeOf({}, 'object', 'This will pass');
+		assert.typeOf({}, 'object');
+		assert.typeOf('bobby', 'string');
+		refute.typeOf(null, 'function');
+		refute.typeOf([], 'array'); // doesn't use Object.prototype.toString.call() to see inner [[Class]] property so [] equals 'object'
+		assert.myIsArray([]); // so we build our own
+		
+		/* Assertion: defined (if the value is anything other than undefined)
+		 ********************************************************************/
+
+		assert.defined.message = 'my specified item seems to be undefined?'; // changed default message
+		var a;
+		assert.defined({});
+		refute.defined(a);
+		
+		/* Assertion: isNull (fails if the object is not null)
+		 *****************************************************/
+
+		assert.isNull(null, 'This will pass');
+		refute.isNull({});
+		
+		/* Assertion: isObject (fails if object is null or not an object)
+		 ****************************************************************/
+
+		assert.isObject({});
+		assert.isObject([1, 2, 3]);
+		refute.isObject(42);
+		refute.isObject(function(){});
+		
+		/* Assertion: isFunction (fails if object is not a function)
+		 ***********************************************************/
+
+		refute.isFunction({});
+		refute.isFunction(42);
+		assert.isFunction(function(){});
+		
+		/* Assertion: tagName (Fails if the element either does not specify a tagName property, or if its value is not a case-insensitive match with the expected tagName)
+		 *****************************************************************************************************************************************************************/
+
+		assert.tagName(document.createElement('p'), 'p');
+		assert.tagName(document.createElement('h2'), 'H2');
+		refute.tagName(document.createElement('p'), 'li');
+		
+		/* Assertion: className (Fails if the element either does not specify a className property, or if its value is not a space-separated list of all class names in classNames)
+		 **************************************************************************************************************************************************************************/
+		 
+		var el = document.createElement('p');
+		el.className = 'feed item blog-post';
+		
+		assert.className(el, 'item');
+		assert.className(el, 'blog-post feed');
+		assert.className(el, ['item', 'feed']);
+		refute.className(el, 'feed items');
+		refute.className(el, 'news');
+    }
+    
+});
+</code></pre>
+
+<h2 id="example-js">example.js</h2>
+
+<pre><code class="language-javascript">function canDrink(age) {
+	if (typeof age != 'number') {
+		age = parseInt(age);
+	}
+	return (age &gt;= 18) ? true : false;
+}
+</code></pre>
+
+<h2 id="index-html">index.html</h2>
+
+<pre><code class="language-html">&lt;!doctype html&gt;
+&lt;html&gt;
+	&lt;head&gt;
+		&lt;meta charset=&quot;utf-8&quot;&gt;
+		&lt;title&gt;Buster.js Unit-Testing&lt;/title&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+		Buster is run via Terminal (see &lt;code&gt;test/buster.js&lt;/code&gt; for details)
+	&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[vim search and replace content using native vim cdo and cfdo commands] #vim #replace #macro #quickfix</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="vim-search-and-replace-content-using-native-vim-cdo-and-cfdo-commands-vim-replace-macro-quickfix">[vim search and replace content using native vim cdo and cfdo commands] #vim #replace #macro #quickfix</h1>
+
+<h2 id="examples-md">Examples.md</h2>
+
+<pre><code class="language-markdown">There are two 'types' to be aware of with a quickfix window:
+
+1. entry: the actual _line_ content (e.g. `:grep foo` will show a specific line that matched within a file).
+2. file: the actual _file_ itself (e.g. the path to the file that contained the match).
+
+To replace content using vim (via the quickfix window) you need to choose whether you want to apply the change via the quickfix 'entry' or via the 'file' as a whole.
+
+If you use `cdo`, then your 'action' (i.e. how you're going to _replace_ content) will be applied to every _entry_ in the quickfix window.
+
+If you use `cfdo`, then your action will be applied to each _file_ in the quickfix window. 
+
+## tl;dr
+
+Using `cdo` is more straight forward, but `cfdo` is probably more efficient/performant.
+
+## Difference?
+
+To understand the difference, let's consider an example scenario:
+
+We have quickfix window that has two files:
+
+1. `example1.txt`
+2. `example2.txt` 
+
+The file `example1.txt` shows up multiple times, while `example2.txt` only shows up once. 
+
+The file `example1.txt` shows up multiple times because we searched for a phrase such as `foo` and that phrase happened to appear multiple times within `example1.txt`, while it only appeared once within `example2.txt`.
+
+If you wanted to replace `foo` with `bar` using a subtitution like `s/foo/bar/`, and you used `cdo`, then all occurences of `foo` would be replaced because the substitution would be executed across each _entry_ in the quickfix window. But if you used `cfdo` then the substitution would only be applied once to the _file_ because you didn't use `%` (e.g. `:%s/foo/bar/` meaning apply the substitution across the entire buffer) so only the first line of the file would have the substitution applied. 
+
+You could still use `cfdo` but you would need to specify `%`.
+
+&gt; **NOTE**: I've found that my quickfix window is updated frequently/dynamically when using certain build tools (e.g. vim-go with gopls), in this case I'm better off using `cfdo` with `%s/foo/bar/e | update` which will write the buffer once, rather than the multiple times compared to `cdo` with `s/foo/bar/e | update`. It's also much more efficient using `cfdo` as it won't write the buffer multiple times.
+
+## Examples
+
+To execute a substitution for every 'entry' listed in the quickfix window use `cdo`:
+
+</code></pre>
+
+<p>:cdo s/v2/v3/ | update</p>
+
+<pre><code>
+To execute a macro for every 'file' listed in the quickfix window, you would still use `cdo` and not `cfdo`! This is interesting because you might expect the macro to execute across the entire file, but remember that macros only execute once and if you need them to be executed multiple times then you need to tell them to execute across a 'range' (e.g. the entire buffer or a section of lines). So by using `cdo` instead it means you can rely on the macro being executed against every _instance_ of the thing you're searching for (even if it appears multiple times within a file).
+
+</code></pre>
+
+<p>:cdo execute &ldquo;norm @q&rdquo; | update</p>
+
+<pre><code></code></pre>
+
+</div>
+</body>
+</html>

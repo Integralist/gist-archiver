@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Doesn't work: preload images so we can check when background images are loaded via CSS</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="doesn-t-work-preload-images-so-we-can-check-when-background-images-are-loaded-via-css">Doesn&rsquo;t work: preload images so we can check when background images are loaded via CSS</h1>
+
+<h2 id="preload-js">preload.js</h2>
+
+<pre><code class="language-javascript">    function preload (srcArray) {
+        var len = srcArray.length;
+        var imgs = new Array(len);
+        var count = 0;
+
+        for (var i=0; i&lt;len; i++) {
+            imgs[i] = new Image();
+            imgs[i].src = srcArray[i];
+            imgs[i].onload = function(){
+                count++;
+                if (count === 6) {
+                    complete();
+                }
+            };
+        }
+
+        function complete(){
+            console.log('images preloaded');
+            var lis = document.querySelector('.experiences').getElementsByTagName('li');
+            var list = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+
+            for (var i = 1; i &lt; lis.length; i++) {
+                // Replace the class value with the relevant Array index value
+                // e.g. 'b invisible' should be just 'b'
+                // there are more eloquent ways to achieve this but required a fair bit of extra code and I was going for speed over beautiful code
+                lis[i].className = list[i];
+            }
+
+            console.log(lis);
+        }
+
+        console.log(imgs);
+    }
+    
+    preload([
+        &quot;http://192.168.0.40/~stormcreative/Assets/Images/experience-1.jpg&quot;,
+        &quot;http://192.168.0.40/~stormcreative/Assets/Images/experience-2.jpg&quot;,
+        &quot;http://192.168.0.40/~stormcreative/Assets/Images/experience-3.jpg&quot;,
+        &quot;http://192.168.0.40/~stormcreative/Assets/Images/experience-4.jpg&quot;,
+        &quot;http://192.168.0.40/~stormcreative/Assets/Images/experience-5.jpg&quot;,
+        &quot;http://192.168.0.40/~stormcreative/Assets/Images/experience-6.jpg&quot;
+    ]);
+</code></pre>
+
+</div>
+</body>
+</html>

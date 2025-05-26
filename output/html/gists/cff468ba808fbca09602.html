@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Networking CIDR explained</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="networking-cidr-explained">Networking CIDR explained</h1>
+
+<h2 id="networking-cidr-explained-md">Networking CIDR explained.md</h2>
+
+<pre><code class="language-markdown">The table at the bottom of this gist was copied from: http://software77.net/cidr-101.html
+
+`10.0.0.0` is a 32 bit number split into four 8 bit groups (8, 16, 24, 32)
+
+&gt; Note: 1 byte == 8 bits (so `10` representing a single byte)
+
+Where `n` (below) is given the value 8, 16, 24, or 32
+
+</code></pre>
+
+<p>10.0.0.0/n</p>
+
+<pre><code>
+`8` states the first 8 bits is accounted for (by the `10` we've specified).  
+Meaning the rest can be added up to their max of 255 (`10.255.255.255`)
+
+`16` states the first 16 bits is accounted for (by the `10.0` we've specified).  
+Meaning the rest can be added up to their max of 255 (`10.0.255.255`)
+
+`24` states the first 24 bits is accounted for (by the `10.0.0` we've specified).  
+Meaning the rest can be added up to their max of 255 (`10.0.0.255`)
+
+`32` states the first 32 bits is accounted for (by the `10.0.0.0` we've specified).  
+Meaning the rest can be added up to their max of 255 (`10.0.0.0`)
+
+## Example: `10.0.0.1`
+
+&lt;table border=&quot;1&quot; id=&quot;table10&quot; bordercolor=&quot;#000080&quot; style=&quot;text-align: center; font-family: Verdana; font-size: 8pt; color: #000000&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;IP&lt;/b&gt;&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;10&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;0&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;0&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;8 Bit Blocks&lt;/b&gt;&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;8 bits [24-31]&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;8 bits [16-23]&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;8 bits [08-15]&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;8 bits [00-07]&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;
+						&lt;td&gt;&lt;b&gt;Bit #&lt;/b&gt;&lt;/td&gt;
+						&lt;td&gt;31&lt;/td&gt;&lt;td&gt;30&lt;/td&gt;&lt;td&gt;29&lt;/td&gt;&lt;td&gt;28&lt;/td&gt;&lt;td&gt;27&lt;/td&gt;&lt;td&gt;26&lt;/td&gt;&lt;td&gt;25&lt;/td&gt;&lt;td&gt;24&lt;/td&gt;&lt;td&gt;23&lt;/td&gt;&lt;td&gt;22&lt;/td&gt;&lt;td&gt;21&lt;/td&gt;&lt;td&gt;20&lt;/td&gt;&lt;td&gt;19&lt;/td&gt;&lt;td&gt;18&lt;/td&gt;&lt;td&gt;17&lt;/td&gt;&lt;td&gt;16&lt;/td&gt;&lt;td&gt;15&lt;/td&gt;&lt;td&gt;14&lt;/td&gt;&lt;td&gt;13&lt;/td&gt;&lt;td&gt;12&lt;/td&gt;&lt;td&gt;11&lt;/td&gt;&lt;td&gt;10&lt;/td&gt;&lt;td&gt;09&lt;/td&gt;&lt;td&gt;08&lt;/td&gt;&lt;td&gt;07&lt;/td&gt;&lt;td&gt;06&lt;/td&gt;&lt;td&gt;05&lt;/td&gt;&lt;td&gt;04&lt;/td&gt;&lt;td&gt;03&lt;/td&gt;&lt;td&gt;02&lt;/td&gt;&lt;td&gt;01&lt;/td&gt;&lt;td&gt;00&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Decimal &lt;/b&gt;&lt;/td&gt;&lt;td&gt;128&lt;/td&gt;&lt;td&gt;64&lt;/td&gt;&lt;td&gt;32&lt;/td&gt;
+				&lt;td&gt;16&lt;/td&gt;&lt;td&gt;8&lt;/td&gt;&lt;td&gt;4&lt;/td&gt;&lt;td&gt;2&lt;/td&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;128&lt;/td&gt;&lt;td&gt;64&lt;/td&gt;&lt;td&gt;32&lt;/td&gt;&lt;td&gt;16&lt;/td&gt;&lt;td&gt;8&lt;/td&gt;&lt;td&gt;4&lt;/td&gt;&lt;td&gt;2&lt;/td&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;128&lt;/td&gt;&lt;td&gt;64&lt;/td&gt;&lt;td&gt;32&lt;/td&gt;&lt;td&gt;16&lt;/td&gt;&lt;td&gt;8&lt;/td&gt;&lt;td&gt;4&lt;/td&gt;&lt;td&gt;2&lt;/td&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;128&lt;/td&gt;&lt;td&gt;64&lt;/td&gt;&lt;td&gt;32&lt;/td&gt;&lt;td&gt;16&lt;/td&gt;&lt;td&gt;8&lt;/td&gt;&lt;td&gt;4&lt;/td&gt;&lt;td&gt;2&lt;/td&gt;&lt;td&gt;1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Binary&lt;/b&gt;&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;&lt;b&gt;&lt;font color=&quot;#DC143C&quot;&gt;1&lt;/font&gt;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;&lt;b&gt;&lt;font color=&quot;#DC143C&quot;&gt;1&lt;/font&gt;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;&lt;b&gt;&lt;font color=&quot;#DC143C&quot;&gt;1&lt;/font&gt;&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+					
+&gt; Notice the binary row marks `1` for the decimal numbers that add up to the specified byte  
+&gt; e.g. if you want `254` then you have `1` in all of the binary columns (under decimal) except the `1` at the end
+</code></pre>
+
+</div>
+</body>
+</html>

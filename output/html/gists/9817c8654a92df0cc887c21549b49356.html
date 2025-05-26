@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python pytest] #pytest</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-pytest-pytest">[Python pytest] #pytest</h1>
+
+<h2 id="features-md">Features.md</h2>
+
+<pre><code class="language-markdown">## Exceptions
+
+If you know a function raises an exception, then you can catch and assert against it by using `pytest.raises`
+
+```python
+with pytest.raises(exceptions.CognitoException) as exc_info:
+        app.account.confirm(123, 'foo')
+        
+assert exc_info.typename == 'CognitoException'
+assert str(exc_info.value) == 'SIGNUP_CONFIRMATION_FAILED'
+</code></pre>
+
+<h2 id="capturing-output">Capturing Output</h2>
+
+<p>Some functions (such as a command-line tool) only produce side effects (e.g. <em>output</em>) and don&rsquo;t necessarily <em>return</em> a value to the caller. In order to test these types of functions Pytest let&rsquo;s us capture their output.</p>
+
+<pre><code class="language-python">def test_my_function(capsys):
+    my_function()  # function that prints stuff
+    captured = capsys.readouterr()  # Capture output
+    assert f&quot;Received invalid message ...&quot; in captured.out  # Test stdout
+    assert f&quot;Fatal error ...&quot; in captured.err  # Test stderr
+</code></pre>
+
+<p>Pytest provides a fixture called <code>capsys</code>, which captures system output. All you need to use it, is to add it as parameter to your test function. Next, after calling function that is being tested, you capture the outputs in form of tuple <code>(out, err)</code>, which you can then use to <code>assert</code> against.</p>
+
+<blockquote>
+<p>Note: you can&rsquo;t use this on a <code>tornado.testing.AsyncHTTPTestCase</code>.</p>
+</blockquote>
+
+<h2 id="parametrize">Parametrize</h2>
+
+<p>You can use a table matrix to cause a test to be re-run multiple times with the same input arguments, but with different input <em>values</em>:</p>
+
+<pre><code class="language-python">@pytest.mark.parametrize(&quot;input, output&quot;, [
+    (&quot;1234&quot;, True),
+    (&quot;12345&quot;, True),
+    (&quot;foo/bar1_baz2-qux3.beep&quot;, False),
+    (&quot;&lt;bad_stuff&gt;&quot;, False),
+    (&quot;/&lt;bad_stuff&gt;&quot;, False),
+])
+def test_valid_video_id(input, output):
+    assert valid_video_id(input) is output
+</code></pre>
+
+<blockquote>
+<p>Note: mock decorators come <em>before</em> the pytest decorator (also you can&rsquo;t use parametrize on a <code>tornado.testing.AsyncHTTPTestCase</code>).</p>
+
+<pre><code>
+## Execute pytest.bash
+
+```shell
+pytest -svv --color=yes
+
+# https://docs.pytest.org/
+</code></pre>
+</blockquote>
+
+</div>
+</body>
+</html>

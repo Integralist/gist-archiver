@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Analyse Logs and report top N common matches] #python #logs #analysis</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-analyse-logs-and-report-top-n-common-matches-python-logs-analysis">[Python Analyse Logs and report top N common matches] #python #logs #analysis</h1>
+
+<h2 id="python-analyse-logs-and-report-top-n-common-matches-py">Python Analyse Logs and report top N common matches.py</h2>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+Example:
+    python logs.py -i &quot;10 seconds ago&quot;
+    python logs.py -i &quot;10 seconds ago&quot; -x &quot;now&quot;
+    python logs.py -i &quot;10 seconds ago&quot; -x &quot;now&quot; -u &quot;obiwan&quot;
+    python logs.py --min &quot;today at 9.20&quot; --max &quot;today at 10.20&quot; --upstream &quot;obiwan&quot;
+&quot;&quot;&quot; # noqa
+
+import argparse
+import re
+import subprocess
+
+from collections import Counter
+from datetime import datetime
+
+parser = argparse.ArgumentParser(description=&quot;Process Site Router - nginx - Logs&quot;)
+parser.add_argument(&quot;-i&quot;, &quot;--min&quot;, type=str, required=True, help=&quot;When to start getting logs&quot;) # noqa
+parser.add_argument(&quot;-x&quot;, &quot;--max&quot;, type=str, default=&quot;now&quot;, help=&quot;When to stop getting logs&quot;) # noqa
+parser.add_argument(&quot;-u&quot;, &quot;--upstream&quot;, type=str, default=&quot;bpager&quot;, help=&quot;Filter logs by this upstream&quot;) # noqa
+args = parser.parse_args()
+
+
+def upstreams(logs):
+    result = set()
+
+    for line in logs:
+        match = re.search(&quot;upstream \(([^:]+)&quot;, line)
+        if match:
+            result.add(match.groups(0)[0])
+
+    return sorted(result)
+
+
+def filter_logs_by_upstream(logs, upstream):
+    log_lines_keep = []
+
+    for line in logs:
+        result = re.search(&quot;upstream \(([^:]+)&quot;, line)
+        if result and result.groups(0)[0] == upstream:
+            log_lines_keep.append(line)
+
+    return log_lines_keep
+
+
+def filter_logs_by_gets_that_were_errors(logs):
+    log_lines_gets = []
+
+    for line in logs:
+        result = re.search(&quot;GET /.+ HTTP/1.1 [4-5][0-9]{2}&quot;, line)
+        if result:
+            log_lines_gets.append(line)
+
+    return log_lines_gets
+
+
+def parse_log_urls(logs):
+    if len(logs) &lt; 1:
+        return &quot;no 4xx/5xx errors in the provided log data time period&quot;
+
+    log_processed = []
+
+    for line in logs:
+        result = re.search(&quot;(GET /.+ HTTP/1.1 [4-5][0-9]{2})&quot;, line)
+        if result:
+            log_processed.append(result.groups(0)[0])
+
+    return sorted(log_processed)
+
+
+def timeit(fn):
+    def helper():
+        start = datetime.now()
+        print(&quot;log retrieval started:&quot;, start)
+
+        logs = fn()
+
+        finish = datetime.now()
+        print(f&quot;log retrieval finished: {finish}\n&quot;)
+
+        difference = finish - start
+        time_taken = f&quot;{round(difference.seconds / 60)}mins&quot; if difference.seconds &gt;= 60 else f&quot;{difference.seconds}s&quot; # noqa
+
+        print(f&quot;time taken to retrieve the logs: {time_taken}\n&quot;)
+        print(f&quot;number of log lines: {len(logs)}&quot;)
+
+        print(&quot;upstreams found within the logs:\n&quot;)
+        for upstream in upstreams(logs):
+            print(f&quot;\t{upstream}&quot;)
+        print(&quot;\n&quot;)
+
+        return logs
+
+    return helper
+
+
+@timeit
+def process():
+    command = [
+        &quot;papertrail&quot;,
+        &quot;-g&quot;,
+        &quot;rig-web-public&quot;,
+        f'--min-time=&quot;{args.min}&quot;',
+        f'--max-time=&quot;{args.max}&quot;',
+        &quot;program:web-public/site_router/&quot;
+    ]
+
+    output = subprocess.run(command, stdout=subprocess.PIPE)
+    logs = output.stdout.decode(&quot;utf-8&quot;).splitlines()
+
+    return logs
+
+
+# Acquire a set of logs for the specified time period
+logs = process()
+
+# Filter logs so we only keep those for a specific upstream
+logs_keep = filter_logs_by_upstream(logs, args.upstream)
+print(f&quot;logs we're keeping (upstream: {args.upstream}): {len(logs_keep)}&quot;)
+
+# Filter logs so we only keep 4xx/5xx GET requests
+logs_gets = filter_logs_by_gets_that_were_errors(logs_keep)
+print(f&quot;logs after filtering for 4xx/5xx GET requests: {len(logs_gets)}\n&quot;)
+
+# Track the top 10 4xx/5xx URLs
+result_for_parse_log_urls = parse_log_urls(logs_gets)
+count = Counter(result_for_parse_log_urls)
+for item in count.most_common(10):
+    print(f&quot;{item[0]}\ncount: {item[1]}\n&quot;)
+</code></pre>
+
+</div>
+</body>
+</html>

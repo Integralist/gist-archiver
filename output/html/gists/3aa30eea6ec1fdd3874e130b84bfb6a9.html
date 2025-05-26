@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go prepend line to stop of a file that uses toml marshal] #go #golang #toml #file #write</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-prepend-line-to-stop-of-a-file-that-uses-toml-marshal-go-golang-toml-file-write">[Go prepend line to stop of a file that uses toml marshal] #go #golang #toml #file #write</h1>
+
+<h2 id="main-go">main.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;bufio&quot;
+	&quot;fmt&quot;
+	&quot;os&quot;
+
+	toml &quot;github.com/pelletier/go-toml&quot;
+)
+
+func main() {
+	err := Write(&quot;fastly.toml&quot;)
+	if err != nil {
+		fmt.Printf(&quot;%+v\n&quot;, err)
+	}
+}
+
+type Manifest struct {
+	Foo string
+	Bar int
+}
+
+func Write(filename string) error {
+	m := Manifest{&quot;foo&quot;, 123}
+
+	fp, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+
+	if err := toml.NewEncoder(fp).Encode(&amp;m); err != nil {
+		return err
+	}
+
+	contents := make([]string, 0)
+
+	if _, err := fp.Seek(0, 0); err == nil {
+		scanner := bufio.NewScanner(fp)
+		for scanner.Scan() {
+			contents = append(contents, scanner.Text())
+		}
+
+		if _, err := fp.Seek(0, 0); err == nil {
+			writer := bufio.NewWriter(fp)
+			writer.WriteString(&quot;# my link here\n&quot;)
+
+			for _, line := range contents {
+				_, err := writer.WriteString(line + &quot;\n&quot;)
+				if err != nil {
+					return err
+				}
+			}
+
+			if err := writer.Flush(); err != nil {
+				return err
+			}
+		}
+	}
+
+	if err := fp.Sync(); err != nil {
+		return err
+	}
+
+	if err := fp.Close(); err != nil {
+		return err
+	}
+
+	return nil
+}
+</code></pre>
+
+</div>
+</body>
+</html>

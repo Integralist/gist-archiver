@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Bash Array Looping] #bash #shell #loop #code #gen</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="bash-array-looping-bash-shell-loop-code-gen">[Bash Array Looping] #bash #shell #loop #code #gen</h1>
+
+<h2 id="bash-array-looping-sh">bash-array-looping.sh</h2>
+
+<pre><code class="language-shell">#!/usr/bin/env bash
+languages=(&quot;bash&quot; &quot;go&quot; &quot;javascript&quot; &quot;php&quot; &quot;python&quot; &quot;ruby&quot; &quot;rust&quot; &quot;typescript-fetch&quot;)
+for lang in &quot;${languages[@]}&quot;;
+do
+  for filename in .source-cache/.api-documentation/schemas/*;
+  do
+    name=$(basename $filename | cut -f 1 -d '.')
+    openapi-generator generate -i &quot;${filename}&quot; -g &quot;${lang}&quot; -o &quot;/tmp/api-code-gen/${lang}/${name}/&quot;
+  done
+done
+
+###############################################################################################################
+
+components=(newsbeat-editorial-feed-renderer \
+            newsbeat-latest-feed-renderer \
+            newsbeat-most-popular-renderer \
+            newsbeat-topic-renderer)
+
+ips=()
+
+for item in &quot;${components[@]}&quot;
+do
+  # echo &quot;Y N Y N&quot; passes each item sequentially through to further command prompts
+  # e.g. our command prompts us to choose instance id
+  ips+=$(echo &quot;1&quot; | bundle exec bbc-cosmos-tools component ssh $item --env=live | grep -E -o &quot;\d+\.\d+\.\d+\.\d+&quot;)
+done
+
+echo ${#ips[@]} # count the length of the array
+echo $ips
+
+# Alternative way to loop array in bash
+for ip in $ips
+do
+  ssh $ip,eu-west-1 id # placing command after ssh prevents tty to drop into session
+done
+</code></pre>
+
+</div>
+</body>
+</html>

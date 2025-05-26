@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Walk Struct Recursively] #go #golang #walk #reflection</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-walk-struct-recursively-go-golang-walk-reflection">[Golang Walk Struct Recursively] #go #golang #walk #reflection</h1>
+
+<h2 id="walk-go">Walk.go</h2>
+
+<pre><code class="language-go">// Write a function:
+//
+// walk(x interface{}, fn func(string)) 
+//
+// ...which takes a struct x and calls fn for all strings fields found inside.
+//
+
+func walk(x interface{}, fn func(input string)) {
+    val := getValue(x)
+
+    walkValue := func(value reflect.Value) {
+        walk(value.Interface(), fn)
+    }
+
+    switch val.Kind() {
+    case reflect.String:
+        fn(val.String())
+    case reflect.Struct:
+        for i := 0; i &lt; val.NumField(); i++ {
+            walkValue(val.Field(i))
+        }
+    case reflect.Slice, reflect.Array:
+        for i := 0; i &lt; val.Len(); i++ {
+            walkValue(val.Index(i))
+        }
+    case reflect.Map:
+        for _, key := range val.MapKeys() {
+            walkValue(val.MapIndex(key))
+        }
+    case reflect.Chan:
+        for v, ok := val.Recv(); ok; v, ok = val.Recv() {
+            walk(v.Interface(), fn)
+        }
+    case reflect.Func:
+        valFnResult := val.Call(nil)
+        for _, res := range valFnResult {
+            walk(res.Interface(), fn)
+        }
+    }
+}
+</code></pre>
+
+</div>
+</body>
+</html>

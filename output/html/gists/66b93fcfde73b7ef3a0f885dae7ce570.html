@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go filter secrets] #go #golang #secrets</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-filter-secrets-go-golang-secrets">[Go filter secrets] #go #golang #secrets</h1>
+
+<h2 id="trufflehog-go">trufflehog.go</h2>
+
+<pre><code class="language-go">// WARNING: There are regexes in trufflehog that try to match the VALUE.
+// So for example, setting `AWS_SECRET_ACCESS_KEY` by itself doesn't get identified.
+// Only if the VALUE assigned to it matches the expected regex pattern defined in trufflehog.
+
+package main
+
+import (
+	&quot;fmt&quot;
+  	&quot;log&quot;
+  	&quot;runtime&quot;
+	&quot;sync&quot;
+  
+	// go get github.com/trufflesecurity/trufflehog/v3@latest
+  
+	&quot;github.com/trufflesecurity/trufflehog/v3/pkg/context&quot;
+	&quot;github.com/trufflesecurity/trufflehog/v3/pkg/detectors&quot;
+	&quot;github.com/trufflesecurity/trufflehog/v3/pkg/engine&quot;
+	&quot;github.com/trufflesecurity/trufflehog/v3/pkg/output&quot;
+	&quot;github.com/trufflesecurity/trufflehog/v3/pkg/sources&quot;
+)
+
+func main() {
+	ctx := context.Background()
+	printer := new(output.JSONPrinter)
+	// NOTE: To prevent a log output we have to explicitly set the concurrency.
+	e, err := engine.Start(ctx,
+		engine.WithPrinter(printer),
+		engine.WithConcurrency(uint8(runtime.NumCPU())),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	cfg := sources.FilesystemConfig{
+		Paths: []string{&quot;./fastly.toml&quot;},
+	}
+	if err = e.ScanFileSystem(ctx, cfg); err != nil {
+		log.Fatal(err)
+	}
+	var (
+		mu      sync.Mutex
+		results []detectors.ResultWithMetadata
+	)
+	go func() {
+		for result := range e.ResultsChan() {
+			mu.Lock()
+			results = append(results, result)
+			mu.Unlock()
+		}
+	}()
+	err = e.Finish(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(&quot;HasFoundResults:&quot;, e.HasFoundResults())
+	fmt.Println(e.GetMetrics().BytesScanned)
+	fmt.Println(e.GetMetrics().ChunksScanned)
+	fmt.Println(e.GetMetrics().UnverifiedSecretsFound)
+	fmt.Println(e.GetMetrics().VerifiedSecretsFound)
+	for _, r := range results {
+		fmt.Printf(&quot;REDACT ME: %#v\n&quot;, r.Redacted)
+	}
+}
+</code></pre>
+
+</div>
+</body>
+</html>

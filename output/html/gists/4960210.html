@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>In CSS/BEM: how do we name a sub-block that is related to its parent block?</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="in-css-bem-how-do-we-name-a-sub-block-that-is-related-to-its-parent-block">In CSS/BEM: how do we name a sub-block that is related to its parent block?</h1>
+
+<h2 id="bem-html">bem.html</h2>
+
+<pre><code class="language-html">&lt;!-- Simplest solution is to just label the element as a element within an element --&gt;
+&lt;div class=&quot;block&quot;&gt;
+  Content
+  &lt;div class=&quot;block__element&quot;&gt;
+    Content
+    &lt;div class=&quot;block__element__element&quot;&gt;
+      Content related to `block__element`
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- You could have a separate block element inside of the parent block but how does the naming convention work? --&gt;
+&lt;div class=&quot;block&quot;&gt;
+  Content
+  &lt;div class=&quot;block__element&quot;&gt;
+    Content
+    &lt;div class=&quot;newblock&quot;&gt;
+      Content related to `block__element` but is now namespaced under `newblock` which is wrong
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Harry Roberts suggestion --&gt;
+&lt;div class=&quot;block&quot;&gt;
+  Content
+  &lt;div class=&quot;block__element newblock&quot;&gt;
+    Content
+    &lt;div class=&quot;newblock__element&quot;&gt;
+      Content related to `block__element` but is now namespaced under `newblock` which is wrong
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+
+</div>
+</body>
+</html>

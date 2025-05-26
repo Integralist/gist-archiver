@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Rust Ownership, Borrowing, Lifetimes] #rust #rustlang #ownership #memory</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="rust-ownership-borrowing-lifetimes-rust-rustlang-ownership-memory">[Rust Ownership, Borrowing, Lifetimes] #rust #rustlang #ownership #memory</h1>
+
+<h2 id="rust-ownership-borrowing-lifetimes-md">Rust Ownership, Borrowing, Lifetimes.md</h2>
+
+<pre><code class="language-markdown">## Ownership
+
+&gt; NOTE: all information learned from https://doc.rust-lang.org/stable/book/ch04-00-understanding-ownership.html
+
+Understanding ownership requires understanding 'stack' vs 'heap' memory.
+
+- Stack data is released once it goes out of scope (e.g. once a function ends the arguments passed are dropped).
+- Stack is quick because the values are literal and can be hardcoded into the compiled binary.
+- This means stack values are immutable.
+- Heap is for memory that grows or has unknown size and needs to be explicitly dropped.
+- Heap is slower as it is allocated at _runtime_ and you have to follow a 'pointer' to find the data in heap memory.
+- Rust primitive/scalar types (int, bool, float, char, string literal etc) are stored in stack memory.
+- Most other complex types (String, Box etc.) are stored into heap memory.
+
+### Rules
+
+- Each value in Rust has a variable that’s called its _owner_.
+- There can only be one owner at a time.
+- When the owner goes out of scope, the value will be dropped.
+  - Primitive types are popped from the stack memory automatically when out of scope.
+  - Complex types must implement a `drop` function which Rust will call when out of scope (to explicitly deallocate heap memory).
+
+### Gotchas
+
+- Primitive types are 'copied' (`a = 1; b = a`) because they exist in stack memory and are known size (i.e. cheap to copy).
+  - Primitive types have a `Copy` trait that enable this.
+- Complex types 'move' ownership (`a = String::from(&quot;hello&quot;); b = a`).
+  - Complex types _do not_ have a `Copy` trait (which is a common error).
+- One an owner changes, the previous owner cannot be reused (e.g. you can't reference the previous owner variable in a print statement after ownership has changed).
+- To allow an owner to stay an owner, you'd need to 'clone' the complex type (e.g `a = String::from(&quot;hello&quot;); b = a.clone()`) which will actually duplicate the heap memory (so it's not cheap!).
+- Passing a variable (i.e. owner) to a function will move or copy, just as assignment does.
+- Returning values can also transfer ownership.
+  - Returning a complex type will move ownership to the caller (and the variable the result is assigned to becomes the new owner).
+  - In this scenario `drop` is not called, even if the owner was created within the function, as would normally be the case if a variable went out of scope at the end of the function.
+  
+## Borrowing
+
+&gt; NOTE: all information learned from https://doc.rust-lang.org/stable/book/ch04-02-references-and-borrowing.html
+
+Taking ownership and then returning ownership with every function is a bit tedious. To prevent this you can pass a 'reference' to a complex type (e.g. function `foo(s: &amp;String)` and caller `foo(&amp;a)`).
+
+In the above example the `s` variable will (depending on function implementation) go out of scope, and yet nothing will happen (i.e. it won't be dropped) because the function doesn't _own_ what `s` refers to.
+
+In order to mutate something borrowed, the caller and the receiver need to define the type as a 'mutable' type:
+
+```rust
+fn main() {
+    let mut s = String::from(&quot;hello&quot;);
+
+    change(&amp;mut s);
+}
+
+fn change(some_string: &amp;mut String) {
+    some_string.push_str(&quot;, world&quot;);
+}
+</code></pre>
+
+<h3 id="gotchas">Gotchas</h3>
+
+<ul>
+<li>You can have only one mutable reference (i.e. this prevents data races).</li>
+<li>You can have multiple mutable references only if the scope allows for it.
+
+<ul>
+<li>e.g. <code>{let a = &amp;mut s;} let b = &amp;mut s;</code> (as <code>a</code> will go out of scope before <code>b</code> is reached).</li>
+</ul></li>
+<li>Multiple immutable references is safe.</li>
+<li>We cannot have a mutable reference <em>while</em> we have an immutable one (as this otherwise could change the value of the immutable reference).</li>
+<li>A reference&rsquo;s scope is from when it&rsquo;s defined to where it&rsquo;s last used.
+
+<ul>
+<li>This means you <em>can</em> define multiple immutable references and a mutable reference as long as the immutable references go out of scope before the mutable reference.</li>
+</ul></li>
+<li>Returning a variable created within function (while it being returned as a reference) isn&rsquo;t allowed because the variable will be dropped once out of scope (this avoids a &lsquo;dangling pointer&rsquo;).
+
+<ul>
+<li>You must instead return the variable itself rather than a reference, and this will cause the ownership to be moved instead.</li>
+</ul></li>
+</ul>
+
+<h2 id="lifetimes">Lifetimes</h2>
+
+<blockquote>
+<p>NOTE: all information learned from <a href="https://doc.rust-lang.org/stable/book/ch10-03-lifetime-syntax.html" target="_blank">https://doc.rust-lang.org/stable/book/ch10-03-lifetime-syntax.html</a></p>
+</blockquote>
+
+<p>Lifetimes ultimately are coupled to references, hence the compiler uses what&rsquo;s called a &ldquo;borrow checker&rdquo; to validate lifetimes (as a &lsquo;reference&rsquo; is a term related to the concept of &ldquo;borrowing&rdquo;).</p>
+
+<p>Rust prevents variables from trying to hold references to data that has since gone out of scope (i.e. dangling pointer).</p>
+
+<p>The &lsquo;lifetime&rsquo; of a reference begins when the reference is created and ends when it&rsquo;s last used.</p>
+
+<p>If a function returns a reference that changes depending on some logic (e.g. if X return A else return B, where A/B are two different references) then the borrow checker can&rsquo;t statically analyse if your code is safe as it doesn&rsquo;t know which reference will be returned at runtime.</p>
+
+<p>In those cases we need to add lifetime annotations&hellip;</p>
+
+<pre><code class="language-rust">fn longest&lt;'a&gt;(x: &amp;'a str, y: &amp;'a str) -&gt; &amp;'a str {
+    if x.len() &gt; y.len() {
+        x
+    } else {
+        y
+    }
+}
+</code></pre>
+
+<p>The <code>longest</code> function definition states all references in the signature must have the same lifetime <code>'a</code>.</p>
+
+<p>We’re specifying that the borrow checker should reject any values that don&rsquo;t adhere to these constraints.</p>
+
+<p>The lifetime named &lsquo;static&rsquo; is a special lifetime. It signals that something has the lifetime of the entire program.</p>
+
+<p>String literals can be assigned the type <code>&amp;'static</code> lifetime annotation as a way to indicate the reference is always alive, i.e. they are baked into the data segment of the final binary.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

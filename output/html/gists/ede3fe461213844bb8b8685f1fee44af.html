@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Convert synchronous external Python code into asynchronous code] #python #tornado #sync #async #requests #urllib</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="convert-synchronous-external-python-code-into-asynchronous-code-python-tornado-sync-async-requests-urllib">[Convert synchronous external Python code into asynchronous code] #python #tornado #sync #async #requests #urllib</h1>
+
+<h2 id="threadpool-py">Threadpool.py</h2>
+
+<pre><code class="language-python">from concurrent.futures import ThreadPoolExecutor
+
+from tornado import gen
+from bf_rig import settings
+
+
+THREAD_POOL = ThreadPoolExecutor(settings.get(&quot;pool_max_workers&quot;))
+
+&quot;&quot;&quot;
+Using the ProcessPoolExecutor can be useful, in cases where memory usage 
+per request is very high (large response) and cycling the interpretor 
+is required to release memory back to OS.
+&quot;&quot;&quot;
+
+
+@gen.coroutine
+def run_on_executor(*args, **kwargs):
+    &quot;&quot;&quot;
+    ThreadPoolExecutor doesn't work with native coroutines unfortunately.
+    It will require asyncio.wrap_future which is not much better than using tornado's decorators.
+    &quot;&quot;&quot;
+    result = yield THREAD_POOL.submit(*args, **kwargs)
+    raise gen.Return(result)
+</code></pre>
+
+<h2 id="1-quicker-implementation-py">1. Quicker Implementation.py</h2>
+
+<pre><code class="language-python">import functools
+
+
+def force_async(fn):
+    '''
+    turns a sync function to async function using threads
+    '''
+    from concurrent.futures import ThreadPoolExecutor
+    import asyncio
+    pool = ThreadPoolExecutor()
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        future = pool.submit(fn, *args, **kwargs)
+        return asyncio.wrap_future(future)  # make it awaitable
+
+    return wrapper
+
+
+def force_sync(fn):
+    '''
+    turn an async function to sync function
+    '''
+    import asyncio
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        res = fn(*args, **kwargs)
+        if asyncio.iscoroutine(res):
+            return asyncio.get_event_loop().run_until_complete(res)
+        return res
+
+    return wrapper
+</code></pre>
+
+<h2 id="convert-sync-external-code-into-async-md">Convert Sync external code into Async.md</h2>
+
+<pre><code class="language-markdown">The below code snippets demonstrate how to make synchronous code _asynchronous_ using a threadpool (in this example it's specifically handled within a tornado application).
+
+If you're using the [requests](http://docs.python-requests.org/en/master/) http client, then this can be made asynchronous using the same threadpool technique, although it can be better to use use an external library (such as [requests-futures](https://github.com/ross/requests-futures/blob/master/README.rst)) if you need to do something a little more complex. For example, being able to utilise the requests library's `Session` feature would need extra work, and so an external library can help with that.
+
+There are other alternative libraries for working with the requests library too:
+
+- [requests-threads](https://github.com/requests/requests-threads) (uses the [Twisted Framework](https://twistedmatrix.com/trac/))
+- [grequests](https://github.com/kennethreitz/grequests) (uses the [Gevent Framework](http://www.gevent.org/))
+
+&gt; Notes: Grequests appears to be much faster than requests-threads, but brings monkey patching and additional problems with dependencies. Using `ThreadPoolExecutor` appears to be on par with Grequests performance.
+
+But I feel `requests-futures` is the best option as it uses the Python native `concurrent.futures` for its implementation.
+</code></pre>
+
+<h2 id="s3-example-py">S3 Example.py</h2>
+
+<pre><code class="language-python">from app.threadpool import run_on_executor
+
+def fetch_s3_body(s3_resource, bucket, obj_key):
+    &quot;&quot;&quot;
+    Fetch the object from S3 and return it as a byte array
+    &quot;&quot;&quot;
+    try:
+        obj = s3_resource.Object(bucket, obj_key).get()
+        return obj[&quot;Body&quot;].read()
+    except ClientError as error:
+        logger.error(&quot;error fetching s3 object&quot;, key=obj_key, bucket=bucket, error=error)
+        metrics.incr(&quot;s3_object_fetch&quot;, tags={&quot;status&quot;: &quot;failed&quot;})
+        return None
+
+response = await run_on_executor(fetch_s3_body, s3_resource, bucket_name, object_key)
+</code></pre>
+
+<h2 id="threading-with-manual-co-ordination-py">Threading with manual co-ordination.py</h2>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+You don't have to use a threadpool. 
+
+If your use case is simple enough, then just manually co-ordinate some threads.
+&quot;&quot;&quot;
+
+import threading
+import urllib.request
+
+threads = []
+requests = ['https://www.integralist.co.uk', 'https://google.com']
+
+def open_url(uri):
+    response = urllib.request.urlopen(uri, timeout=600)
+    print(response.read())
+    
+    &quot;&quot;&quot;
+    import urllib.parse
+    import urllib.request
+
+    url = 'http://www.example.com'
+    values = {'foo' : 'bar'}
+
+    data = urllib.parse.urlencode(values)
+    data = data.encode('ascii') # data should be bytes
+    req = urllib.request.Request(url, data)
+    with urllib.request.urlopen(req) as response:
+	    the_page = response.read()
+    &quot;&quot;&quot;
+
+for uri in requests:
+    t = threading.Thread(target=open_url, args=(uri,))
+    t.start()
+    threads.append(t)
+
+for thread in threads:
+    thread.join()
+</code></pre>
+
+</div>
+</body>
+</html>

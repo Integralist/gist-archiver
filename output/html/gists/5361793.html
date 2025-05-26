@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Sass: avoiding @if conditionals] #sass #if #conditions</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="sass-avoiding-if-conditionals-sass-if-conditions">[Sass: avoiding @if conditionals] #sass #if #conditions</h1>
+
+<h2 id="sass-avoiding-if-conditionals-md">Sass avoiding @if conditionals.md</h2>
+
+<pre><code class="language-markdown">#Ugly Conditionals
+
+Instead of this...
+
+```sass
+$core: true;
+$gutter: 8px;
+
+.block {
+    @if $core or $compact {
+        margin: $gutter;
+    }
+
+    @if $tablet {
+        margin: $gutter * 2;
+    }
+
+    @if $wide {
+        margin: $gutter * 4;
+    }
+}
+</code></pre>
+
+<p>&hellip;I propose&hellip;</p>
+
+<pre><code class="language-sass">$core: true;
+$gutter: 8px;
+
+.block {
+    margin: _($core_value:    $gutter, 
+               $compact_value: $gutter,
+               $tablet_value:  $gutter * 2,
+               $wide_value:    $gutter * 4);
+}
+</code></pre>
+
+<p>This requires the use of the following function&hellip;</p>
+
+<pre><code class="language-sass">@function __($core_value:    inherit, 
+             $compact_value: inherit, 
+             $tablet_value:  inherit, 
+             $wide_value:    inherit) {
+
+    @if $core {
+        @return $core_value;
+    }
+
+    @if $compact {
+        @return $compact_value;
+    }
+
+    @if $tablet {
+        @return $tablet_value;
+    }
+
+    @if $wide {
+        @return $wide_value;
+    }
+
+    @return inherit; // fallback in case none of the conditionals pass
+}
+</code></pre>
+
+<p>&hellip;and because we use &lsquo;named&rsquo; arguments it means we can miss out arguments that don&rsquo;t need a value set, so for example below I&rsquo;m not passing through the <code>$compact_value</code>&hellip;</p>
+
+<pre><code class="language-sass">.block {
+    border: __($core_value:    1px solid red,
+               $tablet_value:  1px solid green,
+               $wide_value:    1px solid blue);
+}
+</code></pre>
+
+<p>##Issues?</p>
+
+<p>Well there is potentially one issue and one&hellip; concern.</p>
+
+<p>The &lsquo;issue&rsquo; would be when you miss an argument (as per the <code>border</code> example above) then having us set <code>inherit</code> on a property might break your CSS if you&rsquo;ve already set a value on that property somewhere else in your code base.</p>
+
+<p>The &lsquo;concern&rsquo; is setting a value of <code>inherit</code> is an extra line of CSS code. But that&rsquo;s the trade-off between slightly larger compiled code compared to the easier maintenance.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

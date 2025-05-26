@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Go: 1.23 iter.Seq/iter.Seq2 iterators #go #golang #iterator</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-1-23-iter-seq-iter-seq2-iterators-go-golang-iterator">Go: 1.23 iter.Seq/iter.Seq2 iterators #go #golang #iterator</h1>
+
+<h2 id="main-go">main.go</h2>
+
+<pre><code class="language-go">// This code demonstrates how iterators work in Go.
+// This particular example is contrived, but I wanted something simple enough to demonstrate the point.
+
+package main
+
+import (
+	&quot;fmt&quot;
+	&quot;iter&quot;
+	&quot;strings&quot;
+)
+
+// stringlines returns an iterator over lines in a string.
+func stringlines(s string) iter.Seq[string] {
+	return func(yield func(string) bool) {
+		lines := strings.Split(s, &quot;\n&quot;)
+		for _, line := range lines {
+			if !yield(line) { // Call yield with the current line
+				return // Stop if yield returns false
+			}
+		}
+		fmt.Println(&quot;yield() never returned false so the internal for loop kept going&quot;)
+	}
+}
+
+func main() {
+	data := &quot;line one\nline two\nline three&quot;
+
+	// function stringlines() returns an iterator:
+	for line := range stringlines(data) {
+		fmt.Println(line)
+	}
+
+	// Iterating with early exit:
+	// If the range 'block' returns/breaks, then that == false
+	// If the range 'block' completes, then that == true
+	for line := range stringlines(data) {
+		fmt.Println(line)
+		if line == &quot;line two&quot; {
+			break // exits the loop, signifying to yield() it should stop the loop inside of stringlines()
+		}
+	}
+}
+</code></pre>
+
+</div>
+</body>
+</html>

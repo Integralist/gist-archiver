@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python URL Validation] #python #urls #validation</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-url-validation-python-urls-validation">[Python URL Validation] #python #urls #validation</h1>
+
+<h2 id="python-url-validation-py">Python URL Validation.py</h2>
+
+<pre><code class="language-python">import re
+
+ip_middle_octet = u&quot;(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5]))&quot;
+ip_last_octet = u&quot;(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))&quot;
+
+regex = re.compile(
+    u&quot;^&quot;
+    # protocol identifier
+    u&quot;(?:(?:https?|ftp)://)&quot;
+    # user:pass authentication
+    u&quot;(?:\S+(?::\S*)?@)?&quot;
+    u&quot;(?:&quot;
+    u&quot;(?P&lt;private_ip&gt;&quot;
+    # IP address exclusion
+    # private &amp; local networks
+    u&quot;(?:(?:10|127)&quot; + ip_middle_octet + u&quot;{2}&quot; + ip_last_octet + u&quot;)|&quot;
+    u&quot;(?:(?:169\.254|192\.168)&quot; + ip_middle_octet + ip_last_octet + u&quot;)|&quot;
+    u&quot;(?:172\.(?:1[6-9]|2\d|3[0-1])&quot; + ip_middle_octet + ip_last_octet + u&quot;))&quot;
+    u&quot;|&quot;
+    # IP address dotted notation octets
+    # excludes loopback network 0.0.0.0
+    # excludes reserved space &gt;= 224.0.0.0
+    # excludes network &amp; broadcast addresses
+    # (first &amp; last IP address of each class)
+    u&quot;(?P&lt;public_ip&gt;&quot;
+    u&quot;(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])&quot;
+    u&quot;&quot; + ip_middle_octet + u&quot;{2}&quot;
+    u&quot;&quot; + ip_last_octet + u&quot;)&quot;
+    u&quot;|&quot;
+    # host name
+    u&quot;(?:(?:[a-z\u00a1-\uffff0-9]-?)*[a-z\u00a1-\uffff0-9]+)&quot;
+    # domain name
+    u&quot;(?:\.(?:[a-z\u00a1-\uffff0-9]-?)*[a-z\u00a1-\uffff0-9]+)*&quot;
+    # TLD identifier
+    u&quot;(?:\.(?:[a-z\u00a1-\uffff]{2,}))&quot;
+    u&quot;)&quot;
+    # port number
+    u&quot;(?::\d{2,5})?&quot;
+    # resource path
+    u&quot;(?:/\S*)?&quot;
+    # query string
+    u&quot;(?:\?\S*)?&quot;
+    u&quot;$&quot;,
+    re.UNICODE | re.IGNORECASE
+)
+
+pattern = re.compile(regex)
+
+
+def url(value, public=False):
+    &quot;&quot;&quot;
+    Return whether or not given value is a valid URL.
+
+    This validator is based on the wonderful `URL validator of dperini`_.
+
+    .. _URL validator of dperini:
+        https://gist.github.com/dperini/729294
+
+    Examples::
+
+        &gt;&gt;&gt; url('http://foobar.dk')
+        True
+
+        &gt;&gt;&gt; url('http://10.0.0.1')
+        True
+
+        &gt;&gt;&gt; url('http://foobar.d')
+        ValidationFailure(func=url, ...)
+
+        &gt;&gt;&gt; url('http://10.0.0.1', public=True)
+        ValidationFailure(func=url, ...)
+
+    :param value: URL address string to validate
+    :param public: (default=False) Set True to only allow a public IP address
+    &quot;&quot;&quot;
+    result = pattern.match(value)
+    if not public:
+        return result
+
+    return result and not result.groupdict()[&quot;private_ip&quot;]
+</code></pre>
+
+<h2 id="repl-sh">repl.sh</h2>
+
+<pre><code class="language-shell"># ipython repl...
+
+$ url(&quot;http://10.0.0.1&quot;, public=True)
+False
+
+$ url(&quot;http://beep.com&quot;, public=True)
+True  # it's considered a public ip
+
+$ url(&quot;http://beep.com&quot;)
+&lt;_sre.SRE_Match object; span=(0, 15), match='http://beep.com'&gt;
+
+$ url(&quot;http://www.google.com?{xxx}&quot;)
+&lt;_sre.SRE_Match object; span=(0, 27), match='http://www.google.com?{xxx}'&gt;
+</code></pre>
+
+</div>
+</body>
+</html>

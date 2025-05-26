@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Tornado Initialization and Multi-Process Mode] #python #tornado #parallelization #multi-process #processes #cpu</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-tornado-initialization-and-multi-process-mode-python-tornado-parallelization-multi-process-processes-cpu">[Python Tornado Initialization and Multi-Process Mode] #python #tornado #parallelization #multi-process #processes #cpu</h1>
+
+<h2 id="python-tornado-multi-process-mode-py">Python Tornado Multi-Process Mode.py</h2>
+
+<pre><code class="language-python">import logging
+
+from tornado.process import cpu_count  # helps with logging available cpu
+
+logging.info('Starting in forked mode on %s cpus', cpu_count())
+
+server = HTTPServer(App())
+server.bind(app_settings['port'])
+server.start(0)  # multi process mode (one process per cpu)
+</code></pre>
+
+<h2 id="python-tornado-initialization-diff">Python Tornado Initialization.diff</h2>
+
+<pre><code class="language-diff">from tornado.httpserver import HTTPServer
+from tornado.web import Application
+
+class App(Application):
+    def __init__(self):
+        app_handlers = [
+            (r'/health', HealthHandler),
+            (r'/site-component/v{}/{}'.format(VERSION, COMPONENT), ComponentHandler),
+        ]
+        super().__init__(app_handlers, **app_settings)
+
+- App().listen(app_settings['port'])
++ server = HTTPServer(App())
++ server.listen(app_settings['port'])
+</code></pre>
+
+</div>
+</body>
+</html>

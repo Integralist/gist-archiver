@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Node Dockerfile with PhantomJS</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="node-dockerfile-with-phantomjs">Node Dockerfile with PhantomJS</h1>
+
+<h2 id="node-dockerfile-with-phantomjs-1">Node Dockerfile with PhantomJS</h2>
+
+<pre><code class="language-text">FROM node:0.10
+
+RUN apt-get update
+RUN apt-get install curl build-essential chrpath git-core libssl-dev libfontconfig1-dev libxft-dev
+
+RUN apt-get update \
+&amp;&amp; curl -o phantomjs.tar.gz -L https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.7-linux-x86_64.tar.bz2 \
+&amp;&amp; tar -xvf phantomjs.tar.gz \
+&amp;&amp; mv phantomjs-1.9.7-linux-x86_64/bin/phantomjs /usr/bin
+
+RUN apt-get autoremove -y
+RUN apt-get clean all
+</code></pre>
+
+</div>
+</body>
+</html>

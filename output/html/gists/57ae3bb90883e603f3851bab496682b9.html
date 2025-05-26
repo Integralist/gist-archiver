@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[website day/night theme switcher with cookies] #js #javascript #cookies</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="website-day-night-theme-switcher-with-cookies-js-javascript-cookies">[website day/night theme switcher with cookies] #js #javascript #cookies</h1>
+
+<h2 id="website-day-and-night-theme-switcher-with-cookies-js">website day and night theme switcher with cookies.js</h2>
+
+<pre><code class="language-javascript">var menu = document.getElementsByClassName(&quot;main-menu&quot;)[0];
+var anchors = menu.getElementsByTagName(&quot;a&quot;);
+var trigger;
+
+// search menu for button that has #theme id attribute
+// this is a button we've explicitly added to the HTML for theme switching
+// ideally you'd generate this button in JS instead
+// for some reason I didn't do that, no reason, I was just lazy ¯\_(ツ)_/¯
+for (var i = 0; i &lt; anchors.length; i++) {
+  a = anchors[i];
+  if (a.href.indexOf(&quot;#theme&quot;) &gt;= 0) {
+    trigger = a;
+  }
+}
+
+// check if we already have a 'theme' cookie set
+theme = document.cookie.match(&quot;theme=([^;]+)&quot;);
+
+// if we do have a cookie, then trigger the right theme based on its current value
+// this code block is executed as the page loads
+// note: switching between theme modes is otherwise manually handled by the user clicking theme button
+if (theme) {
+  mode = theme[1];
+  
+  // check if we're in 'night' mode and switch to 'day' mode
+  if (mode == &quot;night&quot;) {
+    document.body.classList.add(&quot;night&quot;);
+    document.body.classList.remove(&quot;day&quot;);
+    trigger.innerText = &quot;Day Mode&quot;;
+  }
+
+  // check if we're in 'day' mode and switch to 'night' mode
+  if (mode == &quot;day&quot;) {
+    document.body.classList.add(&quot;day&quot;);
+    document.body.classList.remove(&quot;night&quot;);
+    trigger.innerText = &quot;Night Mode&quot;;
+  }
+}
+
+// this function sets 'theme' cookie and switches theme
+function themeSwitch(e) {
+  if (e.target.href.indexOf(&quot;#theme&quot;) &gt;= 0) {
+    document.body.classList.toggle(&quot;night&quot;);
+
+    if (document.body.classList.contains(&quot;night&quot;)) {
+      e.target.innerText = &quot;Day Mode&quot;;
+      document.cookie = &quot;theme=night;domain=.integralist.co.uk;path=/&quot;;
+    } else {
+      e.target.innerText = &quot;Night Mode&quot;;
+      document.cookie = &quot;theme=day;domain=.integralist.co.uk;path=/&quot;;
+    }
+  }
+}
+
+var menu = document.getElementById(&quot;navmenu&quot;);
+
+// allow the user to click the 'theme switcher' button to change the theme
+menu.addEventListener(&quot;click&quot;, themeSwitch);
+</code></pre>
+
+<h2 id="themes-css">themes.css</h2>
+
+<pre><code class="language-css">/* 
+the normal css (not shown) is standard 'day' mode stylings.
+we simply add a .night class to override the styles to 'night' mode.
+*/
+
+.night {
+  background: #263238;
+}
+
+.night .title, .night h1, .night h2, .night h3, .night h4, .night h5, .night h6,
+.night a, .night a:visited {
+  color: #fff;
+}
+
+body.night, .night button, .night input, .night select, .night textarea,
+.night .main-menu a:hover, .night .social-menu a:hover,
+.night a:active, .night a:focus, .night a:hover{
+  color: #ccc;
+}
+
+.night blockquote strong,
+.night td &gt; code,
+.night h1 &gt; code,
+.night h2 &gt; code,
+.night h3 &gt; code,
+.night h4 &gt; code,
+.night h5 &gt; code,
+.night h6 &gt; code,
+.night li &gt; code,
+.night a &gt; code,
+.night p &gt; code,
+.night li strong {
+  color: #ff6ed0;
+}
+</code></pre>
+
+</div>
+</body>
+</html>

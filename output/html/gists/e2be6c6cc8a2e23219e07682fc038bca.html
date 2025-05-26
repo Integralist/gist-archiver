@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[golang simple retry logic for http request] #go #golang #http #client #retry</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-simple-retry-logic-for-http-request-go-golang-http-client-retry">[golang simple retry logic for http request] #go #golang #http #client #retry</h1>
+
+<h2 id="1-golang-simple-retry-logic-for-http-request-go">1. golang simple retry logic for http request.go</h2>
+
+<pre><code class="language-go">// report indicates the failing test and the host it is associated with.
+func report(host, msg string, err error) {
+	log.Printf(&quot;%s, %s: %v\n&quot;, host, msg, err)
+}
+
+// TestStatusCode verifies the given status code will return a corresponding
+// custom error page. If a status code that has no custom error page is
+// provided, then we'll allow for an override to verify that a default custom
+// error page was returned.
+//
+// We allow for an optional variadic parameter to be provided so a caller can
+// specify a default status code to verify against in case the given status
+// code is expected to return a different status code.
+func TestStatusCode(statusCode int, host, needle string, config *settings.Config, defaultStatusCode ...int) {
+	client := &amp;http.Client{
+		Timeout: time.Second * time.Duration(config.Timeout),
+	}
+
+	path := fmt.Sprintf(&quot;/httpbin/status/%d&quot;, statusCode)
+	method := &quot;GET&quot;
+	uuid := time.Now().UnixNano()
+
+	url := fmt.Sprintf(&quot;https://%s%s?cachebust=%d&quot;, host, path, uuid)
+
+	req, err := http.NewRequest(method, url, nil)
+	if err != nil {
+		msg := fmt.Sprintf(&quot;test%d: failed to create new request&quot;, statusCode)
+		report(host, msg, err)
+		return
+	}
+
+	if config.Environment == &quot;stage&quot; {
+		req.SetBasicAuth(config.BasicAuthUser, config.BasicAuthPass)
+
+		// not all services use the same stage auth credentials
+		if creds, ok := config.BasicAuthOverride[host]; ok {
+			req.SetBasicAuth(creds[&quot;user&quot;], creds[&quot;pass&quot;])
+		}
+	}
+
+	// set debug flag so we can inspect Surrogate-Control.
+	req.Header.Set(&quot;Fastly-Debug&quot;, &quot;true&quot;)
+
+	// set header to allow request through to HTTPBin
+	req.Header.Set(&quot;X-Origin-HTTPBin&quot;, config.SecretHash)
+
+	// implement retry logic around our http request...
+	var resp *http.Response
+	{
+		attempts := 0
+
+		for attempts &lt; 2 {
+			attempts++
+
+			resp, err = client.Do(req)
+			if err != nil {
+				if config.Debug {
+					msg := fmt.Sprintf(&quot;test%d: failed to make http request&quot;, statusCode)
+					report(host, msg, err)
+				}
+				continue
+			}
+
+			defer resp.Body.Close()
+			break
+		}
+
+		if attempts == 2 &amp;&amp; resp == nil {
+			msg := fmt.Sprintf(&quot;test%d: failed to make http request after two attempts&quot;, statusCode)
+			report(host, msg, err)
+			return
+		}
+	}
+
+	// in case the provided status code doesn't have a custom error page of its
+	// own but uses a different status code, then enable the caller to provide
+	// the correct status code that was expected to be handled for that code.
+	//
+	// for example, 503 should really return a 500 as there is currently no
+	// custom error page for a 503 so we return the custom 500 instead.
+	statusToVerify := statusCode
+	if len(defaultStatusCode) == 1 {
+		statusToVerify = defaultStatusCode[0]
+	}
+
+	if resp.StatusCode != statusToVerify {
+		err := fmt.Errorf(resp.Status)
+		msg := fmt.Sprintf(&quot;test%d: unexpected response status code&quot;, statusCode)
+		report(host, msg, err)
+		log.Printf(&quot;%#v\n&quot;, resp)
+		return
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		msg := fmt.Sprintf(&quot;test%d: failed to read response body&quot;, statusCode)
+		report(host, msg, err)
+		log.Printf(&quot;%#v\n&quot;, resp)
+		return
+	}
+
+	if !strings.Contains(string(body), needle) {
+		err := fmt.Errorf(&quot;missing error message in body&quot;)
+		msg := fmt.Sprintf(&quot;test%d: failed to load correct error page&quot;, statusCode)
+		report(host, msg, err)
+		log.Printf(&quot;%#v\n&quot;, resp)
+		return
+	}
+
+	if config.Debug {
+		msg := fmt.Sprintf(&quot;test%d: passed&quot;, statusCode)
+		log.Println(host, msg)
+	}
+}
+</code></pre>
+
+<h2 id="2-abstracted-example-go">2. abstracted example.go</h2>
+
+<pre><code class="language-go">// report indicates the failing test and the host it is associated with.
+func report(host, msg string, err error) {
+	log.Printf(&quot;%s, %s: %v\n&quot;, host, msg, err)
+}
+
+// requestWithRetry will attempt to make a HTTP request multiple times before
+// failing the given test scenario
+func requestWithRetry(client *http.Client,
+	req *http.Request,
+	resp *http.Response,
+	retries int,
+	debug bool,
+	msg, host string) (*http.Response, error) {
+
+	attempts := 0
+	var err error
+
+	for attempts &lt; retries {
+		attempts++
+
+		resp, err = client.Do(req)
+		if debug {
+			if err != nil {
+				report(host, msg, err)
+			}
+			continue
+		}
+
+		break
+	}
+
+	if attempts == retries &amp;&amp; resp == nil {
+		report(host, fmt.Sprintf(&quot;%s after two attempts&quot;, msg), err)
+		return resp, err
+	}
+
+	return resp, nil
+}
+
+// TestStatusCode verifies the given status code will return a corresponding
+// custom error page. If a status code that has no custom error page is
+// provided, then we'll allow for an override to verify that a default custom
+// error page was returned.
+//
+// We allow for an optional variadic parameter to be provided so a caller can
+// specify a default status code to verify against in case the given status
+// code is expected to return a different status code.
+func TestStatusCode(statusCode int, host, needle string, config *settings.Config, defaultStatusCode ...int) {
+	client := &amp;http.Client{
+		Timeout: time.Second * time.Duration(config.Timeout),
+	}
+
+	path := fmt.Sprintf(&quot;/httpbin/status/%d&quot;, statusCode)
+	method := &quot;GET&quot;
+	uuid := time.Now().UnixNano()
+
+	url := fmt.Sprintf(&quot;https://%s%s?cachebust=%d&quot;, host, path, uuid)
+
+	req, err := http.NewRequest(method, url, nil)
+	if err != nil {
+		msg := fmt.Sprintf(&quot;test%d: failed to create new request&quot;, statusCode)
+		report(host, msg, err)
+		return
+	}
+
+	if config.Environment == &quot;stage&quot; {
+		req.SetBasicAuth(config.BasicAuthUser, config.BasicAuthPass)
+
+		// not all services use the same stage auth credentials
+		if creds, ok := config.BasicAuthOverride[host]; ok {
+			req.SetBasicAuth(creds[&quot;user&quot;], creds[&quot;pass&quot;])
+		}
+	}
+
+	// set debug flag so we can inspect Surrogate-Control.
+	req.Header.Set(&quot;Fastly-Debug&quot;, &quot;true&quot;)
+
+	// set header to allow request through to HTTPBin
+	req.Header.Set(&quot;X-Origin-HTTPBin&quot;, config.SecretHash)
+
+	var resp *http.Response
+	msg := fmt.Sprintf(&quot;test%d: failed to make http request&quot;, statusCode)
+
+	resp, err = requestWithRetry(client, req, resp, config.Retries, config.Debug, msg, host)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	// in case the provided status code doesn't have a custom error page of its
+	// own but uses a different status code, then enable the caller to provide
+	// the correct status code that was expected to be handled for that code.
+	//
+	// for example, 503 should really return a 500 as there is currently no
+	// custom error page for a 503 so we return the custom 500 instead.
+	statusToVerify := statusCode
+	if len(defaultStatusCode) == 1 {
+		statusToVerify = defaultStatusCode[0]
+	}
+
+	if resp.StatusCode != statusToVerify {
+		err := fmt.Errorf(resp.Status)
+		msg := fmt.Sprintf(&quot;test%d: unexpected response status code&quot;, statusCode)
+		report(host, msg, err)
+		log.Printf(&quot;%#v\n&quot;, resp)
+		return
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		msg := fmt.Sprintf(&quot;test%d: failed to read response body&quot;, statusCode)
+		report(host, msg, err)
+		log.Printf(&quot;%#v\n&quot;, resp)
+		return
+	}
+
+	if !strings.Contains(string(body), needle) {
+		err := fmt.Errorf(&quot;missing error message in body&quot;)
+		msg := fmt.Sprintf(&quot;test%d: failed to load correct error page&quot;, statusCode)
+		report(host, msg, err)
+		log.Printf(&quot;%#v\n&quot;, resp)
+		return
+	}
+
+	if config.Debug {
+		msg := fmt.Sprintf(&quot;test%d: passed&quot;, statusCode)
+		log.Println(host, msg)
+	}
+}
+</code></pre>
+
+<h2 id="3-example-with-jitter-go">3. example with jitter.go</h2>
+
+<pre><code class="language-go">// retry accepts a function and retries it up to n times before returning an error
+func retry(n int, metricWriter metrics.Writer, kind string, cb func() error) error {
+	var err error
+	if err = cb(); err == nil {
+		return nil
+	}
+
+	for i := 0; i &lt; n; i++ {
+		metricWriter.Incr(&quot;api_gateway.retry&quot;, 1.0, metrics.Tag{Key: &quot;kind&quot;, Value: kind}, metrics.Tag{Key: &quot;error&quot;, Value: err.Error()})
+		// Full Jitter from https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
+		// backoff = random_between(0, baseBackoff * 2 ** attempt)
+		maxBackoff := float64(50*time.Millisecond) * math.Exp2(float64(i))
+		backoff := time.Duration(rand.Float64() * maxBackoff)
+
+		log.WithFields(log.Fields{&quot;retry_kind&quot;: kind, &quot;count&quot;: i, &quot;backoff&quot;: backoff, &quot;error&quot;: err}).Info(&quot;retrying, backing off.&quot;)
+
+		time.Sleep(backoff)
+
+		err = cb()
+		if err == nil {
+			return nil
+		}
+	}
+
+	return err
+}
+</code></pre>
+
+</div>
+</body>
+</html>

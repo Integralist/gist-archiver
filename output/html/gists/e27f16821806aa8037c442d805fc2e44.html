@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Generate change log between two tags] #changelog #git</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="generate-change-log-between-two-tags-changelog-git">[Generate change log between two tags] #changelog #git</h1>
+
+<h2 id="changelog-bash">changelog.bash</h2>
+
+<pre><code class="language-shell">#!/bin/bash
+
+tags=$(git for-each-ref --sort=-creatordate --format '%(refname) %(creatordate)' refs/tags | grep -Eo 'client/rust@v?[^ ]+')
+latest_tag=$(echo &quot;$tags&quot; | head -n 1)
+second_tag=$(echo &quot;$tags&quot; | head -n 2 | tail -1)
+release_version=$(echo &quot;$latest_tag&quot; | cut -d @ -f 2)
+
+# echo &quot;all tags for this language: $tags&quot;
+# echo &quot;latest tag: $latest_tag&quot;
+# echo &quot;second tag: $second_tag&quot;
+
+changes=$(git log --pretty=&quot;- %s&quot; &quot;$latest_tag&quot;...&quot;$second_tag&quot; --no-merges)
+
+# echo &quot;$changes&quot;
+
+# NOTE: xargs trims whitespace
+printf &quot;# \`v$release_version\`\n\n## CHANGES (commits: $(echo &quot;$changes&quot; | wc -l | xargs))\n\n$changes\n&quot; &gt; release_notes.md
+
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mutt View Attachments Script</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="mutt-view-attachments-script">Mutt View Attachments Script</h1>
+
+<h2 id="mutt-view-attachments-script-sh">Mutt View Attachments Script.sh</h2>
+
+<pre><code class="language-shell">#!/bin/bash
+#
+# Author:  Eric Gebhart
+#
+# Purpose:  To be called by mutt as indicated by .mailcap to handle mail attachments.
+#
+# Function: Copy the given file to a temporary directory so mutt
+#           Won't delete it before it is read by the application.
+#
+#           Along the way, discern the file type or use the type
+#           That is given.
+#
+#           Finally use 'open' or 'open -a' if the third argument is
+#           given.
+#
+#
+# Arguments:
+#
+#     $1 is the file
+#     $2 is the type - for those times when file magic isn't enough.
+#                      I frequently get html mail that has no extension
+#                      and file can't figure out what it is.
+#
+#                      Set to '-' if you don't want the type to be discerned.
+#                      Many applications can sniff out the type on their own.
+#                      And they do a better job of it too.
+#
+#                      Open Office and MS Office for example.
+#
+#     $3 is open with.  as in open -a 'open with this .app' foo.xls
+#
+# Examples:  These are typical .mailcap entries which use this program.
+#
+#     Image/JPEG; /Users/vdanen/.mutt/view_attachment %s
+#     Image/PNG; /Users/vdanen/.mutt/view_attachment %s
+#     Image/GIF; /Users/vdanen/.mutt/view_attachment %s
+#
+#     Application/PDF; /Users/vdanen/.mutt/view_attachment %s
+#
+#         #This HTML example passes the type because file doesn't always work and
+#         #there aren't always extensions.
+#
+#     text/html; /Users/vdanen/.mutt/view_attachment %s html
+#
+#         # If your Start OpenOffice.org.app is spelled with a space like this one, &lt;--
+#         # then you'll need to precede the space with a \ .  I found that too painful
+#         # and renamed it with an _.
+#
+#     Application/vnd.ms-excel; /Users/vdanen/.mutt/view_attachment %s &quot;-&quot; '/Applications/OpenOffice.org1.1.2/Start_OpenOffice.org.app'
+#     Application/msword; /Users/vdanen/.mutt/view_attachment %s &quot;-&quot; '/Applications/OpenOffice.org1.1.2/Start_OpenOffice.org.app'
+#
+#
+# Debugging:  If you have problems set debug to 'yes'.  That will cause a debug file
+#             be written to /tmp/mutt_attach/debug so you can see what is going on.
+#
+# See Also:  The man pages for open, file, basename
+#
+
+# the tmp directory to use.
+tmpdir=&quot;$HOME/.tmp/mutt_attach&quot;
+
+# the name of the debug file if debugging is turned on.
+debug_file=$tmpdir/debug
+
+# debug.  yes or no.
+#debug=&quot;no&quot;
+debug=&quot;yes&quot;
+
+type=$2
+open_with=$3
+
+# make sure the tmpdir exists.
+mkdir -p $tmpdir
+
+# clean it out.  Remove this if you want the directory
+# to accumulate attachment files.
+rm -f $tmpdir/*
+
+# Mutt puts everything in /tmp by default.
+# This gets the basic filename from the full pathname.
+filename=`basename $1`
+
+# get rid of the extenson and save the name for later.
+file=`echo $filename | cut -d&quot;.&quot; -f1`
+
+if [ $debug = &quot;yes&quot; ]; then
+    echo &quot;1:&quot; $1 &quot; 2:&quot; $2 &quot; 3:&quot; $3 &gt; $debug_file
+    echo &quot;Filename:&quot;$filename &gt;&gt; $debug_file
+    echo &quot;File:&quot;$file &gt;&gt; $debug_file
+    echo &quot;===========================&quot; &gt;&gt; $debug_file
+fi
+
+# if the type is empty then try to figure it out.
+if [ -z $type ]; then
+    file  $1
+    type=`file -bi $1 | cut -d&quot;/&quot; -f2`
+fi
+
+# if the type is '-' then we don't want to mess with type.
+# Otherwise we are rebuilding the name.  Either from the
+# type that was passed in or from the type we discerned.
+if [ $type = &quot;-&quot; ]; then
+    newfile=$filename
+else
+    newfile=$file.$type
+fi
+
+newfile=$tmpdir/$newfile
+
+# Copy the file to our new spot so mutt can't delete it
+# before the app has a chance to view it.
+cp $1 $newfile
+
+if [ $debug = &quot;yes&quot; ]; then
+    echo &quot;File:&quot; $file &quot;TYPE:&quot; $type &gt;&gt; $debug_file
+    echo &quot;Newfile:&quot; $newfile &gt;&gt; $debug_file
+    echo &quot;Open With:&quot; $open_with &gt;&gt; $debug_file
+fi
+
+# If there's no 'open with' then we can let preview do it's thing.
+# Otherwise we've been told what to use.  So do an open -a.
+
+if [ -z $open_with ]; then
+    open $newfile
+else
+    open -a &quot;$open_with&quot; $newfile
+fi
+</code></pre>
+
+</div>
+</body>
+</html>

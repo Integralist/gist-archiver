@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[URI Regex] #regex</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="uri-regex-regex">[URI Regex] #regex</h1>
+
+<h2 id="uri-regex-md">URI Regex.md</h2>
+
+<pre><code class="language-markdown">Pattern...
+
+</code></pre>
+
+<p>https?:\/\/(?:www.)?[\w.]{2,256}\/?(?:[\w/]+)?(?:\?[^#]+)?(?:#.+)?$</p>
+
+<pre><code>
+&gt; Note: do not use, it's not going to cover all use cases (as matching a uri properly is a complex thing to do).
+
+Matches...
+
+</code></pre>
+
+<p>GOOD&hellip;</p>
+
+<p><a href="http://example.com" target="_blank">http://example.com</a>
+<a href="https://example.com" target="_blank">https://example.com</a></p>
+
+<p><a href="http://example.com/" target="_blank">http://example.com/</a>
+<a href="https://example.com/" target="_blank">https://example.com/</a></p>
+
+<h1 id="this-might-be-an-issue-as-it-matches-any-subdomain-currently">This might be an issue (as it matches any subdomain currently)&hellip;</h1>
+
+<p><a href="http://whatever.example.com" target="_blank">http://whatever.example.com</a>
+<a href="https://whatever.example.com" target="_blank">https://whatever.example.com</a></p>
+
+<p><a href="http://www.example.com" target="_blank">http://www.example.com</a>
+<a href="https://www.example.com" target="_blank">https://www.example.com</a></p>
+
+<p><a href="http://www.example.com/" target="_blank">http://www.example.com/</a>
+<a href="https://www.example.com/" target="_blank">https://www.example.com/</a></p>
+
+<p><a href="http://example.com/foo/bar" target="_blank">http://example.com/foo/bar</a>
+<a href="https://example.com/foo/bar" target="_blank">https://example.com/foo/bar</a>
+<a href="https://example.com/foo/bar/" target="_blank">https://example.com/foo/bar/</a></p>
+
+<p><a href="http://www.example.com/foo/bar" target="_blank">http://www.example.com/foo/bar</a>
+<a href="https://www.example.com/foo/bar" target="_blank">https://www.example.com/foo/bar</a>
+<a href="https://www.example.com/foo/bar/" target="_blank">https://www.example.com/foo/bar/</a></p>
+
+<p><a href="http://example.com?foo=bar#beepboop" target="_blank">http://example.com?foo=bar#beepboop</a>
+<a href="https://example.com?foo=bar#beepboop" target="_blank">https://example.com?foo=bar#beepboop</a></p>
+
+<p><a href="http://example.com/?foo=bar#beepboop" target="_blank">http://example.com/?foo=bar#beepboop</a>
+<a href="https://example.com/?foo=bar#beepboop" target="_blank">https://example.com/?foo=bar#beepboop</a></p>
+
+<p><a href="http://www.example.com?foo=bar#beepboop" target="_blank">http://www.example.com?foo=bar#beepboop</a>
+<a href="https://www.example.com?foo=bar#beepboop" target="_blank">https://www.example.com?foo=bar#beepboop</a></p>
+
+<p><a href="http://www.example.com/?foo=bar#beepboop" target="_blank">http://www.example.com/?foo=bar#beepboop</a>
+<a href="https://www.example.com/?foo=bar#beepboop" target="_blank">https://www.example.com/?foo=bar#beepboop</a></p>
+
+<p><a href="http://example.com/foo/bar?foo=bar#beepboop" target="_blank">http://example.com/foo/bar?foo=bar#beepboop</a>
+<a href="https://example.com/foo/bar?foo=bar#beepboop" target="_blank">https://example.com/foo/bar?foo=bar#beepboop</a>
+<a href="https://example.com/foo/bar/?foo=bar#beepboop" target="_blank">https://example.com/foo/bar/?foo=bar#beepboop</a></p>
+
+<p><a href="http://www.example.com/foo/bar?foo=bar#beepboop" target="_blank">http://www.example.com/foo/bar?foo=bar#beepboop</a>
+<a href="https://www.example.com/foo/bar?foo=bar#beepboop" target="_blank">https://www.example.com/foo/bar?foo=bar#beepboop</a>
+<a href="https://www.example.com/foo/bar/?foo=bar#beepboop" target="_blank">https://www.example.com/foo/bar/?foo=bar#beepboop</a></p>
+
+<p><a href="http://example.com#beepboop" target="_blank">http://example.com#beepboop</a>
+<a href="https://example.com#beepboop" target="_blank">https://example.com#beepboop</a></p>
+
+<p><a href="http://example.com/#beepboop" target="_blank">http://example.com/#beepboop</a>
+<a href="https://example.com/#beepboop" target="_blank">https://example.com/#beepboop</a></p>
+
+<p><a href="http://www.example.com#beepboop" target="_blank">http://www.example.com#beepboop</a>
+<a href="https://www.example.com#beepboop" target="_blank">https://www.example.com#beepboop</a></p>
+
+<p><a href="http://www.example.com/#beepboop" target="_blank">http://www.example.com/#beepboop</a>
+<a href="https://www.example.com/#beepboop" target="_blank">https://www.example.com/#beepboop</a></p>
+
+<p><a href="http://example.com/foo/bar#beepboop" target="_blank">http://example.com/foo/bar#beepboop</a>
+<a href="https://example.com/foo/bar#beepboop" target="_blank">https://example.com/foo/bar#beepboop</a>
+<a href="https://example.com/foo/bar/#beepboop" target="_blank">https://example.com/foo/bar/#beepboop</a></p>
+
+<p><a href="http://www.example.com/foo/bar#beepboop" target="_blank">http://www.example.com/foo/bar#beepboop</a>
+<a href="https://www.example.com/foo/bar#beepboop" target="_blank">https://www.example.com/foo/bar#beepboop</a>
+<a href="https://www.example.com/foo/bar/#beepboop" target="_blank">https://www.example.com/foo/bar/#beepboop</a></p>
+
+<p>BAD&hellip;</p>
+
+<p><a href="https://example.com:8080" target="_blank">https://example.com:8080</a>
+<a href="https://example.com:8080/" target="_blank">https://example.com:8080/</a></p>
+
+<p>Anything other than ^^</p>
+
+<pre><code></code></pre>
+
+</div>
+</body>
+</html>

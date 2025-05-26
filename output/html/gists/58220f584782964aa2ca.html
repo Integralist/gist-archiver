@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby: use Struct for inheritance chain</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-use-struct-for-inheritance-chain">Ruby: use Struct for inheritance chain</h1>
+
+<h2 id="simple-struct-example-rb">Simple Struct Example.rb</h2>
+
+<pre><code class="language-ruby">s = Struct.new(:foo, :bar, :baz).new(1, 2, 3)
+s.foo # =&gt; 1
+s.bar # =&gt; 2
+s.baz # =&gt; 3
+</code></pre>
+
+<h2 id="struct-complex-cache-example-rb">Struct Complex Cache Example.rb</h2>
+
+<pre><code class="language-ruby">cache = Struct.new(nil) do
+  def set(key, value)
+    &quot;key: #{key}, value: #{value}&quot; 
+  end
+end.new
+
+cache.set(&quot;k&quot;, &quot;v&quot;) # =&gt; &quot;key: k, value: v&quot;
+</code></pre>
+
+<h2 id="struct-inheritance-rb">Struct Inheritance.rb</h2>
+
+<pre><code class="language-ruby"># Be warned: http://thepugautomatic.com/2013/08/struct-inheritance-is-overused/
+
+class Foo &lt; Struct.new(:bar, :baz)
+  def initialize(bar, baz)
+    super
+  end
+end
+
+foo = Foo.new('a', 'b') # =&gt; =&gt; #&lt;struct Foo bar=&quot;a&quot;, baz=&quot;b&quot;&gt;
+foo.bar # =&gt; &quot;a&quot;
+foo.baz # =&gt; &quot;b&quot;
+
+</code></pre>
+
+</div>
+</body>
+</html>

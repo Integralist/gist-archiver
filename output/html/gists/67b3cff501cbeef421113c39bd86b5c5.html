@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Vim Highlight Current Line] #vim #highlight #line</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="vim-highlight-current-line-vim-highlight-line">[Vim Highlight Current Line] #vim #highlight #line</h1>
+
+<h2 id="vim-highlight-current-line-vim">Vim Highlight Current Line.vim</h2>
+
+<pre><code class="language-vim">&quot; Note: this can be quite noisy, where as just looking at line number highlighted can be sufficient enough
+
+fun! SetCursorLine()
+  &quot; http://misc.flogisoft.com/_media/bash/colors_format/256_colors_bg.png
+  highlight CursorLine cterm=NONE ctermbg=214 ctermfg=darkred
+endfun
+&quot; autocmd VimEnter * call SetCursorLine() &quot; We have to use a last minute event (VimEnter)
+                                          &quot; Otherwise the colourscheme overrides our CursorLine
+</code></pre>
+
+</div>
+</body>
+</html>

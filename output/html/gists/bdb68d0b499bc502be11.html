@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Clojure talking to Spurious</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="clojure-talking-to-spurious">Clojure talking to Spurious</h1>
+
+<h2 id="clojure-spurious-basic-clj">clojure-spurious-basic.clj</h2>
+
+<pre><code class="language-clojure">(ns spurious-aws-sdk-helper.core
+  (:use [amazonica.aws.s3]))
+
+(def credentials {:access-key &quot;development_access&quot;
+                  :secret-key &quot;development_secret&quot;
+                  :endpoint &quot;s3.spurious.localhost:49154&quot;
+                  :client-config {:protocol &quot;http&quot;}})
+
+(set-s3client-options credentials :path-style-access true)
+(create-bucket credentials &quot;testing&quot;)
+</code></pre>
+
+<h2 id="clojure-spurious-extended-clj">clojure-spurious-extended.clj</h2>
+
+<pre><code class="language-clojure">(ns spurious-aws-sdk-helper.core
+  (:use [amazonica.aws.s3]
+        [clojure.pprint :only [print-table]])
+  (:require [amazonica.core :refer [defcredential get-credentials ex-&gt;map]]
+            [clojure.reflect :as r]))
+
+(defn env [name]
+  (System/getenv name))
+
+(prn (env &quot;GREETING&quot;))
+
+(def credentials {:access-key &quot;development_access&quot;
+                  :secret-key &quot;development_secret&quot;
+                  :endpoint &quot;s3.spurious.localhost:49154&quot;
+                  :client-config {:protocol &quot;http&quot;}})
+
+; use reflection to see methods on a class
+; get-credentials for cred returns BasicAWSCredentials class
+(print-table
+  (:members
+    (r/reflect (get-credentials (defcredential &quot;development_access&quot; &quot;development_secret&quot; &quot;eu-west-1&quot;)))))
+
+; display all public functions from a specified namespace and the current namespace
+(keys (ns-publics 'amazonica.aws.s3))
+(keys (ns-publics *ns*))
+
+(try
+  (set-s3client-options credentials :path-style-access true)
+  (create-bucket credentials &quot;testing&quot;)
+  (catch Exception e
+    (clojure.pprint/write (ex-&gt;map e))))
+
+; to prevent having to pass around `credentials` to every function call we could just call `defcredential` once
+</code></pre>
+
+</div>
+</body>
+</html>

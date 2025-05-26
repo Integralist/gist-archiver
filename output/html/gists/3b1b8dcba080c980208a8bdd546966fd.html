@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Custom Error Handling] #go #golang </title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-custom-error-handling-go-golang">[Golang Custom Error Handling] #go #golang</h1>
+
+<h2 id="main-go">main.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;errors&quot;
+	&quot;fmt&quot;
+	&quot;io&quot;
+)
+
+func main() {
+	err := doSomething()
+	fe := &amp;FooError{}
+	if errors.As(err, fe) {
+		fmt.Printf(&quot;it's a FooError: %#v\n&quot;, fe) // &amp;main.FooError{Op:&quot;doSomething&quot;, Err:(*errors.errorString)(0x556720)}
+		fmt.Printf(&quot;%#v\n&quot;, fe.Op)  // &quot;doSomething&quot;
+		fmt.Printf(&quot;%#v\n&quot;, fe.Err) // &amp;errors.errorString{s:&quot;EOF&quot;}
+	}
+}
+
+type FooError struct {
+	Op  string
+	Err error
+}
+
+func (e FooError) Error() string {
+	return fmt.Sprintf(&quot;operation %s: %v&quot;, e.Op, e.Err)
+}
+
+func (e FooError) Unwrap() error {
+	return e.Err
+}
+
+func doSomething() error {
+	return FooError{
+		Op:  &quot;doSomething&quot;,
+		Err: io.EOF,
+	}
+}
+</code></pre>
+
+</div>
+</body>
+</html>

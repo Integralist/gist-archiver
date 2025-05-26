@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>PubSub in JavaScript</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="pubsub-in-javascript">PubSub in JavaScript</h1>
+
+<h2 id="pubsub-nocomments-js">pubsub-nocomments.js</h2>
+
+<pre><code class="language-javascript">define(function(){
+
+    var doc = document;
+    var topics = {};
+    var id = -1;
+    var pubsub = {};
+
+    pubsub.subscribe =  function (topic, fn) {
+        if (!topics[topic]) {
+            topics[topic] = [];
+        }
+
+        var token = (++id).toString();
+
+        topics[topic].push({
+            token: token,
+            fn: fn
+        });
+
+        return token;
+    };
+
+    pubsub.unsubscribe =  function (token) {
+        for (var m in topics) {
+            if (topics[m]) {
+                for (var i = 0, j = topics[m].length; i &lt; j; i++) {
+                    if (topics[m][i].token === token) {
+                        topics[m].splice(i, 1);
+
+                        return token;
+                    }
+                }
+            }
+        }
+
+        return false;
+    };
+
+    pubsub.publish =  function (topic, data) {
+        if (!topics[topic]) {
+            return false;
+        }
+
+        setTimeout(function(){
+            var subscribers = topics[topic],
+
+            len = topics[topic].length;
+
+            while (len--) {
+                subscribers[len].fn(topic, data);
+            }
+        }, 0);
+
+        return true;
+    };
+
+    return pubsub;
+
+});
+</code></pre>
+
+<h2 id="pubsub-js">pubsub.js</h2>
+
+<pre><code class="language-javascript">/*
+    A basic implementation of the Publisher/Subscriber design pattern.
+    Developed by Addy Osmani (http://addyosmani.com/)
+
+    Example Usage:
+
+                    // Create subscriber function to be called when topic publishes an event
+                    var testSubscriber = function (topics, data) {
+                        console.log(topics + ': ' + data);
+                    };
+
+                    // Subscribe 'testSubscriber' to the event 'example1'
+                    var testSubscription = pubsub.subscribe('example1', testSubscriber);
+
+                    // Trigger the 'example1' event multiple times with different data each time
+                    pubsub.publish('example1', 'hello world!');
+                    pubsub.publish('example1', ['test','a', 'b', 'c']);
+                    pubsub.publish('example1', [{ 'color':'blue' }, { 'text' : 'hello' }]);
+
+                    // Unsubscribe 'testSubscription' from being notified of published events
+                    setTimeout(function(){
+                        pubsub.unsubscribe(testSubscription);
+                    }, 0);
+
+                    // This event will be published but 'testSubscription' will no longer receive a notification of it
+                    pubsub.publish('example1', 'hello again!');
+ */
+define(function(){
+
+    var doc = document;
+    var topics = {};
+    var id = -1;
+    var pubsub = {};
+
+    /*
+        Subscribe to a specific topic and specify a callback function 
+        to be executed when the topic triggers an event
+
+        @param  topics  {String}    the name of the topic to add the subscriber to
+        @param  fn      {Function}  the function to be called when an event for this topic is triggered
+        @return token   {String}    the unique id to be associated with the subscriber
+     */
+    pubsub.subscribe =  function (topic, fn) {
+        /*
+           If the specified topic doesn't exist on the object 
+           then add it as a new property and set it to an empty Array
+         */
+        if (!topics[topic]) {
+            topics[topic] = [];
+        }
+
+        // Create a unique id to be associated with the subscriber
+        var token = (++id).toString();
+
+        // Store the token and the subscriber (function) in this topic
+        topics[topic].push({
+            token: token,
+            fn: fn
+        });
+
+        // Return the unique id for this subscriber
+        return token;
+    };
+
+    /*
+        Unsubscribe the specified subscriber (specified by the unique token associated to a subscriber)
+
+        @param  token {String}  the unique id for the subscriber
+        @Return false {Boolean} nothing else to happen so just return false
+     */
+    pubsub.unsubscribe =  function (token) {
+        // Loop through all topics...
+        for (var m in topics) {
+            // For each topic...
+            if (topics[m]) {
+                // Loop through each subscriber...
+                for (var i = 0, j = topics[m].length; i &lt; j; i++) {
+                    // If the current subscriber's token matches the token passed to the function...
+                    if (topics[m][i].token === token) {
+                        // Then remove it...
+                        topics[m].splice(i, 1);
+
+                        // And return the subscriber's unique id as a reference
+                        return token;
+                    }
+                }
+            }
+        }
+
+        return false;
+    };
+
+    /*
+        Publish an event for the specified topic, which will trigger all associated subscriber functions to execute
+
+        @param  topic   {String}    the topic name
+        @param  data    {Multiple}  data is passed through to the subscriber function to process (data type can be anything, String/Array/Object whatever!)
+        @Return true    {Boolean}   return true so we know the function was executed successfully
+     */
+    pubsub.publish =  function (topic, data) {
+        // If the topic specified cannot be found then return the function early (no point continuing)
+        if (!topics[topic]) {
+            return false;
+        }
+
+        // Asynchronously execute each subscriber function
+        setTimeout(function(){
+            // Cache the topic
+            var subscribers = topics[topic],
+
+            // Cache the length of subscribers for the topic 
+            // Note: If the topic has no subscribers then the length will be equal to zero and the following loop will not run
+            len = topics[topic].length;
+
+            // Loop through each subscriber...
+            while (len--) {
+                // And execute the subscriber's associated function
+                subscribers[len].fn(topic, data);
+            }
+        }, 0);
+
+        return true;
+    };
+
+    return pubsub;
+
+});
+</code></pre>
+
+</div>
+</body>
+</html>

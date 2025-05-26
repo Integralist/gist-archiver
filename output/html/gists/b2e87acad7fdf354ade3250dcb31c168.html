@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go embedding interface types] #go #golang #interface #struct #field #type #assertion #embed #override #template #pattern</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-embedding-interface-types-go-golang-interface-struct-field-type-assertion-embed-override-template-pattern">[Go embedding interface types] #go #golang #interface #struct #field #type #assertion #embed #override #template #pattern</h1>
+
+<h2 id="1-md">1.md</h2>
+
+<pre><code class="language-markdown">Embedding an interface into a struct means that field will need to be assigned a value that fulfils the interface.
+
+This forces the struct to implement the given methods because when you assign a type to that field it needs to have those methods available.
+
+This is especially useful when you want to re-implement only a single method of the interface for testing purposes as noted here...
+
+https://dmv.myhatchpad.com/insight/mocking-techniques-for-go/
+
+&gt; Use when you need to mock out a small set of methods defined in a large interface.
+&gt;
+&gt; A great example of this situation comes from the DynamoDB documentation.
+&gt;
+&gt; When working with the aws-sdk, they provide interfaces for all of their major services that are quite large since they contain all of the calls that can be made for each particular client. Take a look at the dynamodbiface.DynamoDBAPI interface from the link. Rather than pass around the concrete client type, you should pass around this interface to other functions. But then, when testing some of your code that calls one particular function of the interface, how do you mock out that call only without mocking every other function in an attempt to satisfy the interface?
+
+**WARNING**: assigning `nil` breaks this compile time safety!
+
+This is best demonstrated by way of an example (https://play.golang.org/p/i8q0gv4WgkQ)
+
+```go
+package main
+
+import (
+	&quot;fmt&quot;
+	&quot;io&quot;
+)
+
+// Foo needs to implement io.Reader
+type Foo struct {
+	io.Reader
+	Bar int
+}
+
+// Bar doesn't implement io.Reader
+type Bar struct{}
+
+// Baz DOES implement io.Reader
+type Baz struct{}
+
+func (b Baz) Read(p []byte) (n int, err error) {
+	fmt.Println(&quot;Bar.Read was called&quot;)
+	return 0, nil
+}
+
+func main() {
+	// we can assign Foo{Reader: Baz{}} to r
+	// as it fulfils the io.Reader interface
+	//
+	var r io.Reader
+	r = Foo{Reader: Baz{}}
+	fmt.Printf(&quot;%+v\n&quot;, r) // {Reader:{} Bar:0}
+
+	// WARNING: this compiles but then fails at runtime ❌
+	// i.e. a nil value breaks compile time safety!
+	//
+	r = Foo{}
+	fmt.Printf(&quot;%+v\n&quot;, r) // {Reader:&lt;nil&gt; Bar:0}
+
+	b := []byte{}
+	r.Read(b)
+	//
+	// panic: runtime error: invalid memory address or nil pointer dereference
+
+    // What's much better (of course) is getting a COMPILE TIME error!
+	//
+    // if we tried to assign `Foo{Reader: Bar{}}` to r variable then we'd get compiler error.
+	// because we cannot use Bar literal (type Bar) as type io.Reader in field value
+	// as Bar does not implement io.Reader (it's missing the Read method)
+	//
+	fmt.Printf(&quot;%+v\n&quot;, Foo{Reader: Bar{}})
+
+}
+</code></pre>
+
+<p>When not embedding an interface we can use an underscore as a &lsquo;compile time check&rsquo; trick&hellip;</p>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;net/http&quot;
+)
+
+type RW struct {}
+
+/*
+func (rw RW) Header() http.Header {
+	return make(http.Header)
+}
+*/
+
+func (rw RW) Write([]byte) (int, error) {
+	return 0, nil
+}
+
+func (rw RW) WriteHeader(statusCode int) {}
+
+// ./prog.go:21:5: cannot use RW literal (type RW) as type http.ResponseWriter in assignment:
+//  	RW does not implement http.ResponseWriter (missing Header method)
+var _ http.ResponseWriter = RW{}
+
+func main() {
+	// ...
+}
+</code></pre>
+
+<p>But as mentioned earlier be aware that the above example code would fail compilation because we didn&rsquo;t embed the interface! Once you embed the interface the compile time error doesn&rsquo;t occur!</p>
+
+<p>This is because when embedding the interface you&rsquo;re providing a <code>nil</code> value for the <code>ResponseWriter</code> field and that&rsquo;s fine, as far as the compiler is concerned when it comes to saying have you provided something to satisfy this field&rsquo;s requirements. But of course <code>nil</code> has no methods!</p>
+
+<p>So be careful because you can run into issues like the following code which compiles fine but then fails at runtime with a panic!</p>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;net/http&quot;
+)
+
+var _ http.ResponseWriter = RW{}
+
+type RW struct {
+	http.ResponseWriter
+}
+
+/*
+func (rw RW) Header() http.Header {
+	return make(http.Header)
+}
+*/
+
+func (rw RW) Write([]byte) (int, error) {
+	return 0, nil
+}
+
+func (rw RW) WriteHeader(statusCode int) {
+	fmt.Println(statusCode)
+}
+
+func main() {
+	var rw http.ResponseWriter
+	rw = RW{}
+	fmt.Printf(&quot;%+v\n&quot;, rw) // {ResponseWriter:&lt;nil&gt;}
+
+	written, err := rw.Write([]byte(&quot;ABC&quot;))
+	fmt.Printf(&quot;%+v %+v\n&quot;, written, err)
+
+	rw.WriteHeader(123)
+
+	fmt.Printf(&quot;%+v\n&quot;, rw.Header())
+}
+</code></pre>
+
+<pre><code>
+## embed interface into struct (real example).go
+
+```go
+// Package middleware provides wrapper functions around the http.Handler
+// interface, allowing for an incoming HTTP request to be modified or analysed.
+package middleware
+
+import (
+	&quot;fmt&quot;
+	&quot;net/http&quot;
+	&quot;time&quot;
+)
+
+// This is a compile-time check to ensure that `Handler` meets
+// the interface definition for `http.ResponseWriter`.
+//
+// We throw away the result because anything other than an error means the check
+// passes, and an error will prevent compiling.
+//
+// Not defining the underlying `ResponseWriter` field in the Handler struct
+// will effectively be the same as passing `http.ResponseWriter(nil)`. Which is
+// enough to associate the relevant methods with the Handler struct so it may
+// satisfy the http.ResponseWriter interface.
+var (
+	_ http.ResponseWriter = &amp;Handler{}
+)
+
+// Handler provides an interface composed of an `http.ResponseWriter`
+// to satisfy the http handler interface to allow us to expose a request
+// to our logger.
+type Handler struct {
+	http.ResponseWriter
+	status int
+	length int
+}
+
+// WriteHeader writes status field as the response status via the underlying
+// ResponseWriter instance created at the time of the request construction.
+func (h *Handler) WriteHeader(status int) {
+	h.status = status
+	h.ResponseWriter.WriteHeader(status)
+}
+
+// Write writes `statusOK` for any handler passed in that has the status
+// (represented by an int) of 0. Any other status code will be left as is,
+// and then the status will be handed off to the ResponseWriter.
+func (h *Handler) Write(b []byte) (int, error) {
+	if h.status == 0 {
+		h.status = http.StatusOK
+	}
+
+	n, err := h.ResponseWriter.Write(b)
+	h.length += n
+
+	return n, err
+}
+
+// Foo is using the traditional golang middleware pattern for handling web server requests.
+func Foo(handler http.Handler) http.HandlerFunc {
+	
+	return func(w http.ResponseWriter, r *http.Request) {
+		h := &amp;Handler{ResponseWriter: w}
+		handler.ServeHTTP(h, r)
+		fmt.Println(h.status) // should now have a value as it's passed through the various middleware
+	}
+}
+</code></pre>
+
+<h2 id="struct-with-interface-type-field-accessed-as-interface-vs-real-type-go">struct with interface type field accessed as interface vs real type.go</h2>
+
+<pre><code class="language-go">type baz interface {
+	...
+}
+
+type X struct {
+	foo int
+	bar baz
+}
+
+convertThingThatImplementsBazIntoInterfaceType := interface{}(ThingThatImplementsBaz{})
+realTypeReturned := convertThingThatImplementsBazIntoInterfaceType.(baz)
+
+x.bar = realTypeReturned
+</code></pre>
+
+</div>
+</body>
+</html>

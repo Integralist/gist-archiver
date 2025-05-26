@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Rollout strategies for large code changes] #rollout #strategy #plans #strangler #pattern</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="rollout-strategies-for-large-code-changes-rollout-strategy-plans-strangler-pattern">[Rollout strategies for large code changes] #rollout #strategy #plans #strangler #pattern</h1>
+
+<h2 id="rollout-strategies-for-large-code-changes-md">Rollout strategies for large code changes.md</h2>
+
+<pre><code class="language-markdown">Getting into production _sooner_ should be part of our business plan.
+
+Rather than spending lots of time getting _all_ planned features 'finished', we should have a plan for slowly rolling out _incremental_ changes. In doing so we would have more confidence that the features we were releasing would not break something in production and make it difficult to rollback. In effect we want to avoid ending up with a 'big bang' rollout.
+
+The following steps could be a useful plan of action to take:
+
+1. define code 'boundaries'
+2. filter traffic by 'funnels'
+3. build features, then deploy them within our secured boundaries
+
+&gt; Note: I've since discovered that this approach is a form of [Strangler Pattern](https://www.martinfowler.com/bliki/StranglerApplication.html). I've been using it for years but was unaware that it had a _name_ and that Martin Fowler was responsible for that way back in 2004!
+
+## Boundaries
+
+Identify areas of the existing code base where new changes (e.g. replacement of existing services) will need to happen, and ensure their are appropriate code branches in place. 
+
+In essence, build a wall around where your new code will end up.
+
+## Funnels
+
+Define what users (or general traffic) can access the code that sits inside of the defined boundaries. For example, maybe just traffic from your own team should be able to penetrate the code branches (via some form of authentication process: self-signed certs, cookies or a custom header etc).
+
+&gt; **Important!** make sure your funnels are working and then code you place within these new 'boundaries' does not break anything in production (have tests written to ensure this).
+
+As the project reaches a state where it can be exposed to more uses, you update the 'funnel' to allow more an more throughput. Thus increasing the allowed traffic range (e.g. not only your team can access it, via authentication, but so can multiple teams within your organization; then moving forward you can replace the authentication process with a locality check -- so users in Australia get the new feature, etc).
+
+## Deploy Incrementally
+
+While you have the boundaries for your new code defined, and a small funnel in place to control the traffic, you can then start quickly deploying new code without fear of it breaking anything in production.
+</code></pre>
+
+</div>
+</body>
+</html>

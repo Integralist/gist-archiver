@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby Threads: failing fast</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-threads-failing-fast">Ruby Threads: failing fast</h1>
+
+<h2 id="ruby-threads-failing-fast-rb">Ruby Threads: failing fast.rb</h2>
+
+<pre><code class="language-ruby"># SETUP...
+
+class ::FooError &lt; StandardError
+  def initialize(msg)
+    super &quot;msg: #{msg}&quot;
+  end
+end
+
+class ::BarError &lt; StandardError
+  def initialize(msg)
+    super &quot;msg: #{msg}&quot;
+  end
+end
+
+def foo(i)
+  sleep i; fail ::FooError.new(&quot;new foo error&quot;)
+rescue ::FooError =&gt; e
+  e
+end
+
+def bar(i)
+  sleep i; fail ::BarError.new(&quot;new bar error&quot;) 
+  # to see a full length run through, change this to... 
+  # sleep i; &quot;some success value&quot;
+end
+
+# ACTUAL SOLUTION...
+
+start = Time.now
+
+times = [10, 10, 2].map do |i|
+  Thread.new do
+    begin
+      if i == 2
+        bar(i) # run bar with 2 second sleep
+      else
+        foo(i) # run foo with 10 second sleep
+      end
+    rescue
+      Thread.new { check(times) }
+      Thread.kill(Thread.current)
+    end
+  end
+end
+
+def check(threads)
+  threads.select { |t| t unless t.alive? }.tap do |result|
+    threads.each { |t| t.kill } if result.size &gt; 0
+  end
+end
+
+p times.map { |i| i.value }
+
+finish = Time.now - start
+
+p finish # should be ~2 seconds, definitely not 10! unless you modify the code as indicated above
+</code></pre>
+
+<h2 id="ruby-threads-failing-fast-md">Ruby Threads: failing fast.md</h2>
+
+<pre><code class="language-markdown">In our code base we spin up some Threads...
+
+```rb
+metas.map do |meta|
+  Thread.new do
+    fetch(meta, timeout)
+  end
+end.map(&amp;:value)
+</code></pre>
+
+<p>The <code>fetch</code> function will call some code from within another class which itself internally will throw and catch lots of exceptions.</p>
+
+<p>In one instance it&rsquo;ll throw an exception that isn&rsquo;t caught by the class, and so it bubbles up to the top level of the application.</p>
+
+<p>The issue is that although the exception is thrown and is <em>eventually</em> rescued by a function in the top level of the application, the current code takes far too long to get there. The reason being: our loop keeps going - regardless of the unhandled exception - until all the other threads have finished (so we <strong>DON&rsquo;T</strong> &ldquo;fail fast&rdquo; in this scenario).</p>
+
+<p>The following code replicates this behaviour and then tries to solve it&hellip;
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

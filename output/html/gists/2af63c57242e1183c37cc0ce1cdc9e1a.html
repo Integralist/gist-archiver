@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Replace macOS Terminal Emulator with GPU accelerated Alacritty] #macOS #terminal #shell #alacritty</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="replace-macos-terminal-emulator-with-gpu-accelerated-alacritty-macos-terminal-shell-alacritty">[Replace macOS Terminal Emulator with GPU accelerated Alacritty] #macOS #terminal #shell #alacritty</h1>
+
+<h2 id="replace-macos-terminal-emulator-with-gpu-accelerated-alacritty-md">Replace macOS Terminal Emulator with GPU accelerated Alacritty.md</h2>
+
+<pre><code class="language-markdown">&gt; https://arslan.io/2018/02/05/gpu-accelerated-terminal-alacritty/
+
+- Install rust: `curl https://sh.rustup.rs -sSf | sh`
+- Make rust available: `echo 'source &quot;$HOME/.cargo/env&quot;' &gt;&gt; ~/.bashrc`
+- Set rust compiler: `rustup override set stable`
+- Update rust: `rustup update stable`
+- Get Alacritty: `git clone https://github.com/jwilm/alacritty.git`
+- Build Alacritty: `cd alacritty &amp;&amp; make app`
+- Add Alacritty to your Applications directory: `cp -r target/release/osx/Alacritty.app /Applications/`
+- Create Alacritty config: `mkdir -p ~/.config/alacritty &amp;&amp; cp alacritty_macos.yml ~/.config/alacritty/alacritty.yml`
+
+&gt; https://github.com/jwilm/alacritty/issues/99 for tmux binding to be reinstated
+</code></pre>
+
+</div>
+</body>
+</html>

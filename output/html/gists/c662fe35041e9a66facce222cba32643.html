@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang http.Request.Context] #go #golang #http #request #context</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-http-request-context-go-golang-http-request-context">[Golang http.Request.Context] #go #golang #http #request #context</h1>
+
+<h2 id="golang-http-request-context-go">Golang http.Request.Context.go</h2>
+
+<pre><code class="language-go">// https://goplay.tools/snippet/YB3_8gerQ-U
+package main
+
+import (
+	&quot;context&quot;
+	&quot;fmt&quot;
+	&quot;net/http&quot;
+)
+
+const beepboop = &quot;whatever&quot;
+
+type User struct {
+	Name string
+}
+
+func main() {
+	fmt.Printf(&quot;beepboop: %#v\n\n&quot;, beepboop)
+	r := new(http.Request)
+	fmt.Printf(&quot;r: %#v\n\n&quot;, r)
+	c := r.Context()
+	fmt.Printf(&quot;c: %#v\n\n&quot;, c)
+	nc := context.WithValue(c, &quot;foo&quot;, &quot;bar&quot;)
+	fmt.Printf(&quot;nc: %#v\n\n&quot;, nc)
+	if v := nc.Value(&quot;foo&quot;); v != nil {
+		fmt.Printf(&quot;found value in nc context: %#v (%T)\n\n&quot;, v, v)
+	}
+	nc2 := context.WithValue(nc, beepboop, 123)
+	fmt.Printf(&quot;nc2: %#v\n\n&quot;, nc2)
+	if v := nc2.Value(beepboop); v != nil {
+		fmt.Printf(&quot;found value in nc2 context: %#v (%T)\n\n&quot;, v, v)
+	}
+	u := User{Name: &quot;integralist&quot;}
+	nc3 := context.WithValue(nc2, &quot;some_other_key&quot;, &amp;u)
+	fmt.Printf(&quot;nc3: %#v\n\n&quot;, nc3)
+	if v := nc3.Value(&quot;some_other_key&quot;); v != nil {
+		fmt.Printf(&quot;found value in nc3 context: %#v (%T)\n\n&quot;, v, v)
+        // IMPORTANT: Although Printf looks to show the type it's not concrete.
+        // We're actually dealing with any empty interface{}/any type.
+        // So we have to coerce it. There's no type saftey.
+		u, ok := v.(*User)
+		if ok {
+			fmt.Println(u.Name)
+		}
+	}
+}
+
+/*
+beepboop: &quot;whatever&quot;
+
+r: &amp;http.Request{Method:&quot;&quot;, URL:(*url.URL)(nil), Proto:&quot;&quot;, ProtoMajor:0, ProtoMinor:0, Header:http.Header(nil), Body:io.ReadCloser(nil), GetBody:(func() (io.ReadCloser, error))(nil), ContentLength:0, TransferEncoding:[]string(nil), Close:false, Host:&quot;&quot;, Form:url.Values(nil), PostForm:url.Values(nil), MultipartForm:(*multipart.Form)(nil), Trailer:http.Header(nil), RemoteAddr:&quot;&quot;, RequestURI:&quot;&quot;, TLS:(*tls.ConnectionState)(nil), Cancel:(&lt;-chan struct {})(nil), Response:(*http.Response)(nil), Pattern:&quot;&quot;, ctx:context.Context(nil), pat:(*http.pattern)(nil), matches:[]string(nil), otherValues:map[string]string(nil)}
+
+c: context.backgroundCtx{emptyCtx:context.emptyCtx{}}
+
+nc: &amp;context.valueCtx{Context:context.backgroundCtx{emptyCtx:context.emptyCtx{}}, key:&quot;foo&quot;, val:&quot;bar&quot;}
+
+found value in nc context: &quot;bar&quot; (string)
+
+nc2: &amp;context.valueCtx{Context:(*context.valueCtx)(0xc00011a840), key:&quot;whatever&quot;, val:123}
+
+found value in nc2 context: 123 (int)
+
+nc3: &amp;context.valueCtx{Context:(*context.valueCtx)(0xc00011a8a0), key:&quot;some_other_key&quot;, val:(*main.User)(0xc000106100)}
+
+found value in nc3 context: &amp;main.User{Name:&quot;integralist&quot;} (*main.User)
+
+integralist
+*/
+
+</code></pre>
+
+</div>
+</body>
+</html>

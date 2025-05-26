@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Detect CSS Animation support and provide object of normalised properties</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="detect-css-animation-support-and-provide-object-of-normalised-properties">Detect CSS Animation support and provide object of normalised properties</h1>
+
+<h2 id="detect-js">detect.js</h2>
+
+<pre><code class="language-javascript">    function CSSAnimation(){
+        /*
+            webkitAnimationName =&gt; Safari/Chrome
+            MozAnimationName =&gt; Mozilla Firefox
+            OAnimationName =&gt; Opera
+            animationName =&gt; compliant browsers (inc. IE10)
+         */
+        var supported = false;
+        var prefixes = ['webkit', 'Moz', 'O', ''];
+        var limit = prefixes.length;
+        var doc = document.documentElement.style;
+        var prefix, start, end;
+
+        while (limit--) {
+            // If the compliant browser check (in this case an empty string value) then we need to check against different string (animationName and not prefix + AnimationName)
+            if (!prefixes[limit]) {
+                // If not undefined then we've found a successful match
+                if (doc['animationName'] !== undefined) {
+                    prefix = prefixes[limit];
+                    start = 'animationstart';
+                    end = 'animationend';
+                    supported = true;
+                    break;
+                }
+            } 
+            // Other brower prefixes to be checked
+            else {
+                // If not undefined then we've found a successful match
+                if (doc[prefixes[limit] + 'AnimationName'] !== undefined) {
+                    prefix = prefixes[limit];
+
+                    switch (limit) {
+                        case 0:
+                            //  webkitAnimationStart &amp;&amp; webkitAnimationEnd
+                            start = prefix.toLowerCase() + 'AnimationStart';
+                            end = prefix.toLowerCase() + 'AnimationEnd';
+                            supported = true;
+                            break;
+
+                        case 1:                        
+                            // animationstart &amp;&amp; animationend
+                            start = 'animationstart';
+                            end = 'animationend';
+                            supported = true;
+                            break;
+
+                        case 2:
+                            // oanimationstart &amp;&amp; oanimationend
+                            start = prefix.toLowerCase() + 'animationstart';
+                            end = prefix.toLowerCase() + 'animationend';
+                            supported = true;
+                            break;
+                    }
+                    
+                    break;
+                }
+            }
+        }
+
+        return {
+            supported: supported,
+            prefix: prefix,
+            start: start,
+            end: end
+        };
+    }
+
+    var animation = CSSAnimation();
+    var element = document.getElementById('js-animation');
+
+    if (animation.supported) {
+        element.addEventListener(animation.start, AnimationListener, false);
+        element.addEventListener(animation.end, AnimationListener, false);
+    }
+
+    function AnimationListener (e) {
+        console.log(e, e.type);
+    }
+</code></pre>
+
+</div>
+</body>
+</html>

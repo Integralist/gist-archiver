@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Comments on Analytics code...</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="comments-on-analytics-code">Comments on Analytics code&hellip;</h1>
+
+<h2 id="comments-md">Comments.md</h2>
+
+<pre><code class="language-markdown">The original source code is shown at the bottom of this page.
+
+My comments were as follows...
+
+- The `sendEvents` method stores `this.events`, then resets `this.events` to an empty Array but would it not be less confusing to just wait until after sending the data to the server (via XHR) before clearing the Array. For example...   
+  ```js
+    var xmlhttp = null;
+
+    if(typeof XDomainRequest != &quot;undefined&quot;)
+    {
+        xmlhttp = new XDomainRequest();
+        xmlhttp.open(&quot;POST&quot;,this.s);
+    }
+    else
+    {
+        xmlhttp = new XMLHttpRequest();     
+        xmlhttp.open(&quot;POST&quot;,this.s, true);
+        xmlhttp.setRequestHeader(&quot;Content-type&quot;, 'application/json');
+    }
+
+    xmlhttp.onreadystatechange = function()
+    {
+        if(xmlhttp.readyState == 4)
+        {
+            if(callback)
+            {
+                callback(xmlhttp.status);
+            }
+        }
+    }
+        
+    try
+    {
+        xmlhttp.send(JSON.stringify({events:this.events}));
+        this.events = [];
+    }catch(e)
+    {
+        console.log(&quot;caught:&quot;+e);
+    }
+</code></pre>
+
+<ul>
+<li><p>Make the properties on the event object clearer:<br />
+<code>this.s = config.server</code> should be <code>this.server = config.server</code></p></li>
+
+<li><p>The date creation isn&rsquo;t wrapped properly:<br />
+<code>(new Date().getTime())</code> should be <code>(new Date()).getTime()</code><br />
+we&rsquo;re not sure if the current way will cause an error in certain browsers or not, hence we just felt it would be safer to wrap the new date in parenthesis first before chaining the get time method.</p></li>
+
+<li><p>Not sure if the code should be written in the Constructor pattern as there is only ever going to be one instance of the Analytic object so it would be better if it was written as an object literal instead.</p></li>
+
+<li><p>Coding style currently matches our PHP guidelines but that could introduce issues with minifiers so it needs to follow our <a href="https://github.com/BBC-News/guts/wiki/JavaScript-Style-Guide" target="_blank">JavaScript style guide</a></p></li>
+
+<li><p>The module returns an object which maps to the Constructor <code>{AC:AC}</code> but it seems redundant to do that. If we do keep with the Constructor pattern then the module should just return the Constructor and not an object literal (unless of course the object that is returned will have additional public API&rsquo;s added to it which will be consumable).</p></li>
+
+<li><p>Again, if we keep with the module returning an object then the <code>AC</code> property should be renamed to something clearer like <code>init</code>:<br />
+<code>return {AC:AC};</code> should be <code>return { init: AC };</code></p></li>
+
+<li><p>Remove the distracting and quite hideous redundant comments: <code>//-----------------------------------------------------------------------------</code> as they make the code much harder to read.</p></li>
+
+<li><p>The <code>load</code> method creates a <code>self</code> variable and assigns <code>this</code> to it, but that seems redundant? The only exception is the <code>setTimeout</code> which changes the scope to be <code>window</code>. But for that instance we should be able to get rid of the <code>self</code> variable and instead use the <code>.bind</code> method&hellip;</p>
+
+<pre><code class="language-js">setTimeout(function(){
+  var data = window.performance.timing;
+  data.url = window.location.pathname;
+
+
+  this.addSendEvent(&quot;PT&quot;, data);
+}.bind(this), 0);
+</code></pre>
+<p>&hellip;or alternatively you could create a helper method to wrap the callback function so it binds <code>this</code> correctly (see: <a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function/bind#Compatibility" target="_blank">MDN Polyfill</a>)</p></li>
+
+<li><p>I&rsquo;d cache the <code>window</code> reference so the code isn&rsquo;t constantly doing scope lookups.</p></li>
+
+<li><p>Currently all the methods attached to the <code>AC</code> prototype look to be public api methods and really (from a design point of view) I assume these methods should be internalised so they are private and not public.</p></li>
+</ul>
+
+<p>##Original JavaScript code:</p>
+
+<pre><code class="language-js">//-----------------------------------------------------------------------------
+if (typeof define !== 'function') { var define = require('amdefine')(module)}//node.js magic
+//-----------------------------------------------------------------------------
+define(function(require){ //BEGIN AMD
+//-----------------------------------------------------------------------------
+/**
+ @classdesc The Analytic Client provides an API for applications to submit
+   events for collation and later analysis.
+  
+  	This version makes some assumptions based on its intended usage.
+  	&gt;=IE9 support only, requires native JSON and XMLHttpRequest or XDomainRequest.
+
+	@param {object} config This contains the followin attributes:
+		server : string : the address of the events server
+		product : string : uniquely identifies product
+		probability : number : 0 == never, 1.0 == always trigger non critical events
+ @class
+*/
+//-----------------------------------------------------------------------------
+function AC(config)
+{
+	this.events = []; //this is where we store events until we send them
+	this.s = config.server;
+	this.p = config.product;
+	this.tprob = config.probability
+};
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+AC.EN_IP 	= 1; //adds user IP address to event server side
+AC.EN_GEOIP = 2; //adds user Location based on IP to event server side
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+/**
+	Add an event to the internal queue.
+
+	@param {number} eventId The id of the event
+	@param {Object} eventData The payload data of the event
+	@param {array}	enrich (optional) An array of possible enrichments
+*/
+//-----------------------------------------------------------------------------
+AC.prototype.addEvent = function(eventId,eventData,enrich)
+{
+	this.events.push(
+	{
+		p : this.p,
+		id : eventId,
+		ts : (new Date().getTime()),
+		data : eventData,
+		enrich : enrich
+	});
+};
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+/**
+	Add an event to the internal queue.
+
+	@param {number} eventId The id of the event
+	@param {Object} eventData The payload data of the event
+	@param {array}	enrich (optional) An array of possible enrichments
+	@param {function} callback This will be fired after event has
+	 been added to queue if present
+*/
+//-----------------------------------------------------------------------------
+AC.prototype.addSendEvent = function(eventId,eventData,enrich,callback)
+{
+	this.addEvent(eventId,eventData,enrich);
+	this.sendEvents(callback);
+};
+//-----------------------------------------------------------------------------
+/**
+	Create the payload required for the special Page Load event.
+	This event is automatically triggered whenever the user loads a new
+	page, it contains detail about their navigation along with performance
+	timings.
+
+	@return {Object} The created Page Load payload.
+*/
+//-----------------------------------------------------------------------------
+AC.prototype.createPLData = function()
+{
+	return {		
+		url : window.location.pathname,
+		referrer : document.referrer
+	};
+};
+//-----------------------------------------------------------------------------
+/**
+	This will send all events currently stored in the client to the 
+	server endpoint.
+
+	@param {function} callback Fired upon completion of sending messages.
+*/
+//-----------------------------------------------------------------------------
+AC.prototype.sendEvents = function(callback)
+{
+	var events = this.events;
+	this.events = [];
+	var xmlhttp = null;
+
+	if(typeof XDomainRequest != &quot;undefined&quot;)
+	{
+		xmlhttp = new XDomainRequest();
+		xmlhttp.open(&quot;POST&quot;,this.s);
+	}
+	else
+	{
+		xmlhttp = new XMLHttpRequest();		
+		xmlhttp.open(&quot;POST&quot;,this.s, true);
+		xmlhttp.setRequestHeader(&quot;Content-type&quot;, 'application/json');
+	}
+
+	xmlhttp.onreadystatechange = function()
+	{
+		if(xmlhttp.readyState == 4)
+		{
+			if(callback)
+	    	{
+	    		callback(xmlhttp.status);
+	    	}
+		}
+	}
+		
+	try
+	{
+		xmlhttp.send(JSON.stringify({events:events}));
+	}catch(e)
+	{
+		console.log(&quot;caught:&quot;+e);
+	}
+};
+//-----------------------------------------------------------------------------
+/**
+	When the page has completed loading we create an instance 
+	of the client and submit the special page load event.
+ */
+//-----------------------------------------------------------------------------
+AC.prototype.load = function()
+{
+	var self = this;
+
+	if(Math.random() &lt; self.tprob)
+	{
+		if(typeof window.performance === 'object')
+		{
+			self.addEvent(&quot;PL&quot;,self.createPLData());
+			
+			//If called on pageload this will not populate performance data properly
+			// as the first tick is taken into consideration, thus need to get it on second tick.
+			setTimeout(function()
+			{
+				var data = window.performance.timing;
+				data.url = window.location.pathname;
+				
+				self.addSendEvent(&quot;PT&quot;, data);
+			},0);
+		}
+		else
+		{
+			self.addSendEvent(&quot;PL&quot;,self.createPLData());
+		}
+	}
+};
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+return {AC:AC};}); //END AMD
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

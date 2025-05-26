@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Vim Tips] Little things I forget about in Vim #vim #tips #tricks</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="vim-tips-little-things-i-forget-about-in-vim-vim-tips-tricks">[Vim Tips] Little things I forget about in Vim #vim #tips #tricks</h1>
+
+<h2 id="vim-tips-md">Vim Tips.md</h2>
+
+<pre><code class="language-markdown">- `:windo set scrollbind` and `:windo set cursorbind` to make two windows scroll together.
+- `gf` takes you to the file referenced (e.g. `[Makefile](../Makefile)`) but if you add a `:` followed by a line number to the link (e.g. `[Makefile](../Makefile:123)`) then pressing `gF` will take you to the specific line number as well.
+- `:-d` and `:+d` delete the line above or below the current line, unlike `dj` or `dk` which would also delete the current line.
+- `:copy` allows you to copy a line to another location (e.g. `:10 copy 20` copies the range, in this case line 10, to _below_ line 20), where I had always `:10y` then moved to the destination).
+- `:&lt;range&gt;put &lt;register&gt;` allows you to paste a register to a specific line.
+- `:packadd cfilter` enables filtering results from quickfix window (e.g. `:Cfilter /pattern/`, also has negated version `Cfilter!`).
+- To 'append' to multiple lines: `Ctrl+v` and select multiple lines, then `$`, then `Shift+a` and start typing (this is the opposite of 'insert' with `Ctrl+v` and `Shift+i`).
+- To autoformat text to a specific width (e.g. `set textwidth=80`), first select the text and then execute `gq`. This is super useful for when you have a code comment that you need to tweak/edit, and then it messes up the line breaks. You can just select the entire text and `gq` to have it fixed!
+- `:%!jq` will format the entire file
+- modelines (https://vimhelp.org/options.txt.html#modeline)
+  - Markdown: `&lt;!-- vim: set colorcolumn=57,80: --&gt;`
+  - Go: `// vim: foldmethod=indent foldlevel=0`
+
+```shell
+vim -E -s config.txt &lt;&lt;-EOF
+:%s/foo/bar/
+:update
+:quit
+EOF
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

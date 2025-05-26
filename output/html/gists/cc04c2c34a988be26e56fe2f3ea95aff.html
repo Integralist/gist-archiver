@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Interfaces via Protocols and Abstract Base Classes (with Metaclasses)] #python #interfaces #protocols #design #collections #abc #iterator #sized #metaclasses #abstract</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-interfaces-via-protocols-and-abstract-base-classes-with-metaclasses-python-interfaces-protocols-design-collections-abc-iterator-sized-metaclasses-abstract">[Python Interfaces via Protocols and Abstract Base Classes (with Metaclasses)] #python #interfaces #protocols #design #collections #abc #iterator #sized #metaclasses #abstract</h1>
+
+<h2 id="python-interfaces-via-protocols-and-abstract-base-classes-with-metaclasses-md">Python Interfaces via Protocols and Abstract Base Classes (with Metaclasses).md</h2>
+
+<pre><code class="language-markdown">Python is a strongly typed dynamic language, and so it has no support for the `interface` keyword.
+
+&gt; Note: some languages are weakly typed (JavaScript), some are strongly typed (Python) and some are statically typed (Go, Rust). Being strongly typed means you can't perform operations inappropriate to the type, so for example: in Python you can't add a number typed variable with a string typed variable.
+
+Instead, Python provides 'protocols' which are a bit like the interface support in Go. They're not strictly enforced, but if you implement specific magic methods you'll find a selection of builtin Python functions become available to use on objects they otherwise wouldn't necessarily support.
+
+## Example
+
+This code doesn't work:
+
+```py
+class Team:
+     def __init__(self, members):
+         self.members = members
+
+t = Team(['foo', 'bar', 'baz'])
+
+t.members  # ['foo', 'bar', 'baz']
+
+len(t)  # TypeError: object of type 'Team' has no len()
+</code></pre>
+
+<p>But if we implement the <code>__len__</code> magic method, we are now telling Python that we support the <a href="https://docs.python.org/3.7/library/collections.abc.html#collections.abc.Sized" target="_blank"><code>Sized</code> protocol</a>:</p>
+
+<pre><code class="language-py">class Team:
+     def __init__(self, members):
+         self.members = members
+         
+     def __len__(self):
+         return len(self.members)
+
+t = Team(['foo', 'bar', 'baz'])
+
+t.members  # ['foo', 'bar', 'baz']
+
+len(t)  # 3
+</code></pre>
+
+<p>There are many different protocols, such as: <code>collections.abc.Iterator</code> which if we were to implement the <code>__iter__</code> and <code>__next__</code> magic methods, then we&rsquo;d be able to use a <code>for</code> loop construct on our object:</p>
+
+<pre><code class="language-py">class Team:
+    def __init__(self, members):
+        self.members = members
+
+    def __iter__(self, max=0):
+        self.n = 0
+        return self
+
+    def __next__(self):
+        if self.n &lt; len(self.members):
+            index = self.n
+            self.n += 1
+            return self.members[index]
+        else:
+            raise StopIteration
+
+t = Team(['foo', 'bar', 'baz'])
+
+for member in t:
+    print(f't member: {member}')
+
+t member: foo
+t member: bar
+t member: baz
+</code></pre>
+
+<h2 id="abstract-base-classes-abcs">Abstract Base Classes (ABCs)</h2>
+
+<p>Protocols are useful but sometimes you require something that does indeed behave more like a traditional &lsquo;interface&rsquo;, and that&rsquo;s where ABCs can help us.</p>
+
+<p>They are best explained by way of an example:</p>
+
+<pre><code class="language-py">import abc
+
+class Foo(abc.ABC):
+    @abc.abstractmethod
+    def bar(self):
+        pass
+        
+class Thing(Foo):
+    pass
+    
+t = Thing()  # TypeError: Can't instantiate abstract class Thing with abstract methods bar
+</code></pre>
+
+<blockquote>
+<p>Note: we&rsquo;re subclassing directly from <code>abc.ABC</code> where that parent class is setting <code>abc.ABCMeta</code> as a <a href="https://docs.python.org/3.7/reference/datamodel.html#metaclasses" target="_blank">metaclass</a> on itself (e.g. something like <code>class ABC(metaclass=ABCMeta)</code>) and so we could do that directly with our <code>Foo</code> class like so: <code>class Foo(metaclass=abc.ABCMeta)</code>. <a href="#metaclasses">Read below</a> for more information on metaclasses.</p>
+</blockquote>
+
+<p>So we can see from the above example code that we&rsquo;ve enforced the <code>Foo</code> &lsquo;interface&rsquo; onto the <code>Thing</code> object. If we want <code>Thing</code> to truly be a type of <code>Foo</code>, then it&rsquo;ll need to provide a concrete implementation of the <code>bar</code> method that the <code>Foo</code> &lsquo;interface&rsquo; has defined, like so:</p>
+
+<pre><code class="language-py">import abc
+
+class Foo(abc.ABC):
+    @abc.abstractmethod
+    def bar(self):
+        pass
+        
+class Thing(Foo):
+    def bar(self):
+        print('this is bar, i am a foo type')
+    
+t = Thing()  # no exception raised
+
+t.bar()  # this is bar, i am a foo type
+</code></pre>
+
+<p>We can now also compare types using: <code>isinstance(t, Foo)</code>. Meaning if you have two classes and both of them implement the <code>bar</code> method, it doesn&rsquo;t automatically mean they are compatible types:</p>
+
+<pre><code class="language-py">import abc
+
+class Foo(abc.ABC):
+    @abc.abstractmethod
+    def bar(self):
+        pass
+
+class Bar(abc.ABC):
+    @abc.abstractmethod
+    def bar(self):
+        pass
+        
+class ThingA(Foo):
+    def bar(self):
+        print('this is bar, i am a foo type')
+        
+class ThingB(Bar):
+    def bar(self):
+        print('this is bar, i am a bar type')
+    
+ta = ThingA()
+tb = ThingB()
+
+isinstance(ta, Foo)  # True
+isinstance(ta, Bar)  # False
+
+isinstance(tb, Foo)  # False
+isinstance(tb, Bar)  # True
+</code></pre>
+
+<p>Do ABCs give us the full benefit of traditional interfaces? No. But they do help us move closer in that direction.</p>
+
+<h2 id="metaclasses">Metaclasses</h2>
+
+<p>Metaclasses define default behaviours for an instance of a class.</p>
+
+<p>Doing this manually would look something like this:</p>
+
+<pre><code class="language-py">def new(cls):
+    x = object.__new__(cls)
+    x.attr = 100
+    return x
+    
+class Foo:
+    pass
+
+Foo.__new__ = new
+
+f = Foo()
+f.attr  # 100
+</code></pre>
+
+<p>But this can also be done using a new &lsquo;meta&rsquo; class and the <code>metaclass</code> keyword argument:</p>
+
+<pre><code class="language-py">class Meta(type):
+    def __new__(cls, name, bases, dct):
+        x = super().__new__(cls, name, bases, dct)
+        x.attr = 100
+        return x
+        
+class Foo(metaclass=Meta):
+    pass
+    
+f = Foo()
+f.attr  # 100
+</code></pre>
+
+<p>In the same way that a class functions as a template for the creation of objects, a metaclass functions as a template for the creation of classes. Metaclasses are sometimes referred to as class factories.</p>
+
+<p>Do you need a metaclass for this silly example of ensuring the <code>attr</code> attribute is assigned to a unique class type? No. You could just use a class level variable:</p>
+
+<pre><code class="language-py">class Base:
+    attr = 100
+
+class X(Base):
+    pass
+
+class Y(Base):
+    pass
+
+class Z(Base):
+    pass
+    
+X.attr  # 100
+Y.attr  # 100
+Z.attr  # 100
+</code></pre>
+
+<p>But it&rsquo;s good to know about metaclasses as they underpin the <code>collections.abc</code> implementation of <code>abc.ABCMeta</code>.</p>
+
+<h2 id="references">References</h2>
+
+<ul>
+<li><a href="https://docs.python.org/3.7/library/collections.abc.html" target="_blank"><code>collections.abc</code></a></li>
+<li><a href="http://masnun.rocks/2017/04/15/interfaces-in-python-protocols-and-abcs/" target="_blank">Masnun Blog Post</a></li>
+<li><a href="https://realpython.com/python-metaclasses/" target="_blank">Metaclasses</a></li>
+</ul>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

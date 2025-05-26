@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[JS before AMD] #amd #lab #js #html</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="js-before-amd-amd-lab-js-html">[JS before AMD] #amd #lab #js #html</h1>
+
+<h2 id="1-html-md">1. HTML.md</h2>
+
+<pre><code class="language-markdown">Example of how I used to write my code (before I discovered AMD)
+
+For example in my HTML page would be… 
+
+```html
+&lt;script src=&quot;Assets/Scripts/LAB.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+	$LAB
+	.setOptions({ AlwaysPreserveOrder:true, BasePath:&quot;Assets/Scripts/&quot; })
+		.script(&quot;bootstrap.js&quot;).wait(function(){
+			mm.init({ cool_feature:true, another_cool_feature:true });
+		});
+&lt;/script&gt;
+</code></pre>
+
+<pre><code>
+## 2. bootstrap.md
+
+```markdown
+…and within `bootstrap.js`… 
+
+```js
+var mm = {
+	init: function (settings) {
+		if (settings === undefined) {
+			return &quot;this method should be passed an object literal&quot;;
+		}
+		
+		if (settings.cool_feature) {
+			$LAB.script(&quot;/Assets/Scripts/cool_feature.js&quot;);
+		}
+	}
+};
+</code></pre>
+
+<pre><code>
+## 3. lazy-loaded.md
+
+```markdown
+…and within the lazy-loaded script… 
+
+```js
+mm.cool_feature = function(){
+	// code
+};
+
+mm.cool_feature();
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

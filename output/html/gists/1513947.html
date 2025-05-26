@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Calculate distance between two co-ordinates on a Map (Lat/Lng)</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="calculate-distance-between-two-co-ordinates-on-a-map-lat-lng">Calculate distance between two co-ordinates on a Map (Lat/Lng)</h1>
+
+<h2 id="calc-js">calc.js</h2>
+
+<pre><code class="language-javascript">origin = new google.maps.LatLng(userLatLng[0], userLatLng[1]);
+destination = new google.maps.LatLng(results[0].geometry.location.Qa, results[0].geometry.location.Ra);
+
+var pi, 
+    custlat1 = userLatLng[0],
+    custlong1 = userLatLng[1],
+    custlat2 = results[0].geometry.location.Qa,
+    custlong2 = results[0].geometry.location.Ra,
+    r,
+    dlat,
+    dlng,
+    a,
+    c,
+    km,
+    miles;
+						
+// Calculate the distance between two Lat/Lng values
+pi = Math.PI / 180;
+custlat1 *= pi;
+custlong1 *= pi;
+custlat2 *= pi;
+custlong2 *= pi;
+r = 6372.797;
+dlat = custlat2 - custlat1;
+dlng = custlong2 - custlong1;
+a = Math.sin(dlat / 2) * Math.sin(dlat / 2) + Math.cos(custlat1) * Math.cos(custlat2) * Math.sin(dlng / 2) * Math.sin(dlng / 2);
+c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+km = roundNumber(r * c, 2); // Distance in KM so we can work out how the milage
+miles = roundNumber(km * 0.621371192, 2); // Now we have the distance in miles
+					
+console.log('miles:', miles, 'address:', address);
+</code></pre>
+
+<h2 id="calc-php">calc.php</h2>
+
+<pre><code class="language-php">$custlat1 = xxxxx;
+$custlong1 = xxxxx;
+$custlat2 = xxxxx;
+$custlong2 = xxxxx;
+
+$pi80 = M_PI / 180;
+$custlat1 *= $pi80;
+$custlong1 *= $pi80;
+$custlat2 *= $pi80;
+$custlong2 *= $pi80;
+$r = 6372.797; 
+$dlat = $custlat2 - $custlat1;
+$dlng = $custlong2 - $custlong1;
+$a = sin( $dlat / 2 ) * sin( $dlat / 2 ) + cos( $custlat1 ) * cos( $custlat2 ) * sin( $dlng / 2 ) * sin( $dlng / 2 );
+$c = 2 * atan2( sqrt( $a ), sqrt( 1 - $a ) );
+  
+// Distance in KM so we can work out how the milage
+$km = round( $r * $c, 2 );
+  
+// Now we have the distance in miles
+$miles = round( $km * 0.621371192, 2 );
+</code></pre>
+
+</div>
+</body>
+</html>

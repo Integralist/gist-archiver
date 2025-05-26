@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Programming Terminology] #programming #terminology</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="programming-terminology-programming-terminology">[Programming Terminology] #programming #terminology</h1>
+
+<h2 id="programming-terminology-in-go-md">Programming Terminology in Go.md</h2>
+
+<pre><code class="language-markdown"># Programming Terminology in Go
+
+## 1. Expression
+- **Definition**: A combination of values, variables, operators, and function calls that **evaluates to a single value**.
+- **Examples**:
+  - `2 + 2` (evaluates to `4`)
+  - `x * y` (evaluates to the product of `x` and `y`)
+  - `time.Second * 10` (evaluates to a `time.Duration` value of 10 seconds)
+- **Usage**: Expressions are used to compute values. They can appear within statements, assignments, or function arguments.
+
+---
+
+## 2. Statement
+- **Definition**: A **complete unit of execution** that performs an action, like assigning a value, calling a function, or controlling the flow of a program.
+- **Examples**:
+  - Assignment: `x := 5`
+  - Function call: `fmt.Println(&quot;Hello, World!&quot;)`
+  - Control flow: `if x &gt; 10 { fmt.Println(&quot;x is large&quot;) }`
+- **Types of Statements**:
+  - **Expression Statement**: An expression used as a standalone statement (e.g., `x + y` is an expression; `x + y;` on its own would be invalid in Go, but `fmt.Println(x + y)` is a valid statement).
+  - **Control Statement**: Includes `if`, `for`, `switch`, etc.
+  - **Declaration Statement**: Declares variables or constants, e.g., `var a int`.
+
+---
+
+## 3. Directive
+- **Definition**: A **special instruction to the compiler or tooling**, modifying behavior at compile time or runtime.
+- **Examples**:
+  - `//go:generate`: Tells the Go toolchain to generate code during build processes.
+  - Build constraints: `// +build linux` ensures code is only compiled on Linux systems.
+- **Usage**: Directives are typically comments prefixed with `//`, interpreted by Go tools.
+
+---
+
+## 4. Declaration
+- **Definition**: Introduces new identifiers (variables, constants, types, or functions) into the program.
+- **Examples**:
+  - Variable declaration: `var x int`
+  - Constant declaration: `const Pi = 3.14`
+  - Type declaration: `type Point struct { X, Y int }`
+  - Function declaration: `func Add(a, b int) int { return a + b }`
+
+---
+
+## 5. Keyword
+- **Definition**: Reserved words in a language with predefined meanings that cannot be used as identifiers.
+- **Examples**:
+  - `if`, `else`, `func`, `return`, `var`, `const`, etc.
+- **Usage**: Keywords form the syntax and structure of the language.
+
+---
+
+## 6. Block
+- **Definition**: A sequence of statements enclosed in curly braces `{}`.
+- **Examples**:
+  ```go
+  func main() {
+      fmt.Println(&quot;Hello, World!&quot;) // This is a block
+  }
+</code></pre>
+
+<ul>
+<li><strong>Usage</strong>: Blocks are used to group statements together in functions, loops, or conditionals.</li>
+</ul>
+
+<hr />
+
+<h2 id="7-literal">7. Literal</h2>
+
+<ul>
+<li><strong>Definition</strong>: A fixed value written directly in the code.</li>
+<li><strong>Examples</strong>:
+
+<ul>
+<li>Numbers: <code>42</code>, <code>3.14</code></li>
+<li>Strings: <code>&quot;hello&quot;</code></li>
+<li>Booleans: <code>true</code>, <code>false</code></li>
+</ul></li>
+<li><strong>Usage</strong>: Literals are used to represent constant values in a program.</li>
+</ul>
+
+<hr />
+
+<h2 id="8-operator">8. Operator</h2>
+
+<ul>
+<li><strong>Definition</strong>: A symbol that performs operations on variables or values.</li>
+<li><strong>Examples</strong>:
+
+<ul>
+<li>Arithmetic: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code></li>
+<li>Logical: <code>&amp;&amp;</code>, <code>||</code>, <code>!</code></li>
+<li>Relational: <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code></li>
+</ul></li>
+<li><strong>Usage</strong>: Operators are used within expressions to compute values or make comparisons.</li>
+</ul>
+
+<hr />
+
+<h2 id="9-type">9. Type</h2>
+
+<ul>
+<li><strong>Definition</strong>: A classification that defines the kind of data a variable or value can hold.</li>
+<li><strong>Examples</strong>:
+
+<ul>
+<li>Primitive types: <code>int</code>, <code>float64</code>, <code>string</code></li>
+<li>Composite types: <code>struct</code>, <code>array</code>, <code>slice</code>, <code>map</code></li>
+</ul></li>
+<li><strong>Usage</strong>: Types ensure variables are used consistently and define the operations applicable to them.</li>
+</ul>
+
+<hr />
+
+<h2 id="10-function">10. Function</h2>
+
+<ul>
+<li><strong>Definition</strong>: A block of code that performs a specific task and can be reused.</li>
+<li><strong>Examples</strong>:
+
+<pre><code class="language-go">
+func Add(a, b int) int {
+  return a + b
+}
+</code></pre>
+</li>
+<li><strong>Usage</strong>: Functions encapsulate logic and make the code reusable and modular.</li>
+</ul>
+
+<hr />
+
+<h2 id="11-package">11. Package</h2>
+
+<ul>
+<li><strong>Definition</strong>: A collection of related Go files grouped together to provide reusable functionality.</li>
+<li><strong>Examples</strong>:
+
+<ul>
+<li>Standard packages: <code>fmt</code>, <code>time</code>, <code>strings</code></li>
+<li>Custom packages: <code>mypackage</code></li>
+</ul></li>
+<li><strong>Usage</strong>: Packages allow modular programming and reuse of code across projects.</li>
+</ul>
+
+<hr />
+
+<h2 id="12-import">12. Import</h2>
+
+<ul>
+<li><strong>Definition</strong>: Brings a package into the current file for use.</li>
+<li><strong>Examples</strong>:
+
+<pre><code class="language-go">
+import &quot;fmt&quot;
+</code></pre>
+</li>
+<li><strong>Usage</strong>: Imports allow access to external or standard library functionality.</li>
+</ul>
+
+<hr />
+
+<h2 id="13-comment">13. Comment</h2>
+
+<ul>
+<li><strong>Definition</strong>: A human-readable note in the code that is ignored by the compiler.</li>
+<li><strong>Examples</strong>:
+
+<ul>
+<li>Single-line: <code>// This is a comment</code></li>
+<li>Multi-line: <code>/* This is a multi-line comment */</code></li>
+</ul></li>
+<li><strong>Usage</strong>: Used for documentation or explanations.</li>
+</ul>
+
+<hr />
+
+<h2 id="example-code-with-all-terms">Example Code with All Terms</h2>
+
+<pre><code class="language-go">// This is a package declaration (declaration)
+package main
+
+import &quot;fmt&quot; // Import statement
+
+// Function declaration
+func main() {
+    var x int = 10 // Declaration statement
+    const y = 20   // Constant declaration
+
+    // Expression within an assignment statement
+    result := x + y
+
+    // Control flow statement
+    if result &gt; 15 {
+        fmt.Println(&quot;Result is greater than 15&quot;) // Expression statement
+    }
+
+    // Function call within a block
+    fmt.Println(&quot;End of program&quot;) // Directive example: //go:generate could appear here
+}
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Vim beginner notes] #vim #beginner</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="vim-beginner-notes-vim-beginner">[Vim beginner notes] #vim #beginner</h1>
+
+<h2 id="vim-for-beginners-md">Vim for beginners.md</h2>
+
+<pre><code class="language-markdown">There are many 'motions' and things you can do but I would probably say there are some essential motions you'll use a lot...
+
+- `:&lt;LINE_NUMBER&gt;` to jump to a specific line number (e.g. `:10`)
+- `gg` to go to the top of the file (`G` to go to the bottom)
+- `Ctrl+d` to go down half a page (`Ctrl+u` to go up half a page)
+- `{` and `}` to jump back and forth between paragraphs
+- `f&lt;CHARACTER&gt;` to jump forward on the current line to a specific character (use `F` to search backwards in the line).
+- `^` to go to the start of the line (`0` if you want to specifically go back to the zero column)
+- `$` to go to the end of the line
+- `/&lt;PATTERN&gt;` to search for text in the current buffer (see https://www.vimregex.com/ or use `\v` flag to make regexes a bit more sane, e.g. `/\v&lt;PATTERN`)
+
+The typical structure for doing something like &quot;delete the text inside parentheses&quot; is... &quot;operation, placement, pattern&quot; (not sure if that's the correct terminology to use, I've not had to think about that sort of stuff in a long time 😅) but an example would be `di(` where `d` is the operation (i.e. delete), `i` is the placement (i.e. inside), `(` is the pattern (i.e. the parenthesis).
+
+For the &quot;operation&quot;: you have `d` for delete, `v` for select, `c` for change.
+
+For the &quot;placement&quot;: you have `i` for inside, `a` for around.
+
+**Example:** if I have the text `myFunction(something)` and my cursor is inside the parentheses then I can do...
+
+- `ci(` to remove the text inside the parentheses and put me into `INSERT` mode so I can type new text 
+- `vi(` to select the text inside the parentheses, where I can then `y` to &quot;yank&quot; the text into my clipboard
+- `di(` to get `myFunction()` 
+- `da(` to get `myFunction`
+
+Of course there's a lifetime of motions/movement/modal stuff you can learn but I'd definitely say the above is my &quot;bread and butter&quot; of things I use a lot (outside of features from plugins).
+
+Good luck!
+
+&gt; **EDIT:** the following Neovim plugins can help you https://github.com/jinh0/eyeliner.nvim + https://github.com/folke/which-key.nvim
+</code></pre>
+
+</div>
+</body>
+</html>

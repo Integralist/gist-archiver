@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>List of Twitter Bootstrap CSS classes</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="list-of-twitter-bootstrap-css-classes">List of Twitter Bootstrap CSS classes</h1>
+
+<h2 id="bootstrap-css">bootstrap.css</h2>
+
+<pre><code class="language-css">/*
+ * Scaffolding
+ * Basic and global styles for generating a grid system, structural layout, and page templates
+ * ------------------------------------------------------------------------------------------- */
+
+.container
+Sets a width of 940px which also centres the content (clears floated elements before/after)
+
+.container-fluid
+Sets a minimum width of 940px (clears floated elements before/after)
+
+.pull-right
+Floats element to the right
+
+.pull-left
+Floats element to the left
+
+.hide
+sets element to display:none
+
+.show
+sets element to display:block
+
+.row
+Sets a -20px margin (clears floated elements before/after)
+
+.span1 up to .span24
+Sets specific pixel width values
+
+.row &gt; .offset1 (up to .offset12)
+Sets specific margin-left values
+
+.span-one-third
+Sets width of 300px
+
+.span-two-thirds
+Sets width of 620px
+
+.span-one-third
+Sets margin-left of 340px (so clears .span-one-third by 40px)
+
+.span-two-thirds
+Sets margin-left of 660px (so clears .span-two-thirds by 40px)
+
+/* Forms.less
+ * Base styles for various input types, form layouts, and states
+ * ------------------------------------------------------------- */
+
+.uneditable-input
+Sets element to block and gives border-radius + sets height/line-height to 18px + sets a box-shadow + background colour white + cursor: not-allowed
+
+.input-mini
+.mini
+Sets width to 60px
+
+.input-small
+.small
+Sets width to 90px
+
+.input-medium
+.medium
+Sets width to 150px
+
+.input-large
+.large
+Sets width to 210px
+
+.input-xlarge
+.xlarge
+Sets width to 270px
+
+.input-xxlarge
+.xxlarge
+Sets width to 530px
+
+.span1 up to .span16 (when applied to inputs and textareas)
+Sets specific pixel width values + no float + no left margin + inline-block
+
+.actions
+Sets top/bottom margin of 18px + padding + top border + border-radius
+
+.actions .secondary-action
+floats element right and &lt;a&gt; get a line-height of 30px
+
+.help-inline
+.help-block
+line-height 18px + font-size: 13px
+
+.form-stacked
+padding-left: 20px;
+
+/*
+ * Tables.less
+ * Tables for, you guessed it, tabular data
+ * ---------------------------------------- */
+
+.condensed-table
+Applies smaller padding than default
+
+.bordered-table
+Applies borders to the table
+
+.zebra-striped
+Uses CSS3 to apply stripes (e.g. tr:nth-child(odd) td)
+
+table .header
+cursor:pointer
+
+/* Patterns.less
+ * Repeatable UI elements outside the base styles provided from the scaffolding
+ * ---------------------------------------------------------------------------- */
+
+.topbar
+Sets height to 40px + position:fixed + to top/left of screen with a very large z-index (10,000)
+Also sets styles on sub elements like a form, p, input, div &gt; ul
+
+.topbar-inner, .topbar .fill
+Sets dark background gradient
+
+.menu-dropdown
+.dropdown-menu
+Sets white background, floats to left, absolute positioning, box shadow, border-radius, large z-index (900) + min/max widths + display none!?
+(I believe this is the drop down menu itself which is hidden until hovered over)
+
+.breadcrumb
+.pagination
+Applies relevant styles to a &lt;ul&gt; element
+
+.hero-unit 
+Sets elements as a large promotional section
+
+.page-header
+Applies box-shadow and bottom-border
+
+.btn.error
+.btn.success
+.btn.info
+.btn
+.btn.primary
+.btn.active
+.btn.disabled
+.btn.large
+.btn.small
+.close
+Different button styles
+
+.well
+Applies padding/background colours/border-radius/box-shadow
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[git edit hunk] #git #edit #hunk #patch #diff</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="git-edit-hunk-git-edit-hunk-patch-diff">[git edit hunk] #git #edit #hunk #patch #diff</h1>
+
+<h2 id="3-edited-patch">3. edited.patch</h2>
+
+<pre><code class="language-diff"># Manual hunk edit mode -- see bottom for a quick guide.
+@@ -37,7 +37,7 @@ class QueryArgumentMixin(object):
+         argument = super(QueryArgumentMixin, self).get_query_argument(
+             name, default=default, strip=strip
+         )
++        if not argument and default is _ARG_DEFAULT:
+             raise tornado.web.MissingArgumentError(name)
+         return argument
+ 
+# ---
+# To remove '-' lines, make them ' ' lines (context).
+# To remove '+' lines, delete them.
+# Lines starting with # will be removed.
+# 
+# If the patch applies cleanly, the edited hunk will immediately be
+# marked for staging.
+# If it does not apply cleanly, you will be given an opportunity to
+# edit again.  If all lines of the hunk are removed, then the edit is
+# aborted and the hunk is left unchanged.
+
+</code></pre>
+
+<h2 id="example-part-a-patch">Example Part A.patch</h2>
+
+<pre><code class="language-diff">$ git diff
+diff --git a/foo b/foo
+index b1e6722..d9a85ba 100644
+--- a/foo
++++ b/foo
+@@ -1,3 +1,3 @@
+ A
+-B
+ C
++D
+</code></pre>
+
+<h2 id="example-part-b-patch">Example Part B.patch</h2>
+
+<pre><code class="language-diff"># Manual hunk edit mode -- see bottom for a quick guide.
+@@ -1,3 +1,4 @@
+ A
+ B
+ C
++D
+# ---
+# To remove '-' lines, make them ' ' lines (context).
+# To remove '+' lines, delete them.
+# Lines starting with # will be removed.
+# 
+# If the patch applies cleanly, the edited hunk will immediately be
+# marked for staging.
+# If it does not apply cleanly, you will be given an opportunity to
+# edit again.  If all lines of the hunk are removed, then the edit is
+# aborted and the hunk is left unchanged.
+</code></pre>
+
+<h2 id="1-original-file-py">1. original file.py</h2>
+
+<pre><code class="language-python"># https://stackoverflow.com/a/6508925
+
+# CODE BEFORE CHANGES
+37 argument = super(QueryArgumentMixin, self).get_query_argument(
+38     name, default=default, strip=strip
+39 )
+40 logging.warn(f&quot;argument: {argument}&quot;)
+41 logging.warn(f&quot;default: {type(default)}&quot;)
+42 logging.warn(f&quot;_ARG_DEFAULT: {type(_ARG_DEFAULT)}&quot;)
+43 if not argument and default is self._ARG_DEFAULT:
+44     logging.warn(&quot;raise missing arg error&quot;)
+45     raise tornado.web.MissingArgumentError(name)
+46 return argument
+47   
+
+# CODE AFTER CHANGES
+37 argument = super(QueryArgumentMixin, self).get_query_argument(
+38     name, default=default, strip=strip
+39 )
+40 if not argument and default is _ARG_DEFAULT:
+41     raise tornado.web.MissingArgumentError(name)
+42 return argument
+43   
+
+&quot;&quot;&quot;
+-37,11 
+-37 represents the file before the changes, and it says the hunk is starting from line 40 minus three (for extra context)
+,11 represents the number of lines in this hunk before the changes
+
++36,7
++36 represents the starting point after ALL changes (not just this hunk) are applied.
+,7  represents the number of lines in this hunk after the changes
+
+So to modify the hunk as shown we'll need to modify the hunk header to:
+-37,7 +36,7
+
+NOTE: why the number +36 ??? it worked but I don't understand why?
+&quot;&quot;&quot;
+</code></pre>
+
+<h2 id="2-original-patch">2. original.patch</h2>
+
+<pre><code class="language-diff"># Manual hunk edit mode -- see bottom for a quick guide.
+@@ -37,11 +36,7 @@ class QueryArgumentMixin(object):
+         argument = super(QueryArgumentMixin, self).get_query_argument(
+             name, default=default, strip=strip
+         )
+-        logging.warn(f&quot;argument: {argument}&quot;)
+-        logging.warn(f&quot;default: {type(default)}&quot;)
+-        logging.warn(f&quot;_ARG_DEFAULT: {type(_ARG_DEFAULT)}&quot;)
+-        if not argument and default is self._ARG_DEFAULT:
+-            logging.warn(&quot;raise missing arg error&quot;)
++        if not argument and default is _ARG_DEFAULT:
+             raise tornado.web.MissingArgumentError(name)
+         return argument
+ 
+# ---
+# To remove '-' lines, make them ' ' lines (context).
+# To remove '+' lines, delete them.
+# Lines starting with # will be removed.
+# 
+# If the patch applies cleanly, the edited hunk will immediately be
+# marked for staging.
+# If it does not apply cleanly, you will be given an opportunity to
+# edit again.  If all lines of the hunk are removed, then the edit is
+# aborted and the hunk is left unchanged.
+
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby: Command Design Pattern (can allow for "undo" history feature)</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-command-design-pattern-can-allow-for-undo-history-feature">Ruby: Command Design Pattern (can allow for &ldquo;undo&rdquo; history feature)</h1>
+
+<h2 id="ruby-command-design-pattern-rb">Ruby Command Design Pattern.rb</h2>
+
+<pre><code class="language-ruby"># Invoker
+class Invoker
+  def initialize
+    @history = []
+  end
+
+  def record_and_execute(command)
+    @history &lt;&lt; command  # Optional
+    command.execute
+  end
+end
+
+# Receiver
+class Light
+  def turn_on
+    puts 'The light is on'
+  end
+
+  def turn_off
+    puts 'The light is off'
+  end
+end
+
+# A command
+class TurnOnCommand
+  def initialize(light)
+    @light = light
+  end
+
+  def execute
+    @light.turn_on
+  end
+end
+
+# Another command
+class TurnOffCommand
+  def initialize(light)
+    @light = light
+  end
+
+  def execute
+    @light.turn_off
+  end
+end
+
+# Client
+class Client
+  def initialize
+    @invoker = Invoker.new
+    @light = Light.new
+  end
+
+  def party
+    50.times do
+      @invoker.record_and_execute(TurnOnCommand.new(@light))
+      @invoker.record_and_execute(TurnOffCommand.new(@light))
+    end
+  end
+end
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Enums] #go #golang #enum #iota</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-enums-go-golang-enum-iota">[Golang Enums] #go #golang #enum #iota</h1>
+
+<h2 id="golang-enums-with-method-for-comparison-go">Golang enums with method for comparison.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+)
+
+// Product is a base for the different product variants.
+type Product int64
+
+// Implements Stringer interface so that fmt.Printf will 
+// be able to to convert from int64 to string via %s format.
+func (p Product) String() string {
+	switch p {
+	case ProductBrotliCompression:
+		return &quot;brotli_compression&quot;
+	case ProductDomainInspector:
+		return &quot;domain_inspector&quot;
+	case ProductFanout:
+		return &quot;fanout&quot;
+	case ProductImageOptimizer:
+		return &quot;image_optimizer&quot;
+	case ProductOriginInspector:
+		return &quot;origin_inspector&quot;
+	case ProductWebSockets:
+		return &quot;websockets&quot;
+	}
+	return &quot;unknown&quot;
+}
+
+const (
+	ProductUndefined Product = iota
+	ProductBrotliCompression
+	ProductDomainInspector
+	ProductFanout
+	ProductImageOptimizer
+	ProductOriginInspector
+	ProductWebSockets
+)
+
+// ProductEnablementInput is used as input to the various ProductEnablement
+// functions.
+type ProductEnablementInput struct {
+	// ProductID is the ID of the product and is constrained by the Product type (required).
+	ProductID Product
+	// ServiceID is the ID of the service (required).
+	ServiceID string
+}
+
+// GetProductEnablement retrieves the specified resource.
+func (c *Client) GetProductEnablement(i *ProductEnablementInput) (*ProductEnablement, error) {
+	if i.ProductID == ProductUndefined {
+		return nil, ErrMissingProductID
+	}
+	if i.ServiceID == &quot;&quot; {
+		return nil, ErrMissingServiceID
+	}
+
+	path := fmt.Sprintf(&quot;/enabled-products/%s/services/%s&quot;, i.ProductID, i.ServiceID)
+	resp, err := c.Get(path, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var h *ProductEnablement
+	if err := decodeBodyMap(resp.Body, &amp;h); err != nil {
+		return nil, err
+	}
+
+	return h, nil
+}
+</code></pre>
+
+</div>
+</body>
+</html>

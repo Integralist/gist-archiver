@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Bash script with dynamic values for inputs using Expect] #bash #shell #expect #dynamic #script #input #password</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="bash-script-with-dynamic-values-for-inputs-using-expect-bash-shell-expect-dynamic-script-input-password">[Bash script with dynamic values for inputs using Expect] #bash #shell #expect #dynamic #script #input #password</h1>
+
+<h2 id="bash-script-with-dynamic-values-for-inputs-using-expect-md">Bash script with dynamic values for inputs using Expect.md</h2>
+
+<pre><code class="language-markdown">A bash script that will expect input from the user (e.g. we are going to be the user in this example):
+
+```bash
+#!/bin/bash
+ 
+echo &quot;Hello, who are you?&quot;
+ 
+read $REPLY
+ 
+echo &quot;Can I ask you some questions?&quot;
+ 
+read $REPLY
+ 
+echo &quot;What is your favorite topic?&quot;
+ 
+read $REPLY
+</code></pre>
+
+<p>We can write our own script (e.g. <code>chmod +x ./answerbot</code>) to use <code>expect</code> to respond with pre-canned responses:</p>
+
+<pre><code class="language-bash">#!/usr/bin/expect -f
+ 
+set timeout -1 # disable the timeout
+ 
+spawn ./questions # start our script using spawn command
+ 
+expect &quot;Hello, who are you?\r&quot;
+ 
+send -- &quot;Im Adam\r&quot;
+ 
+expect &quot;Can I ask you some questions?\r&quot;
+ 
+send -- &quot;Sure\r&quot;
+ 
+expect &quot;What is your favorite topic?\r&quot;
+ 
+send -- &quot;Technology\r&quot;
+ 
+expect eof
+</code></pre>
+
+<blockquote>
+<p>Note: discovered <code>autoexpect ./some_script.sh</code> which will look at <code>some_script.sh</code> and will dynamically generate an &lsquo;expect&rsquo; script for you
+&ldquo;`</p>
+</blockquote>
+
+</div>
+</body>
+</html>

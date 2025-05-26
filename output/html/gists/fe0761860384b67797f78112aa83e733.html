@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[r.Host vs r.URL.Host] #go #golang #host #net #http</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="r-host-vs-r-url-host-go-golang-host-net-http">[r.Host vs r.URL.Host] #go #golang #host #net #http</h1>
+
+<h2 id="r-host-vs-r-url-host-md">r.Host vs r.URL.Host.md</h2>
+
+<pre><code class="language-markdown">For clarity on `r.Host` vs `r.URL.Host` see:  
+https://stackoverflow.com/a/42926149/14849316
+
+But in summary:
+
+</code></pre>
+
+<p>GET <a href="https://www.google.com/?q=xxx" target="_blank">https://www.google.com/?q=xxx</a> HTTP/1.1
+Host: <a href="http://gg.proxy.com/" target="_blank">gg.proxy.com</a></p>
+
+<pre><code>
+Will set `r.URL.Host` to [`www.google.com`](http://www.google.com/) and `Host` to [`gg.proxy.com`](http://gg.proxy.com/).  
+
+While for `GET /?q=xxx HTTP/1.1` the `r.URL.Host` will be empty.
+
+## UPDATE go 1.17
+
+</code></pre>
+
+<p>// RFC 7230, section 5.3: Must treat
+//      GET /index.html HTTP/1.1
+//      Host: www.google.com
+// and
+//      GET <a href="http://www.google.com/index.html" target="_blank">http://www.google.com/index.html</a> HTTP/1.1
+//      Host: doesntmatter
+// the same. In the second case, any Host line is ignored.
+req.Host = req.URL.Host</p>
+
+<pre><code></code></pre>
+
+</div>
+</body>
+</html>

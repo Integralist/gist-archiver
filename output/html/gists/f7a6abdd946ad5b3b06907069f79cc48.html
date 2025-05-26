@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Fastly Varnish Serve Stale Testing] #fastly #varnish #vcl #cdn #cache #stale #stale-while-revalidate #stale-if-error</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="fastly-varnish-serve-stale-testing-fastly-varnish-vcl-cdn-cache-stale-stale-while-revalidate-stale-if-error">[Fastly Varnish Serve Stale Testing] #fastly #varnish #vcl #cdn #cache #stale #stale-while-revalidate #stale-if-error</h1>
+
+<h2 id="main-vcl">main.vcl</h2>
+
+<pre><code class="language-vcl">include &quot;serve_stale_verification&quot; 
+
+sub vcl_fetch {
+  #FASTLY fetch
+  
+  ...
+  
+  call serve_stale_verification;
+  
+  if (beresp.status &gt;= 500 &amp;&amp; beresp.status &lt; 600) {
+    if (stale.exists) {
+      return(deliver_stale);
+    }
+  }
+  
+  ...
+      
+  return(deliver);
+}
+</code></pre>
+
+<h2 id="serve-stale-verification-vcl">serve_stale_verification.vcl</h2>
+
+<pre><code class="language-vcl"># ensure this subroutine is called _before_ any checks for stale.exists
+sub serve_stale_verification {
+  if (req.http.X-ModifyDirectives == &quot;shorten&quot;) {
+    set beresp.ttl = 10s;
+    set beresp.stale_while_revalidate = 20s;
+    set beresp.stale_if_error = 30s;
+
+    # a '304 Not Modified' from origin will not cause vcl_fetch to be executed.
+    # so to prevent that scenario from occuring, and thus causing confusion around
+    # serve stale expectations, we'll strip any ETag/Last-Modified headers so that
+    # we should always cause vcl_fetch to execute (as the cached object won't have
+    # any ETag or Last-Modified headers to compare against).
+    unset beresp.http.ETag;
+    unset beresp.http.Last-Modified;
+  }
+
+  if (req.http.X-ModifyDirectives == &quot;fail&quot;) {
+    set beresp.status = 500;
+    set beresp.cacheable = false;
+  }
+}
+</code></pre>
+
+<h2 id="test-py">test.py</h2>
+
+<pre><code class="language-python">&quot;&quot;&quot; Run this script using: time poetry run python verify_stale/stale.py &quot;&quot;&quot;
+
+# standard library modules
+
+import os
+import re
+import sys
+import time
+from datetime import datetime
+
+# third-party modules
+
+from tornado.gen import coroutine
+from tornado.httpclient import AsyncHTTPClient, HTTPResponse
+from tornado.ioloop import IOLoop
+from tornado.simple_httpclient import HTTPTimeoutError
+
+AsyncHTTPClient.configure(None, defaults=dict(user_agent=&quot;IntegralistTesting&quot;))
+http_client = AsyncHTTPClient()
+
+
+def get_urls(cachebust: float = 0.0, fail: bool = False) -&gt; HTTPResponse:
+    &quot;&quot;&quot;requests list of URLs concurrently.
+    
+    this example code presumes a staging environment is used and 
+    that this staging environment is protected with BasicAuth.
+    &quot;&quot;&quot;
+
+    user = os.environ[&quot;AUTH_USER&quot;]
+    password = os.environ[&quot;AUTH_PASS&quot;]
+    creds = f&quot;{user}:{password}@&quot;
+    subdomain = f&quot;{creds}stage&quot;
+    host = f&quot;{subdomain}.example.com&quot;
+    query = f&quot;?cachebust={cachebust}&quot;
+
+    paths = [
+        &quot;/foo&quot;,
+        &quot;/bar&quot;,
+        &quot;/baz&quot;,
+    ]
+
+    responses = []
+
+    state = &quot;fail&quot; if fail else &quot;shorten&quot;
+    headers = {&quot;X-BF-Debug&quot;: &quot;1&quot;, &quot;X-ModifyDirectives&quot;: state}
+
+    for path in paths:
+        url = f&quot;https://{host}{path}{query}&quot;
+        print(f&quot;request: {url}\n\t{headers}&quot;)
+
+        responses.append(
+            # we don't need to `await` these 'fetch' calls because the function
+            # returns a Future and so we collect a group of futures and return
+            # those to the caller.
+            #
+            # tornado is then able to 'yield' multiple Futures within a list.
+            http_client.fetch(url, headers=headers, raise_error=False)
+        )
+
+    return responses
+
+
+@coroutine
+def validate(
+    timestamp: float, expected: str, then_sleep: int = 0, fail: bool = False
+):
+    &quot;&quot;&quot;validate should confirm if responses are as expected.
+
+    we use a map data structure (`m`) to translate the `then_sleep` value into
+    a descriptive value for the purposes of debugging when a validation check
+    fails.
+
+    the `then_sleep` value indicates how long the program will 'sleep' for
+    before continuing. this means the next batch of requests will be blocked
+    for that period of time.
+
+    for example, if `then_sleep` is set to 5, then this means we'll request the
+    various pages and then we'll stop the program for five seconds. when the
+    next batch of requests are made we should find that they yield cache HITs
+    because the max-age of our cached objects are set to 10s.
+
+    remember: in the CDN/VCL we are using a request header to control the
+    caching directives and also whether we want the origin response to look
+    like a failure or not...
+
+    sub serve_stale_verification {
+      if (req.http.X-ModifyDirectives == &quot;shorten&quot;) {
+        set beresp.ttl = 10s;
+        set beresp.stale_while_revalidate = 20s;
+        set beresp.stale_if_error = 30s;
+        
+        unset beresp.http.ETag;
+	    unset beresp.http.Last-Modified;
+      }
+
+      if (req.http.X-ModifyDirectives == &quot;fail&quot;) {
+        set beresp.status = 500;
+        set beresp.cacheable = false;
+      }
+    }
+    &quot;&quot;&quot;
+
+    m = {
+        5: &quot;&gt;&gt; make requests, expect misses (as fresh content cached for first time), then sleep for 5s&quot;,  # noqa
+        6: &quot;&gt;&gt; make requests, expect hits (as same content requested), then sleep for 6s&quot;,  # noqa
+        32: &quot;&gt;&gt; make requests, expect stale-while-revalidate (as max-age ttl expired), cache object updated and ttls reset, then sleep for 32s&quot;,  # noqa
+        35: &quot;&gt;&gt; make requests, expect stale-if-error (as max-age+stale-while-revalidate ttls expired), then sleep for 35s&quot;,  # noqa
+        0: &quot;&gt;&gt; make requests, expect misses (as stale-if-error ttl expired)&quot;,  # noqa
+    }
+
+    print(f&quot;\n\n{m[then_sleep]}\n\n&quot;)
+
+    filter_headers = r&quot;^(Age|Date|Etag|Fastly)&quot;
+
+    try:
+        a, b, c, d, e, f, g, h, i, j = yield get_urls(
+            cachebust=timestamp, fail=fail
+        )
+    except HTTPTimeoutError as err:
+        print(f&quot;\n\ntornado HTTPTimeoutError: {err}\n\n&quot;)
+        sys.exit(1)
+
+    for k, v in locals().items():
+        if re.search(
+            &quot;^(timestamp|expected|then_sleep|fail|m|filter_headers)&quot;, k
+        ):
+            # ignore function arguments and other variables
+            # yes, this list gets tedious to update as the code changes :-/
+            continue
+
+        state = v.headers[&quot;Fastly-State&quot;]
+        url = v.effective_url
+
+        details = &quot;\n\t&quot;.join(
+            [
+                f&quot;{h}: {hv}&quot;
+                for h, hv in v.headers.items()
+                if re.search(filter_headers, h)
+            ]
+        )
+
+        if not re.search(expected, state, flags=re.IGNORECASE):
+            try:
+                print(&quot;\nvalidation check failed&quot;)
+                print(
+                    f&quot;convert response to 500: {fail}\n\t{url}\n\t{state} != {expected}\n\n\t{details}&quot;  # noqa
+                )
+            except KeyError as err:
+                print(&quot;\nvalidation check failed: KeyError!&quot;)
+                print(
+                    f&quot;convert response to 500: {fail}\n\t{url}\n\tKeyError: {err}\n&quot;  # noqa
+                )  # noqa
+        else:
+            print(f&quot;\n√ no validation errors\n\t{url}\n\t{details}&quot;)
+
+    time.sleep(then_sleep)
+
+
+@coroutine
+def process_urls():
+    &quot;&quot;&quot;make multiple async requests to validate responses.
+
+    because we're using tornado's own `@coroutine` syntax instead of the
+    native async/await, it means we need to `yield` and ensure any async
+    functions we call are also decorated with `@coroutine`.
+    &quot;&quot;&quot;
+
+    ts = datetime.now().timestamp()
+    miss = &quot;^MISS(?:-CLUSTER)?&quot;
+    hit = &quot;^HIT(?:-CLUSTER)?&quot;
+    stale = &quot;^HIT-STALE(?:-CLUSTER)?&quot;
+
+    # fresh content cached for the first time
+    yield validate(ts, expected=miss, then_sleep=5)
+
+    # expect hits from recently cached resources
+    yield validate(ts, expected=hit, then_sleep=6)
+
+    # at this point we would have slept for a total of 11 seconds, meaning our
+    # max-age should have expired and we should now serve
+    # stale-while-revalidate.
+    #
+    # we now find that although we've been served stale content, a new request
+    # to the origin has been made and the object in the cache has been reset
+    # using the cache control headers from the original request (which in our
+    # case is the shortened directives that we tweaked in our vcl override).
+    #
+    # because our origins are setting an ETag, it means we'd normally get a
+    # '304 Not Modified' response from origin, and thus vcl_fetch would not get
+    # executed. to avoid that scenario in vcl_fetch when we first tweak the
+    # cache control directives we also strip ETag/Last-Modified from the
+    # origin's response so that there can be no 'conditional request' made and
+    # thus we have to do a full request to the origin.
+    #
+    # the updated object means we shouldn't try to sleep for 21s (which is the
+    # stale-while-revalidate TTL) but sleep for 31s (which is the combination
+    # of the max-age and stale-while-revalidate TTLs).
+    #
+    # we actually sleep for 32s just to give a bit of extra padding.
+    yield validate(ts, expected=stale, then_sleep=32)
+
+    # stale-while-revalidate expired, so serve stale-if-error
+    #
+    # note: at this point the age of the object is 32 and so we have 8 seconds
+    # before stale-if-error TTL expires.
+    yield validate(ts, fail=True, expected=stale, then_sleep=35)
+
+    # stale-if-error expired, so expect cache misses again
+    yield validate(ts, expected=miss)
+
+
+io_loop = IOLoop.current()
+io_loop.run_sync(process_urls)
+</code></pre>
+
+</div>
+</body>
+</html>

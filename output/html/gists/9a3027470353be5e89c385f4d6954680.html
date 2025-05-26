@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Makefile environment variables and passing values to make target] #make #makefile #args #env #vars</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="makefile-environment-variables-and-passing-values-to-make-target-make-makefile-args-env-vars">[Makefile environment variables and passing values to make target] #make #makefile #args #env #vars</h1>
+
+<h2 id="makefile-environment-variables-and-passing-values-to-make-target-markdown">Makefile environment variables and passing values to make target.markdown</h2>
+
+<pre><code class="language-markdown">In the following example the value of `beep` will only be used when there is no existing `TF_LOG` data anywhere.
+
+```makefile
+TF_LOG ?= &quot;beep&quot;
+run:
+	echo $(TF_LOG)
+	env | grep -i tf_log
+</code></pre>
+
+<p>Example run:</p>
+
+<pre><code class="language-bash">$ export TF_LOG=test # set TF_LOG in the parent shell
+                     # make will copy this when spinning up a new shell (when running a makefile target) 
+
+$ make run
+echo test
+test
+env | grep -i tf_log
+TF_LOG=test # value of 'beep' was overridden by the parent shell environment
+                                                                                                                                                                                           $ make run -e TF_LOG=trace
+echo trace
+trace
+env | grep -i tf_log
+MAKEFLAGS=e -- TF_LOG=trace
+TF_LOG=trace # value of 'beep' AND parent shell environment was overridden by make's -e flag (which sets env var within the child shell process it spins up)
+                                                                                                                                                                                          
+$ make run TF_LOG=trace
+echo trace
+trace
+env | grep -i tf_log
+MAKEFLAGS=TF_LOG=trace
+TF_LOG=trace # value of 'beep' AND parent shell environment was overridden by passing TF_LOG=trace as a makefile 'argument'.
+                                                                                                                                                                                           $ TF_LOG=trace make run
+echo trace
+trace
+env | grep -i tf_log
+TF_LOG=trace # value of 'beep' AND parent shell environment was overridden by passing TF_LOG=trace as command scoped environment var.
+                                                                                                                                                                                           $ unset TF_LOG  # to demonstrate when 'beep' will be used
+                # as TF_LOG doesn't exist in current shell (so Makefile can't copy it)
+                # nor do we pass in TF_LOG via -e flag or pre/post make target itself
+
+$ make run
+echo &quot;beep&quot;
+beep
+env | grep -i tf_log
+make: *** [run] Error 1
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

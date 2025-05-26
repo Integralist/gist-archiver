@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang mocking multiple stdin prompts] #go #golang #stdin #mock</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-mocking-multiple-stdin-prompts-go-golang-stdin-mock">[Golang mocking multiple stdin prompts] #go #golang #stdin #mock</h1>
+
+<h2 id="1-mocking-multiple-stdin-prompts-go">1. mocking multiple stdin prompts.go</h2>
+
+<pre><code class="language-go">// https://play.golang.org/p/w0VPpYMytnG
+//
+// NOTE: This is a correct way to implement, but a quicker/smaller solution would have been not to create the `bufio.NewScanner` instance (unfortunately the `input()` implementation was legacy code that couldn't be updated).
+
+package main
+
+import (
+	&quot;bufio&quot;
+	&quot;bytes&quot;
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;log&quot;
+	&quot;strings&quot;
+	&quot;time&quot;
+)
+
+func input(r io.Reader) (string, error) {
+	s := bufio.NewScanner(r)
+	for {
+		if ok := s.Scan(); !ok {
+			return &quot;&quot;, s.Err()
+		}
+		line := strings.TrimSpace(s.Text())
+		return line, nil
+	}
+}
+
+func run(r io.Reader, w io.Writer) error {
+	s, err := input(r)
+	if err != nil {
+		return err
+	}
+	fmt.Printf(&quot;first input(): %+v\n&quot;, s)
+	fmt.Fprintf(w, &quot;%+v\n&quot;, s)
+
+	s, err = input(r)
+	if err != nil {
+		return err
+	}
+	fmt.Printf(&quot;second input(): %+v\n&quot;, s)
+	fmt.Fprintf(w, &quot;%+v\n&quot;, s)
+
+	return nil
+}
+
+func main() {
+	var stdout bytes.Buffer
+
+	stdin, prompt := io.Pipe()
+
+	// Wait for user input
+	inputc := make(chan string)
+	go func() {
+		for input := range inputc {
+			fmt.Fprintln(prompt, input)
+		}
+	}()
+
+	// Wait for `run()` to read user input
+	done := make(chan bool)
+
+	// Call `run()` and wait for response
+	go func() {
+		err := run(stdin, &amp;stdout)
+		if err != nil {
+			log.Fatal(err)
+		}
+		done &lt;- true
+	}()
+
+	// User provides input
+	//
+	// NOTE: Must provide as much input as is expected to be waited on by `run()`.
+	//       For example, if `run()` calls `input()` twice, then provide two messages.
+	//       Otherwise the select statement will trigger the timeout error.
+	inputc &lt;- &quot;foo!&quot;
+	inputc &lt;- &quot;bar!&quot;
+
+	// Wait for result
+	select {
+	case &lt;-done:
+		fmt.Print(&quot;\ngot result!\n&quot;)
+	case &lt;-time.After(time.Second):
+		fmt.Print(&quot;oh no! no result! timeout!\n&quot;)
+	}
+
+	// Inspect stdout
+	fmt.Printf(&quot;\nstdout:\n%+v\n&quot;, stdout.String())
+}
+</code></pre>
+
+<h2 id="2-alternatives-that-ignore-the-constraint-of-input-function-go">2. alternatives that ignore the constraint of input function.go</h2>
+
+<pre><code class="language-go">// https://play.golang.org/p/fO6yo1r77ym
+
+package main
+
+import (
+	&quot;bufio&quot;
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;strings&quot;
+)
+
+func input(r io.Reader) (string, error) {
+	s := bufio.NewScanner(r)
+	for {
+		if ok := s.Scan(); !ok {
+			return &quot;&quot;, s.Err()
+		}
+		line := strings.TrimSpace(s.Text())
+		return line, nil
+	}
+}
+
+type inputWrapper struct {
+	*bufio.Scanner
+	reused *strings.Reader
+}
+
+func (i inputWrapper) More() (string, error) {
+	if !i.Scanner.Scan() {
+		return &quot;&quot;, i.Scanner.Err()
+	}
+	line := i.Scanner.Text()
+	if i.reused == nil {
+		i.reused = strings.NewReader(line)
+	}
+	i.reused.Reset(line)
+	return input(i.reused)
+}
+
+func main() {
+
+	r := strings.NewReader(&quot;example.com\ngoogle.com&quot;)
+	input := inputWrapper{Scanner: bufio.NewScanner(r)}.More
+
+	fmt.Println(input())
+	fmt.Println(input())
+}
+</code></pre>
+
+</div>
+</body>
+</html>

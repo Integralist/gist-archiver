@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SCP examples (local to remote and remote to local)</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="scp-examples-local-to-remote-and-remote-to-local">SCP examples (local to remote and remote to local)</h1>
+
+<h2 id="scp-local-to-remote-md">scp-local-to-remote.md</h2>
+
+<pre><code class="language-markdown">To SCP [go-wrk](https://github.com/tsliwowicz/go-wrk) onto a server for executing (this is if you can't be bothered to bake a version of go-wrk into the application RPM):
+
+- Generate the binary (`GOOS=linux GOARCH=amd64 go build` from directory where source code is located)
+- SSH into the Cosmos instance and create an empty file (e.g. `cd /app &amp;&amp; touch go-wrk`)
+- From your local machine SCP the Linux binary of go-wrk (e.g. `scp -v &lt;/path/to/go-wrk&gt; mark_mcdonnell@&lt;ip&gt;,eu-west-1:/app/`)
+- From remote machine move the binary to an accessible path (e.g. `mv go-wrk /usr/bin/`)
+- Then set the mode (e.g. `chmod 755 /usr/bin/go-wrk`)
+
+&gt; or instead you could copy the file into `/home/mark_mcdonnell`
+</code></pre>
+
+<h2 id="scp-remote-to-local-sh">scp-remote-to-local.sh</h2>
+
+<pre><code class="language-shell"># Execute the following command from your local machine
+scp -v -r mark_mcdonnell@10.6.6.149,eu-west-1:/app/ /Users/M/Projects/Foo/Bar
+</code></pre>
+
+</div>
+</body>
+</html>

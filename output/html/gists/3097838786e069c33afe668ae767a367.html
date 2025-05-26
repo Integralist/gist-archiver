@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[go type asserting/coercing] #go #golang #type #assert #coerce</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-type-asserting-coercing-go-golang-type-assert-coerce">[go type asserting/coercing] #go #golang #type #assert #coerce</h1>
+
+<h2 id="go-type-asserting-coercing-go">go type asserting coercing.go</h2>
+
+<pre><code class="language-go">/*
+bar and baz are structs with pointer reference to a foo struct.
+there's a fooer interface for the foo struct
+we also have a function that accepts a fooer
+the purpose of the function is to coerce the arg from an interface type to a concrete type
+*/
+package main
+
+import (
+	&quot;fmt&quot;
+)
+
+type foo struct {
+	msg     string
+	enabled bool
+}
+
+func (f *foo) do(thing string) (string, error) {
+	return fmt.Sprintf(&quot;done %s -- %s&quot;, thing, f.msg), nil
+}
+
+type fooer interface {
+	do(thing string) (string, error)
+}
+
+type bar struct {
+	thing *foo
+}
+
+type baz struct {
+	thing *foo
+}
+
+func assignMsg(f fooer) {
+	if foothing, ok := f.(*foo); ok {
+		foothing.msg = &quot;assigned dynamically&quot;
+	}
+	fmt.Println(f.do(&quot;something here&quot;))
+}
+
+func main() {
+	br := bar{thing: &amp;foo{enabled: true}}
+	bz := baz{thing: &amp;foo{enabled: true}}
+	fmt.Printf(&quot;br: %+v\n&quot;, br)
+	fmt.Printf(&quot;bz: %+v\n&quot;, bz)
+
+	ret, _ := br.thing.do(&quot;with bar&quot;)
+	fmt.Println(ret)
+
+	ret, _ = bz.thing.do(&quot;with baz&quot;)
+	fmt.Println(ret)
+
+	assignMsg(br.thing)
+}
+
+</code></pre>
+
+</div>
+</body>
+</html>

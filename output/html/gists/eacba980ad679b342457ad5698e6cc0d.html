@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MapReduce in Python (copied verbatim for posterity from https://www.reddit.com/r/Python/comments/572xtj/i_decided_to_teach_myself_how_mapreduce_works_and/)</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="mapreduce-in-python-copied-verbatim-for-posterity-from-https-www-reddit-com-r-python-comments-572xtj-i-decided-to-teach-myself-how-mapreduce-works-and">MapReduce in Python (copied verbatim for posterity from <a href="https://www.reddit.com/r/Python/comments/572xtj/i_decided_to_teach_myself_how_mapreduce_works_and/" target="_blank">https://www.reddit.com/r/Python/comments/572xtj/i_decided_to_teach_myself_how_mapreduce_works_and/</a>)</h1>
+
+<h2 id="mapreduce-py">MapReduce.py</h2>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+
+from functools import reduce
+from itertools import islice
+from pprint import pprint
+from collections import defaultdict
+from concurrent.futures import ProcessPoolExecutor as Pool
+
+
+def sequencer(data):
+    &quot;&quot;&quot;
+    This sequencer will cut data into smaller chunks of 10 items.
+    &quot;&quot;&quot;
+
+    _data = iter(data)
+    count = 10
+    chunk = True
+
+    while chunk:
+        chunk = list(islice(_data, count))
+
+        if not chunk:
+            break
+
+        yield chunk
+
+
+def mapper(items):
+    &quot;&quot;&quot;
+    This mapper will sum even and odd numbers separately, and add them to
+    a dictionary with the appropriate category as key.
+    &quot;&quot;&quot;
+
+    output = defaultdict(int)
+
+    for item in items:
+        category = 'odd' if item &amp; 1 else 'even'
+        output[category] += item
+
+    return output
+
+
+def reducer(target, source):
+    &quot;&quot;&quot;
+    This reducer will go through the dictionary 'source',
+    and add its values to 'target', key by key.
+    &quot;&quot;&quot;
+
+    for key, value in source.items():
+        target[key] += value
+
+    return target
+
+
+def main():
+    data = range(100)
+
+    number_of_processes = 4
+
+    with Pool(number_of_processes) as pool:
+
+        # Note:
+        # This can start yielding results to the reducer earlier if you instead
+        # import concurrent.futures.as_completed and stop using the map function.
+
+        # Note some more:
+        # You could use ThreadPoolExecutor if your mapper is IO-bound.
+        # One way of achieving this would be to pass the task at hand
+        # off to other machines and wait for them to get back to you.
+
+        result = reduce(reducer, pool.map(mapper, sequencer(data)), defaultdict(int))
+
+    for key, value in result.items():
+        print('sum of %s numbers: %d' % (key, value))
+
+
+if __name__ == '__main__':
+    main()
+</code></pre>
+
+</div>
+</body>
+</html>

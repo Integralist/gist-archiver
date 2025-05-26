@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Tornado AsyncHTTPClient - No Web Server] #python #pipenv #tornado #async #concurrency #httpclient #asynchttpclient #tox #ini #basicauth #auth</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="tornado-asynchttpclient-no-web-server-python-pipenv-tornado-async-concurrency-httpclient-asynchttpclient-tox-ini-basicauth-auth">[Tornado AsyncHTTPClient - No Web Server] #python #pipenv #tornado #async #concurrency #httpclient #asynchttpclient #tox #ini #basicauth #auth</h1>
+
+<h2 id="readme-md">README.md</h2>
+
+<pre><code class="language-markdown">Set-up the environment:
+
+&gt; See [this gist](https://gist.github.com/9e0c5ee9c2cc2568dd1961bf370716c9) for more information on Pipenv.
+
+- `pipenv --python 3.7`
+- `pipenv shell`
+- `pipenv install tornado==5.0.2`
+- `pipenv install --dev mypy tox flake8`
+
+```bash
+$ cat Pipfile
+
+[[source]]
+url = &quot;https://pypi.org/simple&quot;
+verify_ssl = true
+name = &quot;pypi&quot;
+
+[dev-packages]
+mypy = &quot;*&quot;
+tox = &quot;*&quot;
+&quot;flake8&quot; = &quot;*&quot;
+
+[packages]
+tornado = &quot;==5.0.2&quot;
+
+[requires]
+python_version = &quot;3.7&quot;
+</code></pre>
+
+<pre><code>
+## service 1.py
+
+```python
+&quot;&quot;&quot;
+simplest implementation
+&quot;&quot;&quot;
+
+from tornado.httpclient import AsyncHTTPClient
+from tornado.ioloop import IOLoop
+
+AsyncHTTPClient.configure(None, defaults=dict(user_agent=&quot;MyUserAgent&quot;))
+http_client = AsyncHTTPClient()
+
+async def do_thing():
+    response = await http_client.fetch(&quot;https://www.integralist.co.uk&quot;)
+    print(response.code)
+    print(response.headers)
+    print(response.body)
+
+io_loop = IOLoop.current()
+io_loop.run_sync(do_thing)
+</code></pre>
+
+<h2 id="service-2-py">service 2.py</h2>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+demonstrates the 'callback' variation of AsyncHTTPClient#fetch
+&quot;&quot;&quot;
+
+import json
+
+from tornado.httpclient import AsyncHTTPClient
+from tornado.ioloop import IOLoop
+
+# if None, then use tornado.simple_httpclient.SimpleAsyncHTTPClient
+# otherwise specify alternative client such as curl:
+# configure.(&quot;tornado.curl_httpclient.CurlAsyncHTTPClient&quot;)
+AsyncHTTPClient.configure(None, defaults=dict(user_agent=&quot;MyUserAgent&quot;))
+http_client = AsyncHTTPClient()
+
+
+def handle_response(response):
+    if response.error:
+        print(&quot;Error: %s&quot; % response.error)
+    else:
+        print('\n' + str(response.body) + '\n')  # .body is a byte array
+        data = json.loads(response.body)
+        print(data)
+
+
+async def get_content():
+    await http_client.fetch(&quot;http://httpbin.org/json&quot;, handle_response)
+    
+    # Note:
+    #
+    # The above callback 'style' is different to...
+    #
+    # response = await http_client.fetch(&quot;http://httpbin.org/json&quot;)
+    # print(response.body)
+    #
+    # ...which forces the function to wait for the response, then print it,
+    # before returning to `main()` which attempts to print its own message.
+    #
+    # By using the callback style we end up letting `get_content` return immediately. 
+    #
+    # This isn't to say that the non-callback style is synchronous, it is still asynchronous.
+    # In that other processes can be executed while it's happening, but it doesn't work quite the same.
+    # As you can see here in this example.
+    
+    post_data = {&quot;data&quot;: &quot;test data&quot;}
+    body = urllib.parse.urlencode(post_data)
+    response = await http_client.fetch(&quot;http://httpbin.org/post&quot;, method='POST', headers=None, body=body)
+    print('\n' + str(response.body) + '\n')  # .body is a byte array
+    
+    # As per the tornado documentation:
+    # http://www.tornadoweb.org/en/stable/httpclient.html#tornado.httpclient.HTTPRequest
+    #
+    # The AsyncHTTPClient can accept any keyword args that are supported by 
+    # the `HTTPRequest` object, and so if you need to provide basic auth credentials...
+    #
+    # http_client.fetch(uri, auth_username=&lt;...&gt;, auth_password=&lt;...&gt;)
+
+
+async def main():
+    await get_content()
+    print(&quot;I won't wait for get_content to finish. I'll show immediately.&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    io_loop = IOLoop.current()
+    io_loop.run_sync(main)  # only runs the specified function, then stops
+                            # alternatively use IOLoop.current().start()
+                            # as that won't stop until explicitly called with
+                            # IOLoop.current().stop()
+
+# Other useful ioloop functions:
+#
+# tornado.ioloop.IOLoop.add_callback
+# tornado.ioloop.IOLoop.add_future
+# tornado.ioloop.IOLoop.spawn_callback
+# tornado.ioloop.PeriodicCallback(task, 1000).start()
+
+# Tornado examples:
+#
+# https://gist.github.com/lbolla/3826189
+# https://github.com/tornadoweb/tornado/blob/master/demos/webspider/webspider.py
+</code></pre>
+
+<h2 id="tox-ini">tox.ini</h2>
+
+<pre><code class="language-ini">[pytest]
+# norecursedirs = lib
+addopts = -p no:cacheprovider
+
+[flake8]
+max_line_length = 120
+exclude = lib,node_modules
+ignore = E116
+# https://pep8.readthedocs.io/en/latest/intro.html#error-codes
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Symlinking] #terminal #command #symlink</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="symlinking-terminal-command-symlink">[Symlinking] #terminal #command #symlink</h1>
+
+<h2 id="symlinking-bash">Symlinking.bash</h2>
+
+<pre><code class="language-shell"># ln -s &lt;real_path&gt; &lt;fake_path&gt;
+
+# for example, if we want ./lib to point to the real directory in ../../lib/go
+ln -s ../../lib/go ./lib
+
+# IMPORTANT!
+#
+# Don't add trailing / to the fake_path 
+# otherwise the shell will tell you fake_path doesn't exist.
+
+# REAL EXAMPLE
+#
+# I have the directory ~/Code/Go in which I've created a directory called &quot;go-flags&quot;
+# Any time someone goes to lookup ~/go/src/github.com/integralist/go-flags (such as when go code imports a package!)
+# Then I want them to be directed to ~/Code/Go/go-flags
+cd ~/go/src/github.com/integralist
+ln -s ~/Code/Go/go-flags ./go-flags
+ls -laGpFHh
+
+# go-flags@ -&gt; /Users/markmcdonnell/Code/
+</code></pre>
+
+</div>
+</body>
+</html>

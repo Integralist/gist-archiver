@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Create Elements using memoization technique (modified to @GarrettS' points)</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="create-elements-using-memoization-technique-modified-to-garretts-points">Create Elements using memoization technique (modified to @GarrettS&rsquo; points)</h1>
+
+<h2 id="createelement-js">createElement.js</h2>
+
+<pre><code class="language-javascript">/**
+ * The following method creates a new element or returns a copy of an element already created by this script.
+ *
+ * @param tagname { String } element to be created/copied
+ * @return { Element/Node } the newly created element
+ */
+createElement: (function(){
+	// Memorize previous elements created
+	var cache = {};
+	
+	return function(tagname) {
+		if (!(tagname in cache)) {
+			// Create new instance of specified element and store it
+			cache[tagname] = document.createElement(tagname);
+		}
+		
+		// If we've already created an element of the specified kind then duplicate it
+		return cache[tagname].cloneNode(false);
+	}
+}())
+</code></pre>
+
+</div>
+</body>
+</html>

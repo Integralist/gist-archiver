@@ -1,0 +1,70 @@
+# [Vim Ex Automation via Bash Trigger] #vim #bash #automation #ex #mode
+
+## Simple Vim Ex Automation via Bash Trigger.bash
+
+```shell
+vim -E -s config.txt <<-EOF
+  :%s/foo/bar/
+  :update
+  :quit
+EOF
+```
+
+## Vim Ex Automation via Bash Trigger with more complex logic (based on real example).bash
+
+```shell
+# UPDATE INTERFACE FILE
+#
+# The interface file contains all the API functions we expect to use from the
+# go-fastly SDK. When adding a new command, we want to update this file to
+# reflect any new API functions we're intending to use.
+#
+# I use Vim to handle the processing because it's easier for me (@integralist)
+# to write the otherwise complex logic, compared to trying to use bash or some
+# other tool such as Awk.
+#
+# STEPS:
+# - We locate the Interface type.
+# - Copy the last set of interface methods.
+# - Capture line number for start of copied methods (to use in substitution).
+# - Rename the API (three separate places per line).
+#
+# NOTE:
+# Any backslash in the substitution commands (e.g. \v) need to be double escaped.
+#   - Once because the backslash is inside the :exe command's expected string.
+#   - And then again because of the parent HEREDOC container.
+#
+# CAVEATS:
+# This isn't a perfect process. Its successfulness is based on whether the last
+# set of commands align with our expectations. It will still produce ~95%
+# expected output, but if there's an extra API function (e.g. BatchModify) then
+# that line won't have the relevant API name replaced as we only look for the
+# common CRUD methods (Create, Delete, Get, List, Update).
+#
+CLI_API="FooBar"
+vim -E -s pkg/api/interface.go <<-EOF
+	:g/type Interface interface/norm $%k
+	:norm V{yP]mk
+	:norm {
+	:call setreg('a', line('.'))
+	:norm ]mk
+	:exe getreg("a")","line(".")"s/\\\v(Create|Delete|Get|List|Update)[^(]+/\\\1${CLI_API}/"
+	:exe getreg("a")","line(".")"s/\\\v(fastly\\\.)(Create|Delete|Get|List|Update)[^)]+(Input)/\\\1\\\2${CLI_API}\\\3/"
+	:exe getreg("a")","line(".")"s/\\\v\\\((\\\[\\\])?\\\*(fastly\\\.)[^,]+/(\\\1*\\\2${CLI_API}/"
+	:update
+	:quit
+EOF
+
+# The above takes advantage of multiple Vim features to workaround the fact that we're constrained primarily to using Ex commands to achieve this automation...
+#
+# 1. We can't use / to search for content, so I have to use :global along with :normal to get my cursor to where it needs to be.
+# 
+# 2. I don't know how many lines need to be copied, so I rely on Vim's notion of a "paragraph" i.e. `{` motion
+#
+# 3. Once I've copied the relevant text I need to get back to the original position my cursor was at. I would normally use <Ctrl-o> to go back once in Vim's jumplist, but there's no Ex mode equivalent command to achieve this and I also couldn't get :execute to work with <Ctrl-o> inside a :normal string expression. So I resorted to another Vim motion `]m` which luckily for my use case jumped me to the bottom of the code function I was in (which was where I needed to be). I could have just reused the :global trick but I wanted to avoid duplication of logic if possible and the motion was a quick win.
+#
+# 4. When using a substiution you can manually select the lines you want as a range, but with automation I don't know what the range should be (as it has to be programmatically determined) so this meant I needed to use some VimL. I start by using the `{` motion to get back to the top of the section of code I want to apply a substitution to and store the current line into a register using `setreg(...)` and `line('.')`. I then jump back to where I was before and I use `getreg(...)` to use as the start of my substitution range followed by `line('.')` as the end of the range. All of this is wrapped up with `:execute` and so we have to use the `","` string in-between to build up the range, and also put the substitution into a string.
+#
+# 5. As mentioned in the above NOTE I needed to double escape the backslashes used in the substitution. Which is a super pain.
+```
+

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang init] #go #golang</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-init-go-golang">[Golang init] #go #golang</h1>
+
+<h2 id="main-go">main.go</h2>
+
+<pre><code class="language-go">// This is a file designed to be run on go.dev/play (link below).
+// It validates the behaviour of init() functions.
+// i.e. init() is only called once regardless of how many times its package is imported.
+// https://go.dev/play/p/99YpDma6mVJ
+package main
+
+import (
+	&quot;play.ground/bar&quot;
+	&quot;play.ground/foo&quot;
+)
+
+func main() {
+	foo.Message()
+	bar.Message()
+}
+-- go.mod --
+module play.ground
+-- foo/foo.go --
+package foo
+
+import (
+	&quot;fmt&quot;
+
+	&quot;play.ground/bar&quot;
+)
+
+func Message() {
+	fmt.Println(&quot;This is the foo package&quot;)
+	bar.Message()
+}
+-- bar/bar.go --
+package bar
+
+import &quot;fmt&quot;
+
+func init() {
+	fmt.Println(&quot;This is the init() inside the bar package&quot;)
+}
+
+func Message() {
+	fmt.Println(&quot;This is the bar package&quot;)
+}
+</code></pre>
+
+</div>
+</body>
+</html>

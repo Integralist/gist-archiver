@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Object-Oriented Design Principles (Code Design)</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="object-oriented-design-principles-code-design">Object-Oriented Design Principles (Code Design)</h1>
+
+<h2 id="object-oriented-design-principles-code-design-md">Object-Oriented Design Principles (Code Design).md</h2>
+
+<pre><code class="language-markdown">- [Messages and Duck Typing](#messages-and-duck-typing-ie-interfaces)
+- [Dependencies](#dependencies)
+- [Patterns](#patterns)
+  - [Template Method Pattern](#template-method-pattern)
+  - [Null Object Pattern](#null-object-pattern)
+  - [Replace Conditional with Polymorphism](#replace-conditional-with-polymorphism)
+  - [Transform complex data structures](#transform-complex-data-structures)
+- [Miscellaneous](#miscellaneous)
+
+## Messages and Duck Typing (i.e. interfaces)
+
+- Think about &quot;messages&quot; not &quot;objects&quot;.
+- &quot;message&quot; == &quot;method call&quot; (e.g. &quot;I want to call Y's X method&quot; == &quot;I want to send the message X to object Y&quot;).
+- New objects should be identified from the messages you know you want to send.
+- Knowing what messages to send is facilitated by the use of &quot;sequence diagrams&quot;.
+- The result of this way of thinking is that you rely on an &quot;interface&quot; and not a concrete object.
+- The reason relying on an interface is better is that the object can later be swapped for another and it doesn't matter as long as it implements the same interface (i.e. Liskov Substitution Principle).
+- When creating a new instance of an object it should cause no side effects and shouldn't complicate testing with needing to mock many dependencies. To avoid this make sure the constructor only does the minimum and any additional bootstrapping is done via another method call (e.g. `Foo.new.bootup` rather than having all of the `bootstrap` code inside the constructor). If your code is just `Foo.new` and lots of things start to happen then that's a recognised code smell because your constructor isn't just doing some configuration; it's actually actioning and sending messages.
+
+## Dependencies
+
+- &quot;Tell, don't ask&quot;. This will allow you to reduce the &quot;context&quot; of your objects (e.g. the amount an object knows about another object)
+- Injecting dependencies helps to decouple objects and thus makes your objects less tightly coupled to other objects.
+- The more loosely coupled your objects, the easier it is to swap objects without requiring lots of extra code changes.
+- Don't pass a class into an object and have that receiving object instantiate the class. This is because it increases the receiving object's context; as it now knows too much about the dependency being passed to it. The object should only know the dependencies public interface (remember: &quot;tell, don't ask&quot;). So pass a constructed object (i.e. instantiate the class as you pass it with the message)
+- When sending a message to a dependency, pass the current object (e.g. `self`) along with the message. This will further decouple your objects (i.e. the objects either side of a message can be easily swapped as neither relies on a concrete object).
+- In some instances loading lots of dependencies *outside* of a class isn't as helpful at reducing the number of dependencies in your class' constructor as you may think. The reason being: they're still dependencies; they're just &quot;implicit&quot; rather than &quot;explicit&quot;. It can make testing (mocking/stubbing) easier if you're being explicit and pass a dependency into the constructor (Note: this depends on your language of choice. In Ruby, developers will argue DI isn't necessary as the language is designed to be very malleable -&gt; so see what works for you and your language; e.g. DI Containers work well in a language such as PHP (e.g. Pimple))
+- Simplify bloated constructors by teasing out functionality into a new object and also look at related dependencies and move one dependency into another (if possible) to reduce the number of dependencies passed into a single constructor.
+- Some bloated constructor parameters might not necessarily be violating SRP. They may well receive too many dependencies but it could be that they're related to configuration and so we're not setting enough default values which can then be overridden with a single config object parameter.
+
+## Patterns
+
+### Template Method Pattern
+
+Use the 'Template Method Pattern' with inheritance to abstract away common code into parent class. Some other things this pattern helps improve is:
+
+- Keeping defaults within the parent
+- Keep unique behaviour within the specific child objects
+- Avoids issue where developer unfamiliar with the code would otherwise need to (or not know to) call `super` (by implementing 'hook methods')
+- Avoids sub classes having too much context
+- Avoids minor changes in the parent class from affecting the sub class
+
+```ruby
+class Parent
+  attr_reader :foo, :bar
+
+  def initialize(args = {})
+    @foo = args[:foo] || default_foo
+    @bar = args[:bar] || default_bar
+
+    post_initialize
+  end
+
+  def merge_obj(obj)
+    obj.merge(new_obj)
+  end
+
+  protected
+
+  def default_foo
+    &quot;foo&quot;
+  end
+
+  def default_bar
+    &quot;bar&quot;
+  end
+
+  def default_baz
+    raise NotImplementedError # this protects us from forgetting to implement an required method
+  end
+
+  def post_initialize
+    nil
+  end
+
+  def new_obj
+    {}
+  end
+end
+
+class Child &lt; Parent
+  def post_initialize
+    # what would have been in a `super` call
+    # is now placed here and used as a 'hook method'
+    puts &quot;Child specific stuff (that normally would have been inside the constructor) goes here&quot;
+  end
+
+  private
+
+  def default_foo
+    &quot;FOO!&quot;
+  end
+
+  def default_bar
+    &quot;BAR!&quot;
+  end
+
+  def new_obj
+    # override the `new_obj` method within the parent class
+    { :foo =&gt; :bar }
+  end
+end
+
+# The following is example usage of the above code...
+
+parent = Parent.new
+puts parent.merge_obj(:a =&gt; 1, :b =&gt; 2, :c =&gt; 3)
+puts parent.foo
+puts parent.bar
+
+child = Child.new
+puts child.merge_obj(:d =&gt; 4, :e =&gt; 5, :f =&gt; 6)
+puts child.foo
+puts child.bar
+</code></pre>
+
+<h4 id="hook-methods">Hook methods</h4>
+
+<p>Hook methods don&rsquo;t work that well with deep hierarchy class structures. Best to avoid and use some form of composition (typically via module inclusion) to build up your functionality.</p>
+
+<h4 id="composition-and-aggregation">Composition and Aggregation</h4>
+
+<p>Composition and Aggregation both effectively mean the same thing: composing objects from other objects.</p>
+
+<p>But there is a subtle difference between them, which is that Aggregation refers to composing objects which have a life (e.g. they continue to exist and have relevance) outside of the object they&rsquo;re being composited within.</p>
+
+<p>Typically you&rsquo;ll use the term composition nearly all the time unless you have a specific reason to provide a really granular explanation of the system you&rsquo;re designing.</p>
+
+<h3 id="null-object-pattern">Null Object Pattern</h3>
+
+<p>Rather than implementing multiple checks for available properties throughout your code; instead introduce the &lsquo;Null Object Pattern&rsquo;.</p>
+
+<pre><code class="language-ruby">class RealObject
+  def a
+    &quot;A!&quot;
+  end
+
+  def b
+    &quot;B!&quot;
+  end
+end
+
+class NullObject
+  def a
+    &quot;Default value for A&quot;
+  end
+
+  def b
+    &quot;Default value for B&quot;
+  end
+end
+
+class Bar
+  def initialize(obj)
+    @thing = obj || NullObject.new
+  end
+
+  def do_the_thing
+    puts @thing.a
+    puts @thing.b
+  end
+end
+
+bar1_passes_object      = Bar.new(RealObject.new)
+bar2_doesnt_pass_object = Bar.new
+
+bar1_passes_object.do_the_thing      # =&gt; A!, B!
+bar2_doesnt_pass_object.do_the_thing # =&gt; Default value for A, Default value for B
+</code></pre>
+
+<h3 id="replace-conditional-with-polymorphism">Replace Conditional with Polymorphism</h3>
+
+<p>Instead of using conditionals (e.g. <code>if/else</code> or <code>switch/case</code>) use Polymorphism. This really means: &ldquo;use a consistent interface between all your objects&rdquo;.</p>
+
+<pre><code class="language-ruby"># Bad...
+
+class Foo
+  def initialize(data)
+    @data = data
+  end
+
+  def do_something
+    if @data.class == Bar
+      puts &quot;Bar!&quot;
+    elsif @data.class == Baz
+      puts &quot;Baz!&quot;
+    elsif @data.class == Qux
+      puts &quot;Qux!&quot;
+    end
+  end
+end
+
+class Bar; end
+class Baz; end
+class Qux; end
+
+foo_bar = Foo.new(Bar.new)
+foo_bar.do_something
+
+foo_baz = Foo.new(Baz.new)
+foo_baz.do_something
+
+foo_qux = Foo.new(Qux.new)
+foo_qux.do_something
+
+# Good (Polymorphism)...
+
+class Foo
+  def initialize(data)
+    @data = data
+  end
+
+  def do_something
+    @data.identifier
+  end
+end
+
+class Bar
+  def identifier
+    puts &quot;#{self.class}!&quot;
+  end
+end
+
+class Baz
+  def identifier
+    puts &quot;#{self.class}!&quot;
+  end
+end
+
+class Qux
+  def identifier
+    puts &quot;#{self.class}!&quot;
+  end
+end
+
+foo_bar = Foo.new(Bar.new)
+foo_bar.do_something
+
+foo_baz = Foo.new(Baz.new)
+foo_baz.do_something
+
+foo_qux = Foo.new(Qux.new)
+foo_qux.do_something
+</code></pre>
+
+<p>Here&rsquo;s a JavaScript implementation:</p>
+
+<pre><code class="language-js">// Bad...
+
+function test (condition) {
+    if (condition === &quot;A&quot;) {
+        // lots of code related to &quot;A&quot; here
+    } else if (condition === &quot;B&quot;) {
+        // lots of code related to &quot;B&quot; here
+    } else if (condition === &quot;C&quot;) {
+        // lots of code related to &quot;C&quot; here
+    }
+}
+ 
+test('A');
+test('B');
+test('C');
+ 
+// Good (Polymorphism)......
+ 
+var A = {
+    doTheThing: function(){
+        lots of code related to &quot;A&quot; here
+    }
+}
+ 
+var B = {
+    doTheThing: function(){
+        lots of code related to &quot;B&quot; here
+    }
+}
+ 
+var C = {
+    doTheThing: function(){
+        lots of code related to &quot;C&quot; here
+    }
+}
+ 
+function test (condition) {
+    condition.doTheThing();    
+}
+ 
+test(A);
+test(B);
+test(C);
+</code></pre>
+
+<h3 id="transform-complex-data-structures">Transform complex data structures</h3>
+
+<p>Avoid trying to access complex data structures. In the following example we convert a complex and indecipherable Array into an object with a clearly defined set of methods which helps clarify the code.</p>
+
+<pre><code class="language-ruby"># Bad...
+
+class Foo 
+  attr_reader :data 
+
+  def initialize(data) 
+    @data = data 
+  end 
+
+  def do_something 
+    data.each do |item| 
+      puts item[0] 
+      puts item[1] 
+      puts '---' 
+    end 
+  end 
+end 
+
+obj = Foo.new([[10, 25],[3, 9],[41, 7]]) 
+obj.do_something
+
+# Good...
+
+class Foo 
+  attr_reader :new_data 
+
+  def initialize(data) 
+    @new_data = transform(data) 
+  end 
+
+  def do_something 
+    new_data.each do |item| 
+      # now we are able to reference easily understandable 
+      # property names (rather than item[0], item[1]) 
+      puts item.coord_x 
+      puts item.coord_y 
+      puts '---' 
+    end 
+  end 
+
+  Transform = Struct.new(:coord_x, :coord_y) 
+
+  def transform(data) 
+    data.collect { |item| Transform.new(item[0], item[1]) } 
+  end 
+end 
+
+obj = Foo.new([[10, 25],[3, 9],[41, 7]]) 
+obj.do_something
+</code></pre>
+
+<h2 id="miscellaneous">Miscellaneous</h2>
+
+<ul>
+<li>If you notice a Class starts to demonstrate more than one responsibility then extract that behaviour out into another Class.</li>
+</ul>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

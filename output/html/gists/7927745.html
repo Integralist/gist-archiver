@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JavaScript: mocking the Window and Document objects</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="javascript-mocking-the-window-and-document-objects">JavaScript: mocking the Window and Document objects</h1>
+
+<h2 id="easy-window-and-document-mocking-md">Easy window and document mocking.md</h2>
+
+<pre><code class="language-markdown">In `tabloid/webapp/php/sharedmodules/tabloid-shared/views/layout/base.spv` we run...
+
+```js
+require(['module/base', 'domReady'], function (base, domReady) {
+    domReady(function () {
+        base.init();
+        &lt;?php $this-&gt;newsPageJavaScript(); ?&gt;
+    });
+});
+</code></pre>
+
+<p>&hellip;this loads our base module which sets up stats and other baseline requirement stuff (such as setting classes on HTML elements).</p>
+
+<p>This module loads <code>module/bootstrap</code> which sets up jQuery and our pubsub library. This module is typically imported EVERYWHERE, like so&hellip;</p>
+
+<pre><code class="language-js">define(['module/bootstrap'], function (news) {
+    var $      = news.$,
+        pubsub = news.pubsub;
+        
+    // code
+});
+</code></pre>
+
+<p>I&rsquo;m thinking within <code>module/bootstrap</code> we could load up the WindowMock module like so&hellip;</p>
+
+<pre><code class="language-js">define(['jquery', 'config', 'module/windowMock' 'vendor/events/pubsub'], function(jquery, config, windowMock) {
+    // note: pubsub module doesn't return anything and so we put it last in the dependency list
+    var news = {
+        pubsub: jquery,
+        $: jquery,
+        config: config,
+        window: (isTestEnvironment) ? windowMock : window,
+        document: (isTestEnvironment) ? windowMock.document : window.document
+    };
+
+    return news;
+});
+</code></pre>
+
+<p>&hellip;note: we&rsquo;d need to move the windowMock helper file into the &lsquo;module&rsquo; directory.</p>
+
+<p>The windowMock file looks like this&hellip;</p>
+
+<pre><code class="language-js">define([
+    'module/bootstrap',
+], function (news) {
+        var windowMock = {
+            resizeSet: false, // set within the fake News object below
+
+            createFakeWindow: function(width, height) {
+                return {
+                    document: {
+                        documentElement: {
+                            clientWidth: width,
+                            clientHeight: height
+                        }
+                    },
+
+                    resizeTo: function(width, height) {
+                        this.document.documentElement = {
+                            clientWidth: width,
+                            clientHeight: height
+                        };
+                    }
+                };
+            },
+
+            fireResizeEvent: function() {
+                this.handler(); // set within the fake News object below
+            },
+
+            news: {
+                $: function(element) {
+                    return {
+                        on: function(event, handler) {
+                            if (event === 'resize') {
+                                windowMock.resizeSet = true;
+                                windowMock.handler = handler;
+                            }
+                        }
+                    };
+                },
+
+                pubsub: news.pubsub
+            }
+        };
+
+        return windowMock;
+    }
+);
+</code></pre>
+
+<p>You can also use it like so&hellip;</p>
+
+<pre><code class="language-js">function createFakeWindow (width, height) {
+    var fakeWindow = WindowMock.createFakeWindow(width, height);
+
+    someObject.init(fakeWindow, WindowMock.news); // this can be removed or changed appropriately
+
+    return fakeWindow;
+}
+
+function resizeWindow (width, height, fakeWindow) {
+    document.body.style.width = width + 'px'; // remember to reset this in the test tear down
+    fakeWindow.resizeTo(width, height);
+    WindowMock.fireResizeEvent();
+}
+</code></pre>
+
+<p>See we use <code>isTestEnvironment</code> to check what to return. I&rsquo;m guessing we&rsquo;ll set <code>isTestEnvironment = true</code> within our jasmine test runner set-up (before we load <code>modules/bootstrap</code>).</p>
+
+<p>So within our code we can just do&hellip;</p>
+
+<pre><code class="language-js">define([
+    'module/bootstrap',
+    'module/navigation/nav',
+    'module/navigation/narrow'
+], function(
+    news,
+    nav,
+    narrow
+) {
+    var $ = news.$,
+        pubsub = news.pubsub,
+        window = news.window,
+        document = news.document;
+
+    // we can now use `window` and `document` and they'll either be our mock or the real thing
+});
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

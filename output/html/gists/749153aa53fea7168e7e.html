@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Array flatten function written in ES6 syntax</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="array-flatten-function-written-in-es6-syntax">Array flatten function written in ES6 syntax</h1>
+
+<h2 id="flatten-array-js">flatten-array.js</h2>
+
+<pre><code class="language-javascript">const flattenTco = ([first, ...rest], accumulator) =&gt; 
+  (first === undefined)
+    ? accumulator
+    : (Array.isArray(first))
+      ? flattenTco([...first, ...rest])
+      : flattenTco(rest, accumulator.concat(first))
+  
+const flatten = (n) =&gt; flattenTco(n, []);
+  
+console.log(flatten([[1,[2,[[3]]]],4,[5,[[[6]]]]]))
+</code></pre>
+
+</div>
+</body>
+</html>

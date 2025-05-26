@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Fastly Terraform Service] #fastly #terraform</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="fastly-terraform-service-fastly-terraform">[Fastly Terraform Service] #fastly #terraform</h1>
+
+<h2 id="outputs-tf">outputs.tf</h2>
+
+<pre><code class="language-hcl">output &quot;active&quot; {
+  value = fastly_service_v1.test_service.active_version
+}
+</code></pre>
+
+<h2 id="provider-tf">provider.tf</h2>
+
+<pre><code class="language-hcl">terraform {
+  required_providers {
+    fastly = {
+      source  = &quot;fastly/fastly&quot;
+      version = &quot;0.27.0&quot;
+    }
+  }
+}
+</code></pre>
+
+<h2 id="main-tf">main.tf</h2>
+
+<pre><code class="language-hcl">resource &quot;fastly_service_v1&quot; &quot;test_service&quot; {
+  name = &quot;My Test Service&quot;
+
+  domain {
+    name = &quot;training.fastly.com&quot;
+  }
+
+  backend {
+    address = &quot;httpbin.org&quot;
+    name    = &quot;test-backend&quot;
+  }
+  
+  vcl {
+    content = file(&quot;vcl/main.vcl&quot;)
+    main    = true
+    name    = &quot;custom_vcl&quot;
+  }
+
+  force_destroy = true
+}
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>This is how BBC News currently implements it's Image Enhancer for responsive images. Note: this is a completely rebuilt version of the code so the BBC's original source code doesn't actually look anything like the below example.</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="this-is-how-bbc-news-currently-implements-it-s-image-enhancer-for-responsive-images-note-this-is-a-completely-rebuilt-version-of-the-code-so-the-bbc-s-original-source-code-doesn-t-actually-look-anything-like-the-below-example">This is how BBC News currently implements it&rsquo;s Image Enhancer for responsive images. Note: this is a completely rebuilt version of the code so the BBC&rsquo;s original source code doesn&rsquo;t actually look anything like the below example.</h1>
+
+<h2 id="description-md">Description.md</h2>
+
+<pre><code class="language-markdown">The BBC has a server-side image service which provides developers with multiple sized versions of any image they request. It works in a similar fashion to [http://placehold.it/](http://placehold.it/) but it also handles the image ratios returned (where as placehold.it doesn't).
+
+The original BBC News process (and my re-working of the script) follows roughly these steps...
+
+- Create new instance of ImageEnhancer
+- Change any `div`s within the page (which have a class of `delayed-image-load`) into a transparent GIF using a Base64 encoded string.
+  - We set the `width` &amp; `height` HTML attributes of the image to the required size
+  - We know what size the image needs to be because each `div` has custom `data-attr` set server-side to the size of the image
+  - We then set a class of `image-replace` onto each newly created transparent image
+- We use a 250ms `setTimeout` to unblock the UI thread and which calls a function `resizeImages` which enhances the `image-replace` images so their source is now set to a URL where the returned image matches the requested dimensions in the URL path (in my example below I use `requestAnimationFrame` instead)
+    - We also create an event listener for the resize event which fires a pubsub event of `imageEnhancer:resize` 
+- We call `resizeImages` initially and then every time the pubsub event fires. 
+  - This function loops each `image-replace` image and changes the `src` attribute to the new URL with the best possible match dimensions specified within the URL path (based on the dimensions required for the image). 
+  - If the resize event fires then we check the dimensions of the page and determine if we need a new URL to be used.
+
+The example code that follows is not production ready, you can't just drop it into your code base and expect it to work. It is a rough prototype I built in about 30 minutes to help demonstrate in a roundabout way how the BBC News responsive team were handling the enhancement of images. The code uses features only available to more modern browsers (e.g. I've tested it in Chrome 28 and nothing else so your mile may vary if you're using a different browser to look at the example).
+
+I've also used the [http://placehold.it/](http://placehold.it/) service in place of the actual BBC News image provider. They don't work in quite the same way, but if you open the following HTML code in a modern browser (e.g. Chrome) and resize the browser window downwards you'll see the images change based on the current window dimensions. So rather than load a large image for smaller screens we swap out our images with images that are optimised for that screen size.
+
+Notes about the rewritten example:
+
+- ~~I should use live `nodeList` otherwise we'll miss any images added to the DOM after ImageEnhancer is initialised.~~
+- I might be able to work-around the use of the base64 image
+- Look at caching of image loads
+</code></pre>
+
+<h2 id="imageenhancer-example-html">ImageEnhancer-Example.html</h2>
+
+<pre><code class="language-html">&lt;!doctype html&gt;
+&lt;html dir=&quot;ltr&quot; lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+        &lt;meta charset=&quot;utf-8&quot;&gt;
+        &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+        &lt;title&gt;ImageEnhancer&lt;/title&gt;
+        &lt;style&gt;
+            img {
+                max-width: 100%;
+            }
+
+            a {
+                display: block;
+                margin-top: 1em;
+            }
+        &lt;/style&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;p&gt;Here is our main image, we load this regardless of JavaScript support.&lt;/p&gt;
+        &lt;img src=&quot;http://placehold.it/340&quot;&gt;
+
+        &lt;p&gt;Below are three &lt;code&gt;div&lt;/code&gt; elements that will lazy-load more images (as long as JavaScript is enabled).&lt;/p&gt;
+        &lt;div class=&quot;delayed-image-load&quot; data-src=&quot;http://placehold.it/340&quot; data-width=&quot;340&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;delayed-image-load&quot; data-src=&quot;http://placehold.it/340&quot; data-width=&quot;340&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;delayed-image-load&quot; data-src=&quot;http://placehold.it/340&quot; data-width=&quot;340&quot;&gt;&lt;/div&gt;
+
+        &lt;script&gt;
+            var pubsub = (function(){
+                var doc = document;
+                var topics = {};
+                var id = -1;
+                var pubsub = {};
+
+                pubsub.subscribe =  function (topic, fn) {
+                    if (!topics[topic]) {
+                        topics[topic] = [];
+                    }
+
+                    var token = (++id).toString();
+
+                    topics[topic].push({
+                        token: token,
+                        fn: fn
+                    });
+
+                    return token;
+                };
+
+                pubsub.unsubscribe =  function (token) {
+                    for (var m in topics) {
+                        if (topics[m]) {
+                            for (var i = 0, j = topics[m].length; i &lt; j; i++) {
+                                if (topics[m][i].token === token) {
+                                    topics[m].splice(i, 1);
+                                    return token;
+                                }
+                            }
+                        }
+                    }
+
+                    return false;
+                };
+
+                pubsub.publish =  function (topic, data) {
+                    if (!topics[topic]) {
+                        return false;
+                    }
+
+                    setTimeout(function(){
+                        var subscribers = topics[topic],
+
+                        len = topics[topic].length;
+
+                        while (len--) {
+                            subscribers[len].fn(topic, data);
+                        }
+                    }, 0);
+
+                    return true;
+                };
+
+                return pubsub;
+            }());
+
+            function ImageEnhancer(){
+                pubsub.subscribe('imageEnhancer:resize', this.resizeImages.bind(this));
+                pubsub.subscribe('div:added', this.changeDivsToEmptyImages.bind(this));
+                pubsub.subscribe('div:changed', this.resizeImages.bind(this));
+                this.availableWidthsFromOurImageProviderService = [96, 130, 165, 200, 235, 270, 304, 340, 375, 410, 445, 485, 520, 555, 590, 625, 660, 695, 736];
+                this.divs = document.getElementsByClassName('delayed-image-load'); // we use `getElementsByClassName` so we get a live NodeList
+                this.changeDivsToEmptyImages();
+                window.requestAnimationFrame(this.init.bind(this));
+            }
+
+            ImageEnhancer.prototype = {
+                changeDivsToEmptyImages: function(){
+                    var i = this.divs.length;
+
+                    while (i--) {
+                        var div           = this.divs[i],
+                            img           = document.createElement('img');
+                            img.src       = 'data:image/gif;base64,R0lGODlhEAAJAIAAAP///wAAACH5BAEAAAAALAAAAAAQAAkAAAIKhI+py+0Po5yUFQA7';
+                            img.className = 'image-replace';
+                            img.width     = div.getAttribute('data-width');
+                            img.setAttribute('data-src', div.getAttribute('data-src'));
+                        
+                        div.parentNode.replaceChild(img, div);
+                    }
+
+                    if (this.initialised) {
+                        pubsub.publish('div:changed');
+                    }
+                },
+
+                init: function(){
+                    this.initialised = true;
+                    this.resizeImages();
+                    
+                    window.addEventListener('resize', function() {
+                        pubsub.publish('imageEnhancer:resize');
+                    }, false);
+                },
+
+                resizeImages: function(){
+                    var imageList = Array.prototype.slice.call(document.querySelectorAll('.image-replace'));
+
+                    if (!this.isResizing) {
+                        this.isResizing = true;
+
+                        imageList.forEach(function (img) {
+                            img.src = this.calculateNewImageSrc(img);
+                        }.bind(this));
+
+                        this.isResizing = false;
+                    }
+                },
+
+                calculateNewImageSrc: function (img) {
+                    var imageSrc      = img.getAttribute('data-src'),
+                        imageWidth    = img.clientWidth,
+                        selectedWidth = this.availableWidthsFromOurImageProviderService[0];
+
+                    this.availableWidthsFromOurImageProviderService.forEach(function (currentlyAvailableWidth, index) {
+                        if (imageWidth &gt; currentlyAvailableWidth) {
+                            selectedWidth = this.availableWidthsFromOurImageProviderService[index + 1];
+                        }
+                    }.bind(this));
+
+                    return imageSrc.replace(/^(.+\/)\d+$/i, function (match, captured) {
+                        return captured + selectedWidth;
+                    });
+                }
+            };
+
+            function createAnchor(){
+                var anchor = document.createElement('a');
+                    anchor.href = '#my_new_element';
+                    anchor.innerHTML = 'Click me to add a new image to the DOM after ImageEnhancer has already been instantiated'
+
+                document.body.appendChild(anchor);
+
+                anchor.onclick = createNewImage;
+            }
+
+            function createNewImage(){
+                var div = document.createElement('div');
+                    div.className = 'delayed-image-load';
+                    div.setAttribute('name', 'my_new_element');
+                    div.setAttribute('data-src', 'http://placehold.it/340');
+                    div.setAttribute('data-width', '340');
+
+                document.body.appendChild(div);
+
+                pubsub.publish('div:added');
+            }
+
+            createAnchor();
+
+            new ImageEnhancer();
+
+        &lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Execution context within JavaScript (Variable/Activation Object) shortened from @kangax's post on 'Understanding delete'</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="execution-context-within-javascript-variable-activation-object-shortened-from-kangax-s-post-on-understanding-delete">Execution context within JavaScript (Variable/Activation Object) shortened from @kangax&rsquo;s post on &lsquo;Understanding delete&rsquo;</h1>
+
+<h2 id="javascript-execution-md">JavaScript Execution.md</h2>
+
+<pre><code class="language-markdown">Reference: 
+http://perfectionkills.com/understanding-delete/
+
+There are 3 types of executable code in ECMAScript: 
+
+* Global code
+* Function code
+* Eval code
+
+When ECMAScript code executes, it always happens within a certain execution context.
+
+Execution contexts can logically form a stack. First there might be Global code with its own execution context; that code might call a function, with its own execution context; that function could call another function, and so on and so forth. Even if function is calling itself recursively, a new execution context is being entered with every invocation.
+
+Global code (and the Variable Object)
+=====================================
+
+Every execution context has a so-called Variable Object associated with it.
+
+When control enters execution context for Global code, a Global object is used as a Variable object. This is precisely why variables or functions declared globally become properties of a Global object.
+
+Function code
+=============
+
+Ok, so global variables become properties of Global object, but what happens with local variables — those declared in Function code? The behavior is actually very similar: they become properties of a Variable object. The only difference is that when in Function code, a Variable object is not a Global object, but a so-called Activation object. An Activation object is created every time execution context for Function code is entered.
+
+Not only do variables and functions declared within Function code become properties of Activation object; this also happens with each of function arguments (under names corresponding to formal parameters) and a special Arguments object (under arguments name). Note that Activation object is an internal mechanism and is never really accessible by program code.
+
+Eval code
+=========
+
+Variables declared within Eval code are created as properties of calling context’s Variable object. Eval code simply uses Variable object of the execution context that it’s being called within.
+
+Property Attributes
+===================
+
+Every property can have zero or more attributes from the following set — ReadOnly, DontEnum, DontDelete and Internal. You can think of them as flags — an attribute can either exist on a property or not. For the purposes of today’s discussion, we are only interested in DontDelete.
+
+When declared variables and functions become properties of a Variable object — either Activation object (for Function code), or Global object (for Global code), these properties are created with DontDelete attribute. However, any explicit (or implicit) property assignment creates property without DontDelete attribute. And this is essentialy why we can delete some properties, but not others.
+
+Summary
+=======
+
+Here’s a short summary of how deletion works in Javascript:
+
+* Variables and function declarations are properties of either Activation or Global objects.
+* Properties have attributes, one of which — DontDelete — is responsible for whether a property can be deleted.
+* Variable and function declarations in Global and Function code always create properties with DontDelete.
+* Function arguments are also properties of Activation object and are created with DontDelete.
+* Variable and function declarations in Eval code always create properties without DontDelete.
+* New properties are always created with empty attributes (and so without DontDelete).
+* Host objects are allowed to react to deletion however they want.
+</code></pre>
+
+</div>
+</body>
+</html>

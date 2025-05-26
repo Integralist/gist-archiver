@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Currying vs Partial Application</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="currying-vs-partial-application">Currying vs Partial Application</h1>
+
+<h2 id="currying-vs-partial-application-md">Currying vs Partial Application.md</h2>
+
+<pre><code class="language-markdown">When we use Partial Application we always execute our function twice (regardless of the number of arguments). 
+
+When we use Currying we execute our function once for each argument.
+
+## Examples of Partial Application
+
+```js
+// `partial` is a made up function
+fn  = function (a, b, c) { return a + b + c }
+foo = partial(fn, 'x', 'y')
+foo('z') // =&gt; 'xyz'
+</code></pre>
+
+<p>In the next example we can see that it&rsquo;s possible to change the arguments we partially apply:</p>
+
+<pre><code class="language-js">// `partial` is a made up function
+fn  = function (a, b, c) { return a + b + c }
+foo = partial(fn, 'x')
+foo('y', 'z') // =&gt; 'xyz'
+</code></pre>
+
+<blockquote>
+<p>Note how with Partial Application we make a function call twice (once when partially applying the arguments; and again when we fulfil the rest of the arguments). But remember: we can choose how many arguments we partially apply on the first call.</p>
+</blockquote>
+
+<h2 id="examples-of-currying">Examples of Currying</h2>
+
+<pre><code class="language-js">// `curry` is a made up function
+fn  = function (a, b, c) { return a + b + c }
+foo = curry(fn)
+foo('x')('y')('z') // =&gt; 'xyz'
+</code></pre>
+
+<pre><code class="language-js">// `curry` is a made up function
+fn  = function (a, b, c) { return a + b + c }
+foo = curry(fn)
+bar = foo('x')
+bar('y')('z') // =&gt; 'xyz'
+</code></pre>
+
+<blockquote>
+<p>Note that a function that has been curried wont return the value of the function until each argument has been provided (i.e. satisfied). The arguments are manually partially applied one by one.</p>
+</blockquote>
+
+<h2 id="functional-libraries">Functional Libraries</h2>
+
+<ul>
+<li><a href="http://eliperelman.com/fn.js/" target="_blank">fn.js</a></li>
+<li><a href="https://github.com/osteele/functional-javascript" target="_blank">functional js</a></li>
+</ul>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

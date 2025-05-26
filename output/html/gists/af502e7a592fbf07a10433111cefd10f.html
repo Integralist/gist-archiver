@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Writing HTTP Response (variations explained)] #go #golang #http #server #response #write #writer #io</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-writing-http-response-variations-explained-go-golang-http-server-response-write-writer-io">[Golang Writing HTTP Response (variations explained)] #go #golang #http #server #response #write #writer #io</h1>
+
+<h2 id="golang-writing-http-response-variations-explained-md">Golang Writing HTTP Response (variations explained).md</h2>
+
+<pre><code class="language-markdown">&gt; Copied verbatim from https://stackoverflow.com/a/37872799
+
+## io.Writer
+
+An output stream represents a target to which you can write sequence(s) of bytes. In Go this is captured by the general `io.Writer` interface:
+
+```go
+type Writer interface {
+    Write(p []byte) (n int, err error)
+}
+</code></pre>
+
+<p>Everything that has this single <code>Write()</code> method can be used as an output, for example a file on your disk (<code>os.File</code>), a network connection (<code>net.Conn</code>) or an in-memory buffer (<code>bytes.Buffer</code>).</p>
+
+<p>The <code>http.ResponseWriter</code> that is used to configure the HTTP response and send the data to the client is also such an <code>io.Writer</code>, the data you want to send (the response body) is assembled by calling (not necessarily just once) <code>ResponseWriter.Write()</code> (which is to implement the general <code>io.Writer</code>). This is the only guarantee you have about the implementation of the <code>http.ResponseWriter</code> interface (regarding sending the body).</p>
+
+<h2 id="writestring">WriteString()</h2>
+
+<p>Now on to <code>WriteString()</code>. Often we want to write textual data to an <code>io.Writer</code>. Yes, we can do that simply by converting the string to a <code>[]byte</code>, e.g.</p>
+
+<pre><code class="language-go">w.Write([]byte(&quot;Hello&quot;))
+</code></pre>
+
+<p>which works as expected. However this is a very frequent operation and so there is a &ldquo;generally&rdquo; accepted method for this captured by the <code>io.StringWriter</code> interface (available since Go 1.12, prior to that it was unexported):</p>
+
+<pre><code class="language-go">type StringWriter interface {
+    WriteString(s string) (n int, err error)
+}
+</code></pre>
+
+<p>This method gives the possibility to write a string value instead of a <code>[]byte</code>. So if something (that also implements <code>io.Writer</code>) implements this method, you can simply pass string values without <code>[]byte</code> conversion. This seems like a minor simplification in code, but it&rsquo;s more than that. Converting a string to []byte has to make a copy of the string content (because string values are immutable in Go, read more about it here: <a href="https://stackoverflow.com/questions/43470284/golang-bytestring-vs-bytestring/43470344#43470344" target="_blank">golang: <code>[]byte(string)</code> vs <code>[]byte(*string)</code></a>), so there is some overhead which becomes noticeable if the string is &ldquo;bigger&rdquo; and/or you have to do this many times.</p>
+
+<p>Depending on the nature and implementation details of an <code>io.Writer</code>, it may be possible to write the content of a string without converting it to <code>[]byte</code> and thus avoiding the above mentioned overhead.</p>
+
+<p>As an example, if an <code>io.Writer</code> is something that writes to an in-memory buffer (<code>bytes.Buffer</code> is such an example), it may utilize the builtin <code>copy()</code> function:</p>
+
+<blockquote>
+<p>The copy built-in function copies elements from a source slice into a destination slice. (As a special case, it also will copy bytes from a string to a slice of bytes.)</p>
+</blockquote>
+
+<p>The <code>copy()</code> may be used to copy the content (bytes) of a string into a <code>[]byte</code> without converting the string to <code>[]byte</code>, e.g.:</p>
+
+<pre><code class="language-go">buf := make([]byte, 100)
+copy(buf, &quot;Hello&quot;)
+</code></pre>
+
+<p>Now there is a &ldquo;utility&rdquo; function <code>io.WriteString()</code> that writes a string into an <code>io.Writer</code>. But it does this by first checking if the (dynamic type of the) passed <code>io.Writer</code> has a <code>WriteString()</code> method, and if so, that will be used (whose implementation is likely more efficient). If the passed <code>io.Writer</code> has no such method, then the general convert-to-byte-slice-and-write-that method will be used as a &ldquo;fallback&rdquo;.</p>
+
+<p>You might think that this <code>WriteString()</code> will only prevail in case of in-memory buffers, but that is not true. Responses of web requests are also often buffered (using an in-memory buffer), so it may improve performance in case of <code>http.ResponseWriter</code> too. And if you look at the implementation of <code>http.ResponseWriter</code>: it&rsquo;s the unexported type <code>http.response</code> (<a href="https://golang.org/src/net/http/server.go" target="_blank"><code>server.go</code></a> currently line <code>#308</code>) which does implement <code>WriteString()</code> (currently line <code>#1212</code>) so it does imply improvement.</p>
+
+<p>All in all, whenever you write string values, recommended to use <code>io.WriteString()</code> as it may be more efficient (faster).</p>
+
+<h2 id="fmt-fprintf">fmt.Fprintf()</h2>
+
+<p>You should look at this as a convenient and easy way to add more formatting to the data you want to write, in exchange for being somewhat less performant.</p>
+
+<p>So use <code>fmt.Fprintf()</code> if you want formatted string created in the easy way, e.g.:</p>
+
+<pre><code class="language-go">name := &quot;Bob&quot;
+age := 23
+fmt.Fprintf(w, &quot;Hi, my name is %s and I'm %d years old.&quot;, name, age)
+</code></pre>
+
+<p>Which will result in the following string to be written:</p>
+
+<pre><code>Hi, my name is Bob and I'm 23 years old.
+</code></pre>
+
+<p>One thing you must not forget: <code>fmt.Fprintf()</code> expects a format string, so it will be preprocessed and not written as-is to the output. As a quick example:</p>
+
+<pre><code class="language-go">fmt.Fprintf(w, &quot;100 %%&quot;)
+</code></pre>
+
+<p>You&rsquo;d expect that &ldquo;100 %%&rdquo; would be written to the output (with 2 % characters), but only one will be sent as in the format string % is a special character and %% will only result in one % in the output.</p>
+
+<p>If you just want to write a string using the <code>fmt</code> package, use <code>fmt.Fprint()</code> which does not require a format string:</p>
+
+<pre><code class="language-go">fmt.Fprint(w, &quot;Hello&quot;)
+</code></pre>
+
+<p>Another benefit of using the fmt package is that you can write values of other types too, not just strings, e.g.</p>
+
+<pre><code class="language-go">fmt.Fprint(w, 23, time.Now())
+</code></pre>
+
+<p>(Of course the rules how to convert any value to a string–and to series of bytes eventually–is well defined, in the doc of the <code>fmt</code> package.)</p>
+
+<p>For &ldquo;simple&rdquo; formatted outputs the <code>fmt</code> package might be OK. For complex output documents do consider using the text/template (for general text) and html/template (whenever the output is HTML).</p>
+
+<h2 id="passing-handing-over-http-responsewriter">Passing / handing over http.ResponseWriter</h2>
+
+<p>For completeness, we should mention that often the content you want to send as the web response is generated by &ldquo;something&rdquo; that supports &ldquo;streaming&rdquo; the result. An example may be a JSON response, which is generated from a <code>struct</code> or <code>map</code>.</p>
+
+<p>In such cases it&rsquo;s often more efficient to pass / hand over your <code>http.ResponseWriter</code> which is an <code>io.Writer</code> to this something if it supports writing the result to an <code>io.Writer</code> on-the-fly.</p>
+
+<p>A good example of this is generating JSON responses. Sure, you could marshal an object into JSON with <code>json.Marshal()</code>, which returns you a byte slice, which you can simply send by calling <code>ResponseWriter.Write()</code>.</p>
+
+<p>However, it is more efficient to let the json package know that you have an <code>io.Writer</code>, and ultimately you want to send the result to that. That way it is unnecessary to first generate the JSON text in a buffer, which you just write into your response and then discard. You can create a new <code>json.Encoder</code> by calling <code>json.NewEncoder()</code> to which you can pass your <code>http.ResponseWriter</code> as an <code>io.Writer</code>, and calling <code>Encoder.Encode()</code> after that will directly write the JSON result into your response writer.</p>
+
+<p>One disadvantage here is that if generating the JSON response fails, you might have a partially sent / committed response which you cannot take back. If this is a problem for you, you don&rsquo;t really have a choice other than generating the response in a buffer, and if marshaling succeeds, then you may write the complete response at once.</p>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

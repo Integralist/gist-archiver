@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>TLS, Certificate, and ACME Glossary</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="tls-certificate-and-acme-glossary">TLS, Certificate, and ACME Glossary</h1>
+
+<h2 id="tls-certificate-and-acme-glossary-md">TLS, Certificate, and ACME Glossary.md</h2>
+
+<pre><code class="language-markdown"># TLS, Certificate, and ACME Glossary
+
+This glossary defines common terms related to Transport Layer Security (TLS),
+digital certificates, Certificate Authorities (CAs), and the Automatic
+Certificate Management Environment (ACME) protocol. It's intended to help users
+understand the concepts involved in securing services and using APIs that manage
+certificate issuance, particularly focusing on Subject Alternative Names (SANs).
+
+- [Core Concepts](#core-concepts)
+- [Certificate Details](#certificate-details)
+- [ACME Protocol](#acme-protocol)
+- [Authorities &amp; Trust](#authorities--trust)
+
+## Core Concepts
+
+**TLS (Transport Layer Security):** The successor to SSL (Secure Sockets Layer).
+A cryptographic protocol designed to provide secure communication over a
+computer network. TLS ensures privacy and data integrity between two
+communicating applications, most commonly seen securing HTTPS web traffic.
+
+**SSL (Secure Sockets Layer):** The predecessor protocol to TLS. While the term
+&quot;SSL&quot; is still sometimes used colloquially, modern secure connections use TLS.
+SSL versions are deprecated due to known vulnerabilities.
+
+**HTTPS (Hypertext Transfer Protocol Secure):** The secure version of HTTP,
+where communications are encrypted using TLS. It ensures that data exchanged
+between a user's browser and a web server is confidential and integral.
+
+**Encryption:** The process of converting information or data into a code,
+especially to prevent unauthorized access.
+
+- **Asymmetric Encryption (Public-Key Cryptography):** Uses a pair of keys: a
+  public key (shared freely) for encryption and a private key (kept secret) for
+  decryption. Used during the TLS handshake to establish a shared secret.
+- **Symmetric Encryption:** Uses the same secret key for both encryption and
+  decryption. Used for the bulk data transfer during a TLS session because it's
+  faster than asymmetric encryption.
+
+**Handshake (TLS Handshake):** The process at the beginning of a TLS session
+where the client and server agree on the protocol version, select cipher suites,
+authenticate each other (optionally, server authentication is most common), and
+establish shared secret keys for the session.
+
+**Cipher Suite:** A named combination of cryptographic algorithms used during a
+TLS session. It typically includes algorithms for key exchange, bulk encryption,
+and message authentication (MAC). Example: `TLS_AES_128_GCM_SHA256`.
+
+## Certificate Details
+
+**Certificate (Digital Certificate / TLS Certificate / X.509 Certificate):** An
+electronic document used to prove the ownership of a public key. It binds a
+public key to an identity (like a hostname or organization) and is signed by a
+trusted Certificate Authority (CA). It follows the X.509 standard format.
+
+**X.509:** The standard defining the format of public key certificates. Most TLS
+certificates are X.509 certificates.
+
+**Key Pair:** The combination of a public key and its corresponding private key
+used in asymmetric cryptography.
+
+**Public Key:** The key in an asymmetric key pair that can be shared publicly
+without compromising security. It's typically used to encrypt data intended for
+the private key holder or to verify a digital signature made with the private
+key.
+
+**Private Key:** The key in an asymmetric key pair that *must* be kept secret by
+the owner. It's used to decrypt data encrypted with the corresponding public key
+or to create digital signatures. Compromise of the private key compromises the
+security of the certificate.
+
+**Subject:** The field in a certificate that identifies the entity (e.g., domain
+name, organization) the certificate belongs to. It contains several components,
+including the Common Name (CN).
+
+**Common Name (CN):** A component within the Subject field of a certificate.
+Historically, it was the primary field used to identify the hostname the
+certificate was issued for. *Note: Modern browsers and clients primarily rely on
+the Subject Alternative Name (SAN) field instead.*
+
+**Subject Alternative Name (SAN):** An extension field in an X.509 certificate
+(since X.509v3) that allows multiple identifiers (like DNS names, IP addresses,
+email addresses) to be bound to the same certificate. **This is the standard and
+required way to specify the hostnames a certificate should be valid for.** A
+single certificate can secure multiple domains (e.g., `example.com`,
+`www.example.com`, `api.example.com`) using SAN entries.
+
+**Issuer:** The field in a certificate that identifies the entity (usually a CA)
+that signed and issued the certificate.
+
+**Signature (Digital Signature):** Data appended to a message (or certificate)
+created using the signer's private key. It allows anyone with the corresponding
+public key to verify the authenticity and integrity of the message (or
+certificate) and confirm the signer's identity. CAs sign the certificates they
+issue.
+
+**Validity Period:** The time frame during which a certificate is considered
+valid. Defined by a 'Not Before' date/time and a 'Not After' (Expiration)
+date/time.
+
+**Certificate Chain (Chain of Trust):** An ordered list of certificates,
+starting with an end-entity certificate, followed by one or more intermediate
+certificates, and ending with a trusted root certificate. It allows a client to
+verify that an end-entity certificate is trustworthy by tracing it back to a
+root CA certificate stored in the client's trust store.
+
+- **End-entity Certificate (or Leaf Certificate):** The certificate issued for a
+  specific server/domain.
+- **Intermediate Certificate:** A certificate issued by a Root CA or another
+  Intermediate CA, used to sign end-entity certificates. Using intermediates
+  avoids exposing the root private key frequently.
+- **Root Certificate:** A self-signed certificate from a Root CA that forms the
+  basis of trust. These are pre-installed in operating systems and browsers in a
+  'Trust Store'.
+
+**Certificate Signing Request (CSR):** A message sent from an applicant to a CA
+to apply for a digital identity certificate. It contains the public key and
+subject information (like CN and SANs) and is usually signed with the
+applicant's corresponding private key.
+
+**Wildcard Certificate:** A certificate that can secure multiple subdomains of a
+single base domain (e.g., `*.example.com` would cover `www.example.com`,
+`api.example.com`, etc., but not `example.com` itself or `sub.sub.example.com`).
+Usually specified using a SAN entry like `*.example.com`.
+
+**Self-Signed Certificate:** A certificate signed with its own private key
+instead of by a trusted CA. Browsers and clients will typically issue warnings
+for these certificates as they cannot be automatically trusted. Useful for
+testing or internal systems where trust is established manually.
+
+**Certificate Revocation List (CRL):** A list published by a CA containing
+serial numbers of certificates that have been revoked (invalidated before their
+expiration date). Clients may check CRLs to ensure a certificate is still valid.
+
+**Online Certificate Status Protocol (OCSP):** A protocol used to check the
+revocation status of a certificate in real-time without needing to download
+large CRLs. Clients query an OCSP responder (run by the CA) with the
+certificate's serial number.
+
+**OCSP Stapling:** A performance enhancement for OCSP where the web server
+periodically obtains a signed OCSP response from the CA and sends (&quot;staples&quot;) it
+to the client during the TLS handshake, saving the client from making a separate
+OCSP query.
+
+## ACME Protocol
+
+**ACME (Automatic Certificate Management Environment):** A protocol for
+automating the interactions between CAs and users' web servers or clients,
+enabling the automatic issuance, renewal, and revocation of TLS certificates.
+Let's Encrypt is the most prominent user of ACME.
+
+**ACME Client:** Software that runs on a user's server or device and
+communicates with an ACME server (CA) to request, renew, and manage certificates
+according to the ACME protocol. Examples include Certbot, acme.sh, lego, etc.
+
+**ACME Server:** The endpoint provided by a CA that implements the ACME
+protocol, allowing ACME clients to interact with it.
+
+**Let's Encrypt:** A non-profit Certificate Authority that provides free X.509
+certificates through the automated ACME protocol.
+
+**Account Key:** A cryptographic key pair used by an ACME client to sign its
+requests to the ACME server, authenticating the client to its account with the
+CA.
+
+**Order:** An ACME object representing a client's request for a certificate for
+a set of identifiers (domain names).
+
+**Authorization:** An ACME object representing the CA's confirmation that an
+account holder is authorized to manage a specific identifier (domain name). An
+Order requires a valid Authorization for each identifier it contains.
+
+**Challenge:** A task given by the ACME server to the ACME client to prove
+control over an identifier (domain name). Successfully completing a challenge is
+necessary to get an Authorization. Common challenge types include:
+
+- **HTTP-01:** Prove control by provisioning a specific file with specific
+  content at a designated URL on the domain
+  (`http://&lt;domain&gt;/.well-known/acme-challenge/&lt;token&gt;`). Requires port 80 access.
+- **DNS-01:** Prove control by provisioning a specific DNS TXT record under the
+  domain name being validated (`_acme-challenge.&lt;domain&gt;`). Requires API access to
+  DNS zone. Can be used for wildcard certificates.
+- **TLS-ALPN-01:** Prove control using a special TLS certificate presented
+  during a TLS handshake using the Application-Layer Protocol Negotiation (ALPN)
+  extension. Requires control over the TLS server on port 443.
+
+**Identifier:** A name (typically a DNS domain name) that a certificate request
+pertains to. In ACME, these are the subjects for which authorization is sought.
+Corresponds to SAN entries in the final certificate.
+
+**Finalize Request:** An ACME request sent by the client after fulfilling
+authorizations. The client provides a CSR, and if valid, the ACME server issues
+the certificate.
+
+**Certificate Issuance:** The final step where the ACME server, after successful
+finalization, provides the issued certificate (and often the intermediate chain)
+to the ACME client.
+
+## Authorities &amp; Trust
+
+**Certificate Authority (CA):** An entity trusted to issue, sign, and manage
+digital certificates. CAs verify the identity of certificate applicants before
+issuing certificates.
+
+**Root CA:** The top-level Certificate Authority in a trust hierarchy. Root CAs
+issue certificates for Intermediate CAs. Their root certificates are self-signed
+and embedded in trust stores.
+
+**Intermediate CA:** A CA whose certificate is signed by a Root CA or another
+Intermediate CA. They issue end-entity certificates, protecting the Root CA's
+private key from frequent use.
+
+**Public CA:** A CA whose root certificates are included in the default trust
+stores of major operating systems and browsers (e.g., Let's Encrypt, DigiCert,
+GlobalSign). Certificates issued by Public CAs are generally trusted
+automatically by clients.
+
+**Private CA:** A CA operated internally by an organization for issuing
+certificates for internal use cases. Root certificates from Private CAs need to
+be manually installed or distributed to client trust stores within the
+organization.
+
+**Trust Store:** A collection of trusted Root CA certificates maintained by an
+operating system, browser, or application. Certificates presented during a TLS
+handshake are validated against this store via the certificate chain.
+
+**Certificate Policy (CP):** A document outlining the policies and procedures a
+CA uses when issuing and managing certificates.
+
+**Certification Practice Statement (CPS):** A detailed document describing the
+practices and procedures a CA employs to implement its Certificate Policy,
+including identity verification, issuance, revocation, and key management.
+
+</code></pre>
+
+</div>
+</body>
+</html>

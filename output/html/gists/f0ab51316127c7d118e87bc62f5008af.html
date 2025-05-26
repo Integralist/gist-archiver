@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang io.Pipe and io.TeeReader combined] #go #golang #io #pipe #tee #reader #writer</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-io-pipe-and-io-teereader-combined-go-golang-io-pipe-tee-reader-writer">[Golang io.Pipe and io.TeeReader combined] #go #golang #io #pipe #tee #reader #writer</h1>
+
+<h2 id="2-confusing-io-pipe-example-go">2. Confusing io.Pipe example.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;sync&quot;
+)
+
+func readFrom(pr *io.PipeReader, wg *sync.WaitGroup) {
+	defer wg.Done()
+	b, _ := io.ReadAll(pr)
+	fmt.Println(string(b), &quot;.&quot;)
+}
+
+func main() {
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
+	pr, pw := io.Pipe()
+
+	go readFrom(pr, &amp;wg) // this will consume all three writes in one single read.
+  	go readFrom(pr, &amp;wg) // this secondary read needs pw.Close() to unblock it!
+  						 // specifically, the pipe reader will keep going util the
+  						 // writer has signified an EOF, which wont happen without
+						 // the call to Close(). 
+  						 //
+  						 // this problem wouldn't exist if we had used a different
+  						 // read method, but as we used ioutil.ReadAll it is designed
+  						 // around the expectation of an EOF.
+
+	pw.Write([]byte(&quot;foo&quot;))
+	pw.Write([]byte(&quot;-&quot;))
+	pw.Write([]byte(&quot;bar&quot;))
+
+  	pw.Close() // do before Wait() otherwise deadlock (see comment above)
+
+	wg.Wait()
+}
+</code></pre>
+
+<h2 id="0-readme-md">0. README.md</h2>
+
+<pre><code class="language-markdown">Two of my favour features in Go are:
+
+1. `io.TeeReader(r, w)`
+2. `pr, pw := io.Pipe()`
+
+TeeReader will write to `w` every time there is a read from `r`.
+
+Pipe will read from `pr` every time there is a write to `pw`.
+
+To consume from a single reader twice:
+
+```go
+io.TeeReader(r, pw)
+</code></pre>
+
+<p>For example, when we pass the <code>io.TeeReader</code> to a function expecting an <code>io.Reader</code>, the function will read the data, and while it&rsquo;s reading the data it will simultaneously write the read data to <code>pw</code>, and when that happens the <code>pr</code> will read the data from <code>pw</code>.</p>
+
+<p>Sometimes you need an <code>io.ReadCloser</code> but <code>io.TeeReader</code> only returns an <code>io.Reader</code>, so to fix that you need a custom type and constructor:</p>
+
+<pre><code class="language-go">// By embedding the two interfaces into the struct,
+// it means our struct instance must fulfill the interfaces.
+type readCloser struct {
+	io.Reader
+	io.Closer
+}
+
+// We create a new instance of readCloser.
+// The Reader field is set to the io.TeeReader.
+// While the Closer field is set to the original io.ReadCloser.
+func newTeeReadCloser(rc io.ReadCloser, w io.Writer) io.ReadCloser {
+	return &amp;readCloser{
+		Reader: io.TeeReader(rc, w),
+		Closer: rc,
+	}
+}
+</code></pre>
+
+<pre><code>
+## 1. io.Pipe and io.TeeReader combined.go
+
+```go
+package main
+
+import (
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;strings&quot;
+	&quot;sync&quot;
+)
+
+func main() {
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+
+	r := strings.NewReader(&quot;Test&quot;)
+	pr, pw := io.Pipe()
+	tee := io.TeeReader(r, pw)
+
+	go func() {
+		defer wg.Done()
+
+		fmt.Println(&quot;about to block thread waiting for a write to io.Pipe's reader&quot;)
+		content, _ := io.ReadAll(pr)
+		fmt.Println(&quot;1: &quot;, content)
+	}()
+
+	fmt.Println(&quot;about to block main thread until write to io.TeeReader's configured writer is complete&quot;)
+	content, _ := io.ReadAll(tee) // this will force a write to io.TeeReader's writer
+	fmt.Println(&quot;2: &quot;, content)
+
+	pw.Close() // close the io.Pipe first before waiting for thread to complete (otherwise get a deadlock)
+
+	wg.Wait()
+}
+</code></pre>
+
+</div>
+</body>
+</html>

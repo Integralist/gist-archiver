@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Restrict Access to pushing updates to an API in the Live environment (except via Jenkins CI) via Apache</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="restrict-access-to-pushing-updates-to-an-api-in-the-live-environment-except-via-jenkins-ci-via-apache">Restrict Access to pushing updates to an API in the Live environment (except via Jenkins CI) via Apache</h1>
+
+<h2 id="restrict-access-via-apache-bash">restrict-access-via-apache.bash</h2>
+
+<pre><code class="language-shell">#!/bin/bash
+
+ENVIRONMENT=`cat /etc/bake-scripts/config.json | python -c 'import sys, json; print json.load(sys.stdin)[&quot;environment&quot;]'`
+SSL_TERM=/etc/httpd/conf.d/bbc-httpd-includes/https_vhost/custom/restrict_access.inc
+
+if [ &quot;$ENVIRONMENT&quot; == &quot;live&quot; ]; then
+	cat &gt; $SSL_TERM &lt;&lt;-EOF
+		&lt;Location /&gt;
+		  # Start the rewrite engine...
+		  RewriteEngine on
+		  
+		  # Match only a POST or PUT request (GETs are always allowed through, regardless of environment &amp; user)
+		  RewriteCond   %{REQUEST_METHOD} POST|PUT
+		  
+		  # Allow this as long as the CommonName on the cert matches &quot;dev-news-jenkins-agents&quot; or &quot;news-jenkins-agents&quot;
+		  RewriteCond   %{SSL:SSL_CLIENT_S_DN_CN} !^(dev-)?news-jenkins-agents$
+		  
+		  # Match any route (.*) and don't redirect (&quot;-&quot;) and then 403 ([F])
+		  RewriteRule   .* &quot;-&quot; [F]
+		&lt;/Location&gt;
+	EOF
+fi
+</code></pre>
+
+</div>
+</body>
+</html>

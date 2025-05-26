@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Messing around with AWS and DynamoDB</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="messing-around-with-aws-and-dynamodb">Messing around with AWS and DynamoDB</h1>
+
+<h2 id="aws-dynamodb-rb">AWS DynamoDB.rb</h2>
+
+<pre><code class="language-ruby">require 'aws-sdk'
+
+AWS.config(:region =&gt; 'eu-west-1')
+
+dynamo_db = AWS::DynamoDB.new
+dynamo_db.tables[&quot;mark_sequencer_test&quot;].exists?
+
+table = dynamo_db.tables[&quot;mark_sequencer_test&quot;]
+table.status #=&gt; :active
+
+# (column name, hash key, batch conditions)
+rows = table.batch_get([&quot;value&quot;], [&quot;foo/bar&quot;], { :consistent_read =&gt; true })
+# rows.count &gt;= 1 ? rows.first[&quot;value&quot;].to_i : nil
+
+# The following code doesn't appear to work because of the put conditional?
+mutex = Mutex.new
+mutex.synchronize do
+  value = 0 # would typically be provided by user
+  table.items.put(
+    { :key =&gt; &quot;bar/foo&quot;, :value =&gt; 0 },
+    { :if =&gt; { :value =&gt; value.to_i } } # put condition
+  )
+end
+
+# But without a conditional it does...
+table.items.put({ :key =&gt; &quot;a/b&quot;, :value =&gt; 0 })
+
+# Generate some data to put into the table
+hash_keys = %w(foo/foo foo/bar foo/baz foo/qux foo/cor bar/foo bar/bar bar/baz bar/qux bar/cor baz/foo baz/bar baz/baz baz/qux baz/cor qux/foo qux/bar qux/baz qux/qux qux/cor cor/foo cor/bar cor/baz cor/qux cor/cor oof/foo oof/bar oof/baz oof/qux off/cor)
+hash_keys.each { |hash| table.items.put({ :key =&gt; hash, :value =&gt; 0 }) }
+
+# A better way to bulk generate some content
+(1..10).each { |count| table.items.put({ :key =&gt; &quot;foo/bulk#{count}&quot;, :value =&gt; 0 }) }
+
+# Time our bulk writing (should really have researched how to do a batch put rather than individual puts)
+start_time = Time.now
+(1..5000).each { |count| table.items.put({ :key =&gt; &quot;foo/bulk#{count}&quot;, :value =&gt; 0 }) }
+endtime = Time.now
+endtime - start_time # =&gt; ~11.6 mins
+
+# Deleting items in batches
+table.batch_delete(%w(foo/bar foo/baz))
+
+table.items.each { |item| puts item.hash_value } # =&gt; displays all the hash values
+
+# So we can do something like:
+table.batch_delete(table.items.collect { |item| item.hash_value })
+
+# The above line doesn't work because we're pushing more than 25 items in parallel. 
+# So it causes the following error...
+# AWS::DynamoDB::Errors::ValidationException: Too many items requested for the BatchWriteItem call
+# from /Users/markmcdonnell/.gem/jruby/1.9.3/gems/aws-sdk-1.38.0/lib/aws/core/client.rb:374:in `return_or_raise'
+
+# To fix this we should chunk process the data
+table.items.collect { |item| item.hash_value }.each_slice(25) { |arr| table.batch_delete(arr) }
+
+# Could refactor it into...
+process hash_list
+
+def process(arr)
+  arr.each_slice(25) { |a| table.batch_delete(a) }
+end
+
+def hash_list
+  table.items.collect { |item| item.hash_value }
+end
+
+# Alternative Deleting
+batch = AWS::DynamoDB::BatchWrite.new
+table.items.collect { |item| item.hash_value }.each_slice(25) { |arr| batch.delete(table, arr); batch.process! }
+
+# Alternative Writing
+batch = AWS::DynamoDB::BatchWrite.new
+batch.put(table, [
+  { :key =&gt; &quot;a/b&quot;, :value =&gt; 0 },
+  { :key =&gt; &quot;c/d&quot;, :value =&gt; 0 },
+  { :key =&gt; &quot;e/f&quot;, :value =&gt; 0 }
+])
+batch.process!
+
+# Example construction of our batching data and then using that to complete a batch write
+batch_data = (1..5000).reduce([]) { |arr, n| arr.tap { |a| a &lt;&lt; { :key =&gt; &quot;bulk/#{n}&quot;, :value =&gt; 0 } } }
+batch.put(table, batch_data)
+batch.process!
+
+# The above line doesn't work because we're pushing more than 25 items in parallel. 
+# So it causes the following error...
+# AWS::DynamoDB::Errors::ValidationException: Too many items requested for the BatchWriteItem call
+
+# To fix this we should chunk process the data (NOTE: this doesn't fix the above error)
+batch_data.each_slice(25) { |arr| batch.put(table, arr); batch.process! }
+
+# With rough timings...
+start_time = Time.now
+batch_data.each_slice(25) { |arr| batch.put(table, arr); batch.process! }
+end_time = Time.now
+end_time - start_time
+
+# Retrieving an item written to the table
+table.items['bulk/4395'].attributes.values_at(:key)
+table.items['bulk/4395'].attributes.values_at(:value)
+a, b = table.items['bulk/4395'].attributes.values_at(:key, :value)
+
+# Deleting items without a range_value (hash_value only) in the SCHEMA e.g. [&quot;a/b&quot;, &quot;c/d&quot;]
+table.items.collect { |item| item.hash_value }.each_slice(25) { |arr| table.batch_delete(arr) }
+
+# Deleting items with both a range_value and hash_value in the SCHEMA e.g. [[&quot;a/b&quot;, 0], [&quot;c/d&quot;, 0]]
+table.items.collect { |item| [item.hash_value, item.range_value.to_i] }.each_slice(25) { |arr| table.batch_delete(arr) }
+</code></pre>
+
+</div>
+</body>
+</html>

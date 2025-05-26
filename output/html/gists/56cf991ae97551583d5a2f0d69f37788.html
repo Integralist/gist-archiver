@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Fastly's Custom VCL] #fastly #cdn #varnish #vcl</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="fastly-s-custom-vcl-fastly-cdn-varnish-vcl">[Fastly&rsquo;s Custom VCL] #fastly #cdn #varnish #vcl</h1>
+
+<h2 id="1-files-md">1. Files.md</h2>
+
+<pre><code class="language-markdown">See https://docs.fastly.com/guides/vcl/mixing-and-matching-fastly-vcl-with-custom-vcl for details.
+
+- [`vcl_deliver`](#file-fastly_vcl_deliver-vcl)
+- [`vcl_error`](#file-fastly_vcl_error-vcl)
+- [`vcl_fetch`](#file-fastly_vcl_fetch-vcl)
+- [`vcl_hash`](#file-fastly_vcl_hash-vcl)
+- [`vcl_hit`](#file-fastly_vcl_hit-vcl)
+- [`vcl_miss`](#file-fastly_vcl_miss-vcl)
+- [`vcl_pass`](#file-fastly_vcl_pass-vcl)
+- [`vcl_pipe`](#file-fastly_vcl_pipe-vcl)
+- [`vcl_recv`](#file-fastly_vcl_recv-vcl)
+</code></pre>
+
+<h2 id="fastly-vcl-deliver-vcl">fastly_vcl_deliver.vcl</h2>
+
+<pre><code class="language-vcl">#--FASTLY DELIVER BEGIN
+# record the journey of the object, expose it only if req.http.Fastly-Debug.
+  if (req.http.Fastly-Debug || req.http.Fastly-FF) {
+    set resp.http.Fastly-Debug-Path = &quot;(D &quot; server.identity &quot; &quot; now.sec &quot;) &quot;
+       if(resp.http.Fastly-Debug-Path, resp.http.Fastly-Debug-Path, &quot;&quot;);
+    set resp.http.Fastly-Debug-TTL = if(obj.hits &gt; 0, &quot;(H &quot;, &quot;(M &quot;)
+       server.identity
+       if(req.http.Fastly-Tmp-Obj-TTL &amp;&amp; req.http.Fastly-Tmp-Obj-Grace, &quot; &quot; req.http.Fastly-Tmp-Obj-TTL &quot; &quot; req.http.Fastly-Tmp-Obj-Grace &quot; &quot;, &quot; - - &quot;)
+       if(resp.http.Age, resp.http.Age, &quot;-&quot;)
+       &quot;) &quot;
+       if(resp.http.Fastly-Debug-TTL, resp.http.Fastly-Debug-TTL, &quot;&quot;);
+    set resp.http.Fastly-Debug-Digest = digest.hash_sha256(req.digest);
+  } else {
+    unset resp.http.Fastly-Debug-Path;
+    unset resp.http.Fastly-Debug-TTL;
+  }
+  # add or append X-Served-By/X-Cache(-Hits)
+  {
+    if(!resp.http.X-Served-By) {
+      set resp.http.X-Served-By  = server.identity;
+    } else {
+      set resp.http.X-Served-By = resp.http.X-Served-By &quot;, &quot; server.identity;
+    }
+    set resp.http.X-Cache = if(resp.http.X-Cache, resp.http.X-Cache &quot;, &quot;,&quot;&quot;) if(fastly_info.state ~ &quot;HIT($|-)&quot;, &quot;HIT&quot;, &quot;MISS&quot;);
+    if(!resp.http.X-Cache-Hits) {
+      set resp.http.X-Cache-Hits = obj.hits;
+    } else {
+      set resp.http.X-Cache-Hits = resp.http.X-Cache-Hits &quot;, &quot; obj.hits;
+    }
+  }
+  if (req.http.X-Timer) {
+    set resp.http.X-Timer = req.http.X-Timer &quot;,VE&quot; time.elapsed.msec;
+  }
+  # VARY FIXUP
+  {
+    # remove before sending to client
+    set resp.http.Vary = regsub(resp.http.Vary, &quot;Fastly-Vary-String, &quot;, &quot;&quot;);
+    if (resp.http.Vary ~ &quot;^\s*$&quot;) {
+      unset resp.http.Vary;
+    }
+  }
+  unset resp.http.X-Varnish;
+  # Pop the surrogate headers into the request object so we can reference them later
+  set req.http.Surrogate-Key = resp.http.Surrogate-Key;
+  set req.http.Surrogate-Control = resp.http.Surrogate-Control;
+  # If we are not forwarding or debugging unset the surrogate headers so they are not present in the response
+  if (!req.http.Fastly-FF &amp;&amp; !req.http.Fastly-Debug) {
+    unset resp.http.Surrogate-Key;
+    unset resp.http.Surrogate-Control;
+  }
+  if(resp.status == 550) {
+    return(deliver);
+  }
+  #default response conditions
+#--FASTLY DELIVER END
+</code></pre>
+
+<h2 id="fastly-vcl-fetch-vcl">fastly_vcl_fetch.vcl</h2>
+
+<pre><code class="language-vcl">#--FASTLY FETCH BEGIN
+# record which cache ran vcl_fetch for this object and when
+  set beresp.http.Fastly-Debug-Path = &quot;(F &quot; server.identity &quot; &quot; now.sec &quot;) &quot; if(beresp.http.Fastly-Debug-Path, beresp.http.Fastly-Debug-Path, &quot;&quot;);
+# generic mechanism to vary on something
+  if (req.http.Fastly-Vary-String) {
+    if (beresp.http.Vary) {
+      set beresp.http.Vary = &quot;Fastly-Vary-String, &quot;  beresp.http.Vary;
+    } else {
+      set beresp.http.Vary = &quot;Fastly-Vary-String, &quot;;
+    }
+  }
+ # priority: 0
+  # Gzip basic GZIP rules
+  if ((beresp.status == 200 || beresp.status == 404) &amp;&amp; (beresp.http.content-type ~ &quot;^(text\/html|application\/x\-javascript|text\/css|application\/javascript|text\/javascript|application\/json|application\/vnd\.ms\-fontobject|application\/x\-font\-opentype|application\/x\-font\-truetype|application\/x\-font\-ttf|application\/xml|font\/eot|font\/opentype|font\/otf|image\/svg\+xml|image\/vnd\.microsoft\.icon|text\/plain|text\/xml)\s*($|;)&quot; || req.url ~ &quot;\.(css|js|html|eot|ico|otf|ttf|json)($|\?)&quot; ) ) {
+    # always set vary to make sure uncompressed versions dont always win
+    if (!beresp.http.Vary ~ &quot;Accept-Encoding&quot;) {
+      if (beresp.http.Vary) {
+        set beresp.http.Vary = beresp.http.Vary &quot;, Accept-Encoding&quot;;
+      } else {
+         set beresp.http.Vary = &quot;Accept-Encoding&quot;;
+      }
+    }
+    if (req.http.Accept-Encoding == &quot;gzip&quot;) {
+      set beresp.gzip = true;
+    }
+  }
+#--FASTLY FETCH END
+</code></pre>
+
+<h2 id="fastly-vcl-hit-vcl">fastly_vcl_hit.vcl</h2>
+
+<pre><code class="language-vcl">#--FASTLY HIT BEGIN
+# we cannot reach obj.ttl and obj.grace in deliver, save them when we can in vcl_hit
+  set req.http.Fastly-Tmp-Obj-TTL = obj.ttl;
+  set req.http.Fastly-Tmp-Obj-Grace = obj.grace;
+  {
+    set req.http.Fastly-Cachetype = &quot;HIT&quot;;
+  }
+#--FASTLY HIT END
+</code></pre>
+
+<h2 id="fastly-vcl-error-vcl">fastly_vcl_error.vcl</h2>
+
+<pre><code class="language-vcl">#--FASTLY ERROR BEGIN
+  if (obj.status == 801) {
+     set obj.status = 301;
+     set obj.response = &quot;Moved Permanently&quot;;
+     set obj.http.Location = &quot;https://&quot; req.http.host req.url;
+     synthetic {&quot;&quot;};
+     return (deliver);
+  }
+  if (req.http.Fastly-Restart-On-Error) {
+    if (obj.status == 503 &amp;&amp; req.restarts == 0) {
+      restart;
+    }
+  }
+  {
+    if (obj.status == 550) {
+      return(deliver);
+    }
+  }
+#--FASTLY ERROR END
+</code></pre>
+
+<h2 id="fastly-vcl-hash-vcl">fastly_vcl_hash.vcl</h2>
+
+<pre><code class="language-vcl">#--FASTLY HASH BEGIN
+# support purge all
+  set req.hash += &quot;#####GENERATION#####&quot;;
+#--FASTLY HASH END
+</code></pre>
+
+<h2 id="fastly-vcl-miss-vcl">fastly_vcl_miss.vcl</h2>
+
+<pre><code class="language-vcl">#--FASTLY MISS BEGIN
+# this is not a hit after all, clean up these set in vcl_hit
+  unset req.http.Fastly-Tmp-Obj-TTL;
+  unset req.http.Fastly-Tmp-Obj-Grace;
+  {
+    if (req.http.Fastly-Check-SHA1) {
+       error 550 &quot;Doesnt exist&quot;;
+    }
+#--FASTLY BEREQ BEGIN
+    {
+      if (req.http.Fastly-Original-Cookie) {
+        set bereq.http.Cookie = req.http.Fastly-Original-Cookie;
+      }
+      if (req.http.Fastly-Original-URL) {
+        set bereq.url = req.http.Fastly-Original-URL;
+      }
+      {
+        if (req.http.Fastly-FF) {
+          set bereq.http.Fastly-Client = &quot;1&quot;;
+        }
+      }
+      {
+        # do not send this to the backend
+        unset bereq.http.Fastly-Original-Cookie;
+        unset bereq.http.Fastly-Original-URL;
+        unset bereq.http.Fastly-Vary-String;
+        unset bereq.http.X-Varnish-Client;
+      }
+      if (req.http.Fastly-Temp-XFF) {
+         if (req.http.Fastly-Temp-XFF == &quot;&quot;) {
+           unset bereq.http.X-Forwarded-For;
+         } else {
+           set bereq.http.X-Forwarded-For = req.http.Fastly-Temp-XFF;
+         }
+         # unset bereq.http.Fastly-Temp-XFF;
+      }
+    }
+#--FASTLY BEREQ END
+ #;
+    set req.http.Fastly-Cachetype = &quot;MISS&quot;;
+  }
+#--FASTLY MISS END
+</code></pre>
+
+<h2 id="fastly-vcl-pass-vcl">fastly_vcl_pass.vcl</h2>
+
+<pre><code class="language-vcl">#--FASTLY PASS BEGIN
+  {
+#--FASTLY BEREQ BEGIN
+    {
+      if (req.http.Fastly-Original-Cookie) {
+        set bereq.http.Cookie = req.http.Fastly-Original-Cookie;
+      }
+      if (req.http.Fastly-Original-URL) {
+        set bereq.url = req.http.Fastly-Original-URL;
+      }
+      {
+        if (req.http.Fastly-FF) {
+          set bereq.http.Fastly-Client = &quot;1&quot;;
+        }
+      }
+      {
+        # do not send this to the backend
+        unset bereq.http.Fastly-Original-Cookie;
+        unset bereq.http.Fastly-Original-URL;
+        unset bereq.http.Fastly-Vary-String;
+        unset bereq.http.X-Varnish-Client;
+      }
+      if (req.http.Fastly-Temp-XFF) {
+         if (req.http.Fastly-Temp-XFF == &quot;&quot;) {
+           unset bereq.http.X-Forwarded-For;
+         } else {
+           set bereq.http.X-Forwarded-For = req.http.Fastly-Temp-XFF;
+         }
+         # unset bereq.http.Fastly-Temp-XFF;
+      }
+    }
+#--FASTLY BEREQ END
+ #;
+    set req.http.Fastly-Cachetype = &quot;PASS&quot;;
+  }
+#--FASTLY PASS END
+</code></pre>
+
+<h2 id="fastly-vcl-pipe-vcl">fastly_vcl_pipe.vcl</h2>
+
+<pre><code class="language-vcl">#--FASTLY PIPE BEGIN
+  {
+#--FASTLY BEREQ BEGIN
+    {
+      if (req.http.Fastly-Original-Cookie) {
+        set bereq.http.Cookie = req.http.Fastly-Original-Cookie;
+      }
+      if (req.http.Fastly-Original-URL) {
+        set bereq.url = req.http.Fastly-Original-URL;
+      }
+      {
+        if (req.http.Fastly-FF) {
+          set bereq.http.Fastly-Client = &quot;1&quot;;
+        }
+      }
+      {
+        # do not send this to the backend
+        unset bereq.http.Fastly-Original-Cookie;
+        unset bereq.http.Fastly-Original-URL;
+        unset bereq.http.Fastly-Vary-String;
+        unset bereq.http.X-Varnish-Client;
+      }
+      if (req.http.Fastly-Temp-XFF) {
+         if (req.http.Fastly-Temp-XFF == &quot;&quot;) {
+           unset bereq.http.X-Forwarded-For;
+         } else {
+           set bereq.http.X-Forwarded-For = req.http.Fastly-Temp-XFF;
+         }
+         # unset bereq.http.Fastly-Temp-XFF;
+      }
+    }
+#--FASTLY BEREQ END
+    #;
+    set req.http.Fastly-Cachetype = &quot;PIPE&quot;;
+    set bereq.http.connection = &quot;close&quot;;
+  }
+#--FASTLY PIPE END
+</code></pre>
+
+<h2 id="fastly-vcl-recv-vcl">fastly_vcl_recv.vcl</h2>
+
+<pre><code class="language-vcl">#--FASTLY RECV BEGIN
+  if (req.restarts == 0) {
+    if (!req.http.X-Timer) {
+      set req.http.X-Timer = &quot;S&quot; time.start.sec &quot;.&quot; time.start.usec_frac;
+    }
+    set req.http.X-Timer = req.http.X-Timer &quot;,VS0&quot;;
+  }
+            set req.backend = autodirector_;
+  # default conditions
+  set req.backend = autodirector_;
+    # end default conditions
+#--FASTLY RECV END
+</code></pre>
+
+</div>
+</body>
+</html>

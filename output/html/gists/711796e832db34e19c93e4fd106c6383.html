@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[CRDT: conflict-free replicated data type] #crdt #distributed</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="crdt-conflict-free-replicated-data-type-crdt-distributed">[CRDT: conflict-free replicated data type] #crdt #distributed</h1>
+
+<h2 id="crdt-conflict-free-replicated-data-type-md">CRDT. conflict-free replicated data type.md</h2>
+
+<pre><code class="language-markdown">Operations on CRDTs need to adhere to the following rules:
+
+- Associativity `(a+(b+c)=(a+b)+c)`, so that grouping doesn't matter.
+- Commutativity `(a+b=b+a)`, so that order of application doesn't matter.
+- Idempotence `(a+a=a)`, so that duplication doesn't matter.
+
+Data types as well as operations have to be specifically crafted to meet these rules. CRDTs have known implementations for counters, registers, sets, graphs, and others.  
+</code></pre>
+
+</div>
+</body>
+</html>

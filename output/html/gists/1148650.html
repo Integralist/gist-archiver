@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>A better way to detect :before and :after CSS pseudo-element selector support using JavaScript (Modernizr takes similar route)</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="a-better-way-to-detect-before-and-after-css-pseudo-element-selector-support-using-javascript-modernizr-takes-similar-route">A better way to detect :before and :after CSS pseudo-element selector support using JavaScript (Modernizr takes similar route)</h1>
+
+<h2 id="detect-css">detect.css</h2>
+
+<pre><code class="language-css">body {
+    font: normal small Helvetica, Arial, Verdana, sans-serif;
+}
+
+h1 {
+    border-bottom: 1px solid #C00;
+    color: #666;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+div {
+    border: 1px dashed #333;
+    padding: 10px;
+}
+
+div,
+div p {
+    margin-bottom: 10px;    
+}
+
+code {
+    color: blue;
+}
+
+ul {
+    list-style: disc;
+    margin-left: 10px;
+    padding-left: 10px;
+}
+
+.before #apply:before {
+    color: red;
+    content: &quot;before&quot;;
+    display: inline-block;
+    margin: 0 5px 5px 0;
+}
+
+.after #apply:after {
+    color: green;
+    content: &quot;after&quot;;
+    display: inline-block;
+    margin: 0 0 0 55px;
+}
+</code></pre>
+
+<h2 id="detect-html">detect.html</h2>
+
+<pre><code class="language-html">&lt;h1&gt;Detection script for CSS :before and :after support&lt;/h1&gt;
+&lt;div&gt;
+    &lt;p&gt;This script detects support of the CSS selectors &lt;code&gt;:before&lt;/code&gt; and &lt;code&gt;:after&lt;/code&gt; by:&lt;/p&gt;
+    &lt;ul&gt;
+        &lt;li&gt;Adding two empty paragraph elements to the page (effectively their height each is zero).&lt;/li&gt;
+        &lt;li&gt;Adding a style element to the page (+inserting the relevant &lt;code&gt;:before&lt;/code&gt;/&lt;code&gt;:after&lt;/code&gt; code).&lt;/li&gt;
+        &lt;li&gt;Checking the height of the element using offsetHeight.&lt;/li&gt;
+        &lt;li&gt;If the height is greater or equal to 1 then we know the content was added so support is detected.&lt;/li&gt;
+        &lt;li&gt;Much like &lt;a href=&quot;http://www.modernizr.com/&quot;&gt;Modernizr&lt;/a&gt; we add relevant class names to the main &lt;code&gt;html&lt;/code&gt; element&lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;
+&lt;p id=&quot;apply&quot;&gt;Paragraph 1&lt;/p&gt;
+&lt;p&gt;Paragraph 2&lt;/p&gt;
+</code></pre>
+
+<h2 id="detect-js">detect.js</h2>
+
+<pre><code class="language-javascript">window.onload = function() {
+    var doc = document,
+        html = doc.documentElement,
+        body = doc.body,
+        paraBefore = doc.createElement('p'),
+        paraAfter = doc.createElement('p'),
+        styleBefore = doc.createElement('style'),
+        styleAfter = doc.createElement('style'),
+        heightBefore, 
+        heightAfter, 
+        selectorsBefore = '#testbefore:before { content: &quot;before&quot;; }',
+        selectorsAfter = '#testafter:after { content: &quot;after&quot;; }';
+
+    // Internet Explorer seems to need a type attribute to recognise a stylesheet?
+    styleBefore.type = 'text\/css';
+    styleAfter.type = 'text\/css';
+
+    paraBefore.id = 'testbefore';
+    paraAfter.id = 'testafter';
+
+    // For Internet Explorer...
+    if (styleBefore.styleSheet) {
+        styleBefore.styleSheet.cssText = selectorsBefore;
+        styleAfter.styleSheet.cssText = selectorsAfter;
+    } else {
+        styleBefore.appendChild(doc.createTextNode(selectorsBefore));
+        styleAfter.appendChild(doc.createTextNode(selectorsAfter));
+    }
+
+    body.appendChild(styleBefore);
+    body.appendChild(styleAfter);
+    body.appendChild(paraBefore);
+    body.appendChild(paraAfter);
+
+    heightBefore = doc.getElementById('testbefore').offsetHeight;
+    heightAfter = doc.getElementById('testafter').offsetHeight;
+    
+    console.log(heightBefore, heightAfter);
+
+    if (heightBefore &gt;= 1) {
+        html.className += ' before';
+        body.removeChild(styleBefore);
+        body.removeChild(paraBefore);
+    }
+
+    if (heightAfter &gt;= 1) {
+        html.className += ' after';
+        body.removeChild(styleAfter);
+        body.removeChild(paraAfter);
+    }
+};
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby Data Structures: Queue</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-data-structures-queue">Ruby Data Structures: Queue</h1>
+
+<h2 id="ruby-queue-md">Ruby Queue.md</h2>
+
+<pre><code class="language-markdown">Another useful data structure is Queue. This is a synchronised, i.e. thread safe, first-in first-out queue. This makes it easy to coordinate work between threads. \
+
+Below is a simple example of a program that lets you enter multiple URLs to download, then works through them one by one in the background:
+
+```ruby
+require &quot;thread&quot; # Queue is part of the thread library
+require &quot;net/http&quot;
+
+to_do = Queue.new
+
+Thread.abort_on_exception = true # if one thread dies, everyone dies
+
+interface = Thread.new do
+  loop do
+    url = STDIN.gets # waits here until a URL has been entered
+    if url &amp;&amp; url != &quot;quit\n&quot;
+      to_do.push(URI.parse(url))
+    else
+      to_do.push(false)
+      break
+    end
+  end
+end
+
+fetcher = Thread.new do
+  loop do
+    uri = to_do.pop # waits until there's a URI in the queue
+    break unless uri
+    result = Net::HTTP.get(uri)
+    File.open(&quot;#{uri.host}#{uri.path.tr(&quot;/&quot;, &quot;:&quot;)}&quot;, &quot;w+&quot;) do |f|
+      f &lt;&lt; result
+    end
+    puts &quot;downloaded #{uri}&quot;
+  end
+end
+
+[interface, fetcher].each(&amp;:join) # don't exit until the threads are done
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

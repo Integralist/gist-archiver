@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[DNS lookup of Host information] #dns #lookup #host</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="dns-lookup-of-host-information-dns-lookup-host">[DNS lookup of Host information] #dns #lookup #host</h1>
+
+<h2 id="dns-sh">dns.sh</h2>
+
+<pre><code class="language-shell">$ dig www.integralist.co.uk +noall +answer
+
+; &lt;&lt;&gt;&gt; DiG 9.10.6 &lt;&lt;&gt;&gt; www.integralist.co.uk +noall +answer
+;; global options: +cmd
+www.integralist.co.uk.  14400   IN      CNAME   dreamy-wing-b0b998.netlify.com.
+dreamy-wing-b0b998.netlify.com. 120 IN  A       3.75.10.80
+dreamy-wing-b0b998.netlify.com. 120 IN  A       3.125.36.175
+
+$ curl -so /dev/null -D - https://dreamy-wing-b0b998.netlify.com
+
+HTTP/2 404
+cache-control: private, max-age=0
+content-type: text/plain; charset=utf-8
+date: Thu, 13 Feb 2025 11:36:28 GMT
+server: Netlify
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-nf-request-id: 01JKZHH4RJB03HFXC1XGH9AKKM
+content-length: 50
+
+$ curl -so /dev/null -H Host:www.integralist.co.uk -D - https://dreamy-wing-b0b998.netlify.com
+
+HTTP/2 200
+accept-ranges: bytes
+age: 0
+cache-control: public,max-age=0,must-revalidate
+cache-status: &quot;Netlify Edge&quot;; fwd=miss
+content-type: text/html; charset=UTF-8
+date: Thu, 13 Feb 2025 11:40:56 GMT
+etag: &quot;73dd185071271fad04cb81c48e5155ef-ssl&quot;
+server: Netlify
+strict-transport-security: max-age=31536000
+x-nf-request-id: 01JKZHSAV7X773C1W8BJ2WENTH
+content-length: 36094
+
+$ curl -so /dev/null -H Host:www.integralist.co.uk -D - 3.75.10.80
+
+HTTP/1.1 301 Moved Permanently
+Content-Type: text/plain; charset=utf-8
+Date: Thu, 13 Feb 2025 11:36:58 GMT
+Location: https://www.integralist.co.uk/
+Server: Netlify
+X-Nf-Request-Id: 01JKZHJ2ADYPWA1K54BDRMHZBN
+Content-Length: 45
+
+$ curl -so /dev/null -D - https://dreamy-wing-b0b998.netlify.app
+
+HTTP/2 200
+accept-ranges: bytes
+age: 26
+cache-control: public,max-age=0,must-revalidate
+cache-status: &quot;Netlify Edge&quot;; hit
+content-type: text/html; charset=UTF-8
+date: Thu, 13 Feb 2025 11:36:33 GMT
+etag: &quot;73dd185071271fad04cb81c48e5155ef-ssl&quot;
+link: &lt;https://www.integralist.co.uk/&gt;; rel=&quot;canonical&quot;
+server: Netlify
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-nf-request-id: 01JKZHHA268JB2H2TC47AAND8E
+content-length: 36094
+</code></pre>
+
+</div>
+</body>
+</html>

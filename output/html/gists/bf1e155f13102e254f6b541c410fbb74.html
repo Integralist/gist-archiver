@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Datadog Structured Logging Abstraction with Logrus] #go #golang #datadog #log #logging #structured #logrus</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-datadog-structured-logging-abstraction-with-logrus-go-golang-datadog-log-logging-structured-logrus">[Golang Datadog Structured Logging Abstraction with Logrus] #go #golang #datadog #log #logging #structured #logrus</h1>
+
+<h2 id="logging-go">logging.go</h2>
+
+<pre><code class="language-go">package logging
+
+import (
+	&quot;fmt&quot;
+	&quot;math/rand&quot;
+	&quot;runtime/debug&quot;
+
+	&quot;github.com/sirupsen/logrus&quot;
+	&quot;github.com/sirupsen/logrus/hooks/test&quot;
+)
+
+const (
+	// TimestampFormat is the default timestamp format for log records:
+	// https://golang.org/pkg/time/#Time.Format
+	TimestampFormat = &quot;2006-01-02 15:04:05.123&quot;
+
+	// Map these constants to logrus for the sake of SetLevel() function.
+	PanicLevel = logrus.PanicLevel
+	FatalLevel = logrus.FatalLevel
+	ErrorLevel = logrus.ErrorLevel
+	WarnLevel  = logrus.WarnLevel
+	InfoLevel  = logrus.InfoLevel
+	DebugLevel = logrus.DebugLevel
+	TraceLevel = logrus.TraceLevel
+)
+
+// Fields is an alias for a set of key-value pairs to be logged
+type Fields map[string]interface{}
+
+// extend updates a set of Fields using only the values in &quot;fields&quot; which are also in &quot;fieldNames&quot;
+func (s Fields) extend(fieldNames []string, fields Fields) {
+	for _, fieldName := range fieldNames {
+		if val, ok := fields[fieldName]; ok {
+			s[fieldName] = val
+		}
+	}
+}
+
+// Logger is a logrus entry wrapped with functions to support structured logging
+type Logger struct {
+	raw    *logrus.Logger
+	logger *logrus.Entry
+	Rate   int
+}
+
+// NewLogger creates a new Logger instance
+func NewLogger(service string, optFuncs ...func(*logrus.Logger)) *Logger {
+	logger := logrus.New()
+	logger.SetFormatter(&amp;logrus.JSONFormatter{})
+
+	for _, f := range optFuncs {
+		f(logger)
+	}
+
+	entry := logger.WithField(&quot;service&quot;, service)
+
+	// initialize logging
+	return &amp;Logger{
+		raw:    logger,
+		logger: entry,
+		Rate:   10,
+	}
+}
+
+// TestLogger returns a logger that can be used for testing
+func TestLogger(service string, optFuncs ...func(*logrus.Logger)) (*Logger, *test.Hook) {
+	logger, hook := test.NewNullLogger()
+	logger.SetFormatter(&amp;logrus.JSONFormatter{})
+
+	entry := logger.WithField(&quot;service&quot;, service)
+
+	return &amp;Logger{
+		logger: entry,
+		Rate:   10,
+	}, hook
+}
+
+// getField returns a single field in the logs
+func (l *Logger) getField(key string) (interface{}, bool) {
+	if field, ok := l.logger.Data[key]; ok {
+		return field, ok
+	}
+	return nil, false
+}
+
+// updateFields sets fields in a named set of fields, reusing existing values if possible
+func (l *Logger) updateFields(key string, fieldNames []string, fields Fields) *Logger {
+	var fieldSet Fields
+
+	// get the existing set of fields or create a new one
+	fieldSet, ok := l.Fields(key)
+	if !ok {
+		fieldSet = Fields{}
+	}
+
+	// update the set of fields
+	fieldSet.extend(fieldNames, fields)
+	return &amp;Logger{
+		logger: l.logger.WithField(key, fieldSet),
+		Rate:   l.Rate,
+	}
+}
+
+// appendFields appends a Fields object to an array of Fields objects
+func (l *Logger) appendFields(key string, fieldNames []string, fields Fields) *Logger {
+	var fieldsArray []Fields
+	filtered := Fields{}
+
+	// get the existing array or create a new one
+	if field, ok := l.getField(key); ok {
+		fieldsArray, ok = field.([]Fields)
+		if !ok {
+			fieldsArray = []Fields{}
+		}
+	}
+
+	filtered.extend(fieldNames, fields)
+
+	// append the stanza to the array
+	fieldsArray = append(fieldsArray, filtered)
+	return &amp;Logger{
+		logger: l.logger.WithField(key, fieldsArray),
+		Rate:   l.Rate,
+	}
+}
+
+// Fields returns a set of fields in the logger if it exists
+func (l *Logger) Fields(key string) (Fields, bool) {
+	var fields Fields
+	var data interface{}
+	var ok bool
+
+	// make sure the set exists
+	if data, ok = l.getField(key); !ok {
+		return nil, false
+	}
+
+	// make sure the set isn't malformed
+	fields, ok = data.(Fields)
+	if !ok {
+		return nil, false
+	}
+	return fields, true
+}
+
+// Data returns the raw structured logging data from the logrus logger
+func (l *Logger) Data() map[string]interface{} {
+	return l.logger.Data
+}
+
+// sample returns True randomly at a percentage of the time
+func sample(percent int) bool {
+	return rand.Intn(100) &lt;= percent
+}
+
+// Wrappers around logging actions
+
+// InfoSampled wraps the logrus Info function and samples the logs
+func (l *Logger) InfoSampled(args ...interface{}) {
+	// we check the Rate==100 first to avoid the more expensive call to the sample rand function
+	// the global rand is probably fine, but just to note that using it could slow things
+	// down a bit since every call to it locks a mutex
+	if l.Rate == 100 || l.logger.Level &gt;= logrus.DebugLevel || sample(l.Rate) { // shhhh
+		l.logger.Info(args...)
+	}
+}
+
+// Info wraps the logrus Info function
+func (l *Logger) Info(args ...interface{}) {
+	l.logger.Info(args...)
+}
+
+// Warn logs a message at warning level
+func (l *Logger) Warn(args ...interface{}) *Logger {
+	l.logger.Warn(args...)
+	return l
+}
+
+// Error logs a message at error level
+func (l *Logger) Error(args ...interface{}) *Logger {
+	l.logger.Error(args...)
+	return l
+}
+
+// Fatal wraps the logrus Fatal function
+func (l *Logger) Fatal(args ...interface{}) *Logger {
+	l.logger.Fatal(args...)
+	return l
+}
+
+// Debug wraps the logrus Debug function
+func (l *Logger) Debug(args ...interface{}) *Logger {
+	l.logger.Debug(args...)
+	return l
+}
+
+// Panic wraps the logrus Panic function
+func (l *Logger) Panic(args ...interface{}) *Logger {
+	l.logger.Panic(args...)
+	return l
+}
+
+// Printf wraps the logrus Printf function
+func (l *Logger) Printf(format string, args ...interface{}) {
+	l.logger.Printf(format, args...)
+}
+
+// Wrappers for common fields
+
+// WithError adds error information to the logging record
+func (l *Logger) WithError(err error) *Logger {
+	return l.WithErrorFields(Fields{
+		&quot;message&quot;: err.Error(),
+		&quot;kind&quot;:    fmt.Sprintf(&quot;%T&quot;, err),
+	})
+}
+
+// WithStack adds a stack trace to the logging record
+func (l *Logger) WithStack() *Logger {
+	return l.WithErrorFields(Fields{
+		&quot;stack&quot;: debug.Stack(),
+	})
+}
+
+// WithFields sets key-value pairs in the &quot;meta&quot; set. Use `l.logger.WithField`
+// in order to set a field directly in the logrus.Entry.
+func (l *Logger) WithFields(fields Fields) *Logger {
+	// get the existing set of fields or create a new one
+	metaFields, ok := l.Fields(&quot;meta&quot;)
+	if !ok {
+		metaFields = Fields{}
+	}
+
+	// we skip the filtering check in withFields because anything goes
+	// in the &quot;meta&quot; fields
+	for key, val := range fields {
+		metaFields[key] = val
+	}
+
+	return &amp;Logger{
+		logger: l.logger.WithField(&quot;meta&quot;, metaFields),
+		Rate:   l.Rate,
+	}
+}
+
+// WithField is a helper to add a single field to the meta set
+func (l *Logger) WithField(key string, value interface{}) *Logger {
+	return l.WithFields(Fields{key: value})
+}
+
+// WithBasicFields is a helper to set top level fields like timestamps
+// This matches the `RootFieldSet` in `bf_storage.logging` py lib,
+// however it has not been renamed yet since some go instrumentation relies on it already.
+func (l *Logger) WithBasicFields(fields Fields) *Logger {
+	var raw map[string]interface{}
+	basicFields := Fields{}
+	fieldNames := []string{
+		&quot;cluster&quot;,
+		&quot;level&quot;,
+		&quot;message&quot;,
+		&quot;region&quot;,
+		&quot;service&quot;,
+		&quot;source&quot;,
+	}
+
+	basicFields.extend(fieldNames, fields)
+	raw = basicFields
+	return &amp;Logger{
+		logger: l.logger.WithFields(raw),
+		Rate:   l.Rate,
+	}
+}
+
+// WithDatabaseFields replicates the `bf_storage.logging` DatabaseFieldSet.
+// This is in line with the BuzzFeed established standard.
+func (l *Logger) WithDatabaseFields(fields Fields) *Logger {
+	fieldNames := []string{
+		&quot;instance&quot;,
+		&quot;statement&quot;,
+		&quot;operation&quot;,
+		&quot;user&quot;,
+	}
+	return l.updateFields(&quot;database&quot;, fieldNames, fields)
+}
+
+// WithErrorFields sets fields in the &quot;error&quot; set.
+// We use Datadog's recommendation of &quot;stack&quot;, &quot;message&quot;, and &quot;field&quot;.
+func (l *Logger) WithErrorFields(fields Fields) *Logger {
+	fieldNames := []string{
+		&quot;stack&quot;,
+		&quot;message&quot;,
+		&quot;kind&quot;,
+	}
+	return l.updateFields(&quot;error&quot;, fieldNames, fields)
+}
+
+// WithHTTPFields sets fields in the &quot;http&quot; set
+// This fieldset uses the DataDog standard naming conventions
+// https://docs.datadoghq.com/logs/processing/attributes_naming_convention/#http-requests
+func (l *Logger) WithHTTPFields(fields Fields) *Logger {
+	fieldNames := []string{
+		&quot;url&quot;,
+		&quot;method&quot;,
+		&quot;status_code&quot;,
+		&quot;referer&quot;,
+		&quot;request_id&quot;,
+		&quot;useragent&quot;,
+		&quot;request_time&quot;,
+		&quot;duration&quot;,
+	}
+	return l.updateFields(&quot;http&quot;, fieldNames, fields)
+}
+
+// WithLoggerFields supplies the standard logger fieldset.
+// See DataDog docs here for naming conventions:
+// https://docs.datadoghq.com/logs/processing/attributes_naming_convention/#source-code
+func (l *Logger) WithLoggerFields(fields Fields) *Logger {
+	fieldNames := []string{
+		&quot;name&quot;,
+		&quot;thread_name&quot;,
+		&quot;path_name&quot;,
+		&quot;method_name&quot;,
+		&quot;module&quot;,
+		&quot;line&quot;,
+		&quot;level_name&quot;,
+		&quot;version&quot;,
+	}
+	return l.updateFields(&quot;logger&quot;, fieldNames, fields)
+}
+
+// WithRigFields sets fields in the &quot;rig&quot; set
+// This is used internally to add rig env data to each entry.
+func (l *Logger) WithRigFields(fields Fields) *Logger {
+	fieldNames := []string{
+		&quot;service&quot;,
+		&quot;cluster&quot;,
+		&quot;version&quot;,
+		&quot;pid&quot;,
+		&quot;region&quot;,
+	}
+	return l.updateFields(&quot;rig&quot;, fieldNames, fields)
+}
+
+// WithStorageFields replicates the `bf_storage.logging` StorageFieldSet.
+// This is in line with the BuzzFeed established standard.
+func (l *Logger) WithStorageFields(fields Fields) *Logger {
+	fieldNames := []string{
+		&quot;bucket_name&quot;,
+		&quot;redis_hostname&quot;,
+		&quot;redis_isolated_hostname&quot;,
+		&quot;redis_shared_hostname&quot;,
+		&quot;max_thread_count&quot;,
+		&quot;mysql_database_name&quot;,
+		&quot;mysql_port&quot;,
+		&quot;mysql_port&quot;,
+		&quot;mysql_hostname&quot;,
+		&quot;mysql_isolated_hostname&quot;,
+		&quot;mysql_shared_hostname&quot;,
+		&quot;mysql_isolated_hostname&quot;,
+		&quot;mysql_username&quot;,
+		&quot;mysql_isolated_database_name&quot;,
+		&quot;mysql_shared_database_name&quot;,
+		&quot;environment_type&quot;,
+		&quot;version&quot;,
+	}
+	return l.updateFields(&quot;storage&quot;, fieldNames, fields)
+}
+
+// WithUpstreamFields replicates `UpstreamFieldSet` in `bf_storage.logging`.
+// This brings the upstream fieldset inline with the BuzzFeed convention.
+func (l *Logger) WithUpstreamFields(fields Fields) *Logger {
+	fieldNames := []string{
+		&quot;service&quot;,
+		&quot;request_url&quot;,
+		&quot;status_code&quot;,
+		&quot;response_time&quot;,
+	}
+	return l.updateFields(&quot;upstream&quot;, fieldNames, fields)
+}
+
+// SetLevel sets the default log level on the underlying logrus instance.
+//
+func (l *Logger) SetLevel(level logrus.Level) {
+	l.raw.Level = level
+}
+</code></pre>
+
+<h2 id="logging-test-go">logging_test.go</h2>
+
+<pre><code class="language-go">package logging
+
+import (
+	&quot;bytes&quot;
+	&quot;testing&quot;
+
+	&quot;github.com/sirupsen/logrus&quot;
+)
+
+type modifier func(*logrus.Logger)
+
+func modifyLogrusOutput(b *bytes.Buffer) modifier {
+	return func(l *logrus.Logger) {
+		l.SetOutput(b)
+	}
+}
+
+func modifyLogrusLevel(l *logrus.Logger) {
+	l.Level = logrus.DebugLevel
+}
+
+// TestDebugLogLevelSetDirectly validates that a consumer can change settings
+// directly on the underlying logrus instance, such as the debug log level.
+//
+// NOTE: this requires the consumer to import the logrus package as a
+// dependency inside their service.
+//
+func TestDebugLogLevelSetDirectly(t *testing.T) {
+	var b bytes.Buffer
+
+	log := NewLogger(&quot;golang_logging&quot;, modifyLogrusOutput(&amp;b), modifyLogrusLevel)
+	log.Debug(&quot;debug!&quot;)
+	log.Info(&quot;info!&quot;)
+
+	if !bytes.Contains(b.Bytes(), []byte(&quot;debug!&quot;)) {
+		t.Error(&quot;debug level wasn't set&quot;)
+	}
+
+	if !bytes.Contains(b.Bytes(), []byte(&quot;info!&quot;)) {
+		t.Error(&quot;info level wasn't set&quot;)
+	}
+}
+
+// TestDebugLogLevelSetIndirectly validates that a consumer of the logging
+// library doesn't have to add logrus as a dependency if they only need to set
+// the log level (which is a standard feature consumers are likely to use).
+//
+// NOTE: for the sake of the test environment I still need to import logrus and
+// modify it 'directly' in order for it to send log output to a buffer instead
+// of to stdout, but I should be able to still set the log level 'indirectly'.
+//
+func TestDebugLogLevelSetIndirectly(t *testing.T) {
+	var b bytes.Buffer
+
+	log := NewLogger(&quot;golang_logging&quot;, modifyLogrusOutput(&amp;b))
+	log.SetLevel(DebugLevel)
+
+	log.Debug(&quot;debug!&quot;)
+	log.Info(&quot;info!&quot;)
+
+	if !bytes.Contains(b.Bytes(), []byte(&quot;debug!&quot;)) {
+		t.Error(&quot;debug level wasn't set&quot;)
+	}
+
+	if !bytes.Contains(b.Bytes(), []byte(&quot;info!&quot;)) {
+		t.Error(&quot;info level wasn't set&quot;)
+	}
+}
+</code></pre>
+
+</div>
+</body>
+</html>

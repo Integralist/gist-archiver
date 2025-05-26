@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Bash moreutils examples] #bash #moreutils #shell</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="bash-moreutils-examples-bash-moreutils-shell">[Bash moreutils examples] #bash #moreutils #shell</h1>
+
+<h2 id="examples-bash">examples.bash</h2>
+
+<pre><code class="language-shell"># brew install moreutils
+# https://joeyh.name/code/moreutils/
+
+# vipe allows you to use vim to inspect data in the middle of a pipeline
+$ echo '{&quot;foo&quot;: {&quot;bar&quot;: 123}}' | vipe --suffix json | jq
+{
+  &quot;foo&quot;: {
+    &quot;bar&quot;: 123
+  }
+}
+
+# pee is like tee but for pipes
+#
+# Each command is run and fed a copy of the standard input.
+# The output of all commands is sent to stdout.
+#
+# NOTE: a copy of the input is not sent to stdout, like tee does
+# If that is desired, use pee cat.
+#
+# In the following example we want the _original_ stdout from cat 
+# to be passed over to the wc command, hence we use `pee cat`.
+$ seq 5 1 &gt; file
+$ cat file | pee cat 'sort -u &gt; sorted' 'sort -R &gt; unsorted' | wc -l
+       5
+       
+# If we didn't use `pee cat` then the example pee pipelines we run
+# wouldn't cause any stdout for the `wc` command to receive as stdin.
+# 
+# We could mimic `pee cat` (although not quite) by having a pipeline
+# that uses `xargs` to echo the input, but instead of getting 5 lines 
+# of output (from cat'ing the file) we get `5 4 3 2 1` on one line. 
+# Hence in the following example I use `wc -w` and not `wc -l`.
+$ cat file | pee 'sort -u &gt; sorted' 'sort -R &gt; unsorted' 'xargs' | wc -w
+       5
+</code></pre>
+
+</div>
+</body>
+</html>

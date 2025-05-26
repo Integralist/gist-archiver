@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Vegeta load test examples https://github.com/tsenart/vegeta] #go #golang #vegeta #examples #loadtest #benchmark #report</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="vegeta-load-test-examples-https-github-com-tsenart-vegeta-go-golang-vegeta-examples-loadtest-benchmark-report">[Vegeta load test examples <a href="https://github.com/tsenart/vegeta" target="_blank">https://github.com/tsenart/vegeta</a>] #go #golang #vegeta #examples #loadtest #benchmark #report</h1>
+
+<h2 id="vegeta-load-test-sh">vegeta load test.sh</h2>
+
+<pre><code class="language-shell">echo &quot;GET http://google.com&quot; | vegeta attack -duration=5s -rate=2 -cert=/path/to/certificate.pem | tee results.bin | vegeta report
+
+# you don't have to pipe the data to `vegeta report`, 
+# you can instead run it as a separate command...
+#
+# echo &quot;GET http://google.com&quot; | vegeta attack -duration=5s | tee results.bin
+# vegeta report results.bin
+#
+# in the vegeta results you might be confused by the `Status Codes` section:
+#
+# e.g. Status Codes  [code:count]             0:45  200:5723  500:33  502:13  503:186
+#
+# ...this just means the code (let's use `200 OK` as an example), was received 5723 times.
+# where as a zero code means there was a problem sending the request.
+
+cat results.bin | vegeta report -reporter=plot &gt; plot.html
+
+# alternative ploting graph approach...
+#
+# vegeta plot -title=Attack%20Results results.bin &gt; results.html
+#
+# ...you can also generate the report as JSON...
+#
+# vegeta report -type=json results.bin
+#
+# to use an external file use `-targets=target.list` where the targets file is...
+#
+# GET http://&lt;application_url&gt;/list/user/1
+# GET http://&lt;application_url&gt;/list/user/2
+# GET http://&lt;application_url&gt;/list/user/3
+#
+# it can also contain POST data...
+#
+# POST http://&lt;application_url&gt;/create/newuser/
+# Content-Type: application/json
+# @/path/to/newuser.json
+#
+# ...where the file /path/to/newuser.json contains...
+#
+# {
+#  &quot;name&quot;: &quot;Peter&quot;;
+#  &quot;lastname&quot;: &quot;Smith&quot;;
+#  &quot;email&quot;: &quot;psmith@example.com&quot;
+# }
+</code></pre>
+
+</div>
+</body>
+</html>

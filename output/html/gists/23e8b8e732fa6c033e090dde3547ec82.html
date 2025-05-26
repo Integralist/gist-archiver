@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python State Machine] simple state machine for replacing quotations in a string #tags: python3, state-machine</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-state-machine-simple-state-machine-for-replacing-quotations-in-a-string-tags-python3-state-machine">[Python State Machine] simple state machine for replacing quotations in a string #tags: python3, state-machine</h1>
+
+<h2 id="state-machine-py">state-machine.py</h2>
+
+<pre><code class="language-python">def replace_quotes():
+    state = 0
+    def state_machine(match):
+        nonlocal state
+        state = 1 if not state else 0
+        return &quot;&amp;ldquo;&quot; if state else &quot;&amp;rdquo;&quot;
+    return state_machine
+    
+txt = 'I said &quot;hello mark&quot; but he did not reply so I said &quot;fine then?&quot; and he walked off'
+
+re.sub(r'&quot;', replace_quotes(), txt)
+
+# 'I said &amp;ldquo;hello mark&amp;rdquo; but he did not reply so I said &amp;ldquo;fine then?&amp;rdquo; and he walked off'
+</code></pre>
+
+</div>
+</body>
+</html>

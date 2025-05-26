@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JavaScript mixins are less confusing than standard inheritance</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="javascript-mixins-are-less-confusing-than-standard-inheritance">JavaScript mixins are less confusing than standard inheritance</h1>
+
+<h2 id="mixin-js">mixin.js</h2>
+
+<pre><code class="language-javascript">var people,
+	person = {
+		names: ['James', 'Neil', 'Russ', 'Stuart']
+	};
+
+function extend(destination, source, overwrite) {
+	var overwrite = overwrite || false;
+	for (var i in source) {
+		if (source.hasOwnProperty(i)) {
+			// If we're not allowed to overwrite an existing property… 
+			if (!overwrite) {
+				// …then we check to see if the property is undefined… 
+				if (destination[i] === undefined) {
+					// …if it is then we know we can copy the property to the destination object
+					destination[i] = source[i];
+				}
+			} else {
+				destination[i] = source[i];
+			}
+		}
+	}
+	return destination; 
+}
+
+people = {
+	names: ['Ash', 'Brad', 'Mark', 'Mike'],
+	speak: function(which) {
+		console.log('Hi, my name is ' + this.names[which]);
+	}
+};
+
+// Composition not Inheritance
+people.speak.call(person, 1); // Neil
+
+// Composition via Mixin
+extend(person, people, true); // leaving off the 3rd argument means we can can't overwrite the 'names' Array as it already exists
+person.speak(1); // Brad
+console.log('person has been extended', person);
+</code></pre>
+
+</div>
+</body>
+</html>

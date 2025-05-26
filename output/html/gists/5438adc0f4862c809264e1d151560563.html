@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[yaml merge key and reference pointer] #yaml #syntax #dereference #pointer #merge</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="yaml-merge-key-and-reference-pointer-yaml-syntax-dereference-pointer-merge">[yaml merge key and reference pointer] #yaml #syntax #dereference #pointer #merge</h1>
+
+<h2 id="yaml-merge-key-and-reference-pointer-md">yaml merge key and reference pointer.md</h2>
+
+<pre><code class="language-markdown">&gt; NOTE: use https://onlineyamltools.com/convert-yaml-to-json for testing conversions.
+
+## Lists
+
+You can create a reference pointer using `&amp;` and dereference the pointer using `*` as shown here:
+
+```yaml
+foo:
+ - &amp;ref |-
+  x
+ - y
+ - z
+
+bar:
+  - *ref
+  - a
+  - b
+</code></pre>
+
+<p>This will produce the following JSON (notice the <code>x</code> list element was duplicated):</p>
+
+<pre><code class="language-json">{
+  &quot;foo&quot;: [
+    &quot;x&quot;,
+    &quot;y&quot;,
+    &quot;z&quot;
+  ],
+  &quot;bar&quot;: [
+    &quot;x&quot;,
+    &quot;a&quot;,
+    &quot;b&quot;
+  ]
+}
+</code></pre>
+
+<h2 id="objects">Objects</h2>
+
+<p>This works for key value objects too by using the &lsquo;merge key&rsquo; syntax <code>&lt;&lt;</code> with a pointer to an object:</p>
+
+<pre><code class="language-yaml">ref: &amp;obj
+  foo: bar
+
+another_key:
+ &lt;&lt; : *obj
+ beep: boop
+</code></pre>
+
+<p>This will produce the following JSON (notice the <code>foo: bar</code> key/value was duplicated):</p>
+
+<pre><code class="language-json">{
+  &quot;ref&quot;: {
+    &quot;foo&quot;: &quot;bar&quot;
+  },
+  &quot;another_key&quot;: {
+    &quot;foo&quot;: &quot;bar&quot;,
+    &quot;beep&quot;: &quot;boop&quot;
+  }
+}
+</code></pre>
+
+<blockquote>
+<p><a href="https://yaml.org/type/merge.html" target="_blank">Merge Key reference</a> (spacing doesn&rsquo;t matter, e.g. <code>&lt;&lt;: *obj</code> vs <code>&lt;&lt; : *obj</code>)</p>
+</blockquote>
+
+<h3 id="nested-example">Nested example</h3>
+
+<p>The following example is a list of objects:</p>
+
+<pre><code class="language-yaml">dockers:
+- &lt;&lt;: &amp;docker_opts
+    use_buildx: true
+    dockerfile: Dockerfile
+  image_templates:
+    - &quot;ghcr.io/fastly/cli:{{ .Version }}-386&quot;
+  build_flag_templates:
+    - &quot;--platform=linux/386&quot;
+- &lt;&lt;: *docker_opts
+  image_templates:
+    - &quot;ghcr.io/fastly/cli:{{ .Version }}-amd64&quot;
+  build_flag_templates:
+    - &quot;--platform=linux/amd64&quot;
+- &lt;&lt;: *docker_opts
+  image_templates:
+    - &quot;ghcr.io/fastly/cli:{{ .Version }}-arm64&quot;
+  build_flag_templates:
+    - &quot;--platform=linux/arm64&quot;
+  goarch: arm64
+</code></pre>
+
+<h2 id="caveats">Caveats</h2>
+
+<p>This doesn&rsquo;t work as well when it comes to grouping multiple list elements:</p>
+
+<pre><code class="language-yaml">foo: &amp;ref
+ - y
+ - z
+
+bar:
+  - *ref
+  - a
+  - b
+</code></pre>
+
+<p>As this will nest the reference instead of merging it:</p>
+
+<pre><code class="language-json">{
+  &quot;foo&quot;: [
+    &quot;y&quot;,
+    &quot;z&quot;
+  ],
+  &quot;bar&quot;: [
+    [
+      &quot;y&quot;,
+      &quot;z&quot;
+    ],
+    &quot;a&quot;,
+    &quot;b&quot;
+  ]
+}
+</code></pre>
+
+<p>This also doesn&rsquo;t work (at all) for copying individual key/value fields (i.e. you can only reference an object &lsquo;block&rsquo;).</p>
+
+<p>The following example is broken:</p>
+
+<pre><code class="language-yaml">foo: &amp;ref bar # the &amp;ref isn't invalid (i.e. it doesn't break the yaml parser)
+beep: boop
+nested:
+  &lt;&lt; : *ref   # but 'using' the ref in this way IS invalid
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

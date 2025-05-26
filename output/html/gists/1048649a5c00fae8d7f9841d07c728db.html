@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Compile Curl] #debian #compile #curl</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="compile-curl-debian-compile-curl">[Compile Curl] #debian #compile #curl</h1>
+
+<h2 id="example-dockerfile">Example.Dockerfile</h2>
+
+<pre><code class="language-dockerfile">FROM python:3.8-slim
+
+# libbrotli from debian apt, and build tools
+RUN apt-get update &amp;&amp; apt-get install -y git build-essential autoconf automake libtool brotli libbrotli-dev zlib1g-dev pkg-config cmake golang
+
+# nghttp2 dev libraries - curl http2 support
+RUN git clone https://github.com/tatsuhiro-t/nghttp2.git /tmp/nghttp2
+WORKDIR /tmp/nghttp2
+RUN autoreconf -i &amp;&amp; automake &amp;&amp; autoconf
+RUN ./configure
+RUN make
+RUN make install
+
+# rust (incl cargo), to install quiche
+# the irony of the next command is not lost on me
+RUN apt-get install -y curl 
+# installs cargo to /root/.cargo/bin/cargo (for lack of an env)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+# remove our trojan horse version
+RUN apt-get remove -y curl
+
+# cloudflare quiche dev libraries with pkg-config for cURL build - http3 support
+RUN git clone https://github.com/cloudflare/quiche --recursive /tmp/quiche
+
+# compile boringssl with SSL headers for cURL to use (--with-ssl)
+WORKDIR /tmp/quiche/deps/boringssl
+RUN mkdir build
+WORKDIR /tmp/quiche/deps/boringssl/build
+RUN cmake -DCMAKE_POSITION_INDEPENDENT_CODE=on ..
+RUN make
+WORKDIR /tmp/quiche/deps/boringssl
+RUN mkdir -p .openssl/lib
+RUN cp build/crypto/libcrypto.a build/ssl/libssl.a .openssl/lib
+RUN ln -s $PWD/include .openssl
+
+# compile quiche
+WORKDIR /tmp/quiche/
+RUN QUICHE_BSSL_PATH=$PWD/deps/boringssl /root/.cargo/bin/cargo build --release --features pkg-config-meta
+RUN cp /tmp/quiche/target/release/libquiche.so /usr/lib
+
+# finally, build cURL. are you excited? I am.
+RUN git clone https://github.com/curl/curl /tmp/curl
+WORKDIR /tmp/curl
+RUN ./buildconf
+RUN ./configure LDFLAGS=&quot;-Wl,-rpath,/tmp/quiche/target/release&quot; --prefix=/usr --with-ssl=/tmp/quiche/deps/boringssl/.openssl --libdir=/usr/lib/x86_64-linux-gnu --with-brotli --with-zlib --with-nghttp2 --with-quiche=/tmp/quiche/target/release --enable-alt-svc
+
+# Expected: 
+  # Host setup:       x86_64-pc-linux-gnu
+  # Install prefix:   /usr
+  # Compiler:         gcc
+  #  CFLAGS:          -Werror-implicit-function-declaration -O2 -Wno-system-headers -pthread
+  #  CPPFLAGS:        -isystem /tmp/quiche/deps/boringssl/.openssl/include -isystem /tmp/quiche/deps/boringssl/.openssl/include/openssl -isystem /usr/local/include -isystem /tmp/quiche/include
+  #  LDFLAGS:         -Wl,-rpath,/tmp/quiche/target/release -L/tmp/quiche/deps/boringssl/.openssl/lib -L/usr/local/lib -L/tmp/quiche/target/release
+  #  LIBS:            -lquiche -lnghttp2 -lssl -lbrotlidec -lbrotlidec -lz -lcrypto -ldl -lpthread
+
+  # curl version:     7.71.0-DEV
+  # SSL:              enabled (BoringSSL)
+  # SSH:              no      (--with-{libssh,libssh2})
+  # zlib:             enabled
+  # brotli:           enabled (libbrotlidec)
+  # GSS-API:          no      (--with-gssapi)
+  # TLS-SRP:          no      (--enable-tls-srp)
+  # resolver:         POSIX threaded
+  # IPv6:             enabled
+  # Unix sockets:     enabled
+  # IDN:              no      (--with-{libidn2,winidn})
+  # Build libcurl:    Shared=yes, Static=yes
+  # Built-in manual:  no      (--enable-manual)
+  # --libcurl option: enabled (--disable-libcurl-option)
+  # Verbose errors:   enabled (--disable-verbose)
+  # Code coverage:    disabled
+  # SSPI:             no      (--enable-sspi)
+  # ca cert bundle:   /etc/ssl/certs/ca-certificates.crt
+  # ca cert path:     no
+  # ca fallback:      no
+  # LDAP:             no      (--enable-ldap / --with-ldap-lib / --with-lber-lib)
+  # LDAPS:            no      (--enable-ldaps)
+  # RTSP:             enabled
+  # RTMP:             no      (--with-librtmp)
+  # Metalink:         no      (--with-libmetalink)
+  # PSL:              no      (libpsl not found)
+  # Alt-svc:          enabled
+  # HTTP2:            enabled (nghttp2)
+  # HTTP3:            enabled (quiche)
+  # ESNI:             no      (--enable-esni)
+  # Protocols:        DICT FILE FTP FTPS GOPHER HTTP HTTPS IMAP IMAPS POP3 POP3S RTSP SMB SMBS SMTP SMTPS TELNET TFTP
+  # Features:         SSL IPv6 UnixSockets libz brotli AsynchDNS alt-svc NTLM NTLM_WB HTTP2 HTTP3 HTTPS-proxy
+
+  # WARNING:  HTTP3 alt-svc enabled but marked EXPERIMENTAL. Use with caution!
+
+RUN make
+RUN make install
+
+# clean up after ourselves
+RUN rm -rf /tmp/curl /tmp/quiche /tmp/nghttp2
+RUN apt-get remove -y git build-essential autoconf automake libtool zlib1g-dev pkg-config cmake golang
+RUN apt-get autoremove -y
+
+# try our shiny new cURL out
+# brotli
+CMD [&quot;curl&quot;, &quot;--compressed&quot;, &quot;https://httpbin.org/brotli&quot;]
+</code></pre>
+
+<h2 id="compile-curl-md">compile curl.md</h2>
+
+<pre><code class="language-markdown">Check OS:
+
+```bash
+$ uname -a
+Linux bcf344edf35e 4.19.76-linuxkit #1 SMP Fri Apr 3 15:53:26 UTC 2020 x86_64 GNU/Linux
+
+$ cat /etc/os-release
+PRETTY_NAME=&quot;Debian GNU/Linux 10 (buster)&quot;
+NAME=&quot;Debian GNU/Linux&quot;
+VERSION_ID=&quot;10&quot;
+VERSION=&quot;10 (buster)&quot;
+VERSION_CODENAME=buster
+ID=debian
+HOME_URL=&quot;https://www.debian.org/&quot;
+SUPPORT_URL=&quot;https://www.debian.org/support&quot;
+BUG_REPORT_URL=&quot;https://bugs.debian.org/&quot;
+</code></pre>
+
+<p>Get curl source code and compile it:</p>
+
+<pre><code class="language-bash">$ apt-get update &amp;&amp; apt-get install -y git build-essential autoconf automake libtool brotli libbrotli-dev
+
+$ git clone https://github.com/curl/curl /tmp/curl
+$ cd /tmp/curl/
+$ ./buildconf
+$ ./configure 
+$ make
+$ make install
+</code></pre>
+
+<p>Check curl information:</p>
+
+<pre><code class="language-bash">$ which curl
+/usr/local/bin/curl
+
+$ ldd $(which curl)
+configure: Configured to build curl/libcurl:
+
+  Host setup:       x86_64-pc-linux-gnu
+  Install prefix:   /usr/local
+  Compiler:         gcc
+   CFLAGS:          -Werror-implicit-function-declaration -O2 -Wno-system-headers -pthread
+   CPPFLAGS:
+   LDFLAGS:
+   LIBS:            -lidn2 -lssl -lcrypto -lbrotlidec -lz
+
+  curl version:     7.71.0-DEV
+  SSL:              enabled (OpenSSL)
+  SSH:              no      (--with-{libssh,libssh2})
+  zlib:             enabled
+  brotli:           enabled (libbrotlidec)
+  GSS-API:          no      (--with-gssapi)
+  TLS-SRP:          enabled
+  resolver:         POSIX threaded
+  IPv6:             enabled
+  Unix sockets:     enabled
+  IDN:              enabled (libidn2)
+  Build libcurl:    Shared=yes, Static=yes
+  Built-in manual:  no      (--enable-manual)
+  --libcurl option: enabled (--disable-libcurl-option)
+  Verbose errors:   enabled (--disable-verbose)
+  Code coverage:    disabled
+  SSPI:             no      (--enable-sspi)
+  ca cert bundle:   /etc/ssl/certs/ca-certificates.crt
+  ca cert path:     no
+  ca fallback:      no
+  LDAP:             no      (--enable-ldap / --with-ldap-lib / --with-lber-lib)
+  LDAPS:            no      (--enable-ldaps)
+  RTSP:             enabled
+  RTMP:             no      (--with-librtmp)
+  Metalink:         no      (--with-libmetalink)
+  PSL:              no      (libpsl not found)
+  Alt-svc:          no      (--enable-alt-svc)
+  HTTP2:            disabled (--with-nghttp2)
+  HTTP3:            disabled (--with-ngtcp2, --with-quiche)
+  ESNI:             no      (--enable-esni)
+  Protocols:        DICT FILE FTP FTPS GOPHER HTTP HTTPS IMAP IMAPS POP3 POP3S RTSP SMB SMBS SMTP SMTPS TELNET TFTP
+  Features:         SSL IPv6 UnixSockets libz brotli AsynchDNS IDN NTLM NTLM_WB TLS-SRP HTTPS-proxy
+</code></pre>
+
+<p>Use curl:</p>
+
+<pre><code class="language-bash">$ curl --version
+$ curl --compressed https://httpbin.org/brotli
+</code></pre>
+
+<blockquote>
+<p><code>./configure --help</code> provides list of all flag options.
+&ldquo;`</p>
+</blockquote>
+
+</div>
+</body>
+</html>

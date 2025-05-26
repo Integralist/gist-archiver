@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[xarg parallel processing] #xarg</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="xarg-parallel-processing-xarg">[xarg parallel processing] #xarg</h1>
+
+<h2 id="1-xarg-parallel-processing-sh">1. xarg parallel processing.sh</h2>
+
+<pre><code class="language-shell"># update --cursor value to acquire all the relevant domain data (see batch-identify-domains.sh)
+fastly domain-v1 list --fqdn=test-tf --cursor=&lt;REDACTED&gt; --limit=100 --json | jq -r .data[].id &gt;&gt; /tmp/delete-domains
+
+# now delete all those items
+cat /tmp/delete-domains | xargs -P &quot;$(sysctl -n hw.ncpu)&quot; -I % fastly domain-v1 delete --domain-id=%
+</code></pre>
+
+<h2 id="2-batch-identify-domains-sh">2. batch-identify-domains.sh</h2>
+
+<pre><code class="language-shell">#!/bin/bash
+
+# Initial cursor value
+cursor=&quot;&lt;STARTING CURSOR&gt;&quot;
+output_file=&quot;/tmp/delete-domains&quot;
+
+# Clear the output file before appending data
+&gt; &quot;$output_file&quot;
+
+while true; do
+  # Run the command and capture the output
+  response=$(go run ./cmd/fastly/main.go domain-v1 list --fqdn=tf-test --limit=100 --json --cursor=&quot;$cursor&quot;)
+
+  # Extract IDs and append to the output file
+  echo &quot;$response&quot; | jq -r .data[].id &gt;&gt; &quot;$output_file&quot;
+
+  # Extract the next cursor value from the JSON response
+  next_cursor=$(echo &quot;$response&quot; | jq -r .meta.next_cursor)
+
+  # Check if there is no next cursor (end of pagination)
+  if [[ -z &quot;$next_cursor&quot; || &quot;$next_cursor&quot; == &quot;null&quot; ]]; then
+    echo &quot;No more data to fetch. Exiting loop.&quot;
+    break
+  fi
+
+  # Update the cursor for the next iteration
+  cursor=&quot;$next_cursor&quot;
+
+  echo &quot;Fetched batch. Next cursor: $cursor&quot;
+done
+
+echo &quot;All data fetched and saved to $output_file.&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

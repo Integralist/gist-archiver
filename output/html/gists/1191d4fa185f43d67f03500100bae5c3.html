@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Runtime Profiler] #go #golang #instrumentation #metrics #runtime #profiler #performance</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-runtime-profiler-go-golang-instrumentation-metrics-runtime-profiler-performance">[Golang Runtime Profiler] #go #golang #instrumentation #metrics #runtime #profiler #performance</h1>
+
+<h2 id="runtime-profiler-go">Runtime Profiler.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;runtime&quot;
+	&quot;time&quot;
+
+	&quot;buzzfeed/metrics&quot;
+)
+
+type starter interface {
+	Start() error
+}
+
+type stopper interface {
+	Stop() error
+}
+
+// Profiler is a type which emits metrics to a metrics.Writer for memory metrics
+// relating to the garbage collector and overall resource usage.
+type Profiler interface {
+	starter
+	stopper
+}
+
+// NewProfiler creates a new Profiler that records metrics on an interval
+func NewProfiler(metricWriter metrics.Writer, interval time.Duration) Profiler {
+	return &amp;profiler{
+		metricWriter: metricWriter,
+		interval:     interval,
+		ch:           make(chan struct{}),
+	}
+}
+
+type profiler struct {
+	metricWriter metrics.Writer
+	interval     time.Duration
+	ch           chan struct{}
+}
+
+func (p *profiler) Start() error {
+	go p.profilerLoop()
+	return nil
+}
+
+func (p *profiler) Stop() error {
+	close(p.ch)
+	return nil
+}
+
+func (p *profiler) profilerLoop() {
+	ticker := time.NewTicker(p.interval)
+
+	for {
+		select {
+		case &lt;-p.ch:
+			ticker.Stop()
+			return
+		case &lt;-ticker.C:
+			p.emitStats()
+		}
+	}
+}
+
+func (p *profiler) emitStats() {
+	// See the MemStats docs for the meaning of the various stats recorded
+	// below:
+	//
+	// https://golang.org/pkg/runtime/#MemStats
+
+	m := &amp;runtime.MemStats{}
+	runtime.ReadMemStats(m)
+
+	p.gauge(&quot;runtime.goroutines&quot;, uint64(runtime.NumGoroutine()))
+	p.gauge(&quot;runtime.cgo_calls&quot;, uint64(runtime.NumCgoCall()))
+
+	// General
+	p.gauge(&quot;runtime.mem.alloc_bytes&quot;, m.Alloc)
+	p.gauge(&quot;runtime.mem.alloc_bytes_total&quot;, m.TotalAlloc)
+	p.gauge(&quot;runtime.mem.sys_bytes&quot;, m.Sys)
+	p.gauge(&quot;runtime.mem.pointer_lookup_count&quot;, m.Lookups)
+	p.gauge(&quot;runtime.mem.malloc_count_total&quot;, m.Mallocs)
+	p.gauge(&quot;runtime.mem.free_count_total&quot;, m.Frees)
+
+	// Heap
+	p.gauge(&quot;runtime.mem.heap.alloc_bytes&quot;, m.HeapAlloc)
+	p.gauge(&quot;runtime.mem.heap.sys_bytes&quot;, m.HeapSys)
+	p.gauge(&quot;runtime.mem.heap.idle_bytes&quot;, m.HeapIdle)
+	p.gauge(&quot;runtime.mem.heap.inuse_bytes&quot;, m.HeapInuse)
+	p.gauge(&quot;runtime.mem.heap.released_bytes&quot;, m.HeapReleased)
+	p.gauge(&quot;runtime.mem.heap.object_count&quot;, m.HeapObjects)
+
+	// Stack
+	p.gauge(&quot;runtime.mem.stack.inuse_bytes&quot;, m.StackInuse)
+	p.gauge(&quot;runtime.mem.stack.sys_bytes&quot;, m.StackSys)
+	p.gauge(&quot;runtime.mem.stack.mspan_inuse_bytes&quot;, m.MSpanInuse)
+	p.gauge(&quot;runtime.mem.stack.mspan_sys_bytes&quot;, m.MSpanSys)
+	p.gauge(&quot;runtime.mem.stack.mcache_inuse_bytes&quot;, m.MCacheInuse)
+	p.gauge(&quot;runtime.mem.stack.mcache_sys_bytes&quot;, m.MCacheSys)
+
+	// Garbage Collection
+	p.gauge(&quot;runtime.gc.sys_metadata_bytes&quot;, m.GCSys)
+	p.gauge(&quot;runtime.gc.next_target_heap_bytes&quot;, m.NextGC)
+	p.gauge(&quot;runtime.gc.last_finished_ts&quot;, m.LastGC)
+	p.gauge(&quot;runtime.gc.pause_total_ns&quot;, m.PauseTotalNs)
+	p.gauge(&quot;runtime.gc.pause_ns&quot;, m.PauseNs[(m.NumGC+255)%256])
+	p.gauge(&quot;runtime.gc.count&quot;, uint64(m.NumGC))
+	p.metricWriter.Gauge(&quot;runtime.gc.cpu_use&quot;, m.GCCPUFraction)
+}
+
+func (p *profiler) gauge(key string, val uint64) {
+	p.metricWriter.Gauge(key, float64(val))
+}
+</code></pre>
+
+</div>
+</body>
+</html>

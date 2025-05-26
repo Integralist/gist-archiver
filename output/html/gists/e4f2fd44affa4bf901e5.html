@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>If a shell command returns an exit status then you'll find that in a CI environment that the job will immediately fail. To resolve this you should capture the error and then pipe the result and then use PIPESTATUS instead</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="if-a-shell-command-returns-an-exit-status-then-you-ll-find-that-in-a-ci-environment-that-the-job-will-immediately-fail-to-resolve-this-you-should-capture-the-error-and-then-pipe-the-result-and-then-use-pipestatus-instead">If a shell command returns an exit status then you&rsquo;ll find that in a CI environment that the job will immediately fail. To resolve this you should capture the error and then pipe the result and then use PIPESTATUS instead</h1>
+
+<h2 id="pipestatus-sh">pipestatus.sh</h2>
+
+<pre><code class="language-shell">docker run \
+  --rm \
+  --cpu-shares 1024 \
+  -v $WORKSPACE:/app \
+  bbcnews/rubocop-config --fail-level F 2&gt;&amp;1 | true
+    
+RUBOCOP_RESULT=&quot;${PIPESTATUS[0]}&quot;
+
+# Similar, but different use case where we need to use $? to get result of last command
+
+docker run \
+  --rm \
+  --cpu-shares 1024 \
+  -v $WORKSPACE:/app \
+  ruby:2.1.2 \
+  bash -c &quot;cd /app &amp;&amp; gem install bundler &amp;&amp; bundle install --jobs 4 &amp;&amp; rspec&quot; 2&gt;&amp;1
+
+TESTS_RESULT=&quot;$?&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

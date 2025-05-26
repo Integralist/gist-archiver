@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Google Maps using native HTML5 geolocation + Audio with Google Places</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="google-maps-using-native-html5-geolocation-audio-with-google-places">Google Maps using native HTML5 geolocation + Audio with Google Places</h1>
+
+<h2 id="description-md">Description.md</h2>
+
+<pre><code class="language-markdown">We had a meeting with a new client to discuss a mobile app (client had asked for an app that worked on the &quot;iPhone&quot;). This app needed to play back audio depending on the users location (specifically if they were within 5 miles of the relevant location).
+
+We decided that we would try and guide the client to build a mobile web app and so I knocked together a quick prototype of a Google Map that used a JavaScript version of it's Places API to load McDonald restaurants within 1 mile of the users current location. I used native browser geolocation to determine the users location. I started to include the `watchPosition` method which would have been used to demonstrate the app tracking our location but wasn't added in the end because we realised we wouldn't be able to properly demo that :-)
+
+I dropped in custom markers onto the map and also decided to exclude IE9 from the demo because we had noticed issues with its geolocation algorithm (I checked online for any feedback I could find and apparently Microsofts database of Wifi locations just wasn't as good as other browsers and so the results were hideously off base).
+</code></pre>
+
+<h2 id="map-html">map.html</h2>
+
+<pre><code class="language-html">&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot; dir=&quot;ltr&quot;&gt;
+	&lt;head&gt;
+		&lt;meta charset=&quot;utf-8&quot;&gt;
+		&lt;title&gt;Google Map Prototype&lt;/title&gt;
+		&lt;style type=&quot;text/css&quot;&gt;
+			body {
+				margin: 0;
+				padding: 0;
+			}
+			
+			/* We use set width/height dimensions because using percentages causes iOS resources to be exhausted!? */
+			#map {
+				height: 500px;
+				left: 50%;
+				margin: -225px 0 0 -350px;
+				position: absolute;
+				top: 50%;
+				width: 700px;
+			}
+			
+			#audiofile {
+				display: none;
+				
+				/* iOS devices aren't hiding the element so we use a CSS3 trick to get the element out of view! */
+				-webkit-transform: translate(-999em, 0);
+				-moz-transform: translate(-999em, 0);
+				-o-transform: translate(-999em, 0);
+				transform: translate(-999em, 0);
+			}
+		&lt;/style&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+		&lt;audio id=&quot;audiofile&quot; controls preload=&quot;auto&quot; autobuffer&gt; 
+			&lt;source src=&quot;sample.mp3&quot; /&gt;
+			&lt;source src=&quot;sample.ogg&quot; /&gt;
+		&lt;/audio&gt;
+		&lt;div id=&quot;map&quot;&gt;&lt;/div&gt;
+		&lt;!--
+			Not using just standard Google Maps
+			&lt;script src=&quot;http://maps.google.com/maps/api/js?sensor=true&quot;&gt;&lt;/script&gt;
+		--&gt;
+		&lt;!--
+			Now using Places library which also loads the Maps api
+			Reference: https://code.google.com/apis/maps/documentation/javascript/places.html
+		--&gt;
+		&lt;script src=&quot;http://maps.googleapis.com/maps/api/js?libraries=places&amp;sensor=true&quot;&gt;&lt;/script&gt;
+		&lt;script type=&quot;text/javascript&quot;&gt;
+			// Set-up new map instance (no location details specified yet)
+			var map = new google.maps.Map(document.getElementById('map'), {
+					mapTypeControl: true,
+					mapTypeControlOptions: { 
+						style: google.maps.MapTypeControlStyle.DROPDOWN_MENU 
+					},
+					mapTypeId: google.maps.MapTypeId.ROADMAP,
+					streetViewControl: true
+				}),
+				infowindow = new google.maps.InfoWindow(),
+				marker,
+				latlng,
+				watchID,
+				audioelement = document.getElementById('audiofile');				
+				
+			/**
+			 * Following property indicates whether the current rendering engine is Trident (i.e. Internet Explorer)
+			 * 
+			 * @return v { Integer|undefined } if IE then returns the version, otherwise returns 'undefined' to indicate NOT a IE browser
+			 */
+			var isIE = (function() {
+				var undef,
+					v = 3,
+					div = document.createElement('div'),
+					all = div.getElementsByTagName('i');
+			
+				while (
+					div.innerHTML = '&lt;!--[if gt IE ' + (++v) + ']&gt;&lt;i&gt;&lt;/i&gt;&lt;![endif]--&gt;',
+					all[0]
+				);
+			
+				return v &gt; 4 ? v : undef;	
+			}());
+			
+			var whichPrefix = (function(){
+				// check if the browser supports CSS animation
+				var temp = document.createElement('div'),
+					prefixes = 'Webkit Moz O ms Khtml'.split(' '),
+					prefix = false;
+				
+				for(var i = 0, len = prefixes.length; i &lt; len; i++) {
+					if(temp.style[prefixes[i] + 'Transform'] !== undefined) {
+						prefix = prefixes[i];
+						break;
+					}
+				}
+				
+				return prefix;
+			}());
+			
+			function isHostMethod(object, property) {
+				var type = typeof object[property];
+	
+				return type == 'function' || // For Safari 3 typeof result being 'function' instead of 'object'
+					   (type == 'object' &amp;&amp; !!object[property]) || // Protect against ES3 'null' typeof result being 'object'
+					   type == 'unknown' || // For IE &lt; 9 when Microsoft used ActiveX objects for Native Functions
+					   type == 'string'; // typeof for 'document.body[outerHTML]' results in 'string'
+			}
+			
+			function isHostObject(object, property) {
+				// object[property] protects against ES3 specification which allows null to be typeof 'object'
+				// so we check if 'object' is returned and that object[property] coerces to true
+				// then we group both checks (&amp;&amp; operator returns 2nd expression if 1st expression evaluates to true) and convert result into boolean
+				return !!(typeof(object[property]) == 'object' &amp;&amp; object[property]);
+			}
+			
+			function createMarker(place) {
+				var placeLoc = place.geometry.location,
+					logo = new google.maps.MarkerImage('marker-mcdonalds.png', new google.maps.Size(73,75), new google.maps.Point(0,0)),
+					marker = new google.maps.Marker({
+						map: map,
+						position: place.geometry.location,
+						icon: logo
+					}),
+					content = '&lt;strong&gt;' + place.name + '&lt;/strong&gt;&lt;br&gt;' + place.vicinity + '&lt;br&gt;&lt;a href=&quot;#&quot; id=&quot;audiolink&quot;&gt;Show audio player&lt;/a&gt;&lt;br&gt;&lt;br&gt;';
+				
+				google.maps.event.addListener(marker, 'click', function() {
+					infowindow.setContent(content);
+					infowindow.open(map, this);
+				});
+			}
+			
+			function processLocation(position) {
+				// Get position
+				var lat = position.coords.latitude,
+					lng = position.coords.longitude,
+					latlng = new google.maps.LatLng(lat, lng);
+				
+				// Set map location
+				map.setOptions({
+		        	center: latlng,
+		        	scrollwheel: false,
+		        	zoom: 12
+		        });
+		        
+		        // Add marker to map
+		        marker = new google.maps.Marker({
+					position: latlng,
+					map: map,
+					title: 'Test Title'
+				});
+				
+				// Event listener for users current location marker
+				google.maps.event.addListener(marker, 'click', function() {
+					infowindow.setContent('This is your current location!&lt;br&gt;We\'re now showing you all the McDonald\'s in a 5 mile radius');
+					infowindow.open(map, this);
+				});
+				
+				// Open the window when the app has loaded
+				google.maps.event.trigger(marker, 'click', function() {
+					infowindow.setContent('This is your current location!&lt;br&gt;We\'re now showing you all the McDonald\'s in a 5 mile radius');
+					infowindow.open(map, this);
+				});
+				
+				// Request any McDonald's within 1 mile (in meters) from the current location
+				var request = {
+					location: latlng,
+					radius: 8046.72, // 5 miles =&gt; http://www.unitconversion.org/length/meters-to-miles-conversion.html
+					types: ['food'],
+					name: 'McDonald'
+				};
+				
+				// Create the Places request
+				var service = new google.maps.places.PlacesService(map);
+					service.search(request, function(results, status){
+						if (status == google.maps.places.PlacesServiceStatus.OK) {
+							for (var i = 0; i &lt; results.length; i++) {
+								var place = results[i];
+								createMarker(results[i]); 
+							}
+						}
+					});
+			}
+			
+			// Doesn't appear to be executed??
+			function handleLocationErrors(err) {
+				switch(err.code) {
+					case err.PERMISSION_DENIED:
+						alert('You have decided not to share your location information');
+						break;
+					case err.POSITION_UNAVAILABLE:
+						alert('I\'m sorry but we could not detect your location');
+						break;
+					case err.TIMEOUT:
+						alert('I\'m sorry but the system timed out while waiting to retrieve your location information');
+						break;
+					default:
+						alert('I\'m sorry but an unknown error occurred');
+						break;
+				}
+			}
+			
+			// Handle audio playback
+			function handleAudio(e) {
+				var targ = e.target,
+					audio;
+				
+				if (targ.id === 'audiolink') {
+					// Make a copy of the &lt;audio&gt; element hidden in the page
+					audio = audioelement.cloneNode(true);
+					
+					// Remove the link and replace with an audio tag
+					targ.parentNode.replaceChild(audio, targ);
+					audio.style.display = 'block';
+					
+					if (whichPrefix !== false) {
+						audio.style[whichPrefix + 'Transform'] = 'translate(0, 0)';
+					}
+				}
+			}
+			
+			// Bind Event Delegation to links
+			document.body.addEventListener('click', handleAudio, false);
+			
+			// Because of IE9's rubbish implementation of geolocation makes it as useful as the basic ip address lookup polyfills (so not very useful)
+			if(isHostObject(navigator, 'geolocation') || isIE &gt; 9) {
+				// This will ask the user to authorise the request for their location (only if geolocation is natively supported)
+				navigator.geolocation.getCurrentPosition(processLocation, handleLocationErrors);
+				
+				// If the user starts moving around then watch their position
+				watchID = navigator.geolocation.watchPosition(function(){
+					// DO SOMETHING
+				});
+			} else {
+				alert('I\'m sorry, your device isn\'t capable of supporting the geolocation api which is required for this application to work correctly');
+			}
+		&lt;/script&gt;
+	&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+</div>
+</body>
+</html>

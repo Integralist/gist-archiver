@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Structured Logging in Go] #go #golang #slog #log #structuredlogging</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="structured-logging-in-go-go-golang-slog-log-structuredlogging">[Structured Logging in Go] #go #golang #slog #log #structuredlogging</h1>
+
+<h2 id="main-go">main.go</h2>
+
+<pre><code class="language-go">// https://play.golang.com/p/tfop7CgoGF5
+// https://goplay.tools/snippet/aZatTtNaElZ
+
+package main
+
+import (
+	&quot;context&quot;
+	&quot;fmt&quot;
+	&quot;log/slog&quot;
+	&quot;os&quot;
+)
+
+type foo struct {
+	beep string
+	boop int
+	blah bool
+}
+
+func (f foo) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String(&quot;beep&quot;, f.beep),
+		slog.Int(&quot;boop&quot;, f.boop),
+		slog.Bool(&quot;blah&quot;, f.blah),
+	)
+}
+
+// IMPORTANT: [(slog.HandlerOptions).ReplaceAttr] docs say not to mutate `groups` slice.
+// This means, you can't solve the problem of multiple groups with the same name.
+// Ultimately, you will end up with invalid JSON (two keys with the same name == invalid).
+// So it's your responsibility to avoid that situation.
+// Which means storing your attributes in a slice and waiting for a single log event to add a group.
+// You can't add a group and then later append to it (as demonstrated below).
+
+func main() {
+	ctx := context.Background()
+	attrs := []any{slog.String(&quot;foo&quot;, &quot;a&quot;), slog.String(&quot;bar&quot;, &quot;b&quot;)}
+	
+	// The replacer function is resolved once per logger instance.
+	// i.e. it is not called on each log event trigger (e.g. LogAttrs).
+	replacer := func(groups []string, a slog.Attr) slog.Attr {
+		if len(groups) &gt; 0 {
+			if groups[0] == &quot;a_struct&quot; {
+				return slog.Attr{} // delete the attribute from the group (will run for every attribute in the group, and ultimately will result in the group itself being removed)
+			}
+			fmt.Printf(&quot;groups: %#v\n&quot;, groups)
+			fmt.Printf(&quot;attribute: %#v\n&quot;, a)
+		}
+		return a
+	}
+	handler := &amp;slog.HandlerOptions{Level: slog.LevelInfo, ReplaceAttr: replacer}
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, handler))
+	
+	// Create a new logger instance with `a_struct` group.
+	logger = logger.With(slog.Any(&quot;a_struct&quot;, foo{&quot;beeping&quot;, 123, true}))
+
+	// Append new attribute to our `attrs` slice.
+	attrs = append(attrs, slog.String(&quot;baz&quot;, &quot;c&quot;))
+	
+	// Create a new logger instance with `a_group` group using our `attrs` slice.
+	logger = logger.With(slog.Group(&quot;a_group&quot;, attrs...))
+	
+	// Although we append a new attribute to the `attrs` slice,
+	// the attribute will not show up in the following log event,
+	// as it was appended AFTER the logger instance was created.
+	attrs = append(attrs, slog.String(&quot;qux&quot;, &quot;d&quot;))
+	
+	logger.LogAttrs(ctx, slog.LevelInfo, &quot;some_event_1&quot;)
+	
+	// If I try to create a new logger instance, 
+	// I'll end up with invalid JSON (i.e. double &quot;a_group&quot; fields)
+	logger = logger.With(slog.Group(&quot;a_group&quot;, attrs...))
+	
+	logger.LogAttrs(ctx, slog.LevelInfo, &quot;some_event_2&quot;)
+}
+</code></pre>
+
+</div>
+</body>
+</html>

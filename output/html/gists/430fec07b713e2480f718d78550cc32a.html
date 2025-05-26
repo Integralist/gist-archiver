@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python timestamp to epoch and back, inc. UTC timezone] #python #timezone #timestamp #epoch #utc</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-timestamp-to-epoch-and-back-inc-utc-timezone-python-timezone-timestamp-epoch-utc">[Python timestamp to epoch and back, inc. UTC timezone] #python #timezone #timestamp #epoch #utc</h1>
+
+<h2 id="python-timestamp-to-epoch-and-back-py">Python timestamp to epoch and back.py</h2>
+
+<pre><code class="language-python">from datetime import datetime, timedelta, timezone
+
+datetime(2018,3,30,23,30).timestamp()
+# 1522449000.0
+
+datetime.fromtimestamp(1522449000).strftime('%c')
+# 'Fri Mar 30 23:30:00 2018'
+
+n = datetime.now()
+t = n - timedelta(minutes=15)
+# datetime.datetime(2019, 10, 15, 11, 11, 6, 149052)
+t.timestamp()
+# 1571134266.149052
+
+utc_timestamp = datetime(2020,6,6,13,00, tzinfo=timezone.utc).timestamp()
+# 1591448400.0
+datetime.fromtimestamp(utc_timestamp, tz=timezone.utc)
+# datetime.datetime(2020, 6, 6, 13, 0, tzinfo=datetime.timezone.utc)
+</code></pre>
+
+</div>
+</body>
+</html>

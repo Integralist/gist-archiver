@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>RSpec Template</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="rspec-template">RSpec Template</h1>
+
+<h2 id="rspec-rb">RSpec.rb</h2>
+
+<pre><code class="language-ruby">describe Stack do
+  context &quot;Upon Creation&quot; do
+    let(:stack) { Stack.new } # `let` creates a lazy loaded (and memoized) helper method
+    
+    it &quot;will be empty&quot; do
+      stack.should be_empty # `stack` is still called when using the `should` assertion
+    end
+
+    it &quot;will raise underflow if popped&quot; do
+      lambda { stack.pop }.should raise_error(Underflow)
+    end
+  end
+end
+
+$count = 0
+describe &quot;let&quot; do
+  let(:count) { $count += 1 }
+
+  it &quot;memoizes the value&quot; do
+    count.should == 1
+    count.should == 1 # notice even though we call `count` again, the value is cached so it's still == one
+  end
+
+  it &quot;is not cached across examples&quot; do
+    count.should == 2 # but across tests the value can be updated
+  end
+end
+</code></pre>
+
+</div>
+</body>
+</html>

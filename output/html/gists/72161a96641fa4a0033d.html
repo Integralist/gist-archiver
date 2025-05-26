@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Install Redis CLI on AWS Instance</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="install-redis-cli-on-aws-instance">Install Redis CLI on AWS Instance</h1>
+
+<h2 id="install-redis-cli-on-aws-instance-md">Install Redis CLI on AWS Instance.md</h2>
+
+<pre><code class="language-markdown">- `ssh 10.6.11.62,eu-west-1`
+- `sudo yum install gcc`
+- `sudo yum install wget`
+- `wget http://download.redis.io/redis-stable.tar.gz`
+- `tar xvzf redis-stable.tar.gz`
+- `cd redis-stable`
+- `make`
+- `src/redis-cli -h mycachecluster.eaogs8.0001.usw2.cache.amazonaws.com -p 6379`
+
+Now run redis commands:
+
+- `Keys *`: list all keys
+- `set foo &quot;bar&quot;`: set a new key
+- `get foo`: get a specific key
+</code></pre>
+
+</div>
+</body>
+</html>

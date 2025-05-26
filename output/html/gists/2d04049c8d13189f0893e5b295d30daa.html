@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Rust environment] #rust #rustlang #environment #overrides #toolchain</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="rust-environment-rust-rustlang-environment-overrides-toolchain">[Rust environment] #rust #rustlang #environment #overrides #toolchain</h1>
+
+<h2 id="rust-environment-md">rust environment.md</h2>
+
+<pre><code class="language-markdown">The default toolchain in rust is &quot;stable&quot;.
+
+A user can execute `rustup override set &lt;toolchain&gt;` to change the default toolchain (e.g. to &quot;nightly&quot; or a specific toolchain version installed using `rustup toolchain install &lt;toolchain&gt;`), and this will be reflected when running either `rustup show active-toolchain` or `rustc --version` (i.e. either of those latter commands will show the version set to be the same as the specified override). The `rustup override set` command also takes priority over anything set within a `rust-toolchain` file:
+
+```toml
+[toolchain]
+channel = &quot;stable&quot; # &lt;&lt; this would be overridden by `rustup override set &lt;toolchain&gt;`
+targets = [ &quot;wasm32-wasi&quot; ]
+</code></pre>
+
+<blockquote>
+<p><strong>NOTE</strong>: The behaviour triggered by <code>rustup default &lt;toolchain&gt;</code> is also reflected in the output of <code>rustup show active-toolchain</code> and <code>rustc --version</code>, but (unlike <code>rustup override set</code>) the behaviour concedes to whatever is defined inside the <code>rust-toolchain</code> file.</p>
+</blockquote>
+
+<p>Additionally the <code>cargo build</code> command can accept a <code>+&lt;toolchain&gt;</code> indicator (e.g. <code>cargo +1.54.0 build</code>) and that can override any of the prior behaviours I&rsquo;ve covered.</p>
+
+<p>Here are some useful commands for understanding the rust environment:</p>
+
+<ul>
+<li><code>rustup show</code> (combines a bunch of the below data into a &lsquo;summary&rsquo; view)</li>
+<li><code>rustup default</code></li>
+<li><code>rustup show active-toolchain</code></li>
+<li><code>rustup override list</code></li>
+<li><code>rustup toolchain list</code></li>
+<li><code>rustup target list --installed --toolchain &lt;toolchain&gt;</code></li>
+<li><code>rustup target add &lt;target&gt; --toolchain &lt;toolchain&gt;</code></li>
+<li><code>rustup update &lt;toolchain&gt;</code> (e.g. update what &lsquo;stable&rsquo; refers to †)</li>
+<li><code>rustc --print sysroot</code></li>
+<li><code>ls -la $(rustc --print sysroot)/lib/rustlib</code> (check for installed targets like <code>wasm32-wasi</code>)</li>
+</ul>
+
+<blockquote>
+<p>† Which is different to any specific toolchain that has been manually installed (using <code>rustup toolchain install &lt;toolchain&gt;</code>) and then set to be the default using <code>rustup default &lt;toolchain&gt;</code>.</p>
+</blockquote>
+
+<p>Refer to <a href="https://rust-lang.github.io/rustup/concepts/toolchains.html" target="_blank">https://rust-lang.github.io/rustup/concepts/toolchains.html</a> for more information on the toolchain specification.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

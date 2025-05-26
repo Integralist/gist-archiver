@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Building an RPM https://github.com/integralist/simple-rpm</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="building-an-rpm-https-github-com-integralist-simple-rpm">Building an RPM <a href="https://github.com/integralist/simple-rpm" target="_blank">https://github.com/integralist/simple-rpm</a></h1>
+
+<h2 id="building-an-rpm-md">Building an RPM.md</h2>
+
+<pre><code class="language-markdown">See my working application (and additional notes) here:
+
+https://github.com/integralist/simple-rpm
+
+&gt; Other information that led to the above repository, can be found below
+
+## References
+
+- http://www.rpm.org/max-rpm/s1-rpm-anywhere-different-build-area.html
+- http://www.tldp.org/HOWTO/RPM-HOWTO/build.html
+- https://fedoraproject.org/wiki/How_to_create_an_RPM_package
+- http://www.thegeekstuff.com/2015/02/rpm-build-package-example/
+- https://github.com/darnould/simple-rpm
+
+## Folders
+
+| Macro Name       | Name                    | Location               | Purpose |
+|:-----------------|:------------------------|:-----------------------|:------- |
+| `%_specdir`      | Specification directory | `~/rpmbuild/SPECS`     | RPM specifications (`.spec`) files |
+| `%_sourcedir`    | Source directory        | `~/rpmbuild/SOURCES`   | Pristine source package (e.g. tarballs) and patches |
+| `%_builddir`     | Build directory         | `~/rpmbuild/BUILD`     | Source files are unpacked and compiled in a subdirectory underneath this. |
+| `%_buildrootdir` | Build root directory    | `~/rpmbuild/BUILDROOT` | Files are installed under here during the `%install` stage. |
+| `%_rpmdir`       | Binary RPM directory    | `~/rpmbuild/RPMS`      | Binary RPMs are created and stored under here. |
+| `%_srcrpmdir`    | Source RPM directory    | `~/rpmbuild/SRPMS`     | Source RPMs are created and stored here. |
+
+## Setup
+
+```bash
+mkdir -p ~/rpmbuild/{RPMS,SRPMS,BUILD,SOURCES,SPECS,tmp}
+
+cat &lt;&lt;EOF &gt;~/.rpmmacros
+%_topdir   %(echo $HOME)/rpmbuild
+%_tmppath  %{_topdir}/tmp
+EOF
+
+cd ~/rpmbuild
+</code></pre>
+
+<h2 id="tarball-your-project">Tarball your project</h2>
+
+<pre><code class="language-bash">mkdir foo-1.0
+mkdir -p foo-1.0/usr/bin
+mkdir -p foo-1.0/etc/foo
+install -m 755 foo foo-1.0/usr/bin
+install -m 644 foo.conf foo-1.0/etc/foo/
+
+tar -zcvf foo-1.0.tar.gz foo-1.0/
+</code></pre>
+
+<h2 id="copy-to-sources">Copy to SOURCES</h2>
+
+<pre><code class="language-bash">cp foo-1.0.tar.gz SOURCES/
+
+cat &lt;&lt;EOF &gt; SPECS/foo.spec
+# Don't try fancy stuff like debuginfo, which is useless on binary-only
+# packages. Don't strip binary too
+# Be sure buildpolicy set to do nothing
+%define        __spec_install_post %{nil}
+%define          debug_package %{nil}
+%define        __os_install_post %{_dbpath}/brp-compress
+
+Summary: A very simple toy bin rpm package
+Name: foo
+Version: 1.0
+Release: 1
+License: GPL+
+Group: Development/Tools
+SOURCE0 : %{name}-%{version}.tar.gz
+URL: http://foo.company.com/
+
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+
+%description
+%{summary}
+
+%prep
+%setup -q
+
+%build
+# Empty section.
+
+%install
+rm -rf %{buildroot}
+mkdir -p  %{buildroot}
+
+# in builddir
+cp -a * %{buildroot}
+
+
+%clean
+rm -rf %{buildroot}
+
+
+%files
+%defattr(-,root,root,-)
+%config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
+%{_bindir}/*
+
+%changelog
+* Thu Apr 24 2009  Elia Pinto &lt;devzero2000@rpm5.org&gt; 1.0-1
+- First Build
+
+EOF
+</code></pre>
+
+<h2 id="build">Build</h2>
+
+<pre><code class="language-bash">rpmbuild -ba SPECS/foo.spec
+</code></pre>
+
+<h2 id="directory-structure">Directory Structure</h2>
+
+<p>Simple example of what the directory structure looks like and means in practice&hellip;</p>
+
+<pre><code>.
+├── BUILD
+├── RPMS
+├── SOURCES
+│   ├── http://cache.ruby-lang.org/pub/ruby/ruby-2.1.2.tar.gz
+├── SPECS
+│   ├── ruby.spec
+├── SRPMS
+</code></pre>
+
+<p>The BUILD folder is where all files go which are created during a build of the package when you create the rpm.</p>
+
+<p>If the package builds correctly then any rpm(s) created will go into the RPMS and SRPMS folders.</p>
+
+<p>The SRPMS directory only contains source rpms.</p>
+
+<p>Spec files are basically instructions on how the rpm is built and they go in the SPECS folder.</p>
+
+<p>The source tar file should go into the SOURCES directory along with any patches.</p>
+
+<h2 id="miscellaneous-information">Miscellaneous Information</h2>
+
+<ul>
+<li>Spec file naming convention: <code>&lt;package_name&gt;-&lt;version_number&gt;-&lt;release_number&gt;.spec</code></li>
+<li>Spec files reference SOURCEs as <code>Source0</code>, <code>Source1</code></li>
+<li>Spec file uses <code>%{variable_name}</code> to dereference values
+
+<ul>
+<li>Variables are case insensitive; e.g. <code>%{foo}</code> matches <code>Foo</code> variable</li>
+</ul></li>
+</ul>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Basic Sass Grid</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="basic-sass-grid">Basic Sass Grid</h1>
+
+<h2 id="sass-grid-css">sass-grid.css</h2>
+
+<pre><code class="language-css">$grid-columns: 12;
+$grid-width: 960px;
+$grid-gutter: 10px;
+@function column-width($cols) {
+  @return ($grid-width
+           - $grid-gutter * ($grid-columns - 1))
+          / $grid-columns * $cols
+          + $grid-gutter * ($cols - 1);
+}
+
+// Create the columns...
+.col-1 { width: column-width(1); }
+…
+.col-12 { width: column-width(12); }
+</code></pre>
+
+</div>
+</body>
+</html>

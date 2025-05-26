@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Trying to run RSpec and Cucumber tests via Vim but found executing commands in different contexts means scope changes between what's available in the $PATH to the installed Ruby version and it's available gemsets.</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="trying-to-run-rspec-and-cucumber-tests-via-vim-but-found-executing-commands-in-different-contexts-means-scope-changes-between-what-s-available-in-the-path-to-the-installed-ruby-version-and-it-s-available-gemsets">Trying to run RSpec and Cucumber tests via Vim but found executing commands in different contexts means scope changes between what&rsquo;s available in the $PATH to the installed Ruby version and it&rsquo;s available gemsets.</h1>
+
+<h2 id="run-tests-via-vim">Run Tests via.vim</h2>
+
+<pre><code class="language-vim">&quot; Run currently open test file
+&quot; Bastardised from https://github.com/r00k/dotfiles/blob/master/vimrc#L245
+function! SetTestFile()
+    let g:bjo_test_file=@%
+endfunction
+
+function! SetTestFileLineNumber()
+    let g:bjo_test_file_line=line(&quot;.&quot;)
+endfunction
+
+function! SetTestRunner(runner)
+    let g:bjo_test_runner=a:runner
+endfunction
+
+function! RunCurrentTestFile()
+    let in_a_test_file = match(expand(&quot;%&quot;), '\(.feature\|_spec.rb\|_test.rb\)$') != -1
+
+    if in_a_test_file
+        call SetTestFile()
+
+        if match(expand('%'), '\.feature$') != -1
+            call SetTestRunner(&quot;!/Users/markmcdonnell/.gem/ruby/2.0.0/bin/cucumber&quot;)
+            exec g:bjo_test_runner g:bjo_test_file
+        elseif match(expand('%'), '_spec\.rb$') != -1
+            call SetTestRunner(&quot;!/Users/markmcdonnell/.gem/ruby/2.0.0/bin/rspec&quot;)
+        endif
+    endif
+endfunction
+
+function! RunCurrentLineInTestFile()
+    let in_a_test_file = match(expand(&quot;%&quot;), '\(.feature\|_spec.rb\|_test.rb\)$') != -1
+
+    if in_a_test_file
+        call SetTestFileLineNumber()
+    endif
+
+    exec &quot;!/Users/markmcdonnell/.gem/ruby/2.0.0/bin/rspec&quot; g:bjo_test_file . &quot;:&quot; . g:bjo_test_file_line
+endfunction
+
+</code></pre>
+
+</div>
+</body>
+</html>

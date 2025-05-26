@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Fastly API Edge Dictionary Example] #python3 #fastly #api #edge #dictionary #example #cdn</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-fastly-api-edge-dictionary-example-python3-fastly-api-edge-dictionary-example-cdn">[Python Fastly API Edge Dictionary Example] #python3 #fastly #api #edge #dictionary #example #cdn</h1>
+
+<h2 id="python-fastly-api-edge-dictionary-example-py">Python Fastly API Edge Dictionary Example.py</h2>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+
+&quot;&quot;&quot;
+description:
+allows engineers to cause requests to failover.example.com to skip
+authentication (we use 'Basic' scheme https://tools.ietf.org/html/rfc7617).
+
+dependencies:
+tornado &gt;= 6.0
+
+usage:
+GET
+    FASTLY_API_KEY=123 ./scripts/dr_west
+SET
+    FASTLY_API_KEY=123 ./scripts/dr_west --set --skip-auth=&lt;true|false&gt;
+&quot;&quot;&quot;
+
+import argparse
+import json
+import os
+import re
+import sys
+
+# required dependencies
+
+try:
+    from tornado.httpclient import AsyncHTTPClient
+    from tornado.ioloop import IOLoop
+except ImportError:
+    print(&quot;this script requires tornado &gt;= 6.0&quot;)
+    sys.exit(1)
+
+if not sys.version_info &gt;= (3, 7, 0):
+    print(&quot;this script requires the use of Python 3.7+&quot;)
+    sys.exit(1)
+
+# cli flags
+
+parser = argparse.ArgumentParser(description=&quot;DR failover.example.com&quot;)
+parser.add_argument(&quot;--set&quot;, help=&quot;Set operation&quot;, action=&quot;store_true&quot;)
+parser.add_argument(&quot;--skip-auth&quot;, help=&quot;Allow all requests to failover.example.com&quot;, default=&quot;false&quot;)
+args = parser.parse_args()
+
+# constants
+
+SKIP_AUTH = bool(re.match(&quot;true&quot;, args.skip_auth, flags=re.IGNORECASE))
+EDGE_DICT_ID = &quot;123&quot;
+EDGE_DICT_KEY = &quot;skip_auth&quot;
+FASTLY_API_KEY = os.environ.get(&quot;FASTLY_API_KEY&quot;)
+FASTLY_SERVICE_ID = &quot;456&quot;
+
+if not FASTLY_API_KEY:
+    print(&quot;Fastly API token is missing. Set in env var `FASTLY_API_KEY`&quot;)
+    sys.exit(1)
+
+# configuration
+
+AsyncHTTPClient.configure(None, defaults=dict(user_agent=&quot;Your-Organization&quot;))
+http_client = AsyncHTTPClient()
+
+
+async def api_request(method=&quot;GET&quot;, body=None):
+    content_type = {}
+
+    if method == &quot;PUT&quot;:
+        content_type = {&quot;Content-Type&quot;: &quot;application/x-www-form-urlencoded&quot;}
+
+    headers = {&quot;Fastly-Key&quot;: FASTLY_API_KEY, **content_type}
+
+    host = &quot;https://api.fastly.com&quot;
+    path = f&quot;service/{FASTLY_SERVICE_ID}/dictionary/{EDGE_DICT_ID}/item/{EDGE_DICT_KEY}&quot;
+    url = f&quot;{host}/{path}&quot;
+
+    resp = await http_client.fetch(url, method=method, headers=headers, body=body, raise_error=False)
+    data = json.loads(resp.body)
+    key = data['item_value']
+
+    print(f&quot;{method} skip_auth: {key}&quot;)
+
+
+async def edge_key():
+    &quot;&quot;&quot;retrieves edge dictionary (foo_dict) key (skip_auth) value.&quot;&quot;&quot;
+
+    await api_request()
+
+
+async def edge_key_update():
+    &quot;&quot;&quot;updates edge dictionary (foo_dict) with new key (skip_auth) value.&quot;&quot;&quot;
+
+    value = &quot;true&quot; if SKIP_AUTH else &quot;false&quot;
+    body = f&quot;item_value={value}&quot;
+
+    await api_request(method=&quot;PUT&quot;, body=body)
+
+
+async def main():
+    if args.set:
+        await edge_key_update()
+    else:
+        await edge_key()
+
+io_loop = IOLoop.current()
+io_loop.run_sync(main)
+</code></pre>
+
+</div>
+</body>
+</html>

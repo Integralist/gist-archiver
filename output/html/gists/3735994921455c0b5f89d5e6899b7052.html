@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Rust Learning: Packages, Crates, Modules] #rust #rustlang #learn</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="rust-learning-packages-crates-modules-rust-rustlang-learn">[Rust Learning: Packages, Crates, Modules] #rust #rustlang #learn</h1>
+
+<h2 id="rust-learning-packages-crates-modules-md">Rust Learning Packages Crates Modules.md</h2>
+
+<pre><code class="language-markdown">## Summary
+
+- **Packages**: A package is one or more crates that provide a set of functionality.
+- **Crates**: A tree of modules that produces a library or executable.
+- **Modules**: Modules let us organize code within a crate into groups for readability and easy reuse.
+
+&gt; [Ref](https://doc.rust-lang.org/book/ch07-00-managing-growing-projects-with-packages-crates-and-modules.html)
+
+## Package
+
+A package contains a `Cargo.toml` file that describes how to build the crates defined within the package.
+
+A package must contain at least one crate, it can be either a 'library' crate or a 'binary' crate. 
+
+A package can contain multiple binary crates, but can only one library crate.
+
+A package can have multiple binary crates by placing files in the `src/bin` directory: each file will be a separate binary crate.
+
+## Crate
+
+To show Rust where to find an item in a module tree, we use a path in the same way we use a path when navigating a filesystem. If we want to call a function, we need to know its path.
+
+This can be achieved using either an 'absolute' path or a 'relative' path.
+
+**Filename**: `src/lib.rs`
+
+```rust
+mod front_of_house {
+    mod hosting {
+        fn add_to_waitlist() {}
+    }
+}
+
+pub fn eat_at_restaurant() {
+    // Absolute path
+    crate::front_of_house::hosting::add_to_waitlist();
+
+    // Relative path
+    front_of_house::hosting::add_to_waitlist();
+}
+</code></pre>
+
+<h2 id="module">Module</h2>
+
+<p>You can define a module within the root library or binary crate or you can define them in separate files within the <code>src</code> directory.</p>
+
+<p><strong>Filename</strong>: <code>src/foo.rs</code></p>
+
+<pre><code class="language-rust">// foo module
+
+pub mod bar {
+    pub trait Thing {
+        fn do_thing(&amp;self);
+    }
+
+    pub fn baz() {
+        println!(&quot;baz called!&quot;)
+    }
+
+    #[derive(Debug)]
+    pub struct SomeStruct {
+        pub some_field: u8,
+    }
+
+    impl SomeStruct {
+        pub fn new(some_field: u8) -&gt; SomeStruct {
+            SomeStruct { some_field }
+        }
+    }
+
+    impl Thing for SomeStruct {
+        fn do_thing(&amp;self) {
+            println!(&quot;do a thing&quot;);
+        }
+    }
+}
+</code></pre>
+
+<p><strong>Filename</strong>: <code>src/main.rs</code></p>
+
+<pre><code class="language-rust">mod foo;
+
+use crate::foo::bar;
+use crate::foo::bar::Thing; // you must import the trait implemented for SomeStruct
+
+fn main() {
+    bar::baz();
+
+    let ss = bar::SomeStruct::new(123);
+    println!(&quot;{:?}&quot;, ss);
+    println!(&quot;{}&quot;, ss.some_field);
+    ss.do_thing();
+}
+</code></pre>
+
+<blockquote>
+<p><strong>NOTE</strong>: Using a semicolon after <code>mod foo</code> rather than using a block <code>{...}</code> tells Rust to load the contents of the module from another file with the same name as the module.
+&ldquo;`</p>
+</blockquote>
+
+</div>
+</body>
+</html>

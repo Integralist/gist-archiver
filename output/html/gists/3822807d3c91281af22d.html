@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Rubocop: ignore/disable features + example configuration yaml</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="rubocop-ignore-disable-features-example-configuration-yaml">Rubocop: ignore/disable features + example configuration yaml</h1>
+
+<h2 id="1-rubocop-disable-ignore-rb">1. Rubocop Disable Ignore.rb</h2>
+
+<pre><code class="language-ruby">require &quot;mustache&quot;
+
+module Composition
+  module Page
+    class Model &lt; Mustache
+      def initialize(components, template)
+        @components = components
+        self.template = template.source
+        super()
+      end
+
+      def head
+        components.map(&amp;:head).flatten.join(&quot;\n&quot;)
+      end
+
+      # rubocop:disable MethodName, InlineComment
+      def bodyInline
+        components.map(&amp;:bodyInline).join(&quot;\n&quot;)
+      end
+
+      def bodyLast
+        components.map(&amp;:bodyLast).flatten.join(&quot;\n&quot;)
+      end
+      # rubocop:enable MethodName, InlineComment
+
+      private
+
+      attr_reader :components
+    end
+  end
+end
+</code></pre>
+
+<h2 id="rubocop-yml">rubocop.yml</h2>
+
+<pre><code class="language-yaml">Lint/SpaceBeforeFirstArg:
+  Severity: fatal
+  Enabled: true
+ 
+Lint/RescueException:
+  Severity: fatal
+  Enabled: true
+ 
+Lint/UnusedBlockArgument:
+  Severity: fatal
+  Enabled: true
+ 
+Metrics/LineLength:
+  Severity: fatal
+  Enabled: true
+ 
+Metrics/MethodLength:
+  Severity: convention
+  Enabled: true
+  Max: 5
+ 
+Style/AlignHash:
+  Severity: fatal
+  Enabled: true
+  EnforcedHashRocketStyle: table
+ 
+Style/AlignParameters:
+  Severity: fatal
+  Enabled: true
+  EnforcedStyle: with_fixed_indentation
+ 
+Style/BracesAroundHashParameters:
+  Severity: fatal
+  Enabled: true
+ 
+ClassAndModuleChildren:
+  Severity: fatal
+  Enabled: true
+ 
+Style/ConstantName:
+  Severity: fatal
+  Enabled: true
+ 
+Style/Documentation:
+  Enabled: false
+ 
+Style/EmptyLinesAroundClassBody:
+  Severity: fatal
+  Enabled: true
+ 
+Style/ExtraSpacing:
+  Enabled: false
+ 
+Style/FileName:
+  Enabled: false
+ 
+Style/HashSyntax:
+  Severity: fatal
+  Enabled: true
+  EnforcedStyle: hash_rockets
+ 
+Style/IndentationConsistency:
+  Severity: fatal
+  Enabled: true
+ 
+Style/IndentationWidth:
+  Severity: fatal
+  Enabled: true
+ 
+Style/IndentHash:
+  Severity: fatal
+  Enabled: true
+ 
+Style/InlineComment:
+  Severity: fatal
+  Enabled: true
+ 
+Style/LineEndConcatenation:
+  Severity: fatal
+  Enabled: true
+ 
+Style/MethodName:
+  Severity: fatal
+  Enabled: true
+ 
+Style/MultilineTernaryOperator:
+  Enabled: false
+ 
+Style/NegatedIf:
+  Severity: fatal
+  Enabled: true
+ 
+Style/Not:
+  Severity: fatal
+  Enabled: true
+ 
+Style/SpaceInsideHashLiteralBraces:
+  Severity: fatal
+  Enabled: true
+ 
+Style/StringLiterals:
+  Severity: fatal
+  Enabled: true
+  EnforcedStyle: double_quotes
+ 
+Style/TrailingBlankLines:
+  Severity: fatal
+  Enabled: true
+ 
+Style/TrailingWhitespace:
+  Severity: fatal
+  Enabled: true
+ 
+Style/VariableName:
+  Severity: fatal
+  Enabled: true
+</code></pre>
+
+</div>
+</body>
+</html>

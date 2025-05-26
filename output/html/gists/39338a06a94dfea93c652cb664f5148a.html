@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go TOML Examples with custom Marshaller] #go #golang #toml</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-toml-examples-with-custom-marshaller-go-golang-toml">[Go TOML Examples with custom Marshaller] #go #golang #toml</h1>
+
+<h2 id="1-readme-md">1. README.md</h2>
+
+<pre><code class="language-markdown">The following files demonstrate how the CLI will handle the input toml.
+
+Here are the files:
+
+- [`example.toml`](#file-example-toml): it represents similar content to what `fastly.toml` holds and we expect the CLI to manage.
+- [`main.go`](#file-main-go): a reduced test case go program that attempts to decode/encode the provided toml to see how it handles things by default.
+- [`output`](#file-output): shows the output of the go program.
+
+## Summary
+
+The TOML library will continue to produce more verbose output, and will overwrite the users toml with the verbose variation (only for `fastly.toml`, as that's the only file that CLI manages).
+
+## Custom Marshaller
+
+I've written a custom marshaller but there are some issues to keep in mind.
+
+First, here's the implementation of the custom marshal:
+
+```go
+func (m Manifest) MarshalTOML() ([]byte, error) {
+	var b bytes.Buffer
+
+	b.WriteString(&quot;managed = &quot; + m.Managed + &quot;\n\n&quot;)
+	b.WriteString(&quot;[testing.backends]\n&quot;)
+
+	for k, v := range m.Testing.Backends {
+		line := fmt.Sprintf(&quot;%s = { url = \&quot;%s\&quot; }\n&quot;, k, v.URL)
+		b.WriteString(line)
+	}
+
+	return b.Bytes(), nil
+}
+</code></pre>
+
+<p>Here are the issues:</p>
+
+<ol>
+<li>The order of the backends are non-deterministic so they won&rsquo;t necessarily match what the user entered originally.</li>
+<li>This is a very simple implementation and so we don&rsquo;t analyse the original syntax. This means if the user writes their toml over multiple lines, then the CLI will overwrite that with the more concise version defined in <code>MarshalTOML</code>.</li>
+<li>The user is going to mostly copy/paste toml between <code>fastly.toml</code> and their environment files. Meaning: there will be a difference between the <code>fastly.toml</code> (which the CLI will overwrite the toml with more verbose toml syntax) and the environment files that the CLI doesn&rsquo;t manage.</li>
+</ol>
+
+<pre><code>
+## example.toml
+
+```toml
+managed = &quot;by CLI&quot;
+
+[testing.backends]
+foo = { url = &quot;https://foo.com/&quot;}
+&quot;bar.baz&quot; = { url = &quot;https://barbaz.com/&quot;}
+qux = { url = &quot;https://qux.com/&quot;}
+</code></pre>
+
+<h2 id="main-go">main.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;log&quot;
+	&quot;os&quot;
+
+	&quot;github.com/pelletier/go-toml&quot;
+)
+
+func main() {
+	fpath := &quot;example.toml&quot;
+
+    	// NOTE: trying both Decode/Encode and Unmarshal/Marshal to see if there were any differences (there aren't).
+
+	md := decode(fpath)
+	toml.NewEncoder(os.Stdout).Encode(md)
+
+	mu := unmarshal(fpath)
+	b, _ := toml.Marshal(mu)
+	fmt.Println(string(b))
+}
+
+func decode(fpath string) Manifest {
+	fmt.Println(&quot;\nDECODE&quot;)
+
+	var m Manifest
+
+	f, err := os.OpenFile(fpath, os.O_RDWR|os.O_CREATE, 0755)
+	if err != nil {
+		fmt.Println(&quot;decode: %w&quot;, err)
+	}
+
+	toml.NewDecoder(f).Decode(&amp;m)
+
+	fmt.Printf(&quot;\n%+v\n\n&quot;, m)
+
+	return m
+}
+
+func unmarshal(fpath string) Manifest {
+	fmt.Println(&quot;\nUNMARSHAL&quot;)
+
+	var m Manifest
+
+	f, err := os.OpenFile(fpath, os.O_RDWR|os.O_CREATE, 0755)
+	if err != nil {
+		fmt.Println(&quot;unmarshal: %w&quot;, err)
+	}
+
+	b, err := io.ReadAll(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	toml.Unmarshal(b, &amp;m)
+
+	fmt.Printf(&quot;\n%+v\n\n&quot;, m)
+
+	return m
+}
+
+type Manifest struct {
+	Managed string  `toml:&quot;managed&quot;`
+	Testing Testing `toml:&quot;testing&quot;`
+}
+
+type Testing struct {
+	Backends map[string]Backend `toml:&quot;backends&quot;`
+}
+
+type Backend struct {
+	URL string `toml:&quot;url&quot;`
+}
+</code></pre>
+
+<h2 id="output">output</h2>
+
+<pre><code class="language-text">DECODE
+
+{Managed:by CLI Testing:{Backends:map[bar.baz:{URL:https://barbaz.com/} foo:{URL:https://foo.com/} qux:{URL:https://qux.com/}]}}
+
+managed = &quot;by CLI&quot;
+
+[testing]
+
+  [testing.backends]
+
+    [testing.backends.&quot;bar.baz&quot;]
+      url = &quot;https://barbaz.com/&quot;
+
+    [testing.backends.foo]
+      url = &quot;https://foo.com/&quot;
+
+    [testing.backends.qux]
+      url = &quot;https://qux.com/&quot;
+
+UNMARSHAL
+
+{Managed:by CLI Testing:{Backends:map[bar.baz:{URL:https://barbaz.com/} foo:{URL:https://foo.com/} qux:{URL:https://qux.com/}]}}
+
+managed = &quot;by CLI&quot;
+
+[testing]
+
+  [testing.backends]
+
+    [testing.backends.&quot;bar.baz&quot;]
+      url = &quot;https://barbaz.com/&quot;
+
+    [testing.backends.foo]
+      url = &quot;https://foo.com/&quot;
+
+    [testing.backends.qux]
+      url = &quot;https://qux.com/&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

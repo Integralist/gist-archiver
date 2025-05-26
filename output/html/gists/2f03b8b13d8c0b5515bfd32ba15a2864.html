@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>VirtualBox: Kali Linux Linux Headers</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="virtualbox-kali-linux-linux-headers">VirtualBox: Kali Linux Linux Headers</h1>
+
+<h2 id="virtualbox-kali-linux-linux-headers-sh">VirtualBox: Kali Linux Linux Headers.sh</h2>
+
+<pre><code class="language-shell">sudo apt-get update
+sudo apt-get install linux-headers-$(uname -r)
+
+# if any errors then open /etc/apt/sources.list and add the following
+
+deb http://http.kali.org/ /kali main contrib non-free
+deb http://http.kali.org/ /wheezy main contrib non-free
+deb http://http.kali.org/kali kali-dev main contrib non-free
+deb http://http.kali.org/kali kali-dev main/debian-installer
+deb-src http://http.kali.org/kali kali-dev main contrib non-free
+deb http://http.kali.org/kali kali main contrib non-free
+deb http://http.kali.org/kali kali main/debian-installer
+deb-src http://http.kali.org/kali kali main contrib non-free
+deb http://security.kali.org/kali-security kali/updates main contrib non-free
+deb-src http://security.kali.org/kali-security kali/updates main contrib non-free
+deb http://repo.kali.org/kali kali-bleeding-edge main
+
+# then run the first two commands again
+</code></pre>
+
+</div>
+</body>
+</html>

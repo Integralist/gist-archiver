@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Brew switch to custom versions of software] #homebrew #brew #install #versions #switch</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="brew-switch-to-custom-versions-of-software-homebrew-brew-install-versions-switch">[Brew switch to custom versions of software] #homebrew #brew #install #versions #switch</h1>
+
+<h2 id="1-current-brew-switch-md">1. [CURRENT] Brew switch.md</h2>
+
+<pre><code class="language-markdown">If you wish to switch your `python` command to use a different Python interpreter (and it's a Python version you previously had installed using Homebrew):
+
+```bash
+brew info python           # To see what you have previously installed
+brew switch python 3.x.x_x # Ex. 3.6.5_1
+</code></pre>
+
+<blockquote>
+<p>NOTE: this might not be wise to do as you might have other software that relies on the Python interpreter you have currently (i.e. before the switch).</p>
+</blockquote>
+
+<p>Otherwise to install multiple Python versions using Homebrew (instead of something like <code>pyenv</code>)&hellip;</p>
+
+<p>Template:</p>
+
+<pre><code class="language-bash">brew install https://address/to/the/formula/FORMULA_NAME.rb
+</code></pre>
+
+<p>Example Python 3 template:</p>
+
+<pre><code class="language-bash">brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/COMMIT_IDENTIFIER/Formula/python.rb
+</code></pre>
+
+<p>Now you can&rsquo;t view the commits via the GitHub UI because there are so many, so you&rsquo;ll have to clone the homebrew-core repository and do it via the command line:</p>
+
+<pre><code class="language-bash">git clone git@github.com:Homebrew/homebrew-core.git
+git log master -- Formula/python.rb
+</code></pre>
+
+<p>From there you can search for the commits which update the Python version by searching for the message <code>python: update &lt;version&gt; bottle.</code></p>
+
+<p>Example: we want to install Python version <code>3.7.5</code></p>
+
+<pre><code class="language-bash">git log --oneline --grep '^python: update .\+ bottle'
+
+c14db427e7 python: update 3.7.7 bottle.
+f02346bd48 python: update 3.7.6_1 bottle.
+7ef074a882 python: update 3.7.6 bottle.
+2efdfe5519 python: update 3.7.5 bottle.    # &lt;&lt; HERE IT IS!
+6589f0f6f5 python: update 3.7.4_1 bottle.
+e9004bd764 python: update 3.7.4_1 bottle.
+1c2239bfdf python: update 3.7.4_1 bottle.
+48aba7218e python: update 3.7.4 bottle.
+c24d6bcd47 python: update 3.7.3 bottle.
+22c80fc362 python: update 3.7.3 bottle.
+
+...etc
+</code></pre>
+
+<p>Now we know the commit hash for the Python version <code>3.7.5</code> (i.e. <code>2efdfe5519</code>) we want we can install that version like so:</p>
+
+<pre><code class="language-bash">brew unlink python # ONLY if you have installed (with brew) another version of python 3
+brew install --ignore-dependencies https://raw.githubusercontent.com/Homebrew/homebrew-core/2efdfe5519/Formula/python.rb
+</code></pre>
+
+<pre><code>
+## 2. [OLD] Brew switch.md
+
+```markdown
+- `brew versions {package}`
+- `brew switch {package} {version}`
+
+OR
+
+- `brew uninstall {package}`
+- `brew versions {package}`
+- `git checkout {commit} Library/Formula/{package}.rb`
+- `brew install {package}`
+</code></pre>
+
+</div>
+</body>
+</html>

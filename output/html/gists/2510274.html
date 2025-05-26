@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>HTML5 Placeholder Polyfill</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="html5-placeholder-polyfill">HTML5 Placeholder Polyfill</h1>
+
+<h2 id="placeholder-js">placeholder.js</h2>
+
+<pre><code class="language-javascript">var doc = document,
+    body = doc.body,
+    inputs = doc.getElementsByTagName(&quot;input&quot;),
+    txtarea = doc.getElementsByTagName(&quot;textarea&quot;),
+    combined = [],
+    len,
+    placeholder, 
+    lastInputSelected;
+
+/**
+ * Following function determines whether the previously selected input should have its original placeholder value re-inserted.
+ * And then based on the currently selected input works out if it should have it's placeholder text removed so user can enter their own value.
+ *
+ * @param e { Object } standardised event object
+ * @return undefined {  } no explicitly returned value
+ */	
+function inputHandler(e) {
+	var targ = e.target || e.srcElement,
+        type = e.type;
+		 
+	placeholder = targ.getAttribute(&quot;placeholder&quot;);
+	
+	// If there was an input previously selected...
+	if (lastInputSelected !== undefined) {
+		// ...then check to make sure that if it was left blank...
+		if (lastInputSelected.value === '') {
+			// ...that its value is set back to it's placeholder value
+			lastInputSelected.value = lastInputSelected.getAttribute(&quot;placeholder&quot;);
+		}
+	}
+	
+	// If the target element has a placeholder...
+	if (placeholder !== null) {
+		
+		// ...then store it as the last input selected...
+		lastInputSelected = targ;
+		
+		if (type === &quot;blur&quot;) {
+			if (targ.value === &quot;&quot;) {
+				targ.value = placeholder;
+			}
+		} else {
+			// ...then check if its value is the same as its placeholder and clear the value if so...
+			if (targ.value === placeholder) {
+				targ.value = &quot;&quot;;
+			}
+		}
+		
+	}
+}
+
+/*
+ * To combine the two Arrays it would have been nice to just do:
+ *     var combined = [].concat(Array.prototype.slice.call(inputs), Array.prototype.slice.call(txtarea));
+ * But Internet Explorer fails with this, so we have merge the objects the long way!
+ */
+
+for (var i = 0; i &lt; inputs.length; i++) {
+    combined.push(inputs[i]);
+}
+
+for (var j = 0; j &lt; txtarea.length; j++) {
+    combined.push(txtarea[j]);
+}
+	
+len = combined.length;
+
+	while (len--) {
+	// Make sure the input has a placeholder attribute AND isn't a password field (for the time being I'm ignoring password fields)
+	if (combined[len].getAttribute('placeholder') !== null &amp;&amp; combined[len].type !== 'password') {
+		// Set the value of the input to the placeholder value
+		combined[len].value = combined[len].getAttribute('placeholder');
+	}
+}
+
+// To get Event Delegation to work we need to listen for 'focus' &amp; 'blur' events.
+// Firefox &amp; WebKit have useCapture set to true which initiates capturing (rather than bubbling)
+// Internet Explorer uses attachEvent to listen to 'focusin' event (as it can only handling bubbling phase)
+if (&quot;addEventListener&quot; in window) {
+    body.addEventListener(&quot;focus&quot;, inputHandler, true);
+    body.addEventListener(&quot;blur&quot;, inputHandler, true);
+} else {
+	body.attachEvent(&quot;onfocusin&quot;, inputHandler);
+	body.attachEvent(&quot;onfocusout&quot;, inputHandler);
+}
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Super basic concurrency based HTTP requester</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="super-basic-concurrency-based-http-requester">Super basic concurrency based HTTP requester</h1>
+
+<h2 id="1-requester-rb">1. requester.rb</h2>
+
+<pre><code class="language-ruby">require &quot;faraday&quot;
+require &quot;json&quot;
+
+raw_json = &lt;&lt;-eos
+{
+  &quot;components&quot;: [
+    {
+      &quot;id&quot;: &quot;header&quot;,
+      &quot;url&quot;: &quot;https://gist.githubusercontent.com/revett/445ba84972156834a5df/raw/cb407f8c5348fb59d0448bd2b5573464e466cbc8/header.json&quot;
+    },
+    {
+      &quot;id&quot;: &quot;title&quot;,
+      &quot;url&quot;: &quot;https://gist.githubusercontent.com/revett/445ba84972156834a5df/raw/cb407f8c5348fb59d0448bd2b5573464e466cbc8/title.json&quot;
+    },
+    {
+      &quot;id&quot;: &quot;sidebar&quot;,
+      &quot;url&quot;: &quot;https://gist.githubusercontent.com/revett/445ba84972156834a5df/raw/cb407f8c5348fb59d0448bd2b5573464e466cbc8/sidebar.json&quot;
+    },
+    {
+      &quot;id&quot;: &quot;footer&quot;,
+      &quot;url&quot;: &quot;https://gist.githubusercontent.com/revett/445ba84972156834a5df/raw/cb407f8c5348fb59d0448bd2b5573464e466cbc8/footer.json&quot;
+    },
+    {
+      &quot;id&quot;: &quot;image&quot;,
+      &quot;url&quot;: &quot;https://gist.githubusercontent.com/revett/445ba84972156834a5df/raw/cb407f8c5348fb59d0448bd2b5573464e466cbc8/image.json&quot;
+    }
+  ]
+}
+eos
+
+overall_status   = &quot;success&quot;
+component_status = &quot;success&quot;
+threads          = []
+json             = JSON.parse(raw_json)
+components       = json[&quot;components&quot;]
+
+components.size.times do |i|
+  threads &lt;&lt; Thread.new do
+    time_start = Time.now
+
+    url            = components[i-1][&quot;url&quot;]
+    response       = Faraday.get url
+
+    time_end = Time.now
+
+    overall_status = component_status = &quot;failure&quot; if response.status != 200 || (time_end-time_start) &gt; 2
+
+    {
+      :id     =&gt; components[i-1][&quot;id&quot;],
+      :status =&gt; component_status,
+      :body   =&gt; JSON.parse(response.body)[&quot;content&quot;]
+    }
+  end
+end
+
+threads.each { |t| t.join }
+
+result = {
+  :status     =&gt; overall_status,
+  :components =&gt; threads.map { |t| t.value }
+}
+
+p JSON.generate(result)
+</code></pre>
+
+<h2 id="2-convert-json-response-into-a-ruby-object-rb">2. Convert JSON response into a Ruby object.rb</h2>
+
+<pre><code class="language-ruby">{&quot;status&quot;=&gt;&quot;success&quot;,
+ &quot;components&quot;=&gt;
+  [{&quot;id&quot;=&gt;&quot;image&quot;,
+    &quot;status&quot;=&gt;&quot;success&quot;,
+    &quot;body&quot;=&gt;
+     &quot;&lt;p&gt;Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.&lt;/p&gt;&quot;},
+   {&quot;id&quot;=&gt;&quot;header&quot;,
+    &quot;status&quot;=&gt;&quot;success&quot;,
+    &quot;body&quot;=&gt;
+     &quot;&lt;p&gt;Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.&lt;/p&gt;&quot;},
+   {&quot;id&quot;=&gt;&quot;title&quot;,
+    &quot;status&quot;=&gt;&quot;success&quot;,
+    &quot;body&quot;=&gt;
+     &quot;&lt;p&gt;Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.&lt;/p&gt;&quot;},
+   {&quot;id&quot;=&gt;&quot;sidebar&quot;,
+    &quot;status&quot;=&gt;&quot;success&quot;,
+    &quot;body&quot;=&gt;
+     &quot;&lt;p&gt;Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.&lt;/p&gt;&quot;},
+   {&quot;id&quot;=&gt;&quot;footer&quot;,
+    &quot;status&quot;=&gt;&quot;success&quot;,
+    &quot;body&quot;=&gt;
+     &quot;&lt;p&gt;Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.&lt;/p&gt;&quot;}]}
+</code></pre>
+
+</div>
+</body>
+</html>

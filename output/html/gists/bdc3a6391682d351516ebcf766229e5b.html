@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang spinner] #go #golang #spinner</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-spinner-go-golang-spinner">[Golang spinner] #go #golang #spinner</h1>
+
+<h2 id="main-go">main.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;time&quot;
+
+	&quot;github.com/theckman/yacspin&quot;
+)
+
+func main() {
+	spinner, _ := yacspin.New(yacspin.Config{
+		CharSet:           yacspin.CharSets[9],
+		Frequency:         100 * time.Millisecond,
+		StopCharacter:     &quot;✓&quot;,
+		StopColors:        []string{&quot;fgGreen&quot;},
+		StopFailCharacter: &quot;✗&quot;,
+		StopFailColors:    []string{&quot;fgRed&quot;},
+		Suffix:            &quot; &quot;,
+		// NotTTY:            true,
+	})
+
+	_ = spinner.Start()
+	spinner.Message(&quot;1.&quot;)
+
+	time.Sleep(4 * time.Second)
+
+	spinner.Message(&quot;2.&quot;)
+
+	time.Sleep(4 * time.Second)
+
+	spinner.StopMessage(&quot;2.&quot;)
+
+	_ = spinner.Stop()
+
+	_ = spinner.Start()
+
+	spinner.Message(&quot;3.&quot;)
+
+	time.Sleep(4 * time.Second)
+
+	spinner.StopFailMessage(&quot;3.&quot;)
+
+	_ = spinner.StopFail()
+}
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Tox Explanation] #python #tox #testing</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-tox-explanation-python-tox-testing">[Python Tox Explanation] #python #tox #testing</h1>
+
+<h2 id="python-tox-explanation-md">Python Tox Explanation.md</h2>
+
+<pre><code class="language-markdown">Tox is a tool that creates virtual environments, and installs the configured dependencies for those environments, for the purpose of testing a Python package (i.e. something that will be shared via PyPi, and so it only works with code that defines a `setup.py`).
+
+The file that you use to configure tox can be one of the following...
+
+&gt; Note: these are all [ini file](https://en.wikipedia.org/wiki/INI_file) formats.
+
+- `tox.ini`
+- `pyproject.toml` (see [PEP 518](https://www.python.org/dev/peps/pep-0518/))
+- `setup.cfg` (see [official guide to distributing packages](https://packaging.python.org/guides/distributing-packages-using-setuptools/))
+
+All configuration options for tox can be found here:
+[tox.readthedocs.io/en/latest/config.html](https://tox.readthedocs.io/en/latest/config.html)
+
+## Example tox.ini
+
+&gt; Note: the name after `testenv:` is the _name_ of the virtual environment that will be created (e.g. `testenv:foo` will create a &quot;foo&quot; virtual environment).
+
+```ini
+[tox]
+envlist = 
+    py37, lint
+toxworkdir = 
+    {env:TOX_WORK_DIR}
+
+[testenv]
+setenv =
+    PYTHONDONTWRITEBYTECODE = 1
+whitelist_externals =
+    /bin/bash
+deps = 
+    -rrequirements-dev.txt
+commands =
+    py.test --cov={envsitepackagesdir}/bf_tornado -m &quot;not integration&quot;
+
+[testenv:dev]
+usedevelop=True
+recreate = False
+commands =
+    # to run arbitrary commands: tox -e dev -- bash
+    {posargs:py.test --cov=bf_tornado}
+
+[testenv:lint]
+deps = flake8==3.7.9
+commands =
+    flake8 bf_tornado
+</code></pre>
+
+<h2 id="configuring-other-packages">Configuring <em>other</em> packages</h2>
+
+<p>A <code>tox.ini</code> file can be used to configure different types of packages, which is confusing at first because the tox home page suggests that tox is used to test <em>your own</em> packages you plan on distributing to PyPi.</p>
+
+<p>What is meant by that is the <code>tox</code> command itself is used to handle testing your packages, while the <code>tox.ini</code> <em>configuration file</em> is just one such file that can be used to contain configuration information.</p>
+
+<p>This is why other packages, such as <a href="https://flake8.pycqa.org/en/latest/index.html" target="_blank">Flake8</a> allow you to <a href="https://flake8.pycqa.org/en/latest/user/configuration.html" target="_blank">configure it</a> using the <code>tox.ini</code> file (or alternatively either <code>setup.cfg</code> or <code>.flake8</code> files can be used).</p>
+
+<p>The key to understanding why this works is as so: each of these files conforms to the <a href="https://en.wikipedia.org/wiki/INI_file" target="_blank">ini file</a> format. So you&rsquo;re free to use whatever file &lsquo;name&rsquo; you feel best suits your project, while the format of the file will stay consistent to what is expected of an <code>.ini</code> file.</p>
+
+<p>Below is an example that shows various Python packages being configured within a <code>tox.ini</code> file.</p>
+
+<p>In case it&rsquo;s unclear, the configuration inside of the <code>tox.ini</code> file is used instead of having to pass those configuration values via the command line. So in the case of a tool such as <code>flake8</code>, instead of using <code>flake8 --max-line-length=120</code> you could just call <code>flake8</code> and the flag value is extracted from the configuration file.</p>
+
+<pre><code class="language-ini">[flake8]
+max_line_length = 120
+ignore = E261,E265,E402  # http://pep8.readthedocs.org/en/latest/intro.html#error-codes
+
+[coverage:run]
+branch = True
+
+[coverage:report]
+show_missing = True
+exclude_lines =
+    raise NotImplementedError
+    return NotImplemented
+    def __repr__
+omit = bf_tornado/testing.py
+
+[pytest]
+addopts = 
+    --strict -p no:cacheprovider --showlocals
+markers =
+    integration: mark a test as an integration test that makes http calls.
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

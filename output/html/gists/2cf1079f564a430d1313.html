@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Best way to modular Grunt tasks</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="best-way-to-modular-grunt-tasks">Best way to modular Grunt tasks</h1>
+
+<h2 id="1-tree">1. Tree</h2>
+
+<pre><code class="language-text">|— Gruntfile
+|— package.json
+|— grunt
+| – contrib-requirejs.js
+</code></pre>
+
+<h2 id="2-gruntfile-js">2. Gruntfile.js</h2>
+
+<pre><code class="language-javascript">module.exports = function(grunt) {
+    grunt.loadTasks('grunt');
+};
+</code></pre>
+
+<h2 id="3-grunt-task-contrib-requirejs-js">3. Grunt Task (contrib-requirejs).js</h2>
+
+<pre><code class="language-javascript">module.exports = function(grunt) {
+    grunt.config('requirejs', {
+        compile: {
+            options: {
+                baseUrl: './app',
+                name: 'main',
+                out: './app/release/main.js'
+            }
+        }
+    });
+
+    grunt.loadNpmTasks('grunt-contrib-requirejs');
+};
+</code></pre>
+
+<h2 id="4-conditionally-load-tasks-js">4. Conditionally Load Tasks.js</h2>
+
+<pre><code class="language-javascript">module.exports = function (grunt) {
+    grunt.registerTask('images', [], function() {
+        grunt.config('responsive_images', {
+            main: { ... }
+        });
+
+        grunt.loadNpmTasks('grunt-responsive-images');
+        grunt.task.run('responsive_images');
+    });
+};
+</code></pre>
+
+</div>
+</body>
+</html>

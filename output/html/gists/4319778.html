@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>The last time I wrote any real PHP (of any production worth) was back in 2006 (it's now December 2012). I thought I would share some potentially terrible PHP code I wrote today whilst trying to refresh my memory. Definitely feel free to have a good laugh, but what would be even better would be some constructive criticism. This isn't supposed to be anything remotely near finished code. The purpose was to get me back into the feel for writing PHP. If there are suggestions about what I've written (things I should avoid for example) then I'd love to hear them. Thanks!</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="the-last-time-i-wrote-any-real-php-of-any-production-worth-was-back-in-2006-it-s-now-december-2012-i-thought-i-would-share-some-potentially-terrible-php-code-i-wrote-today-whilst-trying-to-refresh-my-memory-definitely-feel-free-to-have-a-good-laugh-but-what-would-be-even-better-would-be-some-constructive-criticism-this-isn-t-supposed-to-be-anything-remotely-near-finished-code-the-purpose-was-to-get-me-back-into-the-feel-for-writing-php-if-there-are-suggestions-about-what-i-ve-written-things-i-should-avoid-for-example-then-i-d-love-to-hear-them-thanks">The last time I wrote any real PHP (of any production worth) was back in 2006 (it&rsquo;s now December 2012). I thought I would share some potentially terrible PHP code I wrote today whilst trying to refresh my memory. Definitely feel free to have a good laugh, but what would be even better would be some constructive criticism. This isn&rsquo;t supposed to be anything remotely near finished code. The purpose was to get me back into the feel for writing PHP. If there are suggestions about what I&rsquo;ve written (things I should avoid for example) then I&rsquo;d love to hear them. Thanks!</h1>
+
+<h2 id="1-database-php">1. Database.php</h2>
+
+<pre><code class="language-php">&lt;?php
+    class Database {
+        private $_dbconnection;
+
+        /*
+            @description 
+            Constructor that creates a new instance of a PDO connection.
+            
+            @param username     {String} username access
+            @param password     {String} password access
+            @param host         {String} host information (either localhost or ip address, defaults to localhost)
+            @param dbname       {String} database name to access (defaults to stormtest)
+            @param errortype    {Object} sets the error mode (defaults to ERRMODE_SILENT)
+            @return             {Object} new class instance object is returned
+         */
+        public function __construct ($username, $password, $host = 'localhost', $dbname = 'mydemodb', $errortype = PDO::ERRMODE_SILENT) {
+            try {
+                $this-&gt;_dbconnection = new PDO('mysql:host=' . $host . ';dbname=' . $dbname, $username, $password);
+                $this-&gt;_dbconnection-&gt;setAttribute(PDO::ATTR_ERRMODE, $errortype);
+
+                /*
+                    // Different error settings that can be used...
+
+                    $_dbconnection-&gt;setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT );    // Standard
+                    $_dbconnection-&gt;setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );   // Useful for debuggin
+                    $_dbconnection-&gt;setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION ); // Shows an exception and hides all other important data
+                 */
+            } catch (PDOException $error) {
+                die($error-&gt;getMessage()); // Ideally we'd do something better here than just die!
+            }
+        }
+
+        /*
+            @description 
+            Fetch data from table using specified SQL command and returns data as either an Array or an Object (depending on what the user specifies).
+            
+            @param sql              {String}        The SQL command to execute
+            @param response_type    {Object}        Optional response type (defaults to Array)
+            @return results         {Object|Array}  Returns either an Array or an Object (depending on what the user specified)
+         */
+        public function fetch ($sql, $response_type = PDO::FETCH_ASSOC) {
+            $query = $this-&gt;_dbconnection-&gt;query($sql);
+            $query-&gt;setFetchMode($response_type);
+            $results = $query-&gt;fetchAll(); // was originally using `fetch` but realised that only returns first result
+            return $results;
+        }
+
+        // Close the database connection
+        public function close () {
+            $this-&gt;_dbconnection = null;
+        }
+    }
+?&gt;
+</code></pre>
+
+<h2 id="2-basic-demo-php">2. Basic Demo.php</h2>
+
+<pre><code class="language-php">&lt;?php
+
+// CONFIGURE ERROR MESSAGES
+    ini_set('display_errors',1);
+    error_reporting(E_ALL);
+
+// PULL IN OUR DATABASE CLASS
+    require 'Database.php';
+
+// GENERIC CONNECTION (REUSED A FEW TIMES BELOW)
+    $db_connection = new Database('root', 'mydemopass');
+    
+// EXAMPLE OF BASIC QUERY
+    $results_array = $db_connection-&gt;fetch('SELECT * FROM testing');
+    $results_object = $db_connection-&gt;fetch('SELECT * FROM testing', PDO::FETCH_OBJ);
+
+    print_r($results_array);
+        echo '&lt;br&gt;&lt;hr&gt;';
+    print_r($results_object);
+        echo '&lt;br&gt;&lt;hr&gt;';
+
+// EXAMPLE OF JOINING DATA VIA FOREIGN KEY
+    $sql = 'SELECT * FROM testing INNER JOIN roles ON testing.user_role = roles.role_id'; // In MySQL we set-up `user_role` to be an index/foreign key which points to the `roles` table
+    $results_full_object = $db_connection-&gt;fetch($sql, PDO::FETCH_OBJ);
+
+    print_r($results_full_object);
+        echo '&lt;hr&gt;';
+
+    /*
+        An Array wraps multiple Objects in the results.
+        So we have to loop through the Array first before we can access the Objects within.
+     */
+    foreach ($results_full_object as $index) {
+        
+        foreach ($index as $key =&gt; $value) {
+            echo $key . ': ' . $value . '&lt;br&gt;';
+
+            /*
+                // This loop will display something like this...
+
+                user_id: 1
+                user_name: Joe
+                user_surname: Bloggs
+                user_age: 30
+                user_role: 1
+                role_id: 1
+                role_name: Manager
+                user_id: 1
+                user_name: Bob
+                user_surname: Smith
+                user_age: 99
+                user_role: 2
+                role_id: 2
+                role_name: Developer
+             */
+        }
+    }
+
+// WE'RE DONE, LETS GO!
+    $db_connection-&gt;close();
+
+?&gt;
+</code></pre>
+
+</div>
+</body>
+</html>

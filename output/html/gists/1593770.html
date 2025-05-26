@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Details on Host Objects and how to list them</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="details-on-host-objects-and-how-to-list-them">Details on Host Objects and how to list them</h1>
+
+<h2 id="host-objects-md">host-objects.md</h2>
+
+<pre><code class="language-markdown">The easiest way to check what 'host' objects are available is to execute the following code:
+
+```js
+var global = (function(){return this}()); // http://perfectionkills.com/unnecessarily-comprehensive-look-into-a-rather-insignificant-issue-of-global-objects-creation/
+
+for (props in global) {
+    console.log(props); 
+}
+</code></pre>
+
+<p>The following is taken from Cody Lindley&rsquo;s &ldquo;JavaScript Enlightenment&rdquo;&hellip;</p>
+
+<p>&ldquo;<em>As it pertains to web browsers, the most famous of all hosted objects is the interface for working with HTML documents, also known as the DOM. Below, is a method to list all of the objects contained inside the <code>window.document</code> object provided by the browser environment.</em>&rdquo;</p>
+
+<pre><code class="language-js">for (props in window.document) {
+    console.log(props); 
+}
+</code></pre>
+
+<p>&ldquo;<em>There is a dividing line between what JavaScript provides (e.g. JavaScript 1.5, ECMA-262, Edition 3 v.s. <a href="https://developer.mozilla.org/en/JavaScript/New_in_JavaScript" target="_blank">Mozilla&rsquo;s JavaScript</a>) and what the host environment provides, and these two should not be confused.</em></p>
+
+<p><em>The host environment (e.g. a web browser) that runs JavaScript code typically provides the head object (e.g. <code>window</code> object in web browser) where the native portions of the language are stored along with host objects (e.g. <code>window.location</code> in web browser) and user-defined objects (e.g. the code your write to run in the web browser).</em></p>
+
+<p><em>It&rsquo;s not uncommon for a web browser manufacturer as the host of the JavaScript interrupter to push forward the version of JavaScript or add future specifications to JavaScript before they have been approved (e.g. Mozilla&rsquo;s <a href="https://developer.mozilla.org/en/JavaScript/New_in_JavaScript" target="_blank">Firefox</a> JavaScript 1.6, 1.7, 1.8, 1.8.1, 1.8.5).</em>&rdquo;
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

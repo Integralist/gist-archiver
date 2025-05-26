@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Set same cookie on multiple domains] #cookie #multiple #domains</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="set-same-cookie-on-multiple-domains-cookie-multiple-domains">[Set same cookie on multiple domains] #cookie #multiple #domains</h1>
+
+<h2 id="set-same-cookie-on-multiple-domains-md">Set same cookie on multiple domains.md</h2>
+
+<pre><code class="language-markdown">Reference: http://subinsb.com/set-same-cookie-on-different-domains/
+
+The way Google does this is by creating a server-side script that sets the cookie on all the domains. 
+
+On the domain where the login occurs, create a intermediary page that would load the server-side script that sets a cookie on the other two domains. 
+
+i.e. the user authenticates, and are redirected to `/processing`
+
+In that page you would add an `onload` callback onto the `body` tag. 
+
+The document will only load when the images have completely loaded (i.e. the cookies are set on the other two domains). 
+
+</code></pre>
+
+<!-- https://www.domain1.com/processing -->
+
+<p><html>
+ <head>
+  <script>
+   function loadComplete(){</p>
+
+<pre><code>window.location=&quot;https://www.domain1.com/user/settings&quot;; // page to redirect user once they're authenticated
+</code></pre>
+
+<p>}
+   </script>
+ </head>
+ <body onload="loadComplete()">
+ 	Please wait&hellip;&hellip;&hellip;.
+ 	<img src="https://www.domain2.com/setcookie.php?user=jwt"/>
+ 	<img src="https://www.domain3.com/setcookie.php?user=jwt"/>
+ </body>
+</html></p>
+
+<pre><code></code></pre>
+
+</div>
+</body>
+</html>

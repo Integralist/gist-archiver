@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Project Management] #management #process #project #pm</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="project-management-management-process-project-pm">[Project Management] #management #process #project #pm</h1>
+
+<h2 id="project-management-md">Project Management.md</h2>
+
+<pre><code class="language-markdown">&gt; [!TIP]
+&gt; See also https://gist.github.com/Integralist/bfcad74c66dfa1e8eb5e2c07b13811df
+
+## What Who How Why?
+
+- **Product Manager**: owns the story of &quot;what&quot;
+- **Engineering Manager**: owns the story of &quot;who&quot;
+- **Engineering Lead (Tech Lead)**: owns the story of &quot;how&quot;
+- **All Three**: each person shares ownership of the story of &quot;why&quot;
+
+![team leader venn diagram](https://user-images.githubusercontent.com/180050/40474139-1dd70be4-5f36-11e8-8bc4-590d4f2178ba.png)
+
+[More details...](https://medium.com/making-meetup/em-el-pm-venn-diagram-764e79b42baf)
+
+## Project Management
+
+- 🤔 Understand the requirements, and specifically why they are important. 
+- 📝 Create simple/high-level Gherkin [user stories](#user-stories) to help understand the product values and standards. 
+- ✅ Break down the requirements into milestones and manageable sub tasks 
+  - inc. investigation time, QA (Quality Assurance) and security testing
+- 🔝 Prioritise tasks
+  - e.g. either by 'importance/impact' (High, Medium, Low) or using 'MSC' (Must Should Could)
+  - Once categorized, group related items (e.g. group together all high, medium, low items)
+  - A table matrix can help visualise the various tasks and their importance
+- 🗒 Work through the unknowns until you really feel that there is no more value to be gained in spending time on them.
+- 🗣 Figure out who and which teams need to be consulted, and communicate as often as practical.
+- 📆 Run the project and adjust the plan as you go. 
+  - How far has the project has come? 
+  - How far is it from completion?
+- 📈 Track changes to requirements and be clear about the cost of those changes
+  - How do they affect the completion?
+  - Should we cut some existing features in order to accommodate the new work? 
+- 📊 Ensure observability and monitoring is in place. 
+- ⛑ Define a rollout plan and what the roll back steps look like. 
+  - What systems need to be integrated with?
+  - Notify appropriate on-call and support teams
+- ❤️ Retro 
+  - What went well, what didn't, what could we do differently in future?
+- 🎉 CELEBRATE!
+
+## User Stories
+
+&gt; Gherkin is plain-text with a little extra structure and is designed to be easy to learn by non-programmers, yet structured enough to allow concise description of examples to illustrate business rules in most real-world domains. -- [https://cucumber.io/docs/reference](https://cucumber.io/docs/reference)
+
+It's good for documentation and it can be helpful to some teams to use these user stories as a foundation for their own integration testing systems (although I personally wouldn't, I prefer just using them as a simple reference for what it is we want to achieve at a high-level).
+
+```cucumber
+Feature: User Authentication
+  
+  ...optional description about this feature here...
+
+Scenario: authenticated user requesting a page
+  Given I am a BuzzFeed user (internal or external)
+  And I’m already signed in
+  When I visit www.buzzfeed.com or www.buzzfeed.com/post
+  Then I am directed to my destination page
+
+Scenario: unauthenticated user requesting a page
+  Given I am a BuzzFeed user (internal or external)
+  And I’m not signed in
+  When I visit www.buzzfeed.com or www.buzzfeed.com/post
+  Then I am able to login with &lt;method&gt;
+
+  Examples:
+    | method            |
+    | Facebook          |
+    | Twitter           |
+    | Google            |
+    | Username/Password |
+
+Scenario: unauthenticated user successful login
+  Given I am a BuzzFeed user (internal or external)
+  And I provide valid credentials
+  When I attempt to login
+  Then I am directed to my destination page
+
+Scenario: unauthenticated user failed login
+  Given I am a BuzzFeed user (internal or external)
+  And I provide invalid credentials
+  When I attempt to login
+  Then I am presented with a login error
+
+Scenario: unauthenticated user sign-up
+  Given I am a BuzzFeed user (internal or external)
+  And I am not already registered in the system
+  When I visit www.buzzfeed.com/cms
+  Then I am directed to a legacy sign-up flow
+</code></pre>
+
+<h2 id="positive-mindset">Positive Mindset</h2>
+
+<p>I&rsquo;ve found that swapping the word &ldquo;problem&rdquo; for &ldquo;challenge&rdquo; a good thing to do in general, whether it be talking about an actual technical challenge or discussing a challenging interaction with another employee. The subtle switch in language helps me refocus on a more positive and motivated projectory (rather than setting myself up to be in a negative mindset for the conversation).</p>
+
+<h2 id="recognising-trends">Recognising Trends</h2>
+
+<p>It can be useful, when reporting to your line manager (e.g. 1:1&rsquo;s where you discuss things that are on your mind), it can be difficult sometimes to voice concerns without explicit examples.</p>
+
+<p>Depending on the situation, explicit examples aren&rsquo;t always possible to recall. In those cases where you have a niggling feeling something isn&rsquo;t quite right but you couldn&rsquo;t point to an exact point in time where an incident occurred, then being able to see a <em>trend</em> of something negative happening can help you to raise it up to leadership.</p>
+
+<p>Be aware of trends in people, otherwise you might find yourself in a bad situation and not sure how or why you got there in the first place. Not everything is so &lsquo;black and white&rsquo; and obvious.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[xarg examples] #xargs #bash #shell</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="xarg-examples-xargs-bash-shell">[xarg examples] #xargs #bash #shell</h1>
+
+<h2 id="xarg-examples-bash">xarg examples.bash</h2>
+
+<pre><code class="language-shell">seq 10 | xargs -t -I % -n 2 -p echo &quot;foo % bar % baz % qux % qiz %&quot;
+
+# -t prints what would be executed
+# -I lets you choose a character to act as a placeholder for input (commonly {} is used, but % looks nicer and fits programming syntax)
+#    otherwise input is _appended_ to the end of the command
+# -n works only if -I isnt' provided and controls how many lines of input are passed to the 'utility' to be executed (e.g. the echo command)
+#    for example: `seq 5 | xargs -n 2` would print `1 2` on one line, then `3 4` on the next line, then finally `5`
+# -p prompts you to confirm if the command should be executed (if set, then you don't also need -t)
+#
+# Also, the performance of using xargs to remove/rename files is magnitudes faster than `find` with the `-exec` flag!
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Python Exception Logging Decorator</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-exception-logging-decorator">Python Exception Logging Decorator</h1>
+
+<h2 id="exception-logging-decorator-py">exception-logging-decorator.py</h2>
+
+<pre><code class="language-python">import logging
+
+def exception(func):
+    def wrapper(n):
+        try:
+            return func(n)
+        except Exception as err:
+            logging.error(&quot;Error: %s&quot;, err)
+            raise
+    return wrapper
+
+@exception
+def cause_an_error(n):
+    return 1 / n
+
+if __name__ == &quot;__main__&quot;:
+    try:
+        result = cause_an_error(1) # change to zero to see the failure
+        print(result)
+    except Exception as err:
+        print(err)
+</code></pre>
+
+</div>
+</body>
+</html>

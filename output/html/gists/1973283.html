@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Canvas example</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="canvas-example">Canvas example</h1>
+
+<h2 id="index-html">index.html</h2>
+
+<pre><code class="language-html">&lt;!doctype html&gt;
+&lt;html dir=&quot;ltr&quot; lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+    	&lt;meta charset=&quot;utf-8&quot;&gt;
+    	&lt;title&gt;HTML5 Canvas&lt;/title&gt;
+    	&lt;style type=&quot;text/css&quot;&gt;
+    	   body {
+    	       font: normal large Helvetica, sans-serif;
+    	   }
+    	   
+    	   #card {
+    	       border: 1px solid red;
+    	   }
+    	   
+    	   #downloadform {
+    	       border: 1px solid green;
+    	       float: right;
+    	       margin-left: 10px;
+    	       padding: 10px;
+    	   }
+    	   
+    	   #generatedImage {
+    	       border: 1px solid blue;
+    	       width: 300px;
+    	   }
+    	   
+    	   input {
+    	       display: block;
+    	   }
+    	&lt;/style&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;form action=&quot;saveimage.php&quot; method=&quot;post&quot; id=&quot;downloadform&quot;&gt;
+            &lt;input type=&quot;hidden&quot; name=&quot;imgdata&quot; id=&quot;imgdata&quot;&gt;
+            &lt;input type=&quot;submit&quot; value=&quot;Save Image&quot;&gt;
+        &lt;/form&gt;
+        &lt;canvas id=&quot;card&quot; width=&quot;960&quot; height=&quot;739&quot;&gt;&lt;/canvas&gt;
+    	&lt;script type=&quot;text/javascript&quot;&gt;
+            var canvas = document.getElementById(&quot;card&quot;),
+                ctx = canvas.getContext(&quot;2d&quot;),
+                img = new Image();
+                img.src = &quot;card.png&quot;;
+                img.onload = loadImageIntoCanvas;
+                
+            function loadImageIntoCanvas() {
+                // Load the specified image into the canvas (image, x, y, width[optional], height[optional])
+                ctx.drawImage(img, 0, 0, 700, 400); // I've purposedly squashed the image
+                
+                // Now image is loaded we'll draw some text into the canvas
+                writeText();
+            }
+            
+            function writeText() {
+                // Place text into the canvas
+                ctx.fillStyle = &quot;#CC0000&quot;; // red
+                ctx.font = &quot;italic bold 25px Helvetica&quot;;
+                ctx.fillText(&quot;Some text I've inserted into the image&quot;, 125, 180);
+                
+                // Now lets save this image
+                saveImage();
+            }
+            
+            function saveImage() {
+                var form = document.forms[0],
+                    input = form.elements[0],
+                    dataURL = canvas.toDataURL(),
+                    img = new Image();
+                    img.src = dataURL;
+                    img.id = &quot;generatedImage&quot;;
+                
+                input.value = dataURL;
+                form.insertBefore(img, form.firstChild);
+            }
+    	&lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<h2 id="saveimage-php">saveimage.php</h2>
+
+<pre><code class="language-php">&lt;?php
+    // Get data
+    $data = $_POST['imgdata'];
+
+    // Remove the &quot;data:image/png;base64,&quot; part
+    $uri =  substr($data, strpos($data, &quot;,&quot;) + 1);
+    
+    // Save the file to the machine
+    file_put_contents(&quot;generated.png&quot;, base64_decode($uri));
+    
+    // Force user to download the saved image
+    if (file_exists(&quot;generated.png&quot;)) {
+        // We'll be outputting a PNG
+        header(&quot;Content-type: image/png&quot;);
+        
+        // It will be called generated.png
+        header(&quot;Content-Disposition: attachment; filename=generated.png&quot;);
+
+        // Reads the file and writes it to the output buffer
+        readfile(&quot;generated.png&quot;);
+    }
+?&gt;
+</code></pre>
+
+</div>
+</body>
+</html>

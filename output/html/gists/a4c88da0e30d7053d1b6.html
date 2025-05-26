@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Best Practice Code Design and Architecture</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="best-practice-code-design-and-architecture">Best Practice Code Design and Architecture</h1>
+
+<h2 id="1-definitions-and-expectations-md">1. Definitions and Expectations.md</h2>
+
+<pre><code class="language-markdown">## What do we want to achieve?
+
+We want two documents:
+
+1. To inform developers on how they should behave and conduct themselves within a professional organisation
+2. To inform developers on what is considered to be good code design/architectural choices
+
+We want developers to use these documents as a reference and to uphold the values they instill. 
+
+For the code quality, that doesn't mean we are gate-keepers trying to 'enforce' these as hardened rules. These should be seen as guidelines and best practice recommendations.
+
+For the document to define how developers behave, see further below for my thoughts on that (i.e. the section &quot;What level of authority does it carry?&quot;)
+
+## What is a &quot;community driven model&quot;?
+
+Simply: developers can open a &quot;pull request&quot; on either document and from that start a discussion around the change they wish to make.
+
+We would want to document a template for when opening a PR (so we ensure both consistency, as well as a well thought out proposal). What goes into that template will need to be discussed and agreed upon by tech leads/architects.
+
+## What is a &quot;code of conduct&quot;/&quot;statement of values&quot;?
+
+As mentioned in the section &quot;What do we want to achieve?&quot;...
+
+&gt; To inform developers on how they should behave and conduct themselves within a professional organisation
+
+## What is a &quot;code quality document&quot;?
+
+As mentioned in the section &quot;What do we want to achieve?&quot;...
+
+&gt; To inform developers on what is considered to be good code design/architectural choices
+
+## What level of authority does it carry?
+
+Authority depends on the document being discussed...
+
+### Code Quality
+
+Authority could mean two things here:
+
+1. Trust
+2. Enforcement
+
+For the 'trust', this should come from the collective agreement between tech leads and architects that the items listed are good and should be adhered to wherever possible.
+
+For the 'enforcement', we can't realistically enforce teams to follow these concepts. Nor can we expect a tech lead to have their eye over every piece of code that gets committed to master; so we can't expect to enforce this on even a 'team by team' basis.
+
+The best we can hope for, or at least work hard towards, is a pro-active engineering culture where we all think and do the best we can on the project/code we're working on/with. So following these guidelines then becomes a healthy/positive experience.
+
+### Values
+
+The values should be enforced by the BBC and the engineering manager or someone like Robin Pembrooke (Head of News).
+
+We should take these values seriously and every member of every team should be able to recognise when they're being violated and take responsibility for members of our own teams. Yes this is a big ask for some people, but you can't have one person (e.g. a tech lead) trying to handle this by themselves; least of all because they won't be around all the time to see it happening.
+
+## How is it written?
+
+It should be written by tech leads and architects, with contributions from the developers.
+
+Any amendments or new additions should be discussed and at least collectively agreed upon by the tech leads/architects. But at least this will be an open discussion that developers can be involved with and feel they're able to impact upon the outcome.
+
+## When is it used?
+
+As mentioned in the section &quot;What do we want to achieve?&quot;...
+
+&gt; We want developers to use these documents as a reference and to uphold the values they instill
+
+The more both documents are viewed and looked at, the more common place their values will become and the need to reference them becomes less (that's the dreamy ideal at least).
+</code></pre>
+
+<h2 id="2-best-practice-code-design-and-architecture-md">2. Best Practice Code Design and Architecture.md</h2>
+
+<pre><code class="language-markdown">## Types
+
+There are a few different *types* of programming languages and each has their own idioms and best practices. It would be appropriate to first identify what these types are so you can recognise roughly where your language sits.
+
+- **Imperative programming**: telling the &quot;machine&quot; how to do something, and as a result what you want to happen will happen  
+  &gt; [Go](https://golang.org/) is a language that is imperative in nature as some abstractions - such as `Array#map` - are removed from the language and means it tends to encourage a particular explicit, concrete, and imperative programming style
+
+- **Declarative programming**: telling the &quot;machine&quot; what you would like to happen, and let the computer figure out how to do it  
+  &gt; Functional Programming and abstractions such as `Array#map` instead of `for` allow us to focus on *what* we want to happen rather than *how*
+
+- **Structured programming**: makes extensive use of subroutines, block structures, `for` and `while` loops etc  
+  &gt; Object-Oriented Programming is an extension of this
+
+## Before we get started...
+
+None of the following are concrete recommendations. Just ideas, things for you and your team to consider.
+
+## General comments
+
+- Ask yourself all the time: &quot;can this thing be moved? does it have well defined boundaries?&quot;
+- Realise that 'simplicity' is not the same as 'easy'
+  - Easy is short term and most times can introduce additional complexity
+  - Simplicity allows for easy while avoiding complexity
+  - Much like 'complexity' is not the same as 'complicated'
+  - Recognise when you're over-engineering a problem with too much tech (go back to basics)
+
+## Code Design Best Practices
+
+&gt; Some of these will be cliches and others painfully obvious, but such is life
+
+Aim to...
+
+- Design your code to allow future changes to be easily made
+  - Quoting Kent Beck: &quot;make the change easy, then make the easy change&quot;
+- Build loosely coupled applications and code that allows them to result in highly cohesive collaboration
+  - Functional Programming is usually a good demonstration of this (e.g. lots of reusable functions)
+- Be DRY (Don’t repeat yourself)
+  - But don't try to write your abstractions too quickly
+  - Allow patterns of reuse to show themselves, and *then* abstract
+- Utilise [design patterns](https://sourcemaking.com/design_patterns) where appropriate
+  - Don't necessarily *start* with a design pattern unless the problem you're solving is very common
+- Understand the [S.O.L.I.D principles](https://gist.github.com/Integralist/9482527)
+  - Even if OOP isn't necessarily your primary flavour
+  - Contracts and Interfaces allow for much greater flexibility
+    - e.g. &quot;Program to an 'interface', not an 'implementation'&quot;
+  - Injection of dependencies frees your objects/functions from unecessary context
+- Do not chain calls (i.e. [Law of Demeter](https://practicingruby.com/articles/temporal-coupling-and-the-law-of-demeter))
+- Refactor code regularly
+  - Every time you touch a file, leave it in a better state than you found it
+- Consider YAGNI (you aren’t going to need it)
+  - Be mindful of potential problems that could be around the corner
+  - But don't solve problems you don't have yet
+- Avoid Premature Optimization
+  - Measure your code's performance *before* you start trying to rewrite code that will have no measurable effect for your users
+
+## Architecture Best Practices
+
+Aim to...
+
+- Decouple your services and behaviour
+  - This could be SOA or Microservices, doesn't really matter that much
+  - Pick whichever style is most appropriate to your project and team
+- Scale *out*, not *up*
+  - Horizontally scaling demonstrates a nice separation of services/behaviours
+  - More flexible than simply throwing more hardware at the problem
+- Design for resiliency
+  - Utilise mechanisms that faciliate graceful failure
+  - This might be utilising asynchronous queues over a typical HTTP/TCP request cycle
+  - This could include visualising your system architecture and identifying a [caching strategy](https://gist.github.com/Integralist/e69c50d02f0edf086dbd)
+  - For distributed/concurrent applications be mindful of issues such as &quot;eventual consistency&quot;, efficient use of thread pools with blocking I/O processes, and 'even workflow distribution' problems
+- Design for performance
+  - Again, caching strategies would be useful
+  - Load test often and automate the process as much as possible
+    - e.g. you could run a mini-load test on every new 'release' or 'push to master' to measure perf degradation
+  - Downgrade your protocols where appropriate
+    - Do you need HTTP? Maybe a low-level RPC call and/or TCP server would be better suited?
+    - Maybe using an asynchronous distributed queue would increase performance as well as faciliate decoupling
+  - If working on a client-side application consider a &quot;performance budget&quot; and set-up automated notifications to keep track of it
+- Automate as much as possible
+- Consider the use of containers to allow for easier reproduction of running services
+</code></pre>
+
+</div>
+</body>
+</html>

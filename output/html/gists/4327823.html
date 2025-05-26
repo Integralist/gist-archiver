@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Refreshing my memory on PHP inheritance and general OOP</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="refreshing-my-memory-on-php-inheritance-and-general-oop">Refreshing my memory on PHP inheritance and general OOP</h1>
+
+<h2 id="inheritance-php">inheritance.php</h2>
+
+<pre><code class="language-php">&lt;?php
+
+    // Configure error messages
+    ini_set('display_errors',1);
+    error_reporting(E_ALL);
+
+    class Adult {
+        /*
+            We set the visibility of these properties to 'protected' so they are accessible within the Child class.
+            We prefix private and protected properties/methods with an underscore, so (at a glance) while scanning a long file we can instantly recognise the visibility.
+         */
+        protected $_name;
+        protected $_age;
+
+        /*
+            Note: static properties/methods belong to the whole class (inc. sub classes)
+            To access it from within a class or subclass use `self::`
+            e.g. self::$_teststatic
+
+            Static properties/methods can also be accessed from outside the class using `ClassName::STATIC`
+            e.g. Adult::$_teststatic
+            
+            Attempts to access a normal public property from outside a class will cause an error, so the `static` keyword is required.
+            You can still set the visibility of a static property/method (e.g. if set to `protected` then running Adult::$_teststatic outside a class would cause an error)
+         */
+        public static $_teststatic = 'This is a test static property';
+
+        // Indicates how many class instances have been created
+        protected static $_counter = 0;
+
+        /*
+            Note: this constant can also be accessed from outside the class (like a static property) using `ClassName::CONSTANT`
+            e.g. Adult::LOCATION
+         */
+        const LOCATION = 'England';
+
+        public function __construct ($name, $age) {
+            $this-&gt;_name = $name;
+            $this-&gt;_age = $age;
+            $this-&gt;introduction();
+
+            // Update the static property so we know another new instance has been created
+            self::$_counter++;
+        }
+
+        public function how_many_instances(){
+            echo 'There have been: ' . self::$_counter . ' number of class instances created.&lt;hr&gt;';
+        }
+
+        public function reset_instances(){
+            self::$_counter = 0;
+        }
+
+        public function introduction(){
+            echo 'Hi, my name is ' . $this-&gt;_name . ' and I am ' . $this-&gt;_age . ' years old.&lt;hr&gt;';
+        }
+
+        // Set visibility to `final` so it can never be modified by a sub class
+        final public function birthday(){
+            $this-&gt;_age++;
+            echo $this-&gt;_name . ' has had a birthday and is now ' . $this-&gt;_age . ' years old!&lt;hr&gt;';
+        }
+    }
+
+    class Child extends Adult {
+        protected $_favtoy;
+
+        // We've inherited the Constructor from Adult but we'll overwrite it here
+        public function __construct ($name, $age, $favtoy) {
+            // We've not defined these properties (_name &amp; _age) in this class - they're inherited from the Adult class.
+            $this-&gt;_name = $name;
+            $this-&gt;_age = $age;
+            $this-&gt;_favtoy = $favtoy;
+            $this-&gt;introduction();
+
+            /*
+                Another way to do this with slightly less code is to call the parent class' constructor.
+                One problem I noticed was that if we ran this code we'd need to call the parent constructor AFTER setting properties on this instance (otherwise the property is never set?)
+                I'm not sure why the property would have not set when calling the parent constructor, but for whatever reason it wouldn't work until I moved the call after the properties?
+             */
+            //parent::__construct($name, $age);
+
+            // Update the static property so we know another new instance has been created
+            self::$_counter++;
+        }
+
+        // We're again, over writing this method so it's different from the Parent class
+        public function introduction(){
+            echo 'Hi, my name is ' . $this-&gt;_name . ' and I am ' . $this-&gt;_age . ' years old AND my favourite toy is ' . $this-&gt;_favtoy . '.&lt;hr&gt;';
+        }
+
+        public function display_location(){
+            echo self::LOCATION . '&lt;hr&gt;'; // constants defined inside a class need to be references by `SELF::`
+        }
+    }
+
+    class Baby extends Child {
+        const LOCATION = 'Bedroom'; // Note: constants can't be modified within their own class but sub classes can modify the value
+
+        /*
+            Note: even though the constant value has been updated if we relied on the inheritance chain then the value displayed would be the one defined in Child class
+            For it to work how we want it to we need to overwrite the `display_location` method completely.
+            We can't use parent::display_location(); inside of the redefined method because the scope/context still changes to the Child class.
+            So we literally need to have a duplicate of the `display_location` method.
+
+            Really the best thing to do here would be to not use a constant (as it's not actually a constant value if it changes between classes!) 
+            Instead we should have used a protected property.
+         */
+        public function display_location(){
+            echo self::LOCATION . '&lt;hr&gt;'; // constants defined inside a class need to be references by `SELF::`
+        }
+    }
+
+    $dad = new Adult('Bob', 40);
+    $mom = new Adult('Alice', 35);
+    $son = new Child('Jim', 10, 'Rubik Cube');
+    $baby = new Baby('Katie', 1, 'Thumb');
+
+    $dad-&gt;birthday();
+    $son-&gt;birthday();
+
+    $son-&gt;display_location();
+    $baby-&gt;display_location();
+
+    echo 'We\'re accessing a public static method: &quot;' . Adult::$_teststatic . '&quot;&lt;hr&gt;';
+
+    /*
+        Notice how each class instance references the same static property and returns the same value. 
+        This was done on purpose to demonstrate static classes but this example is a bit pointless in real world terms.
+     */
+    Adult::how_many_instances();
+    Child::how_many_instances();
+    Baby::how_many_instances();
+
+    Adult::reset_instances(); // We have effectively set-up a priviledged method (it is public but it can access protected/private data)
+    Adult::how_many_instances(); // So although we can't access the static property directly (as the below line demonstrates) we can still change its value if we really need to.
+    echo Adult::$_counter; // Fatal error: Cannot access protected property Adult::$_counter in /Users/stormcreative/Sites/pdo/Class-inheritance.php on line 137 
+
+?&gt;
+</code></pre>
+
+</div>
+</body>
+</html>

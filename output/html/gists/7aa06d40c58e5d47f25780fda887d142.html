@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Vim Directory Structure, Start-up and Debugging] #vim #directory #structure #startup #debugging #debug</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="vim-directory-structure-start-up-and-debugging-vim-directory-structure-startup-debugging-debug">[Vim Directory Structure, Start-up and Debugging] #vim #directory #structure #startup #debugging #debug</h1>
+
+<h2 id="vim-directory-structure-start-up-and-debugging-md">Vim Directory Structure, Start-up and Debugging.md</h2>
+
+<pre><code class="language-markdown">The vim documentation explains all the various steps that are gone through during 'start-up', see `:h startup`.
+
+In short, Vim executes `:runtime! plugin/**/*.vim` meaning any directories listed in the runtime path (`:h set runtimepath?`) will be searched for a `plugin` sub-directory and all files ending in &quot;.vim&quot; will be sourced (in alphabetical order per directory).
+
+&gt; Note: if you want to debug the start-up process: `vim --startuptime some_log_filename`.
+
+- `~/.vim/autoload/...` (`:h autoload`)
+- `~/.vim/plugin/...` (`:h plugin`)
+- `~/.vim/ftplugin/...` (`:h ftplugin`)
+- `~/.vim/after/...` (`:h after-directory`)
+
+## the `after` directory
+
+The `after` directory is used by vim 'users' _and_ by vim 'plugin authors' to override specific plugin configuration (that could be either `~/.vim/plugin/...` or `~/.vim/ftplugin/...`).
+
+For example, the vim plugin author for `vim-polyglot` adds this file: `~/.vim/plugin/vim-polyglot/after/ftdetect/rspec.vim` which overrides the filetype configuration for `rspec` files.
+
+Where as a vim user might want to override the behaviour of a plugin they're using (e.g. the FZF plugin) by adding the file `~/.vim/after/plugin/config/fzf.vim`, and due to how vim loads 'after' scripts, that file would get loaded. Although it's important to add a guard into the code to ensure it only executes if the FZF plugin actually is loaded (otherwise this after script could cause an error)...
+
+```viml
+&quot; include guard; quit if fzf isn't loaded
+if ! exists(':FZF')
+    finish
+endif
+</code></pre>
+
+<h2 id="debugging">Debugging</h2>
+
+<p>To check a specific setting and who (i.e. which plugin or script) last modified it, use <code>:verbose set &lt;setting&gt;?</code></p>
+
+<p>For example, <code>:verbose set shiftwidth?</code> returns&hellip;</p>
+
+<pre><code class="language-viml">shiftwidth=2
+      Last set from ~/.vimrc
+</code></pre>
+
+<p>You can also see what mappings have been configured using the <code>map</code> command.</p>
+
+<p>For example, to see all mappings with the leader key&hellip;</p>
+
+<pre><code class="language-viml">:verbose map &lt;leader&gt;
+
+x  \y            :Buffers&lt;CR&gt;
+        Last set from ~/.vimrc
+   \t            :FZF&lt;CR&gt;
+        Last set from ~/.vimrc
+        
+n  \z            :ALEPrevious&lt;CR&gt;
+        Last set from ~/.vimrc
+n  \x            :ALENext&lt;CR&gt;
+        Last set from ~/.vimrc
+</code></pre>
+
+<blockquote>
+<p>Note: see <code>:h map-listing</code> for the various modes (<code>n</code> = normal, <code>x</code> = visual, etc).</p>
+</blockquote>
+
+<p>The same principle works with other mappings like <code>&lt;Ctrl-k&gt;</code> and <code>&lt;Ctrl-j</code>&hellip;</p>
+
+<pre><code class="language-viml">:verbose map &lt;c-k&gt;
+
+n  &lt;C-K&gt;         &lt;Plug&gt;MoveLineUp
+        Last set from ~/.vim/plugged/vim-move/plugin/move.vim
+v  &lt;C-K&gt;         &lt;Plug&gt;MoveBlockUp
+        Last set from ~/.vim/plugged/vim-move/plugin/move.vim
+
+:verbose map &lt;c-j&gt;
+
+n  &lt;NL&gt;          &lt;Plug&gt;MoveLineDown
+        Last set from ~/.vim/plugged/vim-move/plugin/move.vim
+v  &lt;NL&gt;          &lt;Plug&gt;MoveBlockDown
+        Last set from ~/.vim/plugged/vim-move/plugin/move.vim
+</code></pre>
+
+<blockquote>
+<p>Note: vim also has a debugger you can use <code>vim -D ~/.vimrc</code> (see reference below for details).</p>
+</blockquote>
+
+<p>Lastly, there is a the <code>-V&lt;N&gt;</code> flag that sets the verbosity of vim output when starting up&hellip;</p>
+
+<pre><code>&quot; &gt;= 1  When the viminfo file is read or written.
+&quot; &gt;= 2  When a file is &quot;:source&quot;'ed.
+&quot; &gt;= 5  Every searched tags file and include file.
+&quot; &gt;= 8  Files for which a group of autocommands is executed.
+&quot; &gt;= 9  Every executed autocommand.
+&quot; &gt;= 12 Every executed function.
+&quot; &gt;= 13 When an exception is thrown, caught, finished, or discarded.
+&quot; &gt;= 14 Anything pending in a &quot;:finally&quot; clause.
+&quot; &gt;= 15 Every executed Ex command (truncated at 200 characters).
+</code></pre>
+
+<blockquote>
+<p>Note: see <code>:h vbs</code> for details.</p>
+</blockquote>
+
+<p>Usage example: <code>vim -V9 ~/.vimrc</code>, but you can also write the output to a log file instead (pro tip: use the log file approach) such as <code>vim -V9foo ~/.vimrc</code> which will write the output to the log file <code>foo</code>.</p>
+
+<h2 id="reference">Reference</h2>
+
+<ul>
+<li><a href="https://gist.github.com/nelstrom/1056049/784e252c3de653e204e9e128653010e19fbd493f" target="_blank">Breakdown of vim directories</a></li>
+<li><a href="https://vimways.org/2018/from-vimrc-to-vim/" target="_blank">Breaking up your .vimrc</a></li>
+<li><a href="http://inlehmansterms.net/2014/10/31/debugging-vim/" target="_blank">Vim Debugging</a></li>
+</ul>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

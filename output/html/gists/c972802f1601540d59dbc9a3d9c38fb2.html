@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ls command behave like tree command</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ls-command-behave-like-tree-command">ls command behave like tree command</h1>
+
+<h2 id="ls-like-tree-output-sh">ls like tree output.sh</h2>
+
+<pre><code class="language-shell">   .
+   |-lib
+   |---composition
+   |-----error
+   |-----page
+   |-----response
+   |-----routing
+   |-----schema
+   |-spec
+   |---composition
+   |-----page
+   |-----response
+   |-----schema
+   |---fixtures
+   |---integration
+</code></pre>
+
+<h2 id="ls-like-tree-sh">ls like tree.sh</h2>
+
+<pre><code class="language-shell">ls -R | grep &quot;:&quot; | sed -e 's/://' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
+</code></pre>
+
+</div>
+</body>
+</html>

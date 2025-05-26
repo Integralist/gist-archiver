@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[custom toml unmarshal wrapper for string to int] #go #golang #toml #unmarshal</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="custom-toml-unmarshal-wrapper-for-string-to-int-go-golang-toml-unmarshal">[custom toml unmarshal wrapper for string to int] #go #golang #toml #unmarshal</h1>
+
+<h2 id="custom-toml-unmarshal-wrapper-for-string-to-int-go">custom toml unmarshal wrapper for string to int.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;strconv&quot;
+	&quot;strings&quot;
+
+	toml &quot;github.com/pelletier/go-toml&quot;
+)
+
+type StringInt struct {
+	int
+}
+
+func (si *StringInt) UnmarshalText(text []byte) error {
+	var err error
+
+	s := string(text)
+
+	if si.int, err = strconv.Atoi(s); err == nil {
+		return nil
+	}
+
+	if f, err := strconv.ParseFloat(s, 32); err == nil {
+		intfl := int(f)
+		if intfl == 0 {
+			si.int = 1
+		} else {
+			si.int = intfl
+		}
+		return nil
+	}
+
+	if strings.Contains(s, &quot;.&quot;) {
+		segs := strings.Split(s, &quot;.&quot;)
+		if len(segs) == 3 {
+			// yes this could be more robust but for now I'm trusting a string with a &quot;.&quot; means semver :grimace:
+			if segs[0] != &quot;0&quot; {
+				if si.int, err = strconv.Atoi(segs[0]); err == nil {
+					return nil
+				}
+			} else {
+				si.int = 1
+				return nil
+			}
+
+		}
+	}
+
+	return fmt.Errorf(&quot;unsupported: %s&quot;, text)
+}
+
+type FileTest struct {
+	Version1 StringInt `toml:&quot;version1&quot;`
+	Version2 StringInt `toml:&quot;version2&quot;`
+	Version3 StringInt `toml:&quot;version3&quot;`
+	Version4 StringInt `toml:&quot;version4&quot;`
+	Version5 StringInt `toml:&quot;version5&quot;`
+	Version6 StringInt `toml:&quot;version6&quot;`
+	Version7 StringInt `toml:&quot;version7&quot;`
+}
+
+func main() {
+	data := []byte(`
+	version1 = &quot;1&quot;
+	version2 = 1
+	version3 = &quot;0.1.0&quot;
+	version4 = &quot;1.0.0&quot;
+	version5 = 0.1
+	version6 = &quot;0.2.0&quot;
+	version7 = &quot;2.0.0&quot;
+	`)
+
+	file := FileTest{}
+	toml.Unmarshal(data, &amp;file)
+	format := &quot;version1 (\&quot;1\&quot;):\n\t%d\nversion2 (1):\n\t%d\nversion3 (\&quot;0.1.0\&quot;):\n\t%d\nversion4 (\&quot;1.0.0\&quot;):\n\t%d\nversion5 (0.1):\n\t%d\nversion6 (\&quot;0.2.0\&quot;):\n\t%d\nversion7 (\&quot;2.0.0\&quot;):\n\t%d\n&quot;
+	fmt.Printf(format, file.Version1.int, file.Version2.int, file.Version3.int, file.Version4.int, file.Version5.int, file.Version6.int, file.Version7.int)
+}
+
+</code></pre>
+
+</div>
+</body>
+</html>

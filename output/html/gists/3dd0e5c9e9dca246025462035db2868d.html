@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang json.Decoder vs json.Unmarshal] #go #golang #json #decode #unmarshal #stream #data #comparison</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-json-decoder-vs-json-unmarshal-go-golang-json-decode-unmarshal-stream-data-comparison">[Golang json.Decoder vs json.Unmarshal] #go #golang #json #decode #unmarshal #stream #data #comparison</h1>
+
+<h2 id="golang-json-decoder-vs-json-unmarshal-md">Golang json.Decoder vs json.Unmarshal.md</h2>
+
+<pre><code class="language-markdown">## General Rule of Thumb
+
+- Use `json.Unmarshal` when the JSON data is already in memory (like a string or `[]byte`) and you know the data is small or moderate in size.
+- Use `json.NewDecoder` for large JSON files, streaming data (such as from network requests), or when you need to handle data incrementally.
+
+`json.Unmarshal` reads the entire JSON into memory and decodes it directly into a Go variable, where as `json.NewDecoder` reads JSON data incrementally, parsing one token at a time, which is more memory-efficient with large JSON payloads.
+
+In summary, use `json.Unmarshal` for _simplicity_ with smaller data, and `json.NewDecoder` for _efficiency_ with large or streaming data.
+
+## Terminology
+
+- `json.Marshal`: encode data structure as JSON.
+- `json.Unmarshal`: decode JSON into data structure.
+
+&gt; [!NOTE] 
+&gt; This is also sometimes referred to as 'serialize' and 'deserialize`.
+
+## Differences in `json.Decoder`
+
+1. `json.Decoder` is for JSON streams.
+2. `json.Decoder` silently ignores invalid syntax.
+3. `json.Decoder` does not drain HTTP connections properly.
+
+&gt; [!NOTE]
+&gt; The issues with `json.Decoder` are summarized from https://ahmet.im/blog/golang-json-decoder-pitfalls/
+
+### JSON Streams
+
+`json.Decoder` is for JSON _streams_ (which are just concatenated/or new-line separated JSON values).
+
+Example of a JSON stream:
+
+```json
+{&quot;Name&quot;: &quot;Ed&quot;}{&quot;Name&quot;: &quot;Sam&quot;}{&quot;Name&quot;: &quot;Bob&quot;}
+</code></pre>
+
+<blockquote>
+<p>Note: the entire content of that stream is not valid JSON (it should be inside a <code>[ ]</code> to be a valid JSON value), BUT it is a valid JSON <em>stream</em>!</p>
+</blockquote>
+
+<h3 id="ignores-invalid-syntax">Ignores Invalid Syntax</h3>
+
+<p>Lots of people have reported unexpected things happening because of how <code>Decoder</code> just silently ignores malformed JSON syntax. But I&rsquo;ve not had an issue because I don&rsquo;t really use <code>Decoder</code> so I can&rsquo;t give a <em>good</em> example of how things can go wrong.</p>
+
+<p>A <em>poor</em> example (which isn&rsquo;t the same thing actually as silently ignoring malformed JSON syntax) would be that you expect each object in the stream to have an <code>int</code> field, but if it&rsquo;s missing then to omit the field from the data structure. With <code>Decoder</code> it will utilize the zero value instead of just dropping the field altogether like you can with <code>Unmarshal</code> when using struct tags&hellip;</p>
+
+<pre><code class="language-go">// Field is ignored by this package.
+Field int `json:&quot;-&quot;`
+
+// Field appears in JSON as key &quot;myName&quot;.
+Field int `json:&quot;myName&quot;`
+
+// Field appears in JSON as key &quot;myName&quot; and
+// the field is omitted from the object if its value is empty,
+// as defined above.
+Field int `json:&quot;myName,omitempty&quot;`
+
+// Field appears in JSON as key &quot;Field&quot; (the default), but
+// the field is skipped if empty.
+// Note the leading comma.
+Field int `json:&quot;,omitempty&quot;`
+</code></pre>
+
+<h3 id="fails-to-drain-http-connections">Fails to drain HTTP connections</h3>
+
+<p>This can slows down HTTP requests up to ~4x (although this is fixed by the time of Go 1.7).</p>
+
+<p>If the HTTP endpoint is responding with a single JSON object and you are calling <code>json.Decoder#Decode()</code> only once (in which case you should be using <code>json.Unmarshal()</code> instead!), it means you are not getting <code>io.EOF</code> returned yet. Therefore you are not terminating <code>json.Decoder</code> by seeing that <code>io.EOF</code> and the response body remains open and therefore the TCP connection (or another <code>Transport</code> used) cannot be returned to the connection pool even though you are done with it.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

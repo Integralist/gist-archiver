@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Simple line-by-line diff in Go] #go #golang #diff</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="simple-line-by-line-diff-in-go-go-golang-diff">[Simple line-by-line diff in Go] #go #golang #diff</h1>
+
+<h2 id="diff-go">diff.go</h2>
+
+<pre><code class="language-go">// Probably should just use https://github.com/sergi/go-diff
+
+// printDiff prints the differences between two files line by line.
+func printDiff(file1, file2 string) error {
+	f1, err := os.Open(file1)
+	if err != nil {
+		return fmt.Errorf(&quot;failed to open file1: %w&quot;, err)
+	}
+	defer f1.Close()
+
+	f2, err := os.Open(file2)
+	if err != nil {
+		return fmt.Errorf(&quot;failed to open file2: %w&quot;, err)
+	}
+	defer f2.Close()
+
+	scanner1 := bufio.NewScanner(f1)
+	scanner2 := bufio.NewScanner(f2)
+
+	lineNumber := 1
+	for scanner1.Scan() || scanner2.Scan() {
+		var line1, line2 string
+		if scanner1.Scan() {
+			line1 = scanner1.Text()
+		}
+		if scanner2.Scan() {
+			line2 = scanner2.Text()
+		}
+
+		if line1 != line2 {
+			fmt.Printf(&quot;Line %d:\n&quot;, lineNumber)
+			fmt.Printf(&quot;- %s\n&quot;, line1)
+			fmt.Printf(&quot;+ %s\n&quot;, line2)
+		}
+		lineNumber++
+	}
+
+	if err := scanner1.Err(); err != nil {
+		return fmt.Errorf(&quot;error reading file1: %w&quot;, err)
+	}
+	if err := scanner2.Err(); err != nil {
+		return fmt.Errorf(&quot;error reading file2: %w&quot;, err)
+	}
+
+	return nil
+}
+
+// printDiff prints the differences between two files using the standard diff
+// CLI installed on the host machine.
+func printDiff(file1, file2 string, logger *slog.Logger) error {
+	cmd := exec.Command(&quot;diff&quot;, file1, file2)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		// NOTE: See `EXIT STATUS` in `man diff`.
+		// 0:  No differences were found.
+		// 1:  Differences were found.
+		// &gt;1: An error occurred.
+		var exitErr *exec.ExitError
+		if errors.As(err, &amp;exitErr) &amp;&amp; exitErr.ExitCode() == 1 {
+			fmt.Printf(&quot;%s\n&quot;, output)
+			return nil
+		}
+		// Actual error occurred.
+		err = fmt.Errorf(&quot;failed to run diff command: %w&quot;, err)
+		logger.LogAttrs(context.Background(), slog.LevelError, &quot;diff_files&quot;, slog.Any(&quot;error&quot;, err))
+		return err
+	}
+	return nil
+}
+</code></pre>
+
+</div>
+</body>
+</html>

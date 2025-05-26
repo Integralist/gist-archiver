@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Server-Sent Events in Ruby</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="server-sent-events-in-ruby">Server-Sent Events in Ruby</h1>
+
+<h2 id="app-rb">app.rb</h2>
+
+<pre><code class="language-ruby">require &quot;json&quot;
+require &quot;sinatra/base&quot;
+
+class ApplicationController &lt; Sinatra::Base
+  helpers ApplicationHelper
+
+  set :views, File.expand_path(&quot;../../views&quot;, __FILE__)
+  set :public_folder, File.expand_path(&quot;../../&quot;, __FILE__)
+  set :server, :thin
+  connections = []
+
+  before do
+    request.path_info.sub! %r{/$}, &quot;&quot;
+  end
+
+  not_found do
+    title &quot;Not found!&quot;
+    erb :not_found
+  end
+
+  error do
+    title &quot;Error&quot;
+    erb :error
+  end
+
+  get &quot;/&quot; do
+    erb :home
+  end
+
+  get &quot;/status&quot; do
+    &quot;ok&quot;
+  end
+
+  post &quot;/update&quot; do
+    json = request.body.read # can't read `params` as we're not POST'ing key/value pairs
+
+    connections.each do |out|
+      out &lt;&lt; &quot;id: #{Time.now}\n&quot; +
+             &quot;event: ping\n&quot; +
+             &quot;data: #{json}\n\n&quot; unless out.closed?
+    end
+  end
+
+  get &quot;/healthcheck&quot;, provides: &quot;text/event-stream&quot; do
+    stream :keep_open do |out|
+      connections &lt;&lt; out
+
+      # `callback` is executed each time a stream connection closes
+      out.callback {
+        connections.delete(out)
+      }
+    end
+  end
+end
+</code></pre>
+
+<h2 id="client-js">client.js</h2>
+
+<pre><code class="language-javascript">var evtSource = new EventSource(&quot;/healthcheck&quot;);
+
+evtSource.onmessage = function(e) {
+    console.log(&quot;onmessage&quot;, e.data);
+};
+
+evtSource.addEventListener(&quot;ping&quot;, function(e) {
+    console.log(&quot;ping&quot;, e.data);
+}, false);
+
+evtSource.onerror = function(e) {
+    console.log(&quot;error&quot;, e);
+};
+</code></pre>
+
+<h2 id="curl-sh">curl.sh</h2>
+
+<pre><code class="language-shell">curl -v -H &quot;Content-Type: application/json&quot; -X POST -d '{&quot;foo&quot;:&quot;bar&quot;}' http://127.0.0.1:9292/update
+</code></pre>
+
+</div>
+</body>
+</html>

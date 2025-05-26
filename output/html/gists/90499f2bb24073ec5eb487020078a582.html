@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang CLI Flags and Subcommands] #tags: golang, go, cli, flags, subcommands, logs, logging</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-cli-flags-and-subcommands-tags-golang-go-cli-flags-subcommands-logs-logging">[Golang CLI Flags and Subcommands] #tags: golang, go, cli, flags, subcommands, logs, logging</h1>
+
+<h2 id="4-flags-via-user-struct-popular-go">4. flags via user struct popular.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;errors&quot;
+	&quot;flag&quot;
+	&quot;fmt&quot;
+	&quot;os&quot;
+	&quot;reflect&quot;
+	&quot;strings&quot;
+)
+
+var (
+	ErrNoArgs = errors.New(&quot;no flags or commands provided&quot;)
+)
+
+type Schema struct {
+	Debug   bool   `short:&quot;d&quot; usage:&quot;enable debug level logs&quot;`
+	Number  int    `short:&quot;n&quot; usage:&quot;a number field&quot;`
+	Message string `short:&quot;m&quot; usage:&quot;a message field&quot;`
+	Foo     struct {
+		AAA string `short:&quot;a&quot; usage:&quot;does A&quot;`
+		BBB string `short:&quot;b&quot; usage:&quot;does B&quot;`
+	}
+	Bar struct {
+		CCC bool `short:&quot;c&quot; usage:&quot;does C&quot;`
+	}
+}
+
+func Parse(s interface{}) error {
+	args := os.Args[1:]
+	if len(args) == 0 {
+		return ErrNoArgs
+	}
+
+	st := reflect.TypeOf(s).Elem()
+	v := reflect.ValueOf(s)
+	v = reflect.Indirect(v)
+
+	IterFields(st, v, func(field reflect.Value, sf reflect.StructField) {
+		switch field.Kind() {
+		case reflect.Bool:
+			var v bool
+			flag.BoolVar(&amp;v, strings.ToLower(sf.Name), false, sf.Tag.Get(&quot;usage&quot;))
+			flag.BoolVar(&amp;v, sf.Tag.Get(&quot;short&quot;), false, sf.Tag.Get(&quot;usage&quot;)+&quot; (shorthand)&quot;)
+		case reflect.Int:
+			var v int
+			flag.IntVar(&amp;v, strings.ToLower(sf.Name), 0, sf.Tag.Get(&quot;usage&quot;))
+			flag.IntVar(&amp;v, sf.Tag.Get(&quot;short&quot;), 0, sf.Tag.Get(&quot;usage&quot;)+&quot; (shorthand)&quot;)
+		case reflect.String:
+			var v string
+			flag.StringVar(&amp;v, strings.ToLower(sf.Name), &quot;&quot;, sf.Tag.Get(&quot;usage&quot;))
+			flag.StringVar(&amp;v, sf.Tag.Get(&quot;short&quot;), &quot;&quot;, sf.Tag.Get(&quot;usage&quot;)+&quot; (shorthand)&quot;)
+		}
+	})
+
+	flag.Parse()
+
+	IterFields(st, v, func(field reflect.Value, sf reflect.StructField) {
+		flag.Visit(func(f *flag.Flag) {
+			getter, ok := f.Value.(flag.Getter)
+			if ok {
+				if f.Name == strings.ToLower(sf.Name) || f.Name == sf.Tag.Get(&quot;short&quot;) {
+					switch field.Kind() {
+					case reflect.Bool:
+						if b, ok := getter.Get().(bool); ok {
+							field.Set(reflect.ValueOf(b))
+						}
+					case reflect.Int:
+						if i, ok := getter.Get().(int); ok {
+							field.Set(reflect.ValueOf(i))
+						}
+					case reflect.String:
+						if s, ok := getter.Get().(string); ok {
+							field.Set(reflect.ValueOf(s))
+						}
+					}
+				}
+			}
+		})
+	})
+
+	cmds := []string{&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;}
+	cmd := IdentifyCommand(cmds, args)
+	cmdFlags := CommandFlags(cmd, flag.Args())
+
+	cfs := CommandFlagSet(cmd, cmdFlags, st, v)
+	err := cfs.Parse(cmdFlags)
+	if err != nil {
+		return err
+	}
+
+	IterFields(st, v, func(field reflect.Value, sf reflect.StructField) {
+		cfs.Visit(func(f *flag.Flag) {
+			getter, ok := f.Value.(flag.Getter)
+			if ok {
+				if f.Name == strings.ToLower(sf.Name) || f.Name == sf.Tag.Get(&quot;short&quot;) {
+					switch field.Kind() {
+					case reflect.Bool:
+						if b, ok := getter.Get().(bool); ok {
+							field.Set(reflect.ValueOf(b))
+						}
+					case reflect.Int:
+						if i, ok := getter.Get().(int); ok {
+							field.Set(reflect.ValueOf(i))
+						}
+					case reflect.String:
+						if s, ok := getter.Get().(string); ok {
+							field.Set(reflect.ValueOf(s))
+						}
+					}
+				}
+			}
+		})
+	})
+
+	return nil
+}
+
+// IterFields iterates over all fields of a struct, including nested structs,
+// and processes their individual fields by passing them into a callback.
+//
+func IterFields(st reflect.Type, v reflect.Value, fn func(f reflect.Value, sf reflect.StructField)) {
+	for i := 0; i &lt; v.NumField(); i++ {
+		field := v.Field(i)
+		sf := st.Field(i)
+
+		if field.Kind() == reflect.Struct {
+			st := reflect.TypeOf(field.Interface())
+
+			for i := 0; i &lt; st.NumField(); i++ {
+				field := field.Field(i)
+				st := st.Field(i)
+
+				if field.CanSet() {
+					fn(field, st)
+				}
+			}
+		} else if field.CanSet() {
+			fn(field, sf)
+		}
+	}
+}
+
+// IdentifyCommand parses the arguments provided looking for a 'command'.
+//
+// this implementation presumes that the format of the arguments will be...
+//
+// &lt;program&gt; &lt;flag(s)&gt; &lt;command&gt; &lt;flag(s) for command&gt;
+//
+func IdentifyCommand(cmds, args []string) string {
+	commandIndex := 0
+	commandSeen := false
+
+	for _, arg := range args {
+		if commandSeen {
+			break
+		}
+
+		if strings.HasPrefix(arg, &quot;-&quot;) == true {
+			commandIndex++
+			continue
+		}
+
+		for _, cmd := range cmds {
+			if arg == cmd {
+				commandSeen = true
+				break
+			}
+		}
+
+		if !commandSeen {
+			commandIndex++
+		}
+	}
+
+	if !commandSeen {
+		return &quot;&quot;
+	}
+
+	return args[commandIndex]
+}
+
+// CommandFlags parses the flags that are provided after the 'command'.
+//
+func CommandFlags(cmd string, args []string) []string {
+	for i, v := range args {
+		if v == cmd {
+			return args[i+1:]
+		}
+	}
+
+	return []string{}
+}
+
+// CommandFlagSet defines flags for the command as a FlagSet.
+//
+func CommandFlagSet(cmd string, cmdFlags []string, st reflect.Type, v reflect.Value) *flag.FlagSet {
+	cfs := flag.NewFlagSet(cmd, flag.ExitOnError)
+
+	IterFields(st, v, func(field reflect.Value, sf reflect.StructField) {
+		switch field.Kind() {
+		case reflect.Bool:
+			var v bool
+			cfs.BoolVar(&amp;v, strings.ToLower(sf.Name), false, sf.Tag.Get(&quot;usage&quot;))
+			cfs.BoolVar(&amp;v, sf.Tag.Get(&quot;short&quot;), false, sf.Tag.Get(&quot;usage&quot;)+&quot; (shorthand)&quot;)
+		case reflect.Int:
+			var v int
+			cfs.IntVar(&amp;v, strings.ToLower(sf.Name), 0, sf.Tag.Get(&quot;usage&quot;))
+			cfs.IntVar(&amp;v, sf.Tag.Get(&quot;short&quot;), 0, sf.Tag.Get(&quot;usage&quot;)+&quot; (shorthand)&quot;)
+		case reflect.String:
+			var v string
+			cfs.StringVar(&amp;v, strings.ToLower(sf.Name), &quot;&quot;, sf.Tag.Get(&quot;usage&quot;))
+			cfs.StringVar(&amp;v, sf.Tag.Get(&quot;short&quot;), &quot;&quot;, sf.Tag.Get(&quot;usage&quot;)+&quot; (shorthand)&quot;)
+		}
+	})
+
+	return cfs
+}
+
+// EXAMPLE:
+//
+// go run test_flags.go -debug -n 123 -m &quot;something here&quot; foo -a foobar -b 666
+//
+func main() {
+	var s Schema
+
+	err := Parse(&amp;s)
+	if err != nil {
+		fmt.Printf(&quot;error parsing schema: %v\n&quot;, err)
+		os.Exit(1)
+	}
+
+	fmt.Printf(&quot;\nfinal struct: %+v\n&quot;, s)
+	/*
+		Output:
+
+		{
+			Debug:true
+			Number:123
+			Message:something here
+			Foo:{
+				AAA:foobar
+				BBB:666
+			}
+			Bar:{
+				CCC:false
+			}
+		}
+	*/
+
+	fmt.Printf(&quot;\nDebug: %+v\n&quot;, s.Debug)   // true
+	fmt.Printf(&quot;Number: %+v\n&quot;, s.Number)   // 123
+	fmt.Printf(&quot;Message: %+v\n&quot;, s.Message) // something here
+	fmt.Printf(&quot;AAA: %+v\n&quot;, s.Foo.AAA)     // foobar
+	fmt.Printf(&quot;BBB: %+v\n&quot;, s.Foo.BBB)     // 666
+	fmt.Printf(&quot;CCC: %+v\n&quot;, s.Bar.CCC)     // false
+}
+</code></pre>
+
+<h2 id="0-readme-md">0. README.md</h2>
+
+<pre><code class="language-markdown">Three approaches...
+
+1. Flags are known up front. 👌🏻
+2. Flags are defined by user (ugly data structure). ❌
+3. Flags are defined by user (dynamic struct creation BUT doesn't work fully) ❌
+4. Flags are defined by user (dynamic population of a struct provided by the user) ✅
+
+## `flag.FlagSet` ?
+
+**Note**: the trick to understanding `flag.NewFlagSet` is that you have to pass it a string of command line args that you need it to parse. `flag.Parse` is able to do this automatically for you, but a flag set is expected to work with a _subset_ of the arguments provided to the program when it's being run. The way I typically do this is as follows...
+
+A simple FlagSet example:
+
+```go
+package main
+
+import (
+	&quot;fmt&quot;
+	&quot;os&quot;
+
+	&quot;github.com/integralist/go-gitbranch/internal/pkg/create&quot;
+)
+
+func main() {
+	args := os.Args[1:]
+
+	if len(args) == 0 {
+		fmt.Println(&quot;no subcommand provided&quot;)
+		os.Exit(1)
+	}
+
+	switch args[0] {
+	case &quot;create&quot;:
+		flags := create.ParseFlags(args[1:])
+		fmt.Println(&quot;name:&quot;, flags.Name)
+	case &quot;rename&quot;:
+		//
+	case &quot;checkout&quot;:
+		//
+	case &quot;delete&quot;:
+		//
+	}
+}
+
+////////////////////////////////////////////////////////////////////////
+
+package create
+
+import (
+	&quot;flag&quot;
+)
+
+type Flags struct {
+	Name string
+}
+
+// ParseFlags defines and parses flags for the create subcommand.
+func ParseFlags(args []string) Flags {
+	fs := flag.NewFlagSet(&quot;create&quot;, flag.ExitOnError)
+	name := fs.String(&quot;name&quot;, &quot;&quot;, &quot;name of the branch to create&quot;)
+	fs.Parse(args)
+
+	return Flags{
+		Name: *name,
+	}
+}
+</code></pre>
+
+<p>More context for identifying subcommands dynamically&hellip;</p>
+
+<pre><code class="language-go">// Example: app -debug foo -x 1 -y 2
+
+// define flag(s), in this case a -debug flag, then parse it...
+flag.Parse()
+
+// slice args from after the program name &quot;app&quot; (so `args` = `-debug foo -x 1 -y 2`)
+args := os.Args[1:]
+
+// identify the command (&quot;foo&quot; in this case)
+cmd := identifyCommand(args)
+
+// identify the command's flags (&quot;-x 1 -y 2&quot; in this case)
+cmdFlags := commandFlags(cmd, flag.Args())
+
+// identifyCommand parses the arguments provided looking for a 'command'
+//
+// this implementation presumes that the format of the arguments will be...
+//
+// &lt;program&gt; &lt;flag(s)&gt; &lt;command&gt; &lt;flag(s) for command&gt;
+//
+func identifyCommand(args []string) string {
+  	// list of supported/known commands...
+ 	commands := []string{&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;}
+  
+	commandIndex := 0
+	commandSeen := false
+
+	for _, arg := range args {
+		if commandSeen {
+			break
+		}
+
+		if strings.HasPrefix(arg, &quot;-&quot;) == true {
+			commandIndex++
+			continue
+		}
+
+		for _, cmd := range commands {
+			if arg == cmd.Name {
+				commandSeen = true
+				break
+			}
+		}
+
+		if !commandSeen {
+			commandIndex++
+		}
+	}
+
+	if !commandSeen {
+		return &quot;&quot;
+	}
+
+	return args[commandIndex]
+}
+
+// commandFlags parses out the arguments that are meant for the new flag set.
+//
+// args: flag.Args()
+// cmd: the point in the list of arguments where you want to slice from.
+//
+// Example: app -debug foo -x 1 -y 2
+//
+// the `cmd` would be foo, and so we want to return a slice starting from the flag -x
+// for the FlagSet to parse.
+//
+func commandFlags(cmd string, args []string) []string {
+	for i, v := range args {
+		if v == cmd {
+			return args[i+1:]
+		}
+	}
+
+	return []string{}
+}
+
+// I've not provided an implementation for commandFlagSet but it basically
+// defines a bunch of flags off a cfs variable and returns a *flag.FlagSet
+//
+// Example: 
+// cfs := flag.NewFlagSet(&quot;foo&quot;, flag.ExitOnError)
+// cfs.String(...)
+//
+cfs := commandFlagSet(cmd, cmdFlags)
+
+err := cfs.Parse(cmdFlags)
+if err != nil {
+	// ...
+}
+
+// NOTE: flag.Parse type will also have Visit/VisitAll methods.
+//
+cfs.VisitAll(func(f *flag.Flag) {
+	// check value of every flag
+})
+</code></pre>
+
+<pre><code>
+## 1. app.go
+
+```go
+/* 
+go run fastly.go diff -foo
+
+Usage of diff:
+  -foo string
+        default (default &quot;desc&quot;)
+
+go run fastly.go -debug diff  // enables debug logs 
+*/
+
+package main
+
+import (
+	&quot;flag&quot;
+	&quot;flags&quot;
+	&quot;fmt&quot;
+	&quot;os&quot;
+
+	&quot;github.com/sirupsen/logrus&quot;
+)
+
+// AppVersion is the application version
+const AppVersion = &quot;0.0.1&quot;
+
+var logger *logrus.Entry
+
+func init() {
+	logrus.SetFormatter(&amp;logrus.JSONFormatter{})
+	logrus.SetLevel(logrus.InfoLevel)
+	logger = logrus.WithFields(logrus.Fields{
+		&quot;package&quot;: &quot;main&quot;,
+	})
+}
+
+func main() {
+	f := flags.New()
+
+	if *f.Top.Help == true {
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
+	if *f.Top.Version == true {
+		fmt.Println(AppVersion)
+		os.Exit(1)
+	}
+
+	if *f.Top.Debug == true {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
+
+	logger.Debug(&quot;application starting&quot;)
+
+	args := os.Args[1:] // strip first arg `fastly`
+	arg, counter := flags.Check(args)
+
+	switch arg {
+	case &quot;diff&quot;:
+		f.Top.Diff.Parse(args[counter:])
+	case &quot;upload&quot;:
+		f.Top.Upload.Parse(args[counter:])
+	default:
+		fmt.Printf(&quot;%v is not valid command.\n&quot;, arg)
+		os.Exit(1)
+	}
+}
+</code></pre>
+
+<h2 id="1-flags-go">1. flags.go</h2>
+
+<pre><code class="language-go">// flags/flags.go
+
+package flags
+
+import (
+	&quot;flag&quot;
+	&quot;os&quot;
+	&quot;strings&quot;
+
+	&quot;github.com/sirupsen/logrus&quot;
+)
+
+var logger *logrus.Entry
+
+func init() {
+	logger = logrus.WithFields(logrus.Fields{
+		&quot;package&quot;: &quot;flags&quot;,
+	})
+}
+
+// TopLevelFlags defines the common settings across all commands
+type TopLevelFlags struct {
+	Help, Debug, Version                   *bool
+	Token, Service, Directory, Match, Skip *string
+	Diff, Upload                           *flag.FlagSet
+}
+
+// SubCommandFlags defines the settings for the subcommands
+type SubCommandFlags struct {
+	Foo, Bar *string
+}
+
+// Flags defines type of structure returned to user
+type Flags struct {
+	Top TopLevelFlags
+	Sub SubCommandFlags
+}
+
+// New returns defined flags
+func New() Flags {
+	topLevelFlags := TopLevelFlags{
+		Help:      flag.Bool(&quot;help&quot;, false, &quot;show available flags&quot;),
+		Debug:     flag.Bool(&quot;debug&quot;, false, &quot;show any error/diff output + debug logs&quot;),
+		Version:   flag.Bool(&quot;version&quot;, false, &quot;show application version&quot;),
+		Token:     flag.String(&quot;token&quot;, os.Getenv(&quot;FASTLY_API_TOKEN&quot;), &quot;your fastly api token (fallback: FASTLY_API_TOKEN)&quot;),
+		Service:   flag.String(&quot;service&quot;, os.Getenv(&quot;FASTLY_SERVICE_ID&quot;), &quot;your service id (fallback: FASTLY_SERVICE_ID)&quot;),
+		Directory: flag.String(&quot;dir&quot;, os.Getenv(&quot;VCL_DIRECTORY&quot;), &quot;vcl directory to compare files against&quot;),
+		Match:     flag.String(&quot;match&quot;, &quot;&quot;, &quot;regex for matching vcl directories (will also try: VCL_MATCH_DIRECTORY)&quot;),
+		Skip:      flag.String(&quot;skip&quot;, &quot;^____&quot;, &quot;regex for skipping vcl directories (will also try: VCL_SKIP_DIRECTORY)&quot;),
+		Diff:      flag.NewFlagSet(&quot;diff&quot;, flag.ExitOnError),
+		Upload:    flag.NewFlagSet(&quot;upload&quot;, flag.ExitOnError),
+	}
+	flag.Parse()
+
+	subCommandFlags := SubCommandFlags{
+		Foo: topLevelFlags.Diff.String(&quot;foo&quot;, &quot;foo is upload only&quot;, &quot;foo default&quot;),
+		Bar: topLevelFlags.Upload.String(&quot;bar&quot;, &quot;bar is upload only&quot;, &quot;bar default&quot;),
+	}
+
+	return Flags{
+		Top: topLevelFlags,
+		Sub: subCommandFlags,
+	}
+}
+
+// Check determines if a flag was specified before the subcommand
+// Then returns the subcommand argument value based on the correct index
+// Followed by the index of where the subcommand's flags start in the args list
+func Check(args []string) (string, int) {
+	counter := 0
+	subcommandSeen := false
+
+	for _, arg := range args {
+		if subcommandSeen {
+			break
+		}
+
+		if strings.HasPrefix(arg, &quot;-&quot;) == true {
+			counter++
+			continue
+		}
+
+		if arg == &quot;diff&quot; || arg == &quot;upload&quot; {
+			subcommandSeen = true
+		} else {
+			counter++
+		}
+	}
+
+	subcommandFlagsIndex := counter + 1
+
+	logger.WithFields(logrus.Fields{
+		&quot;args&quot;:       args,
+		&quot;counter&quot;:    counter,
+		&quot;subcommand&quot;: args[counter],
+		&quot;index&quot;:      subcommandFlagsIndex,
+	}).Debug(&quot;subcommand selected&quot;)
+
+	return args[counter], subcommandFlagsIndex
+}
+</code></pre>
+
+<h2 id="2-flags-defined-by-user-go">2. flags defined by user.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;errors&quot;
+	&quot;flag&quot;
+	&quot;fmt&quot;
+	&quot;os&quot;
+	&quot;strings&quot;
+)
+
+var (
+	ErrNoArgs       = errors.New(&quot;no flags or commands provided&quot;)
+	ErrCmdFlagParse = errors.New(&quot;failed to parse the command flags&quot;)
+)
+
+type Flag struct {
+	NameLong  string
+	NameShort string
+	Default   interface{}
+	Usage     string
+	Value     interface{}
+}
+
+type Flags []*Flag
+
+type Command struct {
+	Name  string
+	Flags Flags
+}
+
+type Commands []Command
+
+type Schema struct {
+	Commands Commands
+	Flags    Flags
+}
+
+func (s *Schema) Parse() error {
+	args := os.Args[1:]
+	if len(args) == 0 {
+		return ErrNoArgs
+	}
+
+	for _, f := range s.Flags {
+		switch def := f.Default.(type) {
+		case bool:
+			v, _ := f.Value.(bool)
+			flag.BoolVar(&amp;v, f.NameLong, def, f.Usage)
+			flag.BoolVar(&amp;v, f.NameShort, def, f.Usage+&quot; (shorthand)&quot;)
+		case string:
+			v, _ := f.Value.(string)
+			flag.StringVar(&amp;v, f.NameLong, def, f.Usage)
+			flag.StringVar(&amp;v, f.NameShort, def, f.Usage+&quot; (shorthand)&quot;)
+		case int:
+			v, _ := f.Value.(int)
+			flag.IntVar(&amp;v, f.NameLong, def, f.Usage)
+			flag.IntVar(&amp;v, f.NameShort, def, f.Usage+&quot; (shorthand)&quot;)
+		case float64:
+			v, _ := f.Value.(float64)
+			flag.Float64Var(&amp;v, f.NameLong, def, f.Usage)
+			flag.Float64Var(&amp;v, f.NameShort, def, f.Usage+&quot; (shorthand)&quot;)
+		}
+	}
+
+	flag.Parse()
+
+	flag.VisitAll(func(f *flag.Flag) {
+		for _, sf := range s.Flags {
+			if f.Name == sf.NameLong || f.Name == sf.NameShort {
+				sf.Value = f.Value
+			}
+		}
+	})
+
+	cmd := s.identifyCommand(args)
+	cmdFlags := s.commandFlags(cmd, flag.Args())
+
+	for _, c := range s.Commands {
+		if c.Name == cmd {
+			cfs := flag.NewFlagSet(c.Name, flag.ExitOnError)
+
+			for _, f := range c.Flags {
+				switch def := f.Default.(type) {
+				case bool:
+					v, _ := f.Value.(bool)
+					cfs.BoolVar(&amp;v, f.NameLong, def, f.Usage)
+					cfs.BoolVar(&amp;v, f.NameShort, def, f.Usage+&quot; (shorthand)&quot;)
+				case string:
+					v, _ := f.Value.(string)
+					cfs.StringVar(&amp;v, f.NameLong, def, f.Usage)
+					cfs.StringVar(&amp;v, f.NameShort, def, f.Usage+&quot; (shorthand)&quot;)
+				case int:
+					v, _ := f.Value.(int)
+					cfs.IntVar(&amp;v, f.NameLong, def, f.Usage)
+					cfs.IntVar(&amp;v, f.NameShort, def, f.Usage+&quot; (shorthand)&quot;)
+				case float64:
+					v, _ := f.Value.(float64)
+					cfs.Float64Var(&amp;v, f.NameLong, def, f.Usage)
+					cfs.Float64Var(&amp;v, f.NameShort, def, f.Usage+&quot; (shorthand)&quot;)
+				}
+			}
+
+			err := cfs.Parse(cmdFlags)
+			if err != nil {
+				return fmt.Errorf(&quot;%s %w&quot;, ErrCmdFlagParse, err)
+			}
+
+			cfs.VisitAll(func(f *flag.Flag) {
+				for _, cf := range c.Flags {
+					if cf.NameLong == f.Name || cf.NameShort == f.Name {
+						cf.Value = f.Value
+					}
+				}
+			})
+
+			break
+		}
+	}
+
+	return nil
+}
+
+func (s *Schema) identifyCommand(args []string) string {
+	commandIndex := 0
+	commandSeen := false
+
+	for _, arg := range args {
+		if commandSeen {
+			break
+		}
+
+		if strings.HasPrefix(arg, &quot;-&quot;) == true {
+			commandIndex++
+			continue
+		}
+
+		for _, cmd := range s.Commands {
+			if arg == cmd.Name {
+				commandSeen = true
+				break
+			}
+		}
+
+		if !commandSeen {
+			commandIndex++
+		}
+	}
+
+	if !commandSeen {
+		return &quot;&quot;
+	}
+
+	return args[commandIndex]
+}
+
+func (s *Schema) commandFlags(cmd string, args []string) []string {
+	for i, v := range args {
+		if v == cmd {
+			return args[i+1:]
+		}
+	}
+
+	return []string{}
+}
+
+func main() {
+	// NOTE: when using verbose syntax and explicitly naming the Flag struct
+	// type, then the field `Value` can be omitted. But with the short syntax
+	// used below the compiler complains and so we have to pass `nil`.
+	//
+	flags := Flags{
+		{&quot;debug&quot;, &quot;d&quot;, false, &quot;description&quot;, nil},
+		{&quot;number&quot;, &quot;n&quot;, 0, &quot;description&quot;, nil},
+	}
+
+	fooFlags := Flags{
+		{&quot;AAA&quot;, &quot;a&quot;, &quot;&quot;, &quot;description&quot;, nil},
+		{&quot;BBB&quot;, &quot;b&quot;, 0, &quot;description&quot;, nil},
+	}
+
+	barFlags := Flags{
+		{&quot;CCC&quot;, &quot;c&quot;, false, &quot;description&quot;, nil},
+	}
+
+	commands := Commands{
+		{&quot;foo&quot;, fooFlags},
+		{&quot;bar&quot;, barFlags},
+		{&quot;baz&quot;, nil},
+	}
+
+	schema := &amp;Schema{
+		Flags:    flags,
+		Commands: commands,
+	}
+
+	err := schema.Parse()
+	if err != nil {
+		fmt.Printf(&quot;error parsing schema: %v\n&quot;, err)
+		os.Exit(1)
+	}
+
+	// NOTE: after running the following command we can access the values:
+	//
+	// go run test_flags.go -debug -n 123 foo -a foobar -b 666
+	//
+	fmt.Printf(&quot;schema: %+v\n&quot;, schema)
+	fmt.Printf(&quot;schema.Flags[0].Value: %v\n&quot;, schema.Flags[0].Value)
+	fmt.Printf(&quot;schema.Flags[1].Value: %v\n&quot;, schema.Flags[1].Value)
+	fmt.Printf(&quot;schema.Commands[0].Flags[0].Value: %v\n&quot;, schema.Commands[0].Flags[0].Value)
+	fmt.Printf(&quot;schema.Commands[0].Flags[1].Value: %v\n&quot;, schema.Commands[0].Flags[1].Value)
+
+	// TODO: figure out better data strucuture for sake of user experience,
+	// because having to dip into an array is nasty/fugly
+	//
+}
+</code></pre>
+
+<h2 id="3-flags-via-dynamic-struct-app-go">3. flags via dynamic struct - app.go</h2>
+
+<pre><code class="language-go">// this is the consumer of the code
+
+package main
+
+import (
+	&quot;fmt&quot;
+	&quot;os&quot;
+
+	flag &quot;github.com/integralist/go-flags/flags&quot;
+)
+
+func main() {
+	// standalone flags (i.e. no command necessary)
+	//
+	// examples: app -debug
+	//           app -d
+	//
+	flags := flag.Flags{
+		{&quot;debug&quot;, &quot;d&quot;, &quot;bool&quot;, &quot;description&quot;},
+	}
+
+	// flags for the foo command
+	//
+	fooFlags := flag.Flags{
+		{&quot;AAA&quot;, &quot;a&quot;, &quot;string&quot;, &quot;description&quot;},
+		{&quot;BBB&quot;, &quot;b&quot;, &quot;int&quot;, &quot;description&quot;},
+	}
+
+	// flags for the bar command
+	//
+	barFlags := flag.Flags{
+		{&quot;CCC&quot;, &quot;c&quot;, &quot;bool&quot;, &quot;description&quot;},
+	}
+
+	// commands
+	//
+	// examples: app foo
+	//           app foo -a test -b 123
+	//           app bar -c
+	//           app baz
+	//
+	commands := flag.Commands{
+		{&quot;foo&quot;, fooFlags},
+		{&quot;bar&quot;, barFlags},
+		{&quot;baz&quot;, nil},
+	}
+
+	schema := &amp;flag.Schema{
+		Flags:    flags,
+		Commands: commands,
+	}
+
+	// produces the following data structure...
+	//
+	// &amp;{
+	// 	Commands:[
+	// 		{
+	// 			Name:foo
+	// 			Flags:[
+	// 				{Verbose:AAA Short:a Type:string Usage:description}
+	// 				{Verbose:BBB Short:b Type:int Usage:description}
+	// 			]
+	// 		}
+	// 		{
+	// 			Name:bar
+	// 			Flags:[
+	// 				{Verbose:CCC Short:c Type:bool Usage:description}
+	// 			]
+	// 		}
+	// 		{
+	// 			Name:baz
+	// 			Flags:[]
+	// 		}
+	// 	]
+	// 	Flags:[
+	// 		{Verbose:debug Short:d Type:bool Usage:description}
+	// 	]
+	// }
+
+	// TODO: should 'no args' really be an error?
+	//
+	fd, err := schema.Parse()
+	if err != nil &amp;&amp; err != flag.ErrNoArgs {
+		fmt.Printf(&quot;something unexpected happened: %w&quot;, err)
+		os.Exit(1)
+	}
+
+	if fd.Cmd == &quot;&quot; {
+		fmt.Println(&quot;no recognized flag or command was provided&quot;)
+	} else {
+		fmt.Println(&quot;command executed:&quot;, fd.Cmd)
+	}
+
+  	// TODO: figure out how to get at the other fields?
+  	//
+	// fmt.Println(fd.Debug, fd.D, fd.AAA, fd.A, fd.BBB, fd.B, fd.CCC, fd.C)
+  	//
+  	// ...because we can't type assert the returned data structure.
+}
+</code></pre>
+
+<h2 id="3-flags-via-dynamic-struct-builder-go">3. flags via dynamic struct - builder.go</h2>
+
+<pre><code class="language-go">// builder.go uses reflection to dynamically generate a struct.
+// the struct will contain the parsed flag values.
+//
+// the struct generation code was extracted from the great work done by:
+// https://github.com/Ompluscator/dynamic-struct
+// so all credit for that code goes to him.
+//
+package flags
+
+import (
+	&quot;reflect&quot;
+)
+
+// DynamicStruct contains defined dynamic struct.
+// This definition can't be changed anymore, once is built.
+// It provides a method for creating new instances of same defintion.
+type DynamicStruct interface {
+	// New provides new instance of defined dynamic struct.
+	//
+	// value := dStruct.New()
+	//
+	New() interface{}
+}
+
+// Builder holds all fields' definitions for desired structs.
+type Builder interface {
+	// AddField creates new struct's field.
+	// It expects field's name, type and string.
+	// Type is provided as an instance of some golang type.
+	// Tag is provided as classical golang field tag.
+	//
+	// builder.AddField(&quot;SomeFloatField&quot;, 0.0, `json:&quot;boolean&quot; validate:&quot;gte=10&quot;`)
+	//
+	AddField(name string, typ interface{}, tag string) Builder
+
+	// Build returns definition for dynamic struct.
+	// Definition can be used to create new instances.
+	//
+	// dStruct := builder.Build()
+	//
+	Build() DynamicStruct
+}
+
+type dynamicStructImpl struct {
+	definition reflect.Type
+}
+
+type fieldConfigImpl struct {
+	typ interface{}
+	tag string
+}
+
+type builderImpl struct {
+	fields map[string]*fieldConfigImpl
+}
+
+func (b *builderImpl) AddField(name string, typ interface{}, tag string) Builder {
+	b.fields[name] = &amp;fieldConfigImpl{
+		typ: typ,
+		tag: tag,
+	}
+
+	return b
+}
+
+func (b *builderImpl) Build() DynamicStruct {
+	var structFields []reflect.StructField
+
+	for name, field := range b.fields {
+		structFields = append(structFields, reflect.StructField{
+			Name: name,
+			Type: reflect.TypeOf(field.typ),
+			Tag:  reflect.StructTag(field.tag),
+		})
+	}
+
+	return &amp;dynamicStructImpl{
+		definition: reflect.StructOf(structFields),
+	}
+}
+
+func (ds *dynamicStructImpl) New() interface{} {
+	return reflect.New(ds.definition).Interface()
+}
+
+// NewStruct returns new clean instance of Builder interface
+// for defining fresh dynamic struct.
+//
+// builder := NewStruct()
+//
+func NewStruct() Builder {
+	return &amp;builderImpl{
+		fields: map[string]*fieldConfigImpl{},
+	}
+}
+</code></pre>
+
+<h2 id="3-flags-via-dynamic-struct-flags-go">3. flags via dynamic struct - flags.go</h2>
+
+<pre><code class="language-go">package flags
+
+import (
+	&quot;encoding/json&quot;
+	&quot;errors&quot;
+	&quot;flag&quot;
+	&quot;fmt&quot;
+	&quot;os&quot;
+	&quot;strings&quot;
+)
+
+var (
+	ErrNoArgs               = errors.New(&quot;no flags or commands provided&quot;)
+	ErrCmdFlagParse         = errors.New(&quot;failed to parse the command flags&quot;)
+	ErrInterpolationMarshal = errors.New(&quot;unable to parse interpolation map into json&quot;)
+	ErrStructBuild          = errors.New(&quot;failed to dynamically generate struct&quot;)
+)
+
+type Data struct {
+	Cmd string
+}
+
+type Flag struct {
+	Verbose string
+	Short   string
+	Type    string
+	Usage   string
+}
+
+type Flags []Flag
+
+type Command struct {
+	Name  string
+	Flags Flags
+}
+
+type CommandParsed struct {
+	Command
+	FlagSet *flag.FlagSet
+}
+
+type Commands []Command
+
+type Schema struct {
+	Commands Commands
+	Flags    Flags
+}
+
+func (s *Schema) Parse() (*Data, error) {
+	args := os.Args[1:]
+
+	if len(args) == 0 {
+		return &amp;Data{}, ErrNoArgs
+	}
+
+	for _, f := range s.Flags {
+		switch f.Type {
+		case &quot;bool&quot;:
+			var boolType bool
+			flagValue := false
+			flagUsage := f.Usage
+
+			flag.BoolVar(&amp;boolType, f.Verbose, flagValue, flagUsage)
+			flag.BoolVar(&amp;boolType, f.Short, flagValue, flagUsage+&quot; (shorthand)&quot;)
+		case &quot;string&quot;:
+			var stringType string
+			flagValue := &quot;&quot;
+			flagUsage := f.Usage
+
+			flag.StringVar(&amp;stringType, f.Verbose, flagValue, flagUsage)
+			flag.StringVar(&amp;stringType, f.Short, flagValue, flagUsage+&quot; (shorthand)&quot;)
+		case &quot;int&quot;:
+			var intType int
+			flagValue := 0
+			flagUsage := f.Usage
+
+			flag.IntVar(&amp;intType, f.Verbose, flagValue, flagUsage)
+			flag.IntVar(&amp;intType, f.Short, flagValue, flagUsage+&quot; (shorthand)&quot;)
+		case &quot;float&quot;:
+			var floatType float64
+			flagValue := 0.0
+			flagUsage := f.Usage
+
+			flag.Float64Var(&amp;floatType, f.Verbose, flagValue, flagUsage)
+			flag.Float64Var(&amp;floatType, f.Short, flagValue, flagUsage+&quot; (shorthand)&quot;)
+		}
+	}
+
+	flag.Parse()
+
+	cmd := s.identifyCommand(args)
+	cmdFlags := s.commandFlags(cmd, flag.Args())
+
+	instance := NewStruct()
+
+	data := make(map[string]interface{})
+	data[&quot;cmd&quot;] = cmd
+
+	flag.VisitAll(func(f *flag.Flag) {
+		// create zero value struct dynamically
+		// later on we'll be able to populate it dynamically too
+		//
+		for _, sf := range s.Flags {
+			if sf.Verbose == f.Name || sf.Short == f.Name {
+				title := strings.Title(f.Name)
+				tag := fmt.Sprintf(`json:&quot;%s&quot;`, f.Name) // f.Name must be present in data bytes
+				data[f.Name] = f.Value
+
+				switch sf.Type {
+				case &quot;bool&quot;:
+					instance.AddField(title, false, &quot;&quot;)
+				case &quot;string&quot;:
+					instance.AddField(title, &quot;&quot;, tag)
+				case &quot;int&quot;:
+					instance.AddField(title, 0, tag)
+				case &quot;float&quot;:
+					instance.AddField(title, 0.0, tag)
+				}
+			}
+		}
+	})
+
+	cfs := s.commandFlagSet(cmd, cmdFlags)
+
+	err := cfs.Parse(cmdFlags)
+	if err != nil {
+		return &amp;Data{}, fmt.Errorf(&quot;%s %w&quot;, ErrCmdFlagParse, err)
+	}
+
+	cfs.VisitAll(func(f *flag.Flag) {
+		// create zero value struct dynamically
+		// later on we'll be able to populate it dynamically too
+		//
+		for _, c := range s.Commands {
+			if c.Name == cmd {
+				for _, cf := range c.Flags {
+					if cf.Verbose == f.Name || cf.Short == f.Name {
+						title := strings.Title(f.Name)
+						tag := fmt.Sprintf(`json:&quot;%s&quot;`, f.Name) // f.Name must be present in data bytes
+
+						// TODO:
+						//
+						// figure out how to protect against a top-level flag and a command
+						// flag both having the same field name.
+						//
+						// e.g. this should be a valid command:
+						// app -debug foocmd -debug
+						//
+						// our current implementation would mean the command's -debug flag
+						// would override the value in the top-level -debug. ok it's a
+						// contrived example so it's unlikely to happen but it's not
+						// impossible to want the same flag at both the top-level and at a
+						// command specific level.
+						//
+						data[f.Name] = f.Value
+
+						switch cf.Type {
+						case &quot;bool&quot;:
+							instance.AddField(title, false, &quot;&quot;)
+						case &quot;string&quot;:
+							instance.AddField(title, &quot;&quot;, tag)
+						case &quot;int&quot;:
+							instance.AddField(title, 0, tag)
+						case &quot;float&quot;:
+							instance.AddField(title, 0.0, tag)
+						}
+					}
+				}
+			}
+		}
+	})
+
+	instance.AddField(&quot;Cmd&quot;, &quot;&quot;, `json:&quot;cmd&quot;`)
+	ds := instance.Build().New()
+
+	j, err := json.Marshal(data)
+	if err != nil {
+		return &amp;Data{}, fmt.Errorf(&quot;%s %w&quot;, ErrInterpolationMarshal, err)
+	}
+
+	fmt.Println(&quot;interpolated data:&quot;, string(j))
+
+	err = json.Unmarshal(j, &amp;ds)
+	if err != nil {
+		return &amp;Data{}, fmt.Errorf(&quot;%s %w&quot;, ErrStructBuild, err)
+	}
+
+	// TODO:
+	//
+	// figure out how to type assert interface{} to concrete type?
+	// otherwise dynamically generating a struct is pointless :grimace:
+
+	fmt.Printf(&quot;\ndynamic struct data:\n%+v\n\ntype:\n%T\n\n&quot;, ds, ds)
+
+	// v := reflect.ValueOf(ds).Type()
+
+	// var ei interface{} = ds
+
+	// d, ok := ei.(*struct {
+	// 	AAA   string &quot;json:\&quot;AAA\&quot;&quot;
+	// 	BBB   int    &quot;json:\&quot;BBB\&quot;&quot;
+	// 	A     string &quot;json:\&quot;a\&quot;&quot;
+	// 	B     int    &quot;json:\&quot;b\&quot;&quot;
+	// 	Cmd   string &quot;json:\&quot;cmd\&quot;&quot;
+	// 	D     bool
+	// 	Debug bool
+	// })
+	// if !ok {
+	// 	fmt.Println(&quot;uh-oh:&quot;, d, ok)
+	// }
+	// fmt.Println(d.Cmd, d.Debug)
+
+	return &amp;Data{
+		Cmd: cmd,
+	}, nil
+}
+
+func (s *Schema) commandFlagSet(cmd string, cmdFlags []string) *flag.FlagSet {
+	for _, c := range s.Commands {
+		if c.Name == cmd {
+			cfs := flag.NewFlagSet(c.Name, flag.ExitOnError)
+
+			for _, f := range c.Flags {
+				switch f.Type {
+				case &quot;bool&quot;:
+					var boolType bool
+					flagValue := false
+					flagUsage := f.Usage
+
+					cfs.BoolVar(&amp;boolType, f.Verbose, flagValue, flagUsage)
+					cfs.BoolVar(&amp;boolType, f.Short, flagValue, flagUsage+&quot; (shorthand)&quot;)
+				case &quot;string&quot;:
+					var stringType string
+					flagValue := &quot;&quot;
+					flagUsage := f.Usage
+
+					cfs.StringVar(&amp;stringType, f.Verbose, flagValue, flagUsage)
+					cfs.StringVar(&amp;stringType, f.Short, flagValue, flagUsage+&quot; (shorthand)&quot;)
+				case &quot;int&quot;:
+					var intType int
+					flagValue := 0
+					flagUsage := f.Usage
+
+					cfs.IntVar(&amp;intType, f.Verbose, flagValue, flagUsage)
+					cfs.IntVar(&amp;intType, f.Short, flagValue, flagUsage+&quot; (shorthand)&quot;)
+				case &quot;float&quot;:
+					var floatType float64
+					flagValue := 0.0
+					flagUsage := f.Usage
+
+					cfs.Float64Var(&amp;floatType, f.Verbose, flagValue, flagUsage)
+					cfs.Float64Var(&amp;floatType, f.Short, flagValue, flagUsage+&quot; (shorthand)&quot;)
+				}
+			}
+
+			return cfs
+		}
+	}
+
+	return &amp;flag.FlagSet{}
+}
+
+func (s *Schema) commandFlags(cmd string, args []string) []string {
+	for i, v := range args {
+		if v == cmd {
+			return args[i+1:]
+		}
+	}
+
+	return []string{}
+}
+
+func (s *Schema) identifyCommand(args []string) string {
+	commandIndex := 0
+	commandSeen := false
+
+	for _, arg := range args {
+		if commandSeen {
+			break
+		}
+
+		if strings.HasPrefix(arg, &quot;-&quot;) == true {
+			commandIndex++
+			continue
+		}
+
+		for _, cmd := range s.Commands {
+			if arg == cmd.Name {
+				commandSeen = true
+				break
+			}
+		}
+
+		if !commandSeen {
+			commandIndex++
+		}
+	}
+
+	if !commandSeen {
+		return &quot;&quot;
+	}
+
+	return args[commandIndex]
+}
+</code></pre>
+
+</div>
+</body>
+</html>

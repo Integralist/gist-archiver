@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Clojure Thread State</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="clojure-thread-state">Clojure Thread State</h1>
+
+<h2 id="clojure-thread-state-clj">Clojure Thread State.clj</h2>
+
+<pre><code class="language-clojure">(def current-account (ref 500))
+(def savings-account (ref 600))
+
+(println (str &quot;current-account:&quot; current-account))
+(println (str &quot;savings-account:&quot; savings-account))
+
+(defn withdraw [from constraint amount]
+  (dosync
+    (let [total (+ @from (ensure constraint))]
+      (Thread/sleep 1000)
+      (println (str (Thread/currentThread) &quot; - &quot; (.isInterrupted (Thread/currentThread)) &quot;\n&quot;))
+      (println (str (Thread/currentThread) &quot; - &quot; (.getState (Thread/currentThread)) &quot;\n&quot;))
+      (println (str (Thread/currentThread) &quot; - &quot; (.getPriority (Thread/currentThread)) &quot;\n&quot;))
+      (if (&gt;= (- total amount) 1000)
+        (alter from - amount)
+        (println &quot;Sorry, can't withdraw due to constraint violation\n&quot;)))))
+
+(println &quot;STATE BEFORE MODIFYING&quot;)
+(println &quot;Current Account balance is&quot; @current-account)
+(println &quot;Savings Account balance is&quot; @savings-account)
+(println &quot;Total balance is&quot; (+ @current-account @savings-account))
+
+(future (withdraw current-account savings-account 100))
+(future (withdraw savings-account current-account 100))
+
+(Thread/sleep 4000)
+
+(println &quot;STATE AFTER MODIFYING&quot;)
+(println &quot;Current Account balance is&quot; @current-account)
+(println &quot;Savings Account balance is&quot; @savings-account)
+(println &quot;Total balance is&quot; (+ @current-account @savings-account))
+</code></pre>
+
+</div>
+</body>
+</html>

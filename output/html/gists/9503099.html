@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Convert Ruby Hash keys into symbols </title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="convert-ruby-hash-keys-into-symbols">Convert Ruby Hash keys into symbols</h1>
+
+<h2 id="hash-keys-to-symbols-rb">Hash Keys to Symbols.rb</h2>
+
+<pre><code class="language-ruby">hash = { 'foo' =&gt; 'bar' }
+
+# Version 1
+hash = Hash[hash.map { |k, v| [k.to_sym, v] }]
+
+# Version 2
+hash = hash.reduce({}) do |memo, (k, v)| 
+  memo.tap { |m| m[k.to_sym] = v }
+end
+
+# Version 3
+hash = hash.reduce({}) do |memo, (k, v)| 
+  memo.merge({ k.to_sym =&gt; v})
+end
+
+# None of the above solutions work with a multi-level hash
+# They only work on the first level: {:foo=&gt;&quot;bar&quot;, :level1=&gt;{&quot;level2&quot;=&gt;&quot;baz&quot;}}
+# The following two variations solve the problem in the same way
+
+multi_hash = { 'foo' =&gt; 'bar', 'level1' =&gt; { 'level2' =&gt; 'baz' } }
+
+# Modify `Object`
+class Object
+  def deep_symbolize_keys
+    return self.reduce({}) do |memo, (k, v)|
+      memo.tap { |m| m[k.to_sym] = v.deep_symbolize_keys }
+    end if self.is_a? Hash
+    
+    return self.reduce([]) do |memo, v| 
+      memo &lt;&lt; v.deep_symbolize_keys; memo
+    end if self.is_a? Array
+    
+    self
+  end
+end
+
+multi_hash = multi_hash.deep_symbolize_keys
+
+# Standalone method
+def symbolize(obj)
+  return obj.reduce({}) do |memo, (k, v)|
+    memo.tap { |m| m[k.to_sym] = symbolize(v) }
+  end if obj.is_a? Hash
+    
+  return obj.reduce([]) do |memo, v| 
+    memo &lt;&lt; symbolize(v); memo
+  end if obj.is_a? Array
+  
+  obj
+end
+
+multi_hash = symbolize(multi_hash)
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby: calculate reading time based on length of text</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-calculate-reading-time-based-on-length-of-text">Ruby: calculate reading time based on length of text</h1>
+
+<h2 id="reading-time-rb">reading_time.rb</h2>
+
+<pre><code class="language-ruby"># Outputs the reading time
+
+# Read this in “about 4 minutes”
+# Put into your _plugins dir in your Jekyll site
+# Usage: Read this in about {{ page.content | reading_time }}
+
+module ReadingTimeFilter
+	def reading_time( input )
+		words_per_minute = 180
+
+		words = input.split.size;
+		minutes = ( words / words_per_minute ).floor
+		minutes_label = minutes === 1 ? &quot; minute&quot; : &quot; minutes&quot;
+		minutes &gt; 0 ? &quot;about #{minutes} #{minutes_label}&quot; : &quot;less than 1 minute&quot;
+	end
+end
+
+Liquid::Template.register_filter(ReadingTimeFilter)
+</code></pre>
+
+</div>
+</body>
+</html>

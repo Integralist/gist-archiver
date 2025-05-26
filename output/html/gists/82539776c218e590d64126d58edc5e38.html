@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Bash Date Formatting] #bash #date #gnu #posix</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="bash-date-formatting-bash-date-gnu-posix">[Bash Date Formatting] #bash #date #gnu #posix</h1>
+
+<h2 id="bash-date-formatting-sh">Bash Date Formatting.sh</h2>
+
+<pre><code class="language-shell"># when using UTC timezone, always add 1 hour to the intended hour
+# so if you want 1hr in the future UTC, then use +2H
+# you'll notice this when you switch between BST (no -u flag) and UTC
+
+# macOS (standard: posix install)
+#
+# -u:  utc timezone
+# -v:  adjust current datetime
+# +%s: convert output to seconds since epoch
+date -u -v +1H +%s
+
+# macOS (gnu coreutils installed)
+#
+# -u:  utc timezone
+# -d:  adjust specified datetime
+# +%s: convert output to seconds since epoch
+gdate -u -d &quot;today 1 hour&quot; +%s
+
+# linux (standard: gnu coreutils)
+# 
+# automatically defaults to utc timezone
+#
+# -d:  adjust specified datetime
+# +%s: convert output to seconds since epoch
+date -d &quot;today 1 hour&quot; +%s
+
+# You can go the reverse direction (timestamp -&gt; date)
+date -d @1267619929 # Wed Mar  3 12:38:49 UTC 2010
+gdate -d @1267619929 -u # UTC flag required for macOS gnu coreutils version
+date -r 1267619929 -u # macOS standard posix install
+</code></pre>
+
+</div>
+</body>
+</html>

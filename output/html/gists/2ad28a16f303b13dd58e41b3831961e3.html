@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Module Error: malformed module path ... missing dot in first path element] #go #golang #modules #replace #import</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-module-error-malformed-module-path-missing-dot-in-first-path-element-go-golang-modules-replace-import">[Golang Module Error: malformed module path &hellip; missing dot in first path element] #go #golang #modules #replace #import</h1>
+
+<h2 id="golang-module-error-md">Golang Module Error.md</h2>
+
+<pre><code class="language-markdown">When using go modules I've stumbled across this error a few times, but it's infrequent enough for me to spend hours _each_ time trying to recall how to fix it.
+
+</code></pre>
+
+<p>malformed module path &hellip; missing dot in first path element</p>
+
+<pre><code>
+This occurs when I'm using the `replace` directive in a go.mod file to tell the go compiler that anytime it sees a custom import like `foo/bar` to actually lookup that code from somewhere locally available to the application.
+
+e.g.
+
+</code></pre>
+
+<p>module github.com/buzzfeed/mono/rate_control</p>
+
+<p>go 1.14</p>
+
+<p>require (</p>
+
+<pre><code>buzzfeed/instrumentation v0.0.0
+buzzfeed/settings v0.0.0
+github.com/go-redis/redis v6.15.7+incompatible
+github.com/go-redis/redis/v7 v7.2.0
+github.com/sirupsen/logrus v1.4.1
+</code></pre>
+
+<p>)</p>
+
+<p>replace (</p>
+
+<pre><code>buzzfeed/instrumentation =&gt; ./shared/lib/instrumentation
+buzzfeed/settings =&gt; ./shared/lib/settings
+</code></pre>
+
+<p>)</p>
+
+<pre><code>
+So the problem with the above is that I import `buzzfeed/instrumentation` and that itself is a go module that imports `buzzfeed/logging` and `buzzfeed/metrics`.
+
+In `buzzfeed/instrumentation`'s go.mod file it also uses `replace` to change the lookup of those dependencies.
+
+The source of the `malformed module path` error is actually misleading.
+
+The actual problem is documented in the golang wiki: https://github.com/golang/go/wiki/Modules#when-should-i-use-the-replace-directive (specifically the first paragraph under the linked section):
+
+&gt; As described in the 'go.mod' concepts section above, replace directives provide additional control in the top-level go.mod for what is actually used to satisfy a dependency found in the Go source or go.mod files, **_while replace directives in modules other than the main module are ignored when building the main module_**.
+
+This means that my top-level go.mod file, although it doesn't directly use `buzzfeed/logging` or `buzzfeed/metrics`, still needs the 'replace' directives to be added.
+
+For example, the following fixes it...
+
+```diff
+module github.com/buzzfeed/mono/rate_control
+
+go 1.14
+
+require (
+	buzzfeed/instrumentation v0.0.0
+	buzzfeed/logging v0.0.0
+	buzzfeed/metrics v0.0.0
+	buzzfeed/settings v0.0.0
+	github.com/go-redis/redis v6.15.7+incompatible
+	github.com/go-redis/redis/v7 v7.2.0
+	github.com/sirupsen/logrus v1.4.1
+)
+
+replace (
+	buzzfeed/instrumentation =&gt; ./shared/lib/instrumentation
++	buzzfeed/logging =&gt; ./shared/lib/logging
++	buzzfeed/metrics =&gt; ./shared/lib/metrics
+	buzzfeed/settings =&gt; ./shared/lib/settings
+)
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

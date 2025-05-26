@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[local SSH tunnel using google cloud] #go #golang #ssh #tunnel</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="local-ssh-tunnel-using-google-cloud-go-golang-ssh-tunnel">[local SSH tunnel using google cloud] #go #golang #ssh #tunnel</h1>
+
+<h2 id="proxy-go">proxy.go</h2>
+
+<pre><code class="language-go">// Package main is the entrypoint to the proxy CLI program.
+package main
+
+import (
+	&quot;bytes&quot;
+	&quot;context&quot;
+	&quot;errors&quot;
+	&quot;flag&quot;
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;log&quot;
+	&quot;os&quot;
+	&quot;os/exec&quot;
+	&quot;os/signal&quot;
+	&quot;syscall&quot;
+
+	&quot;golang.org/x/sys/unix&quot;
+)
+
+// Open an SSH tunnel on a local port to the given proxy address.
+func main() {
+	if err := run(); err != nil {
+		log.Fatalf(&quot;failed to run: %s&quot;, err)
+	}
+}
+
+func run() error {
+	proxyAddr := flag.String(&quot;connect&quot;, &quot;&quot;, &quot;open SSH tunnel to `IP address` (omit port)&quot;)
+	login := flag.Bool(&quot;login&quot;, false, &quot;log in instead of opening tunnel&quot;)
+	port := flag.String(&quot;port&quot;, &quot;1080&quot;, &quot;local `port` number of tunnel&quot;)
+	flag.Parse()
+
+	gcpURL, err := getGCPURL(*proxyAddr)
+	if gcpURL == &quot;&quot; || err != nil {
+		if err != nil {
+			return fmt.Errorf(&quot;failed to get GCP URL: %w&quot;, err)
+		}
+		msg := &quot;no GCP proxy with IP address %v found; make sure you’ve run 'gcloud components install beta' first; check gcloud auth list and the IP address&quot;
+		return fmt.Errorf(msg, *proxyAddr)
+	}
+
+	if *login {
+		loginReplaceProc(gcpURL)
+		return nil
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	cmd, err := connect(ctx, gcpURL, *port, os.Stderr)
+	if err != nil {
+		return nil
+	}
+	if cmd == nil {
+		return fmt.Errorf(&quot;no proxy with address: %#v&quot;, *proxyAddr)
+	}
+
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+		&lt;-c
+		cancel()
+	}()
+
+	fmt.Fprintf(os.Stdout, &quot;forwarding localhost:%s to proxy: %s\n&quot;, *port, *proxyAddr)
+	err = cmd.Wait()
+	if err != nil {
+		var exitErr *exec.ExitError
+		if errors.As(err, &amp;exitErr) {
+			err = fmt.Errorf(&quot;exit error: %s: %w&quot;, exitErr.Stderr, err)
+		}
+		return err
+	}
+
+	return nil
+}
+
+func connect(ctx context.Context, url, port string, out io.Writer) (*exec.Cmd, error) {
+	cmd := exec.CommandContext(ctx, &quot;gcloud&quot;, &quot;compute&quot;, &quot;ssh&quot;, &quot;--ssh-flag=-nNTC -D localhost:&quot;+port, &quot;--project=&lt;REDACTED&gt;&quot;, url) // #nosec: G204
+	if out != nil {
+		cmd.Stdout = out
+		cmd.Stderr = out
+	}
+	err := cmd.Start()
+	if err != nil {
+		return nil, fmt.Errorf(&quot;failed to start gcloud command: %w&quot;, err)
+	}
+	return cmd, nil
+}
+
+func loginReplaceProc(url string) {
+	cmd := exec.Command(&quot;gcloud&quot;, &quot;beta&quot;, &quot;compute&quot;, &quot;ssh&quot;, &quot;--project=&lt;REDACTED&gt;&quot;, url)
+	err := unix.Exec(cmd.Path, cmd.Args, os.Environ())
+	fmt.Fprintln(os.Stderr, err)
+}
+
+func getGCPURL(addr string) (string, error) {
+	cmd := exec.Command(&quot;gcloud&quot;, &quot;beta&quot;, &quot;compute&quot;, &quot;addresses&quot;, &quot;list&quot;, &quot;--format=value(users[0].flatten())&quot;, &quot;--project=&lt;REDACTED&gt;&quot;, &quot;--filter=labels.production=ssh-proxy AND address=&quot;+addr) // #nosec: G204
+	out, err := cmd.Output()
+	out = bytes.TrimSpace(out)
+	return string(out), err
+}
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Tornado configure AsyncHTTPClient to use Curl] #python3 #tornado #configure #async #httpclient #curl #libcurl</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="tornado-configure-asynchttpclient-to-use-curl-python3-tornado-configure-async-httpclient-curl-libcurl">[Tornado configure AsyncHTTPClient to use Curl] #python3 #tornado #configure #async #httpclient #curl #libcurl</h1>
+
+<h2 id="tornado-configure-asynchttpclient-to-use-curl-md">Tornado configure AsyncHTTPClient to use Curl.md</h2>
+
+<pre><code class="language-markdown">## Linux 
+
+Install OS dependencies...
+
+```bash
+apt-get update &amp;&amp; apt-get install -y libpq-dev build-essential libcurl4-openssl-dev libssl-dev
+</code></pre>
+
+<p>Install Python dependencies&hellip;</p>
+
+<pre><code>tornado
+pycurl
+</code></pre>
+
+<p>Configure Tornado&hellip;</p>
+
+<pre><code class="language-python">AsyncHTTPClient.configure(&quot;tornado.curl_httpclient.CurlAsyncHTTPClient&quot;, defaults=dict(user_agent=&quot;your_app&quot;))
+http_client = AsyncHTTPClient()
+http_client.fetch(&quot;https://www.integralist.co.uk/&quot;)
+</code></pre>
+
+<h2 id="notes-on-macos">Notes on macOS</h2>
+
+<p>I was getting the following error:</p>
+
+<pre><code>ImportError: pycurl: libcurl link-time ssl backend (openssl) is different from compile-time ssl backend (none/other)
+</code></pre>
+
+<p>Resolution:</p>
+
+<pre><code>export PYCURL_SSL_LIBRARY=openssl
+
+pip install --no-cache-dir --global-option=build_ext --global-option=&quot;-L/usr/local/opt/openssl/lib&quot; --global-option=&quot;-I/usr/local/opt/openssl/include&quot;  pycurl
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

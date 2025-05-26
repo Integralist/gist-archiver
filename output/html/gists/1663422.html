@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Beware of setting 'require' as a dependancy</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="beware-of-setting-require-as-a-dependancy">Beware of setting &lsquo;require&rsquo; as a dependancy</h1>
+
+<h2 id="example-md">example.md</h2>
+
+<pre><code class="language-markdown">Imagine this is your module…
+
+```js
+define(['Utils/css'], function(css){
+
+	console.log(css);
+	
+});
+</code></pre>
+
+<p>If your <code>Utils/css</code> dependancy was like the following…</p>
+
+<pre><code class="language-js">define(['require'], function(require){
+
+	return {
+		style: require('Utils/CSS/getAppliedStyle'),
+		classes: require('Utils/CSS/getArrayOfClassNames'),
+		add: require('Utils/CSS/addClass'),
+		remove: require('Utils/CSS/removeClass'),
+		has: require('Utils/CSS/hasClass')
+	}
+
+});
+</code></pre>
+
+<p>…then you would have this error displayed: <code>Uncaught Error: Module name 'Utils/CSS/getAppliedStyle' has not been loaded yet for context: _</code> because you created a race condition issue.</p>
+
+<p>One work around would be to do…</p>
+
+<pre><code class="language-js">define(['Utils/CSS/getAppliedStyle', 'Utils/CSS/getArrayOfClassNames', 'Utils/CSS/addClass', 'Utils/CSS/removeClass', 'Utils/CSS/hasClass'], function(getAppliedStyle, getArrayOfClassNames, addClass, removeClass, hasClass){
+
+	return {
+		style: getAppliedStyle,
+		classes: getArrayOfClassNames,
+		add: addClass,
+		remove: removeClass,
+		has: hasClass
+	}
+
+});
+</code></pre>
+
+<p>But that&rsquo;s FUGLY, so instead, go back to what we had before but just don&rsquo;t specify <code>require</code> as a dependancy…</p>
+
+<pre><code class="language-js">define(function(require){
+
+	return {
+		style: require('Utils/CSS/getAppliedStyle'),
+		classes: require('Utils/CSS/getArrayOfClassNames'),
+		add: require('Utils/CSS/addClass'),
+		remove: require('Utils/CSS/removeClass'),
+		has: require('Utils/CSS/hasClass')
+	}
+
+});
+</code></pre>
+
+<p>I have an idea of why this works but maybe <a href="https://github.com/jrburke/" target="_blank">@jrburke</a> can clarify.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

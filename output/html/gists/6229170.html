@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Imager.js (as of 14th August 2013)</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="imager-js-as-of-14th-august-2013">Imager.js (as of 14th August 2013)</h1>
+
+<h2 id="imager-js">Imager.js</h2>
+
+<pre><code class="language-javascript">(function (window, document) {
+
+    'use strict';
+
+    var $, Imager;
+
+    window.requestAnimationFrame = 
+    window.requestAnimationFrame || 
+    window.mozRequestAnimationFrame || 
+    window.webkitRequestAnimationFrame || 
+    function (callback) {
+        window.setTimeout(callback, 1000 / 60);
+    };
+
+
+    $ = (function (dollar) {
+        if (dollar) {
+            return dollar;
+        }
+
+        return function (selector) {
+            return Array.prototype.slice.call(document.querySelectorAll(selector));
+        };
+    }(window.$));
+
+
+    /*
+        Construct a new Imager instance, passing an optional configuration object.
+
+        Example usage:
+
+            {
+                // Available widths for your images
+                availableWidths: [Number]
+
+                // Selector to be used to locate your div placeholders
+                selector: '',
+
+                // Class name to give your resizable images.
+                className: '',
+
+                // Regular expression to match against your image endpoint's naming conventions 
+                // e.g. http://yourserver.com/image/horse/400
+                regex: RegExp
+            }
+
+        @param {object} configuration settings
+        @return {object} instance of Imager
+     */
+    window.Imager = Imager = function (opts) {
+        var self = this;
+            opts = opts || {};
+
+        this.availableWidths = opts.availableWidths || [96, 130, 165, 200, 235, 270, 304, 340, 375, 410, 445, 485, 520, 555, 590, 625, 660, 695, 736];
+        this.selector        = opts.selector || '.delayed-image-load';
+        this.className       = '.' + (opts.className || 'image-replace').replace(/^\.+/, '.');
+        this.regex           = opts.regex || /^(.+\/)\d+$/i;
+        this.gif             = document.createElement('img');
+        this.gif.src         = 'data:image/gif;base64,R0lGODlhEAAJAIAAAP///wAAACH5BAEAAAAALAAAAAAQAAkAAAIKhI+py+0Po5yUFQA7';
+        this.gif.className   = this.className.replace(/^[#.]/, '');
+        this.divs            = $(this.selector);
+        this.cache           = {};
+        this.changeDivsToEmptyImages();
+
+        window.requestAnimationFrame(function(){
+            self.init();
+        });
+    };
+
+
+    Imager.prototype.init = function () {
+        var self = this;
+
+        this.initialized = true;
+        this.checkImagesNeedReplacing();
+
+        window.addEventListener('resize', function(){
+            self.checkImagesNeedReplacing();
+        }, false);
+    };
+
+
+    Imager.prototype.changeDivsToEmptyImages = function () {
+        var divs = this.divs,
+            i = divs.length,
+            gif;
+
+        while (i--) {
+            gif = this.gif.cloneNode(false);
+            gif.width = divs[i].getAttribute('data-width');
+            gif.setAttribute('data-src', divs[i].getAttribute('data-src'));
+            divs[i].parentNode.replaceChild(gif, divs[i]);
+        }
+
+        if (this.initialized) {
+            this.checkImagesNeedReplacing();
+        }
+    };
+
+
+    Imager.prototype.checkImagesNeedReplacing = function () {
+        var self = this,
+            images = $(this.className),
+            i = images.length;
+
+        if (!this.isResizing) {
+            this.isResizing = true;
+
+            while (i--) {
+                this.replaceImagesBasedOnScreenDimensions(images[i]);
+            }
+
+            this.isResizing = false;
+        }
+    };
+
+    Imager.prototype.replaceImagesBasedOnScreenDimensions = function (image) {
+        var src = this.determineAppropriateResolution(image),
+            parent = image.parentNode,
+            replacedImage;
+
+        if (this.cache[src]) {
+            replacedImage = this.cache[src].cloneNode(false);
+            replacedImage.width = image.getAttribute('width');
+        } else {
+            replacedImage = image.cloneNode(false);
+            replacedImage.src = src;
+            this.cache[src] = replacedImage;
+        }
+
+        parent.replaceChild(replacedImage, image);
+    };
+
+    Imager.prototype.determineAppropriateResolution = function (image) {
+        var src           = image.getAttribute('data-src'),
+            imagewidth    = image.clientWidth,
+            selectedWidth = this.availableWidths[0],
+            i             = this.availableWidths.length;
+
+        while (i--) {
+            if (imagewidth &lt;= this.availableWidths[i]) {
+                selectedWidth = this.availableWidths[i];
+            }
+        }
+
+        return this.changeImageSrcToUseNewImageDimensions(src, selectedWidth);
+    };
+
+    Imager.prototype.changeImageSrcToUseNewImageDimensions = function (src, selectedWidth) {
+        return src.replace(this.regex, function (match, captured) {
+            return captured + selectedWidth;
+        });
+    };
+
+}(window, document));
+</code></pre>
+
+</div>
+</body>
+</html>

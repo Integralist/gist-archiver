@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Type Hinting MyPy] #mypy #python #types #hinting</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-type-hinting-mypy-mypy-python-types-hinting">[Python Type Hinting MyPy] #mypy #python #types #hinting</h1>
+
+<h2 id="generating-stubs-md">Generating stubs.md</h2>
+
+<pre><code class="language-markdown">You need to generate stubs that are missing, since dependencies such as `boto3` doesn’t provide type hints (as do most packages unfortunately). Mostly we don’t really care about external packages, and type hinting is mostly useful as a documentation tool and can help with autocompletion tools.
+
+So typically you'll run MyPy with: `--ignore-missing-imports`.
+
+&gt; Note: alternatively specify which modules you want to ignore [like this](https://github.com/python/mypy/issues/3905#issuecomment-421065323).
+
+Consider the following code:
+
+```py
+import boto3
+
+from botocore.client import BaseClient
+
+client = boto3.client('cognito-idp')
+
+def foo(client: BaseClient):
+    print('hey')
+
+foo('ccccc')
+</code></pre>
+
+<p>MyPy will not see any problems here because we&rsquo;ll either have generated a stub for boto3 or we would be skipping the import altogether.</p>
+
+<p>To generate the missing stub for boto3:</p>
+
+<ol>
+<li>generate stubs: <code>stubgen --recursive botocore</code></li>
+<li><code>MYPYPATH='./out' mypy your_file.py</code></li>
+</ol>
+
+<blockquote>
+<p><code>./out</code> is the default directory <code>stubgen</code> where <code>stubgen</code> puts the stubs</p>
+</blockquote>
+
+<p>Then executing MyPy will pick up the error:</p>
+
+<pre><code>test.py:12: error: Argument 1 to &quot;foo&quot; has incompatible type &quot;str&quot;; expected &quot;BaseClient&quot;
+</code></pre>
+
+<pre><code>
+## Python Type Hinting MyPy.py
+
+```python
+from typing import Union
+
+Number = Union[int, float]
+
+def add(x: Number = 10, y: Number = 5) -&gt; Number:
+  print(x, y)
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Fastly Terraform Import] #fastly #terraform #go #import</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="fastly-terraform-import-fastly-terraform-go-import">[Fastly Terraform Import] #fastly #terraform #go #import</h1>
+
+<h2 id="import-steps-md">Import Steps.md</h2>
+
+<pre><code class="language-markdown">&gt; NOTE: these instructions have been genericised from a real example, and so your mileage may vary.
+
+I first create a `provider.tf` file.
+
+```terraform
+terraform {
+  required_providers {
+    fastly = {
+      source  = &quot;fastly/fastly&quot;
+      version = &quot;0.28.2&quot;
+    }
+  }
+}
+provider &quot;fastly&quot; {
+  api_key = &quot;&lt;API_KEY&gt;&quot;
+}
+</code></pre>
+
+<p>Next I create a <code>main.tf</code> placeholder file (I name the resource <code>import_testing</code> but you will likely want to name it something different).</p>
+
+<pre><code class="language-terraform">resource &quot;fastly_service_v1&quot; &quot;import_testing&quot; {}
+</code></pre>
+
+<p>I use a program called <code>tfswitch</code> (<a href="https://github.com/warrensbox/terraform-switcher" target="_blank">https://github.com/warrensbox/terraform-switcher</a>) to manage multiple terraform versions, but you can just <a href="https://www.terraform.io/downloads.html" target="_blank">download the latest version direct from HashiCorp</a> if you don&rsquo;t have multiple projects (e.g. each project using a different Terraform version).</p>
+
+<p>I use <code>tfswitch</code> to install the latest version of Terraform (currently <code>v0.15.1</code>).</p>
+
+<p>I run <code>terraform init</code> which displays a bunch of information, but the relevant section is in green and says &ldquo;Terraform has been successfully initialized!&rdquo;</p>
+
+<p>I then import the service using:</p>
+
+<pre><code class="language-bash">terraform import fastly_service_v1.import_testing &lt;SERVICE_ID&gt;
+</code></pre>
+
+<p>Notice the use of <code>import_testing</code> as the name I assigned to the <code>fastly_service_v1</code> resource. If you decide to change the name as I suggested earlier, you will want to be sure to update this command to reflect that change. Also <code>&lt;SERVICE_ID&gt;</code> should be replaced with your actual Service ID.</p>
+
+<p>Running this command will display some information, but the relevant section is in green and says &ldquo;Import successful!&rdquo;.</p>
+
+<p>I don&rsquo;t <em>need</em> to run the next command, but I like to have a look at the local state straight after an initial import:</p>
+
+<pre><code class="language-bash">terraform show
+</code></pre>
+
+<p>The <code>show</code> subcommand pretty prints the internal Terraform state (i.e. what&rsquo;s in the <code>terraform.tfstate</code> that has been created in the local directory where the other Terraform files, <code>provider.tf</code>/<code>main.tf</code> are located).</p>
+
+<p>The next crucial command is to run:</p>
+
+<pre><code>terraform show -no-color &gt; main.tf
+</code></pre>
+
+<p>This will overwrite the &lsquo;placeholder&rsquo; content that was in the <code>main.tf</code> file with a bunch of Terraform HCL code.</p>
+
+<p>This code is a HCL version of the Terraform internal state, which will include a bunch of things that <strong><em>shouldn&rsquo;t</em></strong> be present in a typical Terraform file you would normally write manually by hand.</p>
+
+<p>This means I need to manually edit the updated <code>main.tf</code> content so it doesn&rsquo;t include internal state attributes that would cause a <code>terraform plan</code> to get confused. I start by first executing <code>terraform validate</code> to be sure that otherwise Terraform is happy.</p>
+
+<p>This should print the message &ldquo;Success! The configuration is valid.&rdquo;</p>
+
+<p>At this point I also run a <code>terraform plan</code> to see if Terraform thinks any changes are needed (I know from experience that Terraform will be confused and so I typically run this just out of interest).</p>
+
+<p>I can see in the output (I&rsquo;ve shortened it for brevity):</p>
+
+<pre><code class="language-diff">~ resource &quot;fastly_service_v1&quot; &quot;import_testing&quot; {
+    + comment  = &quot;Managed by Terraform&quot;
+    + vcl {
+        + content = &lt;&lt;-EOT
+    - vcl {
+        - content = &lt;&lt;-EOT
+        - main    = true -&gt; null
+        - name    = &quot;customvcl&quot; -&gt; null
+</code></pre>
+
+<p>So we can see from this that it is seeing <code>comment</code> as a new attribute and the <code>vcl</code> attribute is being deleted and recreated.</p>
+
+<p>So here&rsquo;s where I open up <code>main.tf</code> and manually remove attributes I know should be deleted (and add/modify certain attributes)&hellip;</p>
+
+<p><strong>Attributes to delete</strong>:</p>
+
+<ul>
+<li><code>active_version</code></li>
+<li><code>id</code></li>
+</ul>
+
+<p><strong>Attributes to add</strong>:</p>
+
+<ul>
+<li><code>comment = &quot;&quot;</code> (I just added it under the <code>name = &quot;&lt;...&gt;&quot;</code> attribute).</li>
+</ul>
+
+<p><strong>Attributes to modify</strong>:</p>
+
+<ul>
+<li><code>content</code> (inside the <code>vcl</code> block) should no longer use <code>&lt;&lt;-EOT</code> inlined VCL and should now become <code>content = file(&quot;vcl/main.vcl&quot;)</code></li>
+</ul>
+
+<p>That last point will require you to download your main VCL file and stick it inside a <code>vcl</code> directory next to your other Terraform files <code>provider.tf</code> and <code>main.tf</code>.</p>
+
+<p>One other change I need to make is to the <code>terraform.state</code> file itself. I modify this file so that <code>&quot;activate&quot;: null</code> becomes <code>&quot;activate&quot;: true</code>. The <code>activate</code> field is specific to the Fastly Terraform Provider and is not returned by the Fastly API and so that&rsquo;s why we need to tweak it when doing an import of a service.</p>
+
+<p>Although not used in this example, I&rsquo;ve historically had to delete fields such as <code>dictionary_id</code>.</p>
+
+<blockquote>
+<p><strong>NOTE</strong>: If you see any <code>(sensitive value)</code> values, then replace them with actual secrets (although it might be best to use <code>file()</code> for multi-line keys). You should have a read through Fastly&rsquo;s &ldquo;<a href="https://developer.fastly.com/learning/integrations/orchestration/terraform/" target="_blank">Orchestration using Terraform and the Fastly Terraform Provider</a>&rdquo; which has a <a href="https://developer.fastly.com/learning/integrations/orchestration/terraform/#best-practices" target="_blank">best practices</a> section that covers how to handle sensitive data.</p>
+</blockquote>
+
+<p>Now if I run a <code>terraform plan</code> I&rsquo;ll see:</p>
+
+<pre><code>No changes. Infrastructure is up-to-date.
+</code></pre>
+
+<pre><code>
+## Terraform Custom Diff Script.bash
+
+```shell
+#!/usr/bin/env bash
+#
+# Explanation:
+# I use this to help me identify when newlines are causing diff conflicts.
+
+# Get plan
+terraform plan -out=tfplan &gt; /dev/null 2&gt;&amp;1
+
+# Convert plan to json
+CHANGES=$(terraform show -json tfplan | jq '.resource_changes[].change')
+
+# Diff before and after with newlines expanded
+diff -u \
+  &lt;(echo &quot;$CHANGES&quot; | jq '.before' | sed 's/\\n/\//g') \
+  &lt;(echo &quot;$CHANGES&quot; | jq '.after' | sed 's/\\n/\//g')
+</code></pre>
+
+</div>
+</body>
+</html>

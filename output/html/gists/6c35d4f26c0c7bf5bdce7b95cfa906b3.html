@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>C Concepts</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="c-concepts">C Concepts</h1>
+
+<h2 id="c-concepts-md">C Concepts.md</h2>
+
+<pre><code class="language-markdown">- [Introduction](#introduction)
+- [Compilers](#compilers)
+- [Hello World](#hello-world)
+- [Constants vs Directives](#constants-vs-directives)
+- [Quotations](#quotations)
+- [Char Type](#char-type)
+- [Null Terminator](#null-terminator)
+- [Pointers](#pointers)
+- [Arrays](#arrays)
+- [Enumerators](#enumerators)
+- [Memory Allocation with different Types](#memory-allocation-with-different-types)
+- [Reallocating Memory](#reallocating-memory)
+- [Function Prototypes](#function-prototypes)
+
+## Introduction
+
+This isn't a 'How to program in C' tutorial, this is just a grouping of topics/concepts from the C language that I found interesting while learning the language (from the perspective of an already establed developer). Some of the things I make mention of I have used in other languages but I feel are worth covering still as they might not be immediately obvious to everyone.
+
+When writing a program in a language like [C](https://en.wikipedia.org/wiki/C_(programming_language)), that by itself is not executable (i.e. you can't run a C file). So you need to convert the C source code into [machine code](https://en.wikipedia.org/wiki/Machine_code) (i.e. something the computer's CPU can understand).
+
+Machine code is as low-level as you can get when interacting with a computer. So the C language is considered a 'higher-level' abstraction to save us from having to write machine code ourselves. A language like [Python](https://www.python.org/) is an even 'higher-level' abstraction to save us from having to write C (i.e. the Python language is actually written in C).
+
+In order to convert C code into machine code, we need a compiler.
+
+&gt; Strictly speaking you also need a [linker](https://en.wikipedia.org/wiki/Linker_(computing)) which takes multiple compiled objects and places them into a single executable file. Generally speaking, when we say &quot;compile a C file&quot;, we're really combining two separate processes (compiling and linking) into the single generic term &quot;compile&quot;
+
+## Compilers
+
+To compile C source code into an executable you need a compiler, of which there are many options. The two most popular being LLVM's `clang` and GNU's `gcc`.
+
+You might find there is a `cc` available, but typically this is aliased to an existing compiler.
+
+Also, Mac doesn't provide a compiler by default. But if you install X-Code you'll get the LLVM's suite of compilers. Below we see that we get quite a few alias' and all of them point to the same embeded LLVM compiler:
+
+```sh
+$ gcc --version
+Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/usr/include/c++/4.2.1
+Apple LLVM version 8.0.0 (clang-800.0.38)
+Target: x86_64-apple-darwin15.6.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+                                                                   
+$ llvm-gcc --version
+Apple LLVM version 8.0.0 (clang-800.0.38)
+Target: x86_64-apple-darwin15.6.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+                                                                   
+$ clang --version
+Apple LLVM version 8.0.0 (clang-800.0.38)
+Target: x86_64-apple-darwin15.6.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+                                                                   
+$ cc --version
+Apple LLVM version 8.0.0 (clang-800.0.38)
+Target: x86_64-apple-darwin15.6.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+</code></pre>
+
+<p>The first two alias&rsquo; <code>gcc</code> and <code>llvm-gcc</code> are confusing and a bit misleading as their not GNU&rsquo;s version. They&rsquo;re still the LLVM&rsquo;s compiler but in the first instance (<code>gcc</code>) the compiler is configured to use some additional libraries that are provided by c++</p>
+
+<p>It&rsquo;s worth noting that even with a plain C file all these alias&rsquo; work to compile the source code into an executable. It&rsquo;s just they allow you to utilise additional extensions not provided by the standard c language.</p>
+
+<p>LLVM&rsquo;s licensing is BSD, meaning Apple can embed it within their own software that is not GPL-licensed. Typically LLVM&rsquo;s compiler is faster, but in some cases might not support all the same targets as GNU&rsquo;s.</p>
+
+<blockquote>
+<p>For more comparison details see <a href="http://clang.llvm.org/comparison.html" target="_blank">http://clang.llvm.org/comparison.html</a></p>
+</blockquote>
+
+<h3 id="c11-support">C11 support</h3>
+
+<p>You&rsquo;ll find that some functions provided within C aren&rsquo;t safe. They allow for overflow of data because they don&rsquo;t check that the array defined is able to contain the strings being manipulated.</p>
+
+<p>C11 compatible compilers will provide an additional set of string functions that are safe.</p>
+
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  #if defined __STDC_LIB_EXT1__
+    printf(&quot;Optional functions are defined.\n&quot;);
+  #else
+    printf(&quot;Optional functions are not defined.\n&quot;);
+  #endif
+  
+  return 0;
+}
+</code></pre>
+
+<p>If your compiler supports these optional (safe) string functions, then to enable them you need to add a <code>define</code> directive that modifies the subsequent header file. But you need to add this directive <em>before</em> you include the preprocessor directive that imports the <code>string.h</code> header:</p>
+
+<pre><code class="language-c">#define __STDC_WANT_LIB_EXT1__ 1
+#include &lt;string.h&gt;
+</code></pre>
+
+<p>If you don&rsquo;t set <code>__STDC_WANT_LIB_EXT1__</code> to <code>1</code>, then the header <code>string.h</code> will utilise the old (unsafe) string functions.</p>
+
+<h2 id="hello-world">Hello World</h2>
+
+<pre><code class="language-c">#include &lt;stdio.h&gt;          // pre-processor directive to include code file at compile time
+#define NAME &quot;World&quot;        // pre-processor directive to substitute any reference to NAME _before_ compilation
+
+// returns an int type and takes in no arguments (void)
+int main(void) {
+  printf(&quot;hello %s&quot;, NAME); // can't use single quotes
+  return 0;                 // zero indicates no problems
+}
+</code></pre>
+
+<blockquote>
+<p>It&rsquo;s important to note that the directives <code>#include</code> and <code>#define</code> are &lsquo;processed&rsquo; at the start of the compilation process. This is at the request of the compiler. It&rsquo;ll be one of the compiler&rsquo;s first steps (to pull in the preprocessor and have it ensure the file is setup ready for the reset of the compilation)</p>
+</blockquote>
+
+<p>You compile it like so:</p>
+
+<pre><code class="language-sh">cc hello-world.c -o hw
+</code></pre>
+
+<p>Now you have a macOS compatible executable:</p>
+
+<pre><code class="language-sh">./hw # prints the message &quot;Hello World&quot;
+</code></pre>
+
+<blockquote>
+<p>To cross-compile for another OS (e.g. Linux) then use Docker or a VM</p>
+</blockquote>
+
+<h2 id="constants-vs-directives">Constants vs Directives</h2>
+
+<p>We saw in the above &lsquo;Hello World&rsquo; example the use of the directive <code>#define</code> which allowed us to use a single identifier (<code>NAME</code> in this case) throughout our program. The benefit is that we can change the value once and have it updated everywhere.</p>
+
+<p>But do not get this confused with a variable. It is not. This is just a sequence of characters that are blindly replaced at the pre-processing stage. The value assigned to <code>NAME</code> will be replaced inside your program regardless of whether it&rsquo;s valid code or not. Meaning it could cause the compiler to error in an unclear way.</p>
+
+<p>On the other hand you can define a proper constant like so:</p>
+
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main(void) {
+  const char NAME[] = &quot;World&quot;;
+  printf(&quot;Hello %s&quot;, NAME);
+  return 0;
+}
+</code></pre>
+
+<p>What this gives you is a variable that has an actual type assigned to it. Meaning the compiler will help you identify an incorrect value if necessary much more easily than using the <code>#define</code> directive.</p>
+
+<h2 id="quotations">Quotations</h2>
+
+<p>In C single quotes denote a <code>char</code> type and double quotes denote a string.</p>
+
+<p>So if you had the following code:</p>
+
+<pre><code class="language-c">char foo = 'a';
+printf(&quot;foo: %s\n&quot;, foo);
+</code></pre>
+
+<p>It would error with:</p>
+
+<pre><code>format specifies type 'char *' but the argument has type 'char'
+</code></pre>
+
+<p>To get it to work you need to provide the memory address location of <code>foo</code> using the address-of operator (<code>&amp;</code>):</p>
+
+<pre><code class="language-c">char foo = 'a';
+printf(&quot;foo: %s\n&quot;, &amp;foo);
+</code></pre>
+
+<p>We&rsquo;ll come back to the <code>&amp;</code> operator (and understand what <code>*</code> means) later, when we discuss <a href="#pointers">pointers</a>.</p>
+
+<h2 id="char-type">Char Type</h2>
+
+<p>When creating a variable, and assigning a string to it, the value assigned is really a pointer to a location in memory.</p>
+
+<p>The <code>char</code> type is used when storing characters such as <code>'a'</code>, but it also allows storing of strings <code>&quot;abc&quot;</code>.</p>
+
+<p>When assigning a string, the pointer is to an <em>array</em> where each element of the array is a character of the provided string. For example the string <code>&quot;abc&quot;</code> would be stored in an array that looked something like:</p>
+
+<pre><code class="language-c">[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]
+</code></pre>
+
+<p>This happens even if the string you provide is just one character. Although, depending on your program&rsquo;s design, it could be argued that you should not have assigned a single character string, but instead used single quotes to represent a single <code>char</code>.</p>
+
+<p>When assigning a character (e.g. <code>a</code>) to a variable of type <code>char</code> it takes on dual duty. Meaning the char type variable can represent the specific character <code>a</code> but really it stores the ASCII integer code that defines that character.</p>
+
+<p>We can also directly assign an integer instead of <code>a</code> to the char type variable, and because of these characteristics we can perform arithmetic on the variable:</p>
+
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main(void) {
+  char foo = 'a';
+  printf(&quot;foo: %c (%d)\n&quot;, foo, foo); // a (97)
+  foo = foo + 2;
+  printf(&quot;foo: %c (%d)\n&quot;, foo, foo); // c (99)
+  return 0;
+}
+</code></pre>
+
+<h2 id="null-terminator">Null Terminator</h2>
+
+<p>Consider the following code:</p>
+
+<pre><code class="language-c">char my_string[2] = &quot;a&quot;;
+</code></pre>
+
+<p>The reason we specify a length of 2 is because the underlying array that <code>my_string</code> is being pointed towards looks like this:</p>
+
+<pre><code class="language-c">[&quot;a&quot;, &quot;\0&quot;] // yes it has two elements
+</code></pre>
+
+<p>The last element is known as the null terminator. When this data is stored in memory, we can now start at the location in memory where it is stored (its <em>address</em>) and then step through memory until we reach the null terminator; where we&rsquo;ll then find the end of the string.</p>
+
+<blockquote>
+<p>Note: in some cases you can set your variable to be the actual length of the content (e.g. <code>char my_string[1] = &quot;a&quot;;</code>) but in some instances this can cause strange overlaps of data and strictly speaking isn&rsquo;t valid code either</p>
+</blockquote>
+
+<h2 id="pointers">Pointers</h2>
+
+<p>When declaring a variable the computer sets aside some memory for the variable.</p>
+
+<p>Next the variable name is linked to the location in memory that was set aside for it.</p>
+
+<p>Lastly the value you want to assign to the variable is placed into the relevant location of memory.</p>
+
+<p>Let&rsquo;s consider the following code:</p>
+
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main(void) {
+  int foo = 1;
+  printf(&quot;foo: %d\n&quot;, foo);
+
+  int *bar;
+  int bar_val = 1;
+  printf(&quot;bar_val: %d\n&quot;, bar_val);
+  bar = &amp;bar_val;
+  printf(&quot;bar: %p\n&quot;, bar);
+  int bar_get_val = *bar;
+  printf(&quot;bar_get_val: %d\n&quot;, bar_get_val);
+
+  return 0;
+}
+</code></pre>
+
+<p>So we see that we create a <code>foo</code> variable and assign <code>1</code> to it. We then print that integer in the typical way.</p>
+
+<p>Next we make a slightly more convoluted version, but this time we utilise a pointer to help us understand what they do.</p>
+
+<p>Here are each of the steps broken down:</p>
+
+<ul>
+<li><code>int *bar;</code>: we declare a pointer variable called <code>bar</code> of type <code>int</code> † (we don&rsquo;t initialize it with a value)</li>
+<li><code>int bar_val = 1;</code>: we both declare and initialize the variable <code>bar_val</code> as type <code>int</code></li>
+<li><code>bar = &amp;bar_val;</code>: we initialize the pointer variable <code>bar</code> to store the memory address location of <code>bar_val</code></li>
+<li><code>int bar_get_val = *bar;</code>: we dereference the address (i.e. follow the pointer) assigned to <code>bar</code></li>
+</ul>
+
+<blockquote>
+<p>† meaning we will be assigning an address to this pointer<br />
+and the content at that memory address location will also be of type <code>int</code></p>
+</blockquote>
+
+<p>The output of this program is:</p>
+
+<pre><code>foo: 1
+bar_val: 1
+bar: 0x7fff59a1769c
+bar_get_val: 1
+</code></pre>
+
+<p>OK, so there are some things that we need to clarify and that&rsquo;s the <code>*</code> and <code>&amp;</code> operators.</p>
+
+<ul>
+<li><code>*</code>: value-at-address operator (used when declaring a pointer &amp; when dereferencing a pointer)</li>
+<li><code>&amp;</code>: address-of operator (used to reference the memory address of a variable)</li>
+</ul>
+
+<p>The first thing we should be aware of is that we&rsquo;re not able to print a declared variable that has no value initialized for it. So imagine the following code:</p>
+
+<pre><code class="language-c">int *bar;
+printf(&quot;bar: %d\n&quot;, bar);
+</code></pre>
+
+<p>This would cause the following compiler error:</p>
+
+<pre><code>format specifies type 'int' but the argument has type 'int *'
+</code></pre>
+
+<p>Which makes sense, as we&rsquo;ve declared the variable as the type <code>*bar</code>. So we can fix that:</p>
+
+<pre><code class="language-c">int *bar;
+printf(&quot;bar: %d\n&quot;, *bar);
+</code></pre>
+
+<blockquote>
+<p>Notice we try to use <code>*</code> to dereference the value of <code>bar</code></p>
+</blockquote>
+
+<p>But this still errors, but now with:</p>
+
+<pre><code>variable 'bar' is uninitialized when used here
+</code></pre>
+
+<p>Which again makes sense. Nothing more to say about that portion of the code, I just wanted to make it clear what happens when you try to print an uninitialized variable (and also what happens when that variable is a pointer type).</p>
+
+<p>Continuing through the program, the next line of interest is:</p>
+
+<pre><code class="language-c">bar = &amp;bar_val;
+</code></pre>
+
+<p>Which gives us the actual location in memory for the variable <code>bar_val</code> (i.e. <code>0x7fff59a1769c</code>). So the value assigned to <code>bar</code> isn&rsquo;t <code>1</code>, but the address of <code>1</code> in memory.</p>
+
+<p>Finally, we declare and initialize the variable <code>bar_get_val</code> with the actual value of <code>1</code>, and we do that by using <code>*</code> to deference the variable <code>bar</code> which contains a memory address:</p>
+
+<pre><code class="language-c">int bar_get_val = *bar;
+</code></pre>
+
+<p>That is <code>bar</code> holds a <em>memory address</em>, which isn&rsquo;t a concrete value, it&rsquo;s an indirection to somewhere else. Hence we would say <code>bar</code> <em>points</em> to the actual value&rsquo;s location and why we use the &lsquo;value-at-address&rsquo; operator to deference the value.</p>
+
+<p>The following code shows how to print the location in memory of a variable even if it wasn&rsquo;t declared as a pointer, simply by using the address-at operator <code>&amp;</code> which itself indicates a pointer to another location:</p>
+
+<pre><code class="language-c">char foo = 'a';
+printf(&quot;address of foo: %p\n&quot;, &amp;foo);
+</code></pre>
+
+<p>Remember, a memory address isn&rsquo;t the value but a reference to where the value can be found. One analogy I&rsquo;ve seen is of your home address on an envelope: the envelope isn&rsquo;t your home, nor is the address written on the envelope. The envelope just indicates where your home can be found.</p>
+
+<p>One last thing to consider/remember is that C doesn&rsquo;t have a String type. It stores strings in an array data structure. An array will automatically return the address location of the first element to the variable it is assigned to. This is why you may have seen a <code>char</code> pointer being assigned a variable <em>without</em> the need to use the <code>&amp;</code> operator to get the memory address of that variable (because the variable, in this case an array, already provides a memory address).</p>
+
+<p>The following example shows this:</p>
+
+<pre><code class="language-c">char message[6] = &quot;hello&quot;; // array data structure used and memory location for message[0] returned
+char *messagePtr = message; // no need to use &amp;message now
+printf(&quot;my pointer: %p\n&quot;, messagePtr);
+printf(&quot;my message: %s\n&quot;, message);
+</code></pre>
+
+<blockquote>
+<p>Note: for comparison of C pointers and Go pointers see <a href="https://dave.cheney.net/2014/03/17/pointers-in-go" target="_blank">https://dave.cheney.net/2014/03/17/pointers-in-go</a></p>
+</blockquote>
+
+<p>In C there are two ways to define a pointer:</p>
+
+<ol>
+<li><code>char* foo</code></li>
+<li><code>char *foo</code></li>
+</ol>
+
+<p>Both of which are equivalent.</p>
+
+<p>Although the first seems like the clearer option (as a newbie would read it: &ldquo;define a variable called <code>foo</code> of type &lsquo;character pointer&rsquo;&rdquo;) compared to the second option (which could lead them to think the variable name was <code>*foo</code> not <code>foo</code>). For me the second option is preferred because otherwise the following code becomes a bit ambiguious:</p>
+
+<pre><code class="language-c">char* foo, bar;
+</code></pre>
+
+<p>You might (incorrectly) think this would create two variables, both of type &lsquo;character pointer&rsquo;, but really only <code>foo</code> is the pointer and <code>bar</code> is a normal <code>char</code> type.</p>
+
+<p>Where as using the second format (<code>char *foo</code>), this code becomes much clearer:</p>
+
+<pre><code class="language-c">char *foo, bar;
+</code></pre>
+
+<p>Lastly, if you want to create a <code>const</code> that happens to be a pointer, then the syntax is as follows:</p>
+
+<pre><code class="language-c">int count = 43;
+int *const pcount = &amp;count;
+</code></pre>
+
+<p>We prefix the <code>const</code> keyword with the value-at operator <code>*</code> and not the variable name.</p>
+
+<h2 id="arrays">Arrays</h2>
+
+<p>Consider the following code (which is broken by the way):</p>
+
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main(void) {
+  char my_string = &quot;abc&quot;;
+  printf(&quot;my_string: %s&quot;, my_string);
+
+  return 0;
+}
+</code></pre>
+
+<p>This code has the following compiler error:</p>
+
+<pre><code>incompatible pointer to integer conversion initializing 'char' with an expression of type 'char [4]'
+</code></pre>
+
+<p>What this error tells us is that the variable <code>my_string</code> has a type of <code>char [4]</code>, meaning it is actually an array (hence the <code>[4]</code> syntax) and so we should have declared the variable like so:</p>
+
+<pre><code class="language-c">char my_string[4] = &quot;abc&quot;;
+</code></pre>
+
+<p>We saw why this is earlier when talking about <a href="null-terminator" target="_blank">null terminators</a>. But just to recap, it&rsquo;s because a string should be stored within an array data structure. So we need to declare it as an array data structure.</p>
+
+<p>We also learned earlier (using this example) why the length of the array is 4 and not 3 (which you may initially have expected which a string of three characters), again to recap: this is because of the extra element added to the array for you &ldquo;\0&rdquo; (the null terminator).</p>
+
+<p>So, the reason I&rsquo;m talking about arrays is because in the original code above (the one before declaring the variable correctly) there were actually two errors linked together. The second part of the error was:</p>
+
+<pre><code>format specifies type 'char *' but the argument has type 'char'
+</code></pre>
+
+<p>What this error tells us is that <code>printf</code> was expecting a pointer but all it got was something of a <code>char</code> type.</p>
+
+<p>When declaring the variable as an array, we fix both errors.</p>
+
+<p>But both these errors has led some people to incorrectly assume that an array is a pointer, when it is not.</p>
+
+<p>Let&rsquo;s recap why this works.</p>
+
+<p>When assigning a string, the compiler expects the contents to be stored within an array. Each element within the array is a address to the value given to it in memory.</p>
+
+<p>So in our example above (i.e. the string <code>&quot;abc&quot;</code>), <code>&quot;a&quot;</code> is stored in memory and the address of that memory is placed in <code>my_string[0]</code>. Next <code>&quot;b&quot;</code> is stored in memory and the address of that memory is placed in <code>my_string[1]</code> and so on.</p>
+
+<p>A pointer in contrast is a single location in memory, where as an array hold lots of memory addresses.</p>
+
+<p>Because of this, an array variable automatically points to the first element within the array.</p>
+
+<p>This is why if you try to <code>printf</code> a string, the compiler will complain if you don&rsquo;t provide a pointer. Because it expects a string to have been stored within an array (which our earlier example didn&rsquo;t). But when storing a string inside an array, the variable that is passed to <code>printf</code> would <em>already</em> be a pointer, due to it automatically referencing the first array element as its value.</p>
+
+<blockquote>
+<p>Interestingly, an array&rsquo;s type is made up of the element type + the overall array dimension. So <code>int foo[3]</code> is a different type to <code>int bar[4]</code>. Even though the value type <code>int</code> is the same, the array dimension (size/length) is different.</p>
+</blockquote>
+
+<p>Also, the number of bytes that an array will occupy is the number of elements multiplied by the size of each element.</p>
+
+<p>Lastly, you can define and initialize a string <em>without</em> specifying an array dimension (i.e. no size):</p>
+
+<pre><code class="language-c">char foobar[] = &quot;No dimension provided!&quot;;
+</code></pre>
+
+<p>It leaves it up to the compiler to allocate the required dimension. You can only do this when you initialize the variable with a value. You could use <code>char foobar[];</code> as there is no value for the compiler to utilise to know how much memory to allocate.</p>
+
+<h2 id="enumerators">Enumerators</h2>
+
+<p>Enumerators allow you to define new variable types. They automatically assign numerical values to each of the identifiers within the enumerator (although you do also have control over the specific values as well). This concept is best explained by way of example:</p>
+
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main(void) {
+  enum weekend {Saturday, Sunday};     // 0, 1
+  enum weekend today = Sunday;         // 1
+  enum weekend saturday = Saturday;    // 0
+  enum weekend yesterday = today - 1;  // 0 now yesterday is Saturday
+  printf(&quot;today %d\n&quot;, today);
+  printf(&quot;saturday %d\n&quot;, saturday);
+  printf(&quot;yesterday %d\n&quot;, yesterday);
+  return 0;
+}
+</code></pre>
+
+<p>If you wish to provide your own values you can:</p>
+
+<pre><code class="language-c">enum bool {
+  true = 1,
+  false = 2
+};
+
+enum bool on = true;
+enum bool off = false;
+
+printf(&quot;on: %d&quot;, on);   // 1
+printf(&quot;off: %d&quot;, off); // 2
+</code></pre>
+
+<h2 id="memory-allocation-with-different-types">Memory Allocation with different Types</h2>
+
+<blockquote>
+<p>See <a href="http://www.integralist.co.uk/posts/bits.html" target="_blank">here</a> for understanding RAM and bits</p>
+</blockquote>
+
+<h3 id="array">Array</h3>
+
+<p>Consider the following code:</p>
+
+<pre><code class="language-c">int foo[3] = {1,2,3};
+printf(&quot;foo variable points to = %p\n&quot;, foo);
+
+int i = 0;
+do {
+  printf(&quot;foo[%u] = %p\n&quot;, i, (void *)(&amp;foo[i]));
+  i++;
+} while(i &lt; 3);
+
+printf(&quot;sizeof(foo) = %lu\n&quot;, sizeof(foo));
+</code></pre>
+
+<p>So in this piece of code we create an array and assign it to <code>foo</code>.</p>
+
+<p>Next we print out what the <code>foo</code> variable points, which for me outputs:</p>
+
+<pre><code>foo variable points to = 0x7fff525fd6ac
+</code></pre>
+
+<p>Then we loop over the <code>foo</code> array and print out each element&rsquo;s address, which for me outputs:</p>
+
+<pre><code>foo[0] = 0x7fff525fd6ac
+foo[1] = 0x7fff525fd6b0
+foo[2] = 0x7fff525fd6b4
+</code></pre>
+
+<p>Notice that the <code>foo</code> variable and the first element of the <code>foo</code> array are the same value: <code>0x7fff525fd6ac</code> which is the address of the memory location for the value <code>1</code> assigned to <code>foo[0]</code>.</p>
+
+<blockquote>
+<p>Note: <code>(void *)(&amp;foo[i])</code> is interesting in that we&rsquo;re casting the address to <code>void</code>. You don&rsquo;t need to do this unless you&rsquo;re passing a variable that is itself a pointer variable to another variable (e.g. <code>int foo = 1; int *pFoo = foo</code>) and for that situation you would cast to <code>void</code> to prevent a possible warning from the compiler. When using <code>%p</code> it will expect the value to be a pointer type, but in cases where you have a pointer variable assigned an <code>int</code> variable, then the type of <code>&amp;pFoo</code> would actually be a &lsquo;pointer to pointer to int&rsquo;.</p>
+</blockquote>
+
+<p>Finally we print the size of the <code>foo</code> variable, which outputs:</p>
+
+<pre><code>sizeof(foo) = 12
+</code></pre>
+
+<p>You might wonder  where the value <code>12</code> comes from? Well, this goes back to how data is stored in memory (i.e. a block of memory is 1 byte; so 8 bits). We defined the type of the array to be <code>int</code> and (depending on the compiler) that will be either two bytes, four bytes or eight bytes.</p>
+
+<p>For most 32 bit systems the size of <code>int</code> would be four bytes. You can always use <code>sizeof(int)</code> to check:</p>
+
+<pre><code class="language-c">printf(&quot;sizeof(int): %ld\n&quot;, sizeof(int)); // 4
+</code></pre>
+
+<p>So looking back at our example, we have three array elements, and if each element takes up four bytes then it makes sense the size of the array would be <code>12</code> (i.e. <code>4 + 4 + 4 = 12</code>).</p>
+
+<p>To calculate the number of items within the array itself, rather than the number of bytes, you can use:</p>
+
+<pre><code class="language-c">size_t element_count = sizeof foo/sizeof foo[0];
+printf(&quot;element_count: %zu\n&quot;, element_count); // 3
+</code></pre>
+
+<blockquote>
+<p>Note: <code>%z</code> is for <code>size_t</code> and the <code>u</code> prevents a <code>invalid conversion specifier</code> error.</p>
+</blockquote>
+
+<h3 id="signed-vs-unsigned">Signed vs Unsigned</h3>
+
+<p>In C you can define an integer to be either <code>signed</code> or <code>unsigned</code>. The former means the number can be both negative and positive as well as zero.</p>
+
+<p>So typically, if a number is negative, you&rsquo;ll prefix it with <code>-</code>. If the number is positive, then it is just the number. For example, <code>-1</code> and <code>1</code>.</p>
+
+<p>You don&rsquo;t need to explicitly provide the <code>signed</code> keyword (e.g. <code>signed int &lt;var_name&gt;</code>), it&rsquo;s just implied.</p>
+
+<p>The latter (<code>unsigned</code>) is an integer that can only be positive. So if you need to store an integer and you know the value will always be zero or positive, then you can define it as being unsigned and the compiler can make appropriate optimisations based on that understanding.</p>
+
+<p>So although the underlying memory allocation is the same for signed or unsigned, the actual values represented are slightly different in that unsigned allows for storing values that are twice the size of signed, because half of signed&rsquo;s values have to account for negatives.</p>
+
+<h2 id="reallocating-memory">Reallocating Memory</h2>
+
+<p>With strings you typically define them as follows (i.e. the underlying data structure is an array):</p>
+
+<pre><code class="language-c">char names[20] = &quot;hello&quot;;
+</code></pre>
+
+<p>But this means there is reserved memory that is wasted and if reading from stdin (e.g. user input), then the amount of characters entered could exceed the specified reserved memory allocation.</p>
+
+<p>Below is an example, given as a <a href="http://stackoverflow.com/questions/8164000/how-to-dynamically-allocate-memory-space-for-a-string-and-get-that-string-from-u" target="_blank">Stack Overflow</a>, that reads each character from stdin and reallocates the memory space if required (it&rsquo;s advised that you should ensure reallocation of memory is done as a multiple; such as double the size):</p>
+
+<pre><code class="language-c">char *getln()
+{
+    char *line = NULL, *tmp = NULL;
+    size_t size = 0, index = 0;
+    int ch = EOF;
+
+    while (ch) {
+        ch = getc(stdin);
+
+        /* Check if we need to stop. */
+        if (ch == EOF || ch == '\n')
+            ch = 0;
+
+        /* Check if we need to expand. */
+        if (size &lt;= index) {
+            size += CHUNK;
+            tmp = realloc(line, size);
+            if (!tmp) {
+                free(line);
+                line = NULL;
+                break;
+            }
+            line = tmp;
+        }
+
+        /* Actually store the thing. */
+        line[index++] = ch;
+    }
+
+    return line;
+}
+</code></pre>
+
+<p>There is a very good blog post that covers the steps in detail here: <a href="https://brennan.io/2015/01/16/write-a-shell-in-c/" target="_blank">https://brennan.io/2015/01/16/write-a-shell-in-c/</a>.</p>
+
+<p>They&rsquo;re effectively the same implementation (in principle), except for the use of <code>getchar</code> vs <code>getc</code> (the former can only read from stdin, where as <code>getc</code> can read from any input stream).</p>
+
+<pre><code class="language-c">#define LSH_RL_BUFSIZE 1024
+char *lsh_read_line(void)
+{
+  int bufsize = LSH_RL_BUFSIZE;
+  int position = 0;
+  char *buffer = malloc(sizeof(char) * bufsize);
+  int c;
+
+  if (!buffer) {
+    fprintf(stderr, &quot;lsh: allocation error\n&quot;);
+    exit(EXIT_FAILURE);
+  }
+
+  while (1) {
+    // Read a character
+    c = getchar();
+
+    // If we hit EOF, replace it with a null character and return.
+    if (c == EOF || c == '\n') {
+      buffer[position] = '\0';
+      return buffer;
+    } else {
+      buffer[position] = c;
+    }
+    position++;
+
+    // If we have exceeded the buffer, reallocate.
+    if (position &gt;= bufsize) {
+      bufsize += LSH_RL_BUFSIZE;
+      buffer = realloc(buffer, bufsize);
+      if (!buffer) {
+        fprintf(stderr, &quot;lsh: allocation error\n&quot;);
+        exit(EXIT_FAILURE);
+      }
+    }
+  }
+}
+</code></pre>
+
+<blockquote>
+<p>Notice <code>c</code> variable is declared as an <code>int</code> and not a <code>char</code>, the author of the blog post makes mention of this as being because <code>EOF</code> is an <code>int</code> type</p>
+</blockquote>
+
+<p>The author then goes on to explain that in more recent releases, there is a much shorter version that can be implemented thanks to the <code>getline</code> function:</p>
+
+<pre><code class="language-c">char *lsh_read_line(void)
+{
+  char *line = NULL;
+  ssize_t bufsize = 0; // have getline allocate a buffer for us
+  getline(&amp;line, &amp;bufsize, stdin);
+  return line;
+}
+</code></pre>
+
+<h2 id="function-prototypes">Function Prototypes</h2>
+
+<p>A compiler will error if you try to call a function before it has been defined. This can be mitigated by utilising function prototypes that let you define the signature of the function up front and defer the definition until a later point in time (sort of like defining an interface type):</p>
+
+<pre><code class="language-c">// Function prototypes
+int Foo(double data_values[], size_t count);
+int Bar(double *x, size_t n);
+
+int main(void) {
+  int f = Foo(...signature...);
+  int b = Bar(...signature...)
+}
+
+// Definitions for Foo() and Bar()
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Makefile syntax] #make #makefile #shell</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="makefile-syntax-make-makefile-shell">[Makefile syntax] #make #makefile #shell</h1>
+
+<h2 id="makefile-md">Makefile.md</h2>
+
+<pre><code class="language-markdown"># Make
+
+Make is a build automation tool that uses a file called a Makefile to define how
+to build, test, or manage dependencies in a project.
+
+It's commonly used to:
+
+- Compile and link code.
+- Automate repetitive tasks (e.g., testing, deploying).
+- Track changes in files and only rebuild what’s necessary.
+
+## Terminology
+
+```Makefile
+target: prerequisites
+  recipe
+</code></pre>
+
+<ul>
+<li>target: is expected to be a filename.</li>
+<li>prerequisites: is a list of files the target depends on</li>
+<li>recipe: is the command(s) you run to create the target</li>
+</ul>
+
+<p>The entire block of code (target, prerequisite, recipe) is called a &lsquo;rule&rsquo;.</p>
+
+<blockquote>
+<p>[!NOTE]
+Not all &lsquo;targets&rsquo; will be a filename because you don&rsquo;t always want to use Make
+to create files. You often want to use Make to just run some code without the
+side-effect of creating a new file. In these cases you annotate your rule with
+<code>.PHONY: target</code>.</p>
+</blockquote>
+
+<!---->
+
+<blockquote>
+<p>[!NOTE]
+You can have multiple prerequisites, and they can either be a filename or they
+can be the name of another target.</p>
+</blockquote>
+
+<h2 id="automatic-variables">Automatic Variables</h2>
+
+<p>Make&rsquo;s <a href="https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html" target="_blank">Automatic Variables</a> are special variables that represent parts of a
+rule, making Makefiles more concise and flexible. They get their values
+automatically based on the target, prerequisites, or commands.</p>
+
+<p>You&rsquo;ll see a few different automatic variables used:</p>
+
+<ul>
+<li><code>%</code>: pattern rule</li>
+<li><code>$@</code>: target name</li>
+<li><code>$&lt;</code>: first prerequisite</li>
+<li><code>$^</code>: list of prerequisites</li>
+<li><code>$?</code>: list of prerequisites that have changed</li>
+<li><code>$*</code>: the stem of a target</li>
+</ul>
+
+<blockquote>
+<p>[!IMPORTANT]
+Any time you need to use a shell variable (i.e. <code>$foo</code>) it must be prefixed
+with <code>$</code>.<br />
+This is because <code>$</code> already has a special meaning in Make.<br />
+So, the variable would be referenced like <code>$$foo</code> (see also Make&rsquo;s <a href="https://www.gnu.org/software/make/manual/html_node/Shell-Function.html" target="_blank">shell
+function</a>).</p>
+</blockquote>
+
+<h2 id="example">Example</h2>
+
+<p>Let&rsquo;s look at an example rule:</p>
+
+<pre><code class="language-Makefile">%.mock.pid: %.mock
+  ./%.mock -addr=127.0.0.1:8446 &gt; .$&lt;.log &amp; echo $$! &gt; $@
+</code></pre>
+
+<p>Then it could be invoked (as an example) like so:</p>
+
+<pre><code class="language-shell">make mustang.mock.pid
+</code></pre>
+
+<p>The <code>%</code> wildcard would match the above Makefile <em>target</em> <code>%.mock.pid</code>.</p>
+
+<p>Next it would ensure the <em>prerequisite</em> <code>mustang.mock</code> existed (i.e. <code>%.mock</code>).</p>
+
+<p>Next it would run the <code>./mustang.mock</code> binary (i.e. <code>./%.mock</code>).</p>
+
+<p>The stdout (<code>&gt;</code>) would be written to <code>.mustang.mock.log</code> (i.e. <code>.$&lt;.log</code>).</p>
+
+<p>Finally, the process ID (<code>$$!</code>) is written to <code>mustang.mock.pid</code> (i.e. <code>$@</code>).</p>
+
+<h2 id="performance">Performance</h2>
+
+<p>Make has built-in rules (e.g., for compiling .c to .o) called implicit rules.<br />
+<a href="https://www.gnu.org/software/make/manual/html_node/Implicit-Rules.html" target="_blank">https://www.gnu.org/software/make/manual/html_node/Implicit-Rules.html</a></p>
+
+<p>The following example disables default implicit rule searches:</p>
+
+<pre><code class="language-Makefile"># These empty rules tell Make *not* to search for implicit rules for .go, .mk, .json &amp; the Makefile itself.
+# Searching for them can be slow. This speeds up dependency checking.
+Makefile : ;
+
+# The double-colon `::` fully disables the implicit search.
+%.go %.mk %.json :: ;
+</code></pre>
+
+<h2 id="functions">Functions</h2>
+
+<p>There are many <a href="https://www.gnu.org/software/make/manual/html_node/Functions.html" target="_blank">built-in functions</a> you can use.</p>
+
+<p>Here are some useful documentation pages:</p>
+
+<ul>
+<li><a href="https://www.gnu.org/software/make/manual/html_node/Text-Functions.html" target="_blank">Text Functions</a></li>
+<li><a href="https://www.gnu.org/software/make/manual/html_node/File-Name-Functions.html" target="_blank">File Name Functions</a></li>
+<li><a href="https://www.gnu.org/software/make/manual/html_node/Make-Control-Functions.html" target="_blank">Error Handling Functions</a></li>
+</ul>
+
+<h2 id="generating-help-output">Generating Help Output</h2>
+
+<p><a href="https://gist.github.com/Integralist/4447885192c7e84e01ca7c9f2e08ef17" target="_blank">https://gist.github.com/Integralist/4447885192c7e84e01ca7c9f2e08ef17</a>
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

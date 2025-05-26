@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[New Laptop Software Installation] #laptop</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="new-laptop-software-installation-laptop">[New Laptop Software Installation] #laptop</h1>
+
+<h2 id="a-new-laptop-software-installation-md">A New Laptop Software Installation.md</h2>
+
+<pre><code class="language-markdown">## Backup
+
+```bash
+cd ~/
+mkdir /tmp/keys
+gpg --export-secret-keys --armor &lt;NAME&gt; &gt; /tmp/keys/&lt;NAME&gt;.asc
+gpg --symmetric /tmp/keys/&lt;NAME&gt;.asc
+gpg --export-ownertrust &gt; /tmp/keys/trustdb.txt 
+
+zip -r /tmp/keys/sshbackup ~/.ssh/
+unzip -l /tmp/keys/sshbackup.zip
+gpg --symmetric /tmp/keys/sshbackup.zip
+
+rm -rf /tmp/keys
+</code></pre>
+
+<h2 id="steps">Steps</h2>
+
+<ol>
+<li>Install Rust.
+
+<pre><code>
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+</code></pre>
+</li>
+<li>Install Go.
+
+<pre><code>
+https://go.dev/dl/
+</code></pre>
+</li>
+<li>Import GPG/SSH keys.
+&ldquo;`txt
+mkdir /tmp/keys
+cd /tmp/keys</li>
+</ol>
+
+<p>gpg &ndash;decrypt /tmp/keys/<NAME>.gpg &gt; <NAME>
+  gpg &ndash;import <NAME>.asc</p>
+
+<p>rm ~/.gnupg/trustdb.gpg
+  gpg &ndash;import-ownertrust &lt; /tmp/keys/trustdb.txt</p>
+
+<p>gpg &ndash;decrypt /tmp/keys/sshbackup.zip.gpg &gt; sshbackup.zip
+  unzip /tmp/keys/sshbackup.zip
+  mv /tmp/keys/.ssh/ ~/</p>
+
+<p>rm -rf /tmp/keys</p>
+
+<pre><code>4. Setup SSH.
+  ```txt
+  eval &quot;$(ssh-agent -s)&quot;
+  ssh-add --apple-use-keychain ~/.ssh/github
+</code></pre>
+
+<ol>
+<li>Install Alacritty.
+
+<pre><code class="language-txt">
+https://github.com/alacritty/alacritty/releases
+mkdir .bash_completion
+curl https://raw.githubusercontent.com/alacritty/alacritty/master/extra/completions/alacritty.bash -o ~/.bash_completion/alacritty
+</code></pre>
+</li>
+<li>Install Fig.
+
+<pre><code class="language-txt">
+https://fig.io/
+</code></pre>
+</li>
+<li>Install Homebrew + packages.
+
+<pre><code class="language-txt">
+https://brew.sh
+brew bundle --file /tmp/Brewfile install
+</code></pre>
+</li>
+<li>Change default shell to bash.
+
+<pre><code class="language-txt">
+echo /opt/homebrew/bin/zsh | sudo tee -a /etc/shells
+chsh -s /opt/homebrew/bin/zsh
+</code></pre>
+</li>
+<li>Configure Vim-Plug.
+
+<pre><code>
+sh -c 'curl -fLo &quot;${XDG_DATA_HOME:-$HOME/.local/share}&quot;/nvim/site/autoload/plug.vim --create-dirs \
+   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+</code></pre>
+</li>
+<li>Setup dotfiles.
+
+<pre><code>
+cd /tmp
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm # don't forget to execute inside tmux: prefix + I to install plugins
+git clone https://github.com/Integralist/dotfiles.git
+curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh -o ~/.git-prompt.sh
+curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh -o ~/.zsh/_git
+cp -R .alacritty.yml .zsh .zshrc .config .gitconfig .gitignore .gnupg .ignore .inputrc .leptonrc .tmux.conf ~/
+chown -R $(whoami) ~/.gnupg/
+chmod 600 ~/.gnupg/*
+chmod 700 ~/.gnupg
+</code></pre>
+</li>
+<li>Setup password store.
+
+<pre><code class="language-txt">
+KEY_ID=$(gpg --list-keys &lt;NAME&gt; | head -n 2 | tail -n 1 | cut -d ' ' -f 7)
+pass init $KEY_ID
+pass git init
+pass git remote add origin git@github.com:&lt;private/repo&gt;
+pass git pull
+</code></pre>
+</li>
+<li>Safari extensions.
+
+<pre><code>
+AdBlock One
+Dark Reader for Safari
+Super Agent for Safari (Cookie Consent Automation)
+Tab Sessions
+</code></pre>
+</li>
+<li>Configure OS.
+&ldquo;`
+
+<ul>
+<li>Dock (Automatically hide and show the Dock)</li>
+<li>Keyboard (Key Repeat = Fast, Delay Until Repeat = Short)</li>
+<li>Accessibility &gt; Zoom (Use keyboard shortcuts to zoom)</li>
+<li>Date &amp; Time &gt; Clock (Show date + Display the time with seconds)</li>
+<li>Mission Control (disable &ldquo;Automatically rearrange Spaces based on most recent use&rdquo;)</li>
+<li>Terminal Developer Mode (<code>spctl developer-mode enable-terminal</code>)</li>
+<li>Wake up from sleep (<code>sudo pmset -a standbydelay 7200</code>)</li>
+</ul>
+&rdquo;`</li>
+</ol>
+
+<pre><code>
+## Brewfile
+
+```ruby
+tap &quot;homebrew/bundle&quot;
+tap &quot;homebrew/cask&quot;
+tap &quot;homebrew/cask-fonts&quot;
+tap &quot;homebrew/cask-versions&quot;
+tap &quot;homebrew/core&quot;
+tap &quot;hashicorp/tap&quot;
+tap &quot;ms-jpq/sad&quot;
+tap &quot;tinygo-org/tools&quot;
+tap &quot;veeso/tuifeed&quot;
+tap &quot;warrensbox/tap&quot;
+brew &quot;bandwhich&quot;
+brew &quot;zsh&quot;
+brew &quot;zsh-completion&quot;
+brew &quot;bat&quot;
+brew &quot;broot&quot;
+brew &quot;curl&quot;
+brew &quot;coreutils&quot;
+brew &quot;dog&quot;
+brew &quot;duf&quot;
+brew &quot;dust&quot;
+brew &quot;exa&quot;
+brew &quot;fd&quot;
+brew &quot;fnm&quot;
+brew &quot;fswatch&quot;
+brew &quot;fzf&quot;
+brew &quot;git&quot;
+brew &quot;git-delta&quot;
+brew &quot;gnu-sed&quot;
+brew &quot;gnupg&quot;
+brew &quot;gping&quot;
+brew &quot;htop&quot;
+brew &quot;hugo&quot;
+brew &quot;jo&quot;
+brew &quot;jq&quot;
+brew &quot;neovim&quot;
+brew &quot;tree&quot;
+brew &quot;pass&quot;
+brew &quot;pass-otp&quot;
+brew &quot;pinentry-mac&quot;
+brew &quot;procs&quot;
+brew &quot;pwgen&quot;
+brew &quot;reattach-to-user-namespace&quot;
+brew &quot;rm-improved&quot;
+brew &quot;rust-analyzer&quot;
+brew &quot;sd&quot;
+brew &quot;starship&quot;
+brew &quot;the_silver_searcher&quot;
+brew &quot;tmux&quot;
+brew &quot;tokei&quot;
+brew &quot;watch&quot;
+brew &quot;zbar&quot;
+brew &quot;zoxide&quot;
+brew &quot;hashicorp/tap/terraform&quot;
+brew &quot;tinygo-org/tools/tinygo&quot;
+brew &quot;veeso/tuifeed/tuifeed&quot;
+brew &quot;warrensbox/tap/tfswitch&quot;
+cask &quot;caffeine&quot;
+cask &quot;dash&quot;
+cask &quot;font-go-mono-nerd-font&quot;
+cask &quot;font-hack-nerd-font&quot;
+cask &quot;lepton&quot;
+cask &quot;makemkv&quot;
+cask &quot;slack&quot;
+cask &quot;spotify&quot;
+cask &quot;vlc&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

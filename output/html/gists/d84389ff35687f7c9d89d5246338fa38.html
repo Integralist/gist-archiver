@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go Access Underlying Slice Array] #go #golang #slice #array #unsafe #reflect #header</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-access-underlying-slice-array-go-golang-slice-array-unsafe-reflect-header">[Go Access Underlying Slice Array] #go #golang #slice #array #unsafe #reflect #header</h1>
+
+<h2 id="go-access-underlying-slice-array-go">Go Access Underlying Slice Array.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;reflect&quot;
+	&quot;unsafe&quot;
+)
+
+func main() {
+	// define a slice
+	s := []int{1, 2, 3, 4}
+
+	// access the underlying array of the slice
+	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&amp;s))
+	data := *(*[4]int)(unsafe.Pointer(hdr.Data))
+
+	// display the slice internals
+	fmt.Printf(&quot;s: %#v\n&quot;, s)
+	fmt.Printf(&quot;hdr: %#v\n&quot;, hdr)
+	fmt.Printf(&quot;data %#v\n&quot;, data)
+
+	// create a new zero-value slice based on same proportions as the original slice
+	newSlice := make([]int, len(s), cap(s))
+	fmt.Printf(&quot;\nnewSlice: %#v\n&quot;, newSlice)
+
+	// copy the original slice into the new slice
+	copy(newSlice, s)
+	fmt.Printf(&quot;newSlice: %#v\n&quot;, newSlice)
+
+	// access the underlying array of the new slice
+	hdrNew := (*reflect.SliceHeader)(unsafe.Pointer(&amp;newSlice))
+	dataNew := *(*[4]int)(unsafe.Pointer(hdr.Data))
+
+	// display the new slice internals (notice there's a different underlying array!)
+	fmt.Printf(&quot;\nnewSlice: %#v\n&quot;, newSlice)
+	fmt.Printf(&quot;hdrNew: %#v\n&quot;, hdrNew)
+	fmt.Printf(&quot;dataNew %#v\n&quot;, dataNew)
+
+	// now modify the new slice contents (which should change the underlying array)
+	newSlice[0] = 123
+	fmt.Printf(&quot;\nnewSlice modified: %#v\n&quot;, newSlice)
+
+	// reacquire the underlying array of the original slice (just so we can be sure we've not modified things)
+	hdrOriginal := (*reflect.SliceHeader)(unsafe.Pointer(&amp;s))
+	dataOriginal := *(*[4]int)(unsafe.Pointer(hdr.Data))
+
+	// display the original slice internals (again, for the sake of comparison -- notice the memory address is the same still)
+	fmt.Printf(&quot;\noriginal s: %#v\n&quot;, s)
+	fmt.Printf(&quot;hdrOriginal: %#v\n&quot;, hdrOriginal)
+	fmt.Printf(&quot;dataOriginal %#v\n&quot;, dataOriginal)
+}
+
+/*
+s: []int{1, 2, 3, 4}
+hdr: &amp;reflect.SliceHeader{Data:0x414020, Len:4, Cap:4}
+data [4]int{1, 2, 3, 4}
+
+newSlice: []int{0, 0, 0, 0}
+newSlice: []int{1, 2, 3, 4}
+
+newSlice: []int{1, 2, 3, 4}
+hdrNew: &amp;reflect.SliceHeader{Data:0x414090, Len:4, Cap:4}
+dataNew [4]int{1, 2, 3, 4}
+
+newSlice modified: []int{123, 2, 3, 4}
+
+original s: []int{1, 2, 3, 4}
+hdrOriginal: &amp;reflect.SliceHeader{Data:0x414020, Len:4, Cap:4}
+dataOriginal [4]int{1, 2, 3, 4}
+*/
+</code></pre>
+
+</div>
+</body>
+</html>

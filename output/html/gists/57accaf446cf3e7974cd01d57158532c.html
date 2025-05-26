@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[AWK extract first changelog entry] #awk #changelog</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="awk-extract-first-changelog-entry-awk-changelog">[AWK extract first changelog entry] #awk #changelog</h1>
+
+<h2 id="extract-first-changelog-entry-md">extract-first-changelog-entry.md</h2>
+
+<pre><code class="language-markdown">We want just the 'v1.0.0-beta.2' changelog block, not 'v1.0.0-beta.1'...
+
+</code></pre>
+
+<h1 id="changelog">Changelog</h1>
+
+<h2 id="v1-0-0-beta-2"><a href="..." target="_blank">v1.0.0-beta.2</a></h2>
+
+<p><strong>Bug fixes:</strong></p>
+
+<ul>
+<li>&hellip;</li>
+</ul>
+
+<p><strong>Enhancements:</strong></p>
+
+<ul>
+<li>&hellip;</li>
+<li>&hellip;</li>
+</ul>
+
+<p><strong>Documentation:</strong></p>
+
+<ul>
+<li>&hellip;</li>
+<li>&hellip;</li>
+<li>&hellip;</li>
+</ul>
+
+<h2 id="v1-0-0-beta-1"><a href="..." target="_blank">v1.0.0-beta.1</a></h2>
+
+<p><strong>Enhancements:</strong></p>
+
+<ul>
+<li>More stuff</li>
+</ul>
+
+<p>&hellip;</p>
+
+<pre><code>
+The following awk script does this for us...
+
+```shell
+cat CHANGELOG.md | awk '/^##/{block++} {if (block==1) {print}}'
+</code></pre>
+
+<p>Awk works by reading the input &lsquo;line by line&rsquo;. Our script checks if the conditional pattern <code>^##</code>  matches, which is the start of the changelog entry, and if so it increments the variable <code>block</code>. Next, it checks the variable value and prints each line as long as the variable is equal to <code>1</code>.</p>
+
+<p>The moment we reach the next changelog entry, the <code>block</code> variable will be incremented to <code>2</code> and so the block that prints each line will not execute.
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

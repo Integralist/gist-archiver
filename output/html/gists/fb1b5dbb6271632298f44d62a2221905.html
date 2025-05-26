@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Async Decorator] #python #asyncio #decorator</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-async-decorator-python-asyncio-decorator">[Python Async Decorator] #python #asyncio #decorator</h1>
+
+<h2 id="python-async-decorator-py">Python Async Decorator.py</h2>
+
+<pre><code class="language-python">import asyncio
+
+from functools import wraps
+
+
+def dec(fn):
+    @wraps(fn)
+    async def wrapper(*args, **kwargs):
+        print(fn, args, kwargs)  # &lt;function foo at 0x10952d598&gt; () {}
+        await asyncio.sleep(5)
+        print(&quot;done with wrapper, going to call fn&quot;)
+        return await fn()
+    return wrapper
+    
+@dec
+async def foo():
+    return await asyncio.sleep(5, result=&quot;i'm done&quot;)
+    
+loop = asyncio.get_event_loop()
+result = loop.run_until_complete(foo())  
+
+print(result)  # i'm done
+
+loop.close()
+</code></pre>
+
+<h2 id="python-async-and-non-async-decorator-py">Python Async and Non-Async Decorator.py</h2>
+
+<pre><code class="language-python">import asyncio
+import time
+
+from functools import wraps
+
+
+def dec(fn):
+    if asyncio.iscoroutinefunction(fn):
+        @wraps(fn)
+        async def wrapper(*args, **kwargs):
+            print(fn, args, kwargs)  # &lt;function foo at 0x10952d598&gt; () {}
+            await asyncio.sleep(5)
+            print(&quot;done with wrapper, going to call fn&quot;)
+            return await fn()
+        return wrapper
+    else:
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            print(fn, args, kwargs)  # &lt;function bar at 0x108fb5a60&gt; () {}
+            time.sleep(5)
+            print(&quot;done with wrapper, going to call fn&quot;)
+            return fn()
+        return wrapper
+    
+@dec
+async def foo():
+    return await asyncio.sleep(5, result=&quot;async function done&quot;)
+  
+@dec
+def bar():
+    time.sleep(5)
+    return &quot;sync function done&quot;
+    
+loop = asyncio.get_event_loop()
+result = loop.run_until_complete(foo())  
+
+print(result)  # async function done
+print(bar())   # sync  function done
+
+loop.close()
+</code></pre>
+
+<h2 id="python-decorator-py">Python Decorator.py</h2>
+
+<pre><code class="language-python">import asyncio
+
+from functools import wraps
+
+
+async def foo():
+    return await asyncio.sleep(5, result=&quot;i'm done&quot;)
+    
+loop = asyncio.get_event_loop()
+result = loop.run_until_complete(foo())
+
+print(result)  # i'm done
+
+loop.close()
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Custom wireless battery alerts for mouse and keyboard] #macos #automator #notifications #battery</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="custom-wireless-battery-alerts-for-mouse-and-keyboard-macos-automator-notifications-battery">[Custom wireless battery alerts for mouse and keyboard] #macos #automator #notifications #battery</h1>
+
+<h2 id="readme-md">README.md</h2>
+
+<pre><code class="language-markdown">&gt; [!NOTE]
+&gt; The whole reason I bothered doing this is because I hate it when macOS notifies me that my mouse is &quot;critically&quot; low on charge, as it forces me to have to stop work for charging my mouse. I'd prefer to know at around 50% charge so I can continue working but stick my mouse on charge when I go for lunch or finish my day.
+
+Start by writing an AppleScript file that is essentially just a wrapper around a bash script...
+
+```applescript
+do shell script &quot;
+# Get the battery percentage for the Magic Mouse
+mouseBattery=$(ioreg -c AppleDeviceManagementHIDEventService -r | grep -i '\&quot;Product\&quot; = \&quot;Magic Mouse\&quot;' -A 20 | grep '\&quot;BatteryPercent\&quot; =' | awk '{print $NF}')
+
+# Get the battery percentage for the Magic Keyboard
+keyboardBattery=$(ioreg -c AppleDeviceManagementHIDEventService -r | grep -i '\&quot;Product\&quot; = \&quot;Magic Keyboard\&quot;' -A 20 | grep '\&quot;BatteryPercent\&quot; =' | awk '{print $NF}')
+
+# Check if mouse battery is found and notify if it's below 50%
+if [[ -n \&quot;$mouseBattery\&quot; &amp;&amp; \&quot;$mouseBattery\&quot; -lt 50 ]]; then
+    osascript -e \&quot;display notification \\\&quot;Mouse battery is at $mouseBattery%\\\&quot; with title \\\&quot;Battery Alert\\\&quot;\&quot;
+fi
+
+# Check if keyboard battery is found and notify if it's below 50%
+if [[ -n \&quot;$keyboardBattery\&quot; &amp;&amp; \&quot;$keyboardBattery\&quot; -lt 50 ]]; then
+    osascript -e \&quot;display notification \\\&quot;Keyboard battery is at $keyboardBattery%\\\&quot; with title \\\&quot;Battery Alert\\\&quot;\&quot;
+fi
+&quot;
+</code></pre>
+
+<p>&hellip;in the above I&rsquo;m checking if my mouse and keyboard charge is less than 50%. If so, display a notification to let me know.</p>
+
+<p>Now open up the <code>Automator.app</code> application and type &ldquo;Run AppleScript&rdquo; into the &ldquo;Actions&rdquo; box to find that action.</p>
+
+<p>Paste the above AppleScript into the input and then <code>%S</code> to save the application as <code>BatteryAlert.app</code>.</p>
+
+<p>Now to automate running the application&hellip;</p>
+
+<pre><code class="language-shell">cd ~/Library/LaunchAgents/
+touch com.integralist.batteryalert.plist
+vim com.integralist.batteryalert.plist # HERE IS WHERE YOU PASTE IN THE BELOW FILE CONTENTS
+launchctl load ~/Library/LaunchAgents/com.integralist.batteryalert.plist # SCHEDULE THE APP TO BE RUN
+launchctl list | grep batteryalert # SHOW THAT THE APP IS RUNNING
+log show --predicate 'eventMessage contains &quot;com.integralist.batteryalert&quot;' --info # SHOW ANY APP LOGS
+</code></pre>
+
+<p>Here&rsquo;s the plist file:</p>
+
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;
+&lt;plist version=&quot;1.0&quot;&gt;
+&lt;dict&gt;
+    &lt;key&gt;Label&lt;/key&gt;
+    &lt;string&gt;com.integralist.batteryalert&lt;/string&gt;
+
+    &lt;key&gt;ProgramArguments&lt;/key&gt;
+    &lt;array&gt;
+        &lt;string&gt;/Applications/BatteryAlert.app/Contents/MacOS/applet&lt;/string&gt;
+    &lt;/array&gt;
+
+    &lt;key&gt;StartInterval&lt;/key&gt;
+    &lt;integer&gt;3600&lt;/integer&gt; &lt;!-- Run every 3600 seconds = 60 minutes --&gt;
+
+    &lt;key&gt;RunAtLoad&lt;/key&gt;
+    &lt;true/&gt;
+&lt;/dict&gt;
+&lt;/plist&gt;
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

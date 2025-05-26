@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby: private class level methods</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-private-class-level-methods">Ruby: private class level methods</h1>
+
+<h2 id="ruby-private-class-level-methods-rb">ruby_private_class_level_methods.rb</h2>
+
+<pre><code class="language-ruby">class Foo
+  class &lt;&lt; self
+    def bar
+      p &quot;im public&quot;
+    end
+    
+    private
+    def baz
+      p &quot;im private&quot;
+    end
+  end
+end
+
+Foo.bar # =&gt; im public
+Foo.baz # =&gt; NoMethodError: private method `baz' called for Foo:Class
+</code></pre>
+
+<h2 id="this-is-not-the-same-rb">this_is_not_the_same.rb</h2>
+
+<pre><code class="language-ruby">class Foo
+  def self.bar
+    p &quot;im public&quot;
+  end
+  
+  private
+  def self.baz
+    p &quot;im private&quot;
+  end
+end
+
+Foo.bar # =&gt; im public
+Foo.baz # =&gt; im private
+</code></pre>
+
+</div>
+</body>
+</html>

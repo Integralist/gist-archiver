@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Sed Ignore Lines] #sed #ignore #regex #patterns</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="sed-ignore-lines-sed-ignore-regex-patterns">[Sed Ignore Lines] #sed #ignore #regex #patterns</h1>
+
+<h2 id="sed-ignore-lines-bash">Sed Ignore Lines.bash</h2>
+
+<pre><code class="language-shell"># imagine you have multiple lines (non-deterministically generated):
+#
+# server 127.0.0.1; other stuff
+# server 127.2.2.2:2222; other stuff
+#
+# to replace the second line and not the first, you can use the /.../! syntax
+# this says &quot;as long as the first pattern doesn't match, go ahead and try the substitution&quot;
+#
+# sed -i '/some_pattern_to_ignore/! s/some_pattern_to_match/the_replacement_for_the_match/g' /nginx.conf
+
+sed -i '/server 127.0.0.1/! s/server [^:]\+:[^;]\+/server 127.0.0.1:9000/g' /nginx.conf
+</code></pre>
+
+</div>
+</body>
+</html>

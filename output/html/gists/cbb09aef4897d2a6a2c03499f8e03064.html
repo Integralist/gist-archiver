@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Docker Go/TinyGo Application] #docker #tinygo #go #golang</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="docker-go-tinygo-application-docker-tinygo-go-golang">[Docker Go/TinyGo Application] #docker #tinygo #go #golang</h1>
+
+<h2 id="docker-go-and-tinygo-application-md">Docker Go and TinyGo Application.md</h2>
+
+<pre><code class="language-markdown">The following build command is used...
+
+```bash
+docker buildx build --platform linux/arm64 -t testing-tinygo . -f ./Dockerfile
+</code></pre>
+
+<p>&hellip;to avoid the following error:</p>
+
+<pre><code>The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
+</code></pre>
+
+<p>The <code>Dockerfile</code> used is:</p>
+
+<pre><code class="language-Dockerfile">FROM golang:1.18.1 AS golang
+
+# Move to fiddle workspace
+WORKDIR /app
+
+# Copy default workspace
+COPY src src
+COPY go.mod .
+
+# Enable access to internal repositories
+RUN apt-get update &amp;&amp; apt-get install -y git
+RUN git config --global url.&quot;https://&lt;REDACTED&gt;:x-oauth-basic@github.com/&quot;.insteadOf &quot;https://github.com/&quot;
+RUN mkdir -p /root/.ssh
+RUN echo &quot;StrictHostKeyChecking no&quot; &gt; /root/.ssh/config
+ENV GOPRIVATE=github.com/fastly
+
+# Fetch dependencies ahead of time
+RUN go get ./...
+RUN go mod download
+
+FROM tinygo/tinygo:0.23.0
+
+# Move to fiddle workspace
+WORKDIR /tmp/fiddle
+
+# Pull files from previous build stage.
+COPY --from=golang /go /go
+COPY --from=golang /app/src ./src
+COPY --from=golang /app/go.mod ./go.mod
+COPY --from=golang /app/go.sum ./go.sum
+
+# Enable access to internal repositories
+RUN apt-get update &amp;&amp; apt-get install -y git
+RUN git config --global url.&quot;https://&lt;REDACTED&gt;:x-oauth-basic@github.com/&quot;.insteadOf &quot;https://github.com/&quot;
+RUN mkdir -p /root/.ssh
+RUN echo &quot;StrictHostKeyChecking no&quot; &gt; /root/.ssh/config
+ENV GOPRIVATE=github.com/fastly
+
+# Compile the project
+RUN mkdir bin/
+RUN tinygo build -target=wasi -wasm-abi=generic -gc=conservative -scheduler=asyncify -o bin/main.wasm ./src
+</code></pre>
+
+<blockquote>
+<p><strong>NOTE</strong>: We don&rsquo;t need multi-stage build. We can just build straight from <code>tinygo</code> image (see below).</p>
+</blockquote>
+
+<pre><code class="language-Dockerfile">FROM tinygo/tinygo:0.23.0
+
+# Move to fiddle workspace
+WORKDIR /tmp/fiddle
+
+# Copy over template files
+COPY src src
+COPY go.mod .
+
+# Enable access to internal repositories
+RUN apt-get update &amp;&amp; apt-get -y install git
+RUN git config --global url.&quot;https://&lt;REDACTED&gt;:x-oauth-basic@github.com/&quot;.insteadOf &quot;https://github.com/&quot;
+RUN mkdir -p /root/.ssh
+RUN echo &quot;StrictHostKeyChecking no&quot; &gt; /root/.ssh/config
+ENV GOPRIVATE=github.com/fastly
+
+# Fetch dependencies ahead of time
+RUN go get ./...
+RUN go mod download
+
+# Compile the project
+RUN mkdir bin/
+RUN tinygo build -target=wasi -wasm-abi=generic -gc=conservative -scheduler=asyncify -o bin/main.wasm ./src
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

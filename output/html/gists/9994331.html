@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby lambdas</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-lambdas">Ruby lambdas</h1>
+
+<h2 id="ruby-lambdas-md">Ruby Lambdas.md</h2>
+
+<pre><code class="language-markdown">## Lambda: standard
+
+```ruby
+# Creating a lambda
+l = lambda { |name| &quot;Hi #{name}!&quot; }
+
+# Executing the lambda
+l.call(&quot;foo&quot;) # =&gt; Hi foo!
+</code></pre>
+
+<h2 id="lambda-shorthand">Lambda: shorthand</h2>
+
+<pre><code class="language-ruby"># Creating a lambda using shorthand notation
+l = -&gt; name { puts &quot;Hi #{name}!&quot; }
+
+# Excuting the lambda using shorthand notation
+l.(&quot;foo&quot;) # =&gt; Hi foo!
+
+# Multiple arguments
+l = -&gt; name, age { puts &quot;Hi #{name}! You're #{age} years young&quot; }
+l.(&quot;foo&quot;, 32) # =&gt; Hi foo! You're 32 years young
+
+# No arguments
+l = -&gt; { puts &quot;foo!&quot; }
+l.() # =&gt; &quot;foo!&quot;
+</code></pre>
+
+<h2 id="closures">Closures</h2>
+
+<p>Lambda&rsquo;s also enforce a closure and so are able to keep their context across objects, as demonstrated below:</p>
+
+<pre><code class="language-rb">require &quot;json&quot;
+
+class Bar
+  attr_reader :l
+
+  def initialize(h = {})
+    @l = h[:l] || -&gt; _ { p &quot;no-op&quot;; false }
+  end
+
+  def dothing
+    result = l.(&quot;Mark&quot;)
+    p &quot;result = #{result}&quot;
+  end
+end
+
+class Foo
+  def initialize
+    @h = {
+      :l =&gt; -&gt; name { p &quot;hello #{name}&quot;; foo_test }
+    }
+    @bar = Bar.new(@h) # remove @h to test for defensive behaviour
+  end
+
+  def start
+    @bar.dothing
+  end
+
+  private
+
+  def foo_test
+    p &quot;I'm internal to Foo class&quot;
+    raise ::JSON::ParserError
+    true # never reached due to above line triggering an error
+  rescue ::JSON::ParserError
+    p &quot;caught an error&quot;
+    false
+  end
+end
+
+foo = Foo.new
+foo.start
+</code></pre>
+
+<p>The default output of the above program is:</p>
+
+<pre><code class="language-bash">&quot;hello Mark&quot;
+&quot;I'm internal to Foo class&quot;
+&quot;caught an error&quot;
+&quot;result = false&quot;
+</code></pre>
+
+<h2 id="lambda-partial-application-vs-currying">Lambda: partial application vs currying</h2>
+
+<blockquote>
+<p>Partial function aplication is calling a function with some number of arguments, in order to get a function back that will take that many less arguments.<br />
+Currying is taking a function that takes <code>n</code> arguments, and splitting it into <code>n</code> functions that take one argument.<br />
+In order to give you a clearer idea of what each of these two things will do a function, let’s take an example Proc:<br />
+<code>proc { |x, y, z| x + y + z }</code><br />
+Partial application of this function would return, if we passed in the first two arguments, the following nested Procs:<br />
+<code>proc { |x, y| proc { |z| x + y + z} }</code><br />
+On the other hand, currying this function would return the following nested Procs:<br />
+<code>proc { |x| proc { |y| proc { |z| x + y + z} } }</code><br />
+Note that you can only pass in one argument at a time to the result of a curried function, but pass as many as you like at a time when using partial application. This is the core principal that defines these two applications. The <code>Proc#curry</code> method in Ruby allows you to execute both of these applications.</p>
+</blockquote>
+
+<h2 id="lambda-curry">Lambda: curry</h2>
+
+<blockquote>
+<p>Currying: continuously partially apply a handler function until it receives all its expected requirements before invoking. Any remaining arguments will be passed on at invocation.</p>
+
+<p><code>.curry</code> returns a curried proc. If the optional arity argument is given, it determines the number of arguments. A curried proc receives some arguments. If a sufficient number of arguments are supplied, it passes the supplied arguments to the original proc and returns the result. Otherwise, returns another curried proc that takes the rest of arguments.</p>
+</blockquote>
+
+<pre><code class="language-ruby"># Example 1
+l = lambda { |x, y, z| x + y + z }
+l.curry[1][2][3] # =&gt; 6
+
+# Example 2
+a = l.curry[1] # =&gt; &lt;Proc:0x007fc759a22920 (lambda)&gt;
+b = a[2]       # =&gt; &lt;Proc:0x007fc759a68b00 (lambda)&gt; 
+b[3]           # =&gt; 6
+
+# Better real world example
+apply_math = -&gt; fn, a, b { a.send fn, b }
+add = apply_math.curry.(:+)
+add.(1, 2) # =&gt; 3
+increment = add.curry.(1)
+increment.(1) # =&gt; 2
+increment.(5) # =&gt; 6
+</code></pre>
+
+<h2 id="arity">Arity</h2>
+
+<blockquote>
+<p>the arity of a function or operation is the number of arguments or operands the function or operation accepts</p>
+</blockquote>
+
+<p>Arity is only useful when using an actual Proc and not a lambda. It&rsquo;s best to think of a lambda like it&rsquo;s an anonymous function; where as a Proc is more like code being &lsquo;included&rsquo; into another chunk of code.</p>
+
+<p>For example if you pass in a Proc to another function then the reason things like the number of arguments you pass to the Proc, and how the Proc&rsquo;s return values work (i.e. returning from a Proc also returns out of the containing function) is because effectively the Proc&rsquo;s code is injected into that other function. But as the lambda acts like a real anonymous function it will error if called with the wrong number of arguments and when executing a <code>return</code> it&rsquo;ll return out of only that specific block of code and doesn&rsquo;t effect the surrounding function code it was called within.</p>
+
+<p>Now the reason you need to know all this is that being able to use partial application via the arity argument will only work with a Proc. If you use a lambda then by its very nature will throw an error about incorrect number of arguments.</p>
+
+<p>The following is an example of using arity:</p>
+
+<pre><code class="language-ruby">p = proc { |x, y, z| x + y + z }
+add_to_the_value_three = p.curry(2)
+add_to_the_value_three[1][2] # =&gt; we're setting up the Proc to have first two args pre-filled (x, y == 1, 2)
+# Note: we more likely would've done p.curry(2)[1][2]
+add_to_the_value_three[6] # =&gt; 9
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

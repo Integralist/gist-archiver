@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Functional Programming: Polling XHR</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="functional-programming-polling-xhr">Functional Programming: Polling XHR</h1>
+
+<h2 id="fp-polling-xhr-js">fp polling xhr.js</h2>
+
+<pre><code class="language-javascript">define(['module/bootstrap'], function(news) {
+    var $ = news.$;
+
+    function seconds(secs) {
+        return secs * 1000;
+    }
+
+    function incrementDelay() {
+        // don't want the delay to become ridiculous so I set a threshold I don't want it to go beyond
+        if (delay &lt; threshold) {
+            delay *= 2;
+        }
+
+        return delay; // we return a value for the sake of our `dispatch` method called by `checkStatus`
+    }
+
+    function exists(value) {
+        return value !== undefined &amp;&amp; value !== null;
+    }
+
+    function dispatch() {
+        var fns  = Array.prototype.slice.call(arguments, 0);
+        var size = fns.length;
+
+        return function(target) {
+            var ret;
+
+            for (var i = 0; i &lt; size; i++) {
+                var fn = fns[i];
+
+                ret = fn.call(fn, target);
+
+                if (exists(ret)) {
+                    return ret; // break out of the loop as we've executed a function that doesn't return null
+                }
+            }
+
+            return ret;
+        };
+    }
+
+    var checkStatus = dispatch(
+        function(status) { return status === 304 ? incrementDelay()   : null; },
+        function(status) { return status === 200 ? delay = seconds(5) : null; }
+    );
+
+    function success(data, status, xhr) {
+        checkStatus(xhr.status);
+        poll(endpoint);
+    }
+
+    function failure(xhr, status, error) {
+        incrementDelay();
+        poll(endpoint);
+    }
+
+    function endpoint() {
+        $.ajax('http://localhost:3000/foobar', { timeout: limit }).then(success, failure);
+    }
+
+    function poll(endpoint) {
+        window.setTimeout(endpoint, delay);
+    }
+
+    var limit     = seconds(5);  // XHR timeout limit
+    var delay     = seconds(5);  // timer delay
+    var threshold = seconds(20); // timer delay threshold
+
+    poll(endpoint);
+});
+</code></pre>
+
+</div>
+</body>
+</html>

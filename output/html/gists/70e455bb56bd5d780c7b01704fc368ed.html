@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[AWS CloudFront Signed-Cookie Access] #aws #cloudfront #cookie #planz</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="aws-cloudfront-signed-cookie-access-aws-cloudfront-cookie-planz">[AWS CloudFront Signed-Cookie Access] #aws #cloudfront #cookie #planz</h1>
+
+<h2 id="1-automated-script-sh">1. Automated Script.sh</h2>
+
+<pre><code class="language-shell">#!/usr/bin/env bash
+#
+# chmod +x ./planz.sh
+#
+# For usage try:
+# 	./planz.sh -h
+# 	./planz.sh help
+
+file=/tmp/planz_credentials
+
+function generate_policy_template {
+  # &lt;&lt;- is different from &lt;&lt; in that you can indent the contents
+  # but you can only indent using tabs (not spaces)
+	cat &gt; policy.json &lt;&lt;-EOF
+	{
+		&quot;Statement&quot;:[
+			{
+				&quot;Resource&quot;:&quot;https://plan-z.buzzfeed.com/*&quot;,
+				&quot;Condition&quot;:{
+					&quot;DateLessThan&quot;:{
+						&quot;AWS:EpochTime&quot;: {{date}}
+					}
+				}
+			}
+		]
+	}
+	EOF
+}
+
+function init {
+  local cookie_ttl_hours=&quot;+${1:-2}H&quot; # default to two hours cookie ttl
+
+  local CLOUDFRONT_PRIVATE_KEY_CONTAINER=./cloudfront-keypair.tgz.asc
+  local CLOUDFRONT_PRIVATE_KEY_ID=APKAIT3GGGOSP434T2JQ
+  local CLOUDFRONT_PRIVATE_KEY=&quot;pk-$CLOUDFRONT_PRIVATE_KEY_ID.pem&quot;
+
+  if [ ! -f &quot;$CLOUDFRONT_PRIVATE_KEY_CONTAINER&quot; ]; then
+    echo &quot;You need the AWS CloudFront keypair file: $CLOUDFRONT_PRIVATE_KEY_CONTAINER&quot;
+    exit 1
+  fi
+
+  rm &quot;$file&quot; 2&gt;/dev/null
+  rm policy.json 2&gt;/dev/null
+  rm policy.json.backup 2&gt;/dev/null
+
+  generate_policy_template
+
+  sed -i &quot;.backup&quot; &quot;s/{{date}}/$(date -u -v &quot;$cookie_ttl_hours&quot; +%s)/&quot; policy.json
+  
+  # Linux version
+  # sed -i &quot;.backup&quot; &quot;s/{{date}}/$(date -d &quot;today 1 hour&quot; +%s)/&quot; policy.json
+
+  if [ ! -f &quot;./$CLOUDFRONT_PRIVATE_KEY&quot; ]; then
+    gpg -d &quot;$CLOUDFRONT_PRIVATE_KEY_CONTAINER&quot; | tar -zxv -C ./ --strip-components=3
+  fi
+
+  # shellcheck disable=SC2155,SC2002
+  export POLICY=$(cat policy.json | tr -d &quot; \t\n\r&quot; | base64 | tr '+=/' '-_~')
+
+  # shellcheck disable=SC2155,SC2002
+  export SIGNATURE=$(cat policy.json | tr -d &quot; \t\n\r&quot; | openssl sha1 -sign $CLOUDFRONT_PRIVATE_KEY | base64 | tr '+=/' '-_~')
+
+  {
+    echo &quot;CLOUDFRONT_PRIVATE_KEY=$CLOUDFRONT_PRIVATE_KEY&quot;
+    echo &quot;ID=$CLOUDFRONT_PRIVATE_KEY_ID&quot;
+    echo &quot;POLICY=$POLICY&quot;
+    echo &quot;SIGNATURE=$SIGNATURE&quot;
+  } &gt;&gt; &quot;$file&quot;
+
+  cat &quot;$file&quot;
+}
+
+function web {
+  cat &quot;$file&quot;
+}
+
+function req {
+  local path=$1
+
+  # shellcheck disable=SC2155
+  local id=$(web | awk 'NR == 2 { print $0 }' | cut -d &quot;=&quot; -f 2)
+
+  # shellcheck disable=SC2155
+  local policy=$(web | awk 'NR == 3 { print $0 }' | cut -d &quot;=&quot; -f 2)
+
+  # shellcheck disable=SC2155
+  local signature=$(web | awk 'NR == 4 { print $0 }' | cut -d &quot;=&quot; -f 2)
+
+  curl -v \
+    -H &quot;Cookie: CloudFront-Policy=$policy&quot; \
+    -H &quot;Cookie: CloudFront-Signature=$signature&quot; \
+    -H &quot;Cookie: CloudFront-Key-Pair-Id=$id&quot; \
+    &quot;https://plan-z.buzzfeed.com$path&quot;
+}
+
+if [ &quot;$1&quot; == &quot;clear&quot; ]; then
+  rm &quot;$file&quot;
+fi
+
+if [ &quot;$1&quot; == &quot;init&quot; ]; then
+  init &quot;$2&quot;
+fi
+
+if [ &quot;$1&quot; == &quot;web&quot; ]; then
+  web
+fi
+
+if [ &quot;$1&quot; == &quot;req&quot; ]; then
+  req &quot;$2&quot;
+fi
+
+if [[ &quot;$1&quot; =~ help|-h ]]; then
+  printf &quot;Usage:\n\t./planz.sh clear\n\t./planz.sh init [cookie_ttl_hours: 2]\n\t./planz.sh web\n\t./planz.sh req /robots.txt\n\t./planz.sh req /robots.txt 1&gt;/dev/null\n&quot;
+fi
+</code></pre>
+
+<h2 id="aws-cloudfront-signed-cookie-access-sh">AWS CloudFront Signed-Cookie Access.sh</h2>
+
+<pre><code class="language-shell">export CLOUDFRONT_KEY_PAIR_ID=&quot;APKAIT3GGGOSP434T2JQ&quot;
+export CLOUDFRONT_PRIVATE_KEY=&quot;pk-APKAIT3GGGOSP434T2JQ.pem&quot;
+export POLICY=$(cat policy.json | tr -d &quot; \t\n\r&quot; | base64 | tr '+=/' '-_~')
+export SIGNATURE=$(cat policy.json | tr -d &quot; \t\n\r&quot; | openssl sha1 -sign $CLOUDFRONT_PRIVATE_KEY | base64 | tr '+=/' '-_~')
+
+curl -v -o /dev/null \
+  -H &quot;Cookie: CloudFront-Policy=$POLICY&quot; \
+  -H &quot;Cookie: CloudFront-Signature=$SIGNATURE&quot; \
+  -H &quot;Cookie: CloudFront-Key-Pair-Id=$CLOUDFRONT_KEY_PAIR_ID&quot; \
+  https://plan-z.buzzfeed.com/robots.txt
+</code></pre>
+
+<h2 id="policy-json">policy.json</h2>
+
+<pre><code class="language-json">{
+   &quot;Statement&quot;:[
+      {
+         &quot;Resource&quot;:&quot;https://your.domain.com/*&quot;,
+         &quot;Condition&quot;:{
+            &quot;DateLessThan&quot;:{
+               &quot;AWS:EpochTime&quot;: 1504357200 // some future timestamp
+            }
+         }
+      }
+   ]
+}
+</code></pre>
+
+<h2 id="signed-cookies-rb">signed-cookies.rb</h2>
+
+<pre><code class="language-ruby">require &quot;base64&quot;
+require &quot;json&quot;
+require &quot;openssl&quot;
+
+def cookie_data(resource, expiry)
+  raw_policy = policy(resource, expiry)
+
+  {
+    &quot;CloudFront-Policy&quot; =&gt; safe_base64(raw_policy),
+    &quot;CloudFront-Signature&quot; =&gt; sign(raw_policy),
+    &quot;CloudFront-Key-Pair-Id&quot; =&gt; ENV[&quot;CLOUDFRONT_KEY_PAIR_ID&quot;]
+  }
+end
+
+def policy(url, expiry)
+  {
+     &quot;Statement&quot;=&gt; [
+        {
+           &quot;Resource&quot; =&gt; url,
+           &quot;Condition&quot;=&gt;{
+              &quot;DateLessThan&quot; =&gt;{&quot;AWS:EpochTime&quot;=&gt; expiry.utc.to_i}
+           }
+        }
+     ]
+  }.to_json.gsub(/\s+/,'')
+end
+
+def safe_base64(data)
+  # equivalent to:
+  # cat policy.json | tr -d &quot; \t\n\r&quot; | base64 | tr '+=/' '-_~'
+  # remove all linebreaks/whitespace, base64 encode, strip invalid characters
+
+  Base64.strict_encode64(data).tr(&quot;+=/&quot;, &quot;-_~&quot;)
+end
+
+def sign(data)
+  # equivalent to:
+  # cat policy.json | openssl sha1 -sign ./pk-APKAIT3GGGOSP434T2JQ.pem | base64 | tr '+=/' '-_~'
+
+  digest = OpenSSL::Digest::SHA1.new
+  key    = OpenSSL::PKey::RSA.new File.read(ENV[&quot;CLOUDFRONT_PRIVATE_KEY&quot;])
+  result = key.sign digest, data
+  safe_base64(result)
+end
+
+printf &quot;curl -v -o /dev/null &quot;
+cookie_data(&quot;https://your.domain.com/*&quot;, Time.now + (60*60)).each do |k,v|
+  # printf &quot;Set-Cookie: Domain=domain.com; Path=/; Secure; HttpOnly; %s=%s\n\n&quot;, k, v
+  printf &quot;-H 'Cookie: %s=%s' &quot;, k, v
+end
+
+# execute with:
+# eval $(ruby signed-cookies.rb) https://your.domain.com/robots.txt
+</code></pre>
+
+</div>
+</body>
+</html>

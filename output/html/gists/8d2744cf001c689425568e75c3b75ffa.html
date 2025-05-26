@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Modern JS] #javascript #js #modern #tools #transpilers #babel #webpack</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="modern-js-javascript-js-modern-tools-transpilers-babel-webpack">[Modern JS] #javascript #js #modern #tools #transpilers #babel #webpack</h1>
+
+<h2 id="modern-js-md">Modern JS.md</h2>
+
+<pre><code class="language-markdown">Ensure you have Node/NPM installed, then make a project directory:
+
+```bash
+mkdir modern-js &amp;&amp; cd modern-js
+</code></pre>
+
+<p>Create an empty <code>package.json</code> file:</p>
+
+<pre><code class="language-bash">npm init -y
+</code></pre>
+
+<p>Install dependencies:</p>
+
+<pre><code class="language-bash">npm install --save-dev webpack \
+                       webpack-cli \
+                       webpack-dev-server \
+                       @babel/core \
+                       @babel/preset-env \
+                       &quot;babel-loader@^8.0.0-beta&quot; \
+                       style-loader \
+                       css-loader \
+                       sass-loader \
+                       node-sass \
+                       eslint@4.x babel-eslint@8
+
+npm install --save @babel/polyfill
+</code></pre>
+
+<blockquote>
+<p>Note: the dev dependencies need to be installed in the order they&rsquo;re specified, otherwise npm will complain/fail.</p>
+</blockquote>
+
+<p>Your <code>package.json</code> will now have the following dependencies:</p>
+
+<pre><code class="language-js">{
+  &quot;name&quot;: &quot;modern-js&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;description&quot;: &quot;&quot;,
+  &quot;main&quot;: &quot;index.js&quot;,
+  &quot;scripts&quot;: {
+    &quot;test&quot;: &quot;echo \&quot;Error: no test specified\&quot; &amp;&amp; exit 1&quot;
+  },
+  &quot;keywords&quot;: [],
+  &quot;author&quot;: &quot;&quot;,
+  &quot;license&quot;: &quot;ISC&quot;,
+  &quot;devDependencies&quot;: {
+    &quot;@babel/core&quot;: &quot;^7.1.2&quot;,
+    &quot;@babel/preset-env&quot;: &quot;^7.1.0&quot;,
+    &quot;babel-eslint&quot;: &quot;^8.2.6&quot;,
+    &quot;babel-loader&quot;: &quot;^8.0.4&quot;,
+    &quot;css-loader&quot;: &quot;^1.0.0&quot;,
+    &quot;eslint&quot;: &quot;^4.19.1&quot;,
+    &quot;node-sass&quot;: &quot;^4.9.3&quot;,
+    &quot;sass-loader&quot;: &quot;^7.1.0&quot;,
+    &quot;style-loader&quot;: &quot;^0.23.0&quot;,
+    &quot;webpack&quot;: &quot;^4.20.2&quot;,
+    &quot;webpack-cli&quot;: &quot;^3.1.2&quot;,
+    &quot;webpack-dev-server&quot;: &quot;^3.1.9&quot;
+  },
+  &quot;dependencies&quot;: {
+    &quot;@babel/polyfill&quot;: &quot;^7.0.0&quot;
+  }
+}
+</code></pre>
+
+<ul>
+<li><strong>Babel</strong>: transpiler of modern JS into ES5 compatible code</li>
+<li><strong>Webpack</strong>: a js module bundler (but also capable of transforming, bundling, packaging just about anything).</li>
+</ul>
+
+<p>Now create a webpack config file:</p>
+
+<pre><code class="language-bash">webpack.config.js
+</code></pre>
+
+<blockquote>
+<p>Note: babel configuration will be placed inside of the <code>package.json</code> file, but can also be extracted into its own <code>.babelrc</code> file if you prefer.</p>
+</blockquote>
+
+<p>Add the following code to your webpack configuration:</p>
+
+<pre><code class="language-js">const path = require('path')
+
+module.exports = {
+  entry: './src/index.js',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: '/dist'
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: 'babel-loader',
+        }
+      }
+    ]
+  }
+}
+</code></pre>
+
+<p>Update your <code>package.json</code> to include script commands for webpack:</p>
+
+<pre><code class="language-js">{
+  ...
+  
+  &quot;scripts&quot;: {
+    &quot;build&quot;: &quot;webpack --mode production&quot;,
+    &quot;dev&quot;: &quot;webpack-dev-server --mode=development --config webpack.config.js&quot;,
+    ...
+  },
+  
+  &quot;babel&quot;: {
+  	&quot;presets&quot;: [
+    	[&quot;@babel/env&quot;, {&quot;modules&quot;: false}]
+    ],
+    &quot;plugins&quot;: [&quot;syntax-dynamic-import&quot;]
+  }
+  
+  ...
+}
+</code></pre>
+
+<p>The <code>webpack</code> package also supports watching files for changes <code>--watch</code> but it doesn&rsquo;t handle &lsquo;hot reloading&rsquo; (i.e. meaning you&rsquo;ll need to manually refresh your service, which if you&rsquo;ve got a complex &lsquo;single page application&rsquo; will result in you losing your current state).</p>
+
+<blockquote>
+<p>Note: the babel configuration prevents babel from transpiling <code>import</code> and <code>export</code> statements into ES5, and enables dynamic imports.</p>
+</blockquote>
+
+<p>Now create a JavaScript file that you want to transpile and bundle:</p>
+
+<pre><code class="language-bash">mkdir src dist
+touch .eslintrc src/index.js src/component.js dist/index.html
+</code></pre>
+
+<p>Here&rsquo;s the contents of <code>index.js</code>:</p>
+
+<pre><code class="language-js">/*eslint no-undef: &quot;error&quot;*/
+/*eslint-env browser*/
+
+import '@babel/polyfill';
+
+import c from './component.js';
+
+console.log(c);
+
+let a = 1;
+let b = 2;
+[a, b] = [b, a];
+console.log(a);
+console.log(b);
+
+const root = document.createElement('div');
+root.innerHTML = `&lt;p&gt;Hello Webpack!&lt;/p&gt;`;
+document.body.appendChild(root);
+</code></pre>
+
+<blockquote>
+<p>Note: instead of using <code>eslint-env browser</code> you could add a <code>globals</code> field to your <code>.eslintrc</code> (see below for example). You can also use <code>eslint-env node</code> for server-side JS. See the <a href="https://eslint.org/docs/user-guide/configuring" target="_blank">docs</a> for more information.</p>
+</blockquote>
+
+<p>Here&rsquo;s the contents of <code>component.js</code>:</p>
+
+<pre><code class="language-js">const c = ['x', 'y', 'z'];
+
+export default c;
+</code></pre>
+
+<p>Here&rsquo;s the contents of <code>index.html</code>:</p>
+
+<pre><code class="language-html">&lt;!doctype html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Hello Webpack&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;script src=&quot;bundle.js&quot;&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Here&rsquo;s the contents of <code>.eslintrc</code>:</p>
+
+<pre><code>{
+  &quot;parser&quot;: &quot;babel-eslint&quot;,
+  &quot;globals&quot;: {
+    &quot;console&quot;: true,
+    &quot;document&quot;: true,
+    &quot;window&quot;: true
+  },
+  &quot;rules&quot;: {
+    'brace-style': [2, '1tbs', {'allowSingleLine': true}],
+    'camelcase': 2,
+    'comma-spacing': 2,
+    'comma-style': 2,
+    'curly': 2,
+    'eol-last': 2,
+    'indent': [2, 2],
+    'key-spacing': 2,
+    'new-cap': 2,
+    'new-parens': 2,
+    'no-lonely-if': 2,
+    'no-multi-spaces': 2,
+    'no-multiple-empty-lines': [2, {'max': 2}],
+    'func-call-spacing': 2,
+    'no-trailing-spaces': 2,
+    'quotes': [2, 'single', {'allowTemplateLiterals': true}],
+    'semi': 2,
+    'semi-spacing': 2,
+    'space-before-blocks': 2,
+    'space-in-parens': 2,
+    'space-infix-ops': 2,
+    'space-unary-ops': 2,
+    'array-callback-return': 2,
+    'block-scoped-var': 2,
+    'consistent-return': 2,
+    'eqeqeq': 2,
+    'guard-for-in': 2,
+    'no-array-constructor': 2,
+    'no-caller': 2,
+    'no-cond-assign': 2,
+    'no-const-assign': 2,
+    'no-control-regex': 2,
+    'no-delete-var': 2,
+    'no-dupe-args': 2,
+    'no-dupe-class-members': 2,
+    'no-dupe-keys': 2,
+    'no-duplicate-case': 2,
+    'no-empty-character-class': 2,
+    'no-empty-pattern': 2,
+    'no-eval': 2,
+    'no-ex-assign': 2,
+    'no-extend-native': 2,
+    'no-extra-bind': 2,
+    'no-fallthrough': 2,
+    'no-func-assign': 2,
+    'no-implied-eval': 2,
+    'no-invalid-regexp': 2,
+    'no-iterator': 2,
+    'no-lone-blocks': 2,
+    'no-loop-func': 2,
+    'no-mixed-operators': [2, {
+      groups: [
+        ['&amp;', '|', '^', '~', '&lt;&lt;', '&gt;&gt;', '&gt;&gt;&gt;'],
+        ['==', '!=', '===', '!==', '&gt;', '&gt;=', '&lt;', '&lt;='],
+        ['&amp;&amp;', '||'],
+        ['in', 'instanceof']
+      ],
+      allowSamePrecedence: false
+    }],
+    'no-multi-str': 2,
+    'no-native-reassign': 2,
+    'no-unneeded-ternary': 2,
+    'no-unsafe-negation': 2,
+    'no-new-func': 2,
+    'no-new-object': 2,
+    'no-new-symbol': 2,
+    'no-new-wrappers': 2,
+    'no-obj-calls': 2,
+    'no-octal': 2,
+    'no-octal-escape': 2,
+    'no-redeclare': 2,
+    'no-regex-spaces': 2,
+    'no-script-url': 2,
+    'no-self-assign': 2,
+    'no-self-compare': 2,
+    'no-sequences': 2,
+    'no-shadow-restricted-names': 2,
+    'no-shadow': 2,
+    'no-sparse-arrays': 2,
+    'no-template-curly-in-string': 2,
+    'no-this-before-super': 2,
+    'no-throw-literal': 2,
+    'no-undef': 2,
+    'no-unexpected-multiline': 2,
+    'no-unreachable': 2,
+    'no-unused-expressions': [2, {
+      'allowShortCircuit': true,
+      'allowTernary': true
+    }],
+    'no-unused-vars': 2,
+    'no-use-before-define': [2, 'nofunc'],
+    'no-useless-computed-key': 2,
+    'no-useless-concat': 2,
+    'no-useless-constructor': 2,
+    'no-useless-escape': 2,
+    'no-useless-rename': 2,
+    'no-with': 2,
+    'radix': 2,
+    'require-yield': 2,
+    'use-isnan': 2,
+    'valid-typeof': 2,
+    'wrap-iife': [2, 'any']
+  }
+}
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

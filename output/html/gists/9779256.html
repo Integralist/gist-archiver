@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Concurrency vs Parallelism</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="concurrency-vs-parallelism">Concurrency vs Parallelism</h1>
+
+<h2 id="concurrency-vs-parallelism-md">Concurrency vs Parallelism.md</h2>
+
+<pre><code class="language-markdown">This is my understanding of the difference between &quot;Concurrency&quot; and &quot;Parallelism&quot;. I believe it's *reasonably* accurate - although feel free to discuss in the comments if you feel the distinction is different to my definition.
+
+Effectively there is just &quot;concurrency&quot;. Concurrency is the ability to handle multiple tasks/processes all running at the same time (rather than running tasks sequentially: one finishes, the next starts).
+
+If there is only a single CPU available then concurrent processes won't perform as well as you might think because the CPU will be forced to do something called &quot;task switching&quot;. Imagine you have two tasks (A and B) which are running concurrently; &quot;task switching&quot; breaks down to:
+
+- CPU works on task A for a short (predetermined) amount of time
+- If task A isn't complete by end of the set time frame then task B is started
+- CPU works on task B (again only for the predetermined amount of time)
+- If task B doesn't complete within the time frame then the CPU jumps back to work on task A
+- ...and back and forth the single CPU goes until both task A and B are complete...
+
+One way to improve &quot;task switching&quot; is to run tasks in parallel; but this requires multiple CPUs. Running tasks in parallel mean that both tasks A and B can genuinely run at the same time rather than one at a time (remember the default format of &quot;task switching&quot; isn't as slow as just running the task sequentially).
+
+So it's best to think of Concurrency as the **goal**; and &quot;task switching&quot; and &quot;parallelism&quot; as specific implementations; the latter yielding the fastest results.
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[IP Transit] #internet #network #ip #transit #iptransit</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ip-transit-internet-network-ip-transit-iptransit">[IP Transit] #internet #network #ip #transit #iptransit</h1>
+
+<h2 id="ip-transit-md">IP Transit.md</h2>
+
+<pre><code class="language-markdown">&gt; See also:  
+&gt; https://www.connetu.com/blog/articles/How-IP-transit-works-on-the-Internet  
+&gt; https://blog.equinix.com/blog/2018/12/10/networking-for-nerds-do-you-know-the-difference-between-ip-peering-vs-ip-transit-for-enterprise-internet-interconnection/
+
+# What is IP Transit? - Genesis Adaptive Blog
+
+If your business utilizes the Internet in any capacity, then you are undoubtedly familiar with the end result of IP Transit. However, having a more in-depth understanding of IP Transit will allow you to make better decisions about how your business accesses the Internet and how your customers reach your applications and services. In order to fully understand what IP Transit is and how it effects your business, we first need a better understanding of what the Internet is. We know that the Internet is a global set of interconnected networks that speak common protocols to exchange information. However, for the purpose of this article, we will go further into how these networks function and how IP Transit ties them all together.
+
+## Traffic Though the Internet
+
+Our websites, applications, and databases reside on servers. Through the magic of The Internet, we expect anyone, anywhere in the world to be able to find us. However, we often overlook the fact that our products are made up of millions of ones and zeros that live on a physical server in a physical location. Anyone who wants to access your data, needs to move a copy of those ones and zeros from your physical server to their physical device.
+
+In order for a device to access the Internet, it needs an IP address. An IP address is a numeric identifier that allows a device to be accessible to other devices on the Internet. When a customer visits your URL, or launches your web-connected app, they are requesting information from your server's IP address through their router. Your IP address helps their router determine where it needs to go to collect the requested information using both static and dynamic routing protocols.
+
+### Networks
+
+A server that hosts a website or product rarely exists in isolation. Instead, servers will typically will be part of a broader network. Simply put, a **network** is any number of devices that are interconnected and can share information. A router acts as a virtual connectivity hub so that devices on a network can communicate without being directly connected. Large networks will often include servers that act as central repositories of information and other servers that distribute that information.
+
+### Peering
+
+The Internet can be thought of as a network of networks. Just as two computers on the same network can exchange information, two networks can also be connected to share data. This relationship is called **peering**. When two networks establish a peering relationship, it allows devices across both networks to freely communicate by sharing common routes. This helps to eliminate the need for further connectivity costs. When this relationship is established across a shared peering fabric, such as LINX or AMS-IX, and for no financial consideration, this is known as **settlement-free interconnection** (SFI).
+
+### Processing a Request
+
+When a network router receives a request, it references its routing table to determine the shortest path to the information. It first looks on its own network to determine if it hosts the target information. If it isn't the host, it will attempt to connect to another router to search the &quot;full routing table&quot; using information sourced from the Border Gateway Protocol (BGP). This allows the router to determine the best route – either through a direct peering relationship or access to a larger Tier 1 Network ([see below][1]). If no such connection exists, the router will have at minimum a &quot;default route&quot; which provides a pathway of last resort if a local route cannot be found. After a suitable route has been determined, the request is forwarded to the next router in the path towards its destination.
+
+## IP Transit Defined
+
+When you want to send or receive information across the Internet, you need to pass through, or &quot;transit&quot;, one or more third-party networks in order to reach your final destination. **IP Transit** is a service where an Internet Service Provider (ISP) allows traffic to travel through their network to its final destination. Regardless of how your business or product accesses the Internet, you will need to utilize IP transit in some capacity.
+
+### Tiers of IP Transit Providers
+
+IP Transit providers are broken up into three tiers:
+
+Tier 1 providers have an expansive global reach. These providers peer with each other and act as the global conduit to all networks – thus forming the &quot;backbone&quot; of the Internet. There are roughly six total Tier 1 networks that connect the globe. These networks have one-hop latency to one another by design, and subsequently to the smaller networks underneath them. Tier 1 providers freely peer with each other, but charge lower tiers a fee in order to access their network. The combined reach of these Tier 1 providers allows for expansive routing tables that can route requests to _anywhere_ on the Internet. Examples of these providers include AT&amp;T, Century Link (Qwest), and Level3.
+
+Tier 2 providers have large networks with multiple physical locations and data centers. These ISPs will typically peer freely with each other in order to expand the breadth of their content delivery capability and to avoid the usage costs of accessing a Tier 1 network. Examples of Tier 2 ISPs include Amazon, Netflix, and [Genesis Adaptive][2].
+
+Tier 3 providers are generally local providers with smaller client lists. They will typically purchase a smaller portion of IP Transit through a Tier 2 provider to avoid the higher costs of going directly to a Tier 1 ISP.
+
+### Which IP Transit Tier is Best?
+
+As a rule, the more stops a request needs to make in its journey from client to server, the more latency and throttling will become an issue. Each &quot;hop&quot; to another location requires processing time to achieve the desired routing. Often larger networks will provide fewer hops to fulfill the same request.
+
+However, just because an ISP is a higher tier, doesn't necessarily mean that they will provide the most direct route. Tier 1 ISPs have an expansive reach, but their size often causes inefficiency in the number of hops needed to fulfill a request. Often, a Tier 2 provider can provide a more direct path to a desired destination, or better route stability, because of their direct peering relationships and more concentrated network footprint.
+
+## Summary
+
+IP Transit provides the connectivity needed to fuel the Internet. Within each tier of IP Transit, there are varying quality levels that depend on how well your ISP is connected. As a Tier 2 provider, Genesis Adaptive ensures that your data is readily accessible with the lowest latency available on the globe. Our peering network consists of over 40 partners including Facebook, Netflix, and Amazon, among others. These peers, combined with our internal network and Tier 1 provider relationships, ensure you the shortest transit route available.
+
+It is imperative that your IP Transit provider has robust offerings and reliable support that is able to scale with your company's growth. 
+
+[1]: #tiers-of-ip-transit-providers
+[2]: https://www.genesisadaptive.com/ip-transit
+</code></pre>
+
+</div>
+</body>
+</html>

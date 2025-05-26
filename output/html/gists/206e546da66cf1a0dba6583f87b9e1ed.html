@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang 'Application' and 'Workspace' Directory Structure] #go #golang #workspace #directory #structure</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-application-and-workspace-directory-structure-go-golang-workspace-directory-structure">[Golang &lsquo;Application&rsquo; and &lsquo;Workspace&rsquo; Directory Structure] #go #golang #workspace #directory #structure</h1>
+
+<h2 id="golang-application-and-workspace-directory-structure-md">Golang &lsquo;Application&rsquo; and &lsquo;Workspace&rsquo; Directory Structure.md</h2>
+
+<pre><code class="language-markdown"># Workspace 
+
+&gt; This information was copied from an older article, which didn't cover Go Modules.  
+&gt; https://www.digitalocean.com/community/tutorials/understanding-the-gopath
+
+Inside of a Go Workspace, or `GOPATH`, there are three directories: `bin`, `pkg`, and `src`. Each of these directories has special meaning to the Go tool chain.
+
+## bin
+
+The `$GOPATH/bin` directory is where Go places binaries that `go install` compiles. Our operating system uses the `$PATH` environment variable to find binary applications that can execute without a full path. It is recommended to add this directory to our global `$PATH` variable.
+
+## pkg
+
+The `$GOPATH/pkg` directory is where Go stores pre-compiled object files to speed up subsequent compiling of programs. Typically, most developers won’t need to access this directory. If you experience issues with compilation, you can safely delete this directory and Go will then rebuild it.
+
+## src
+
+The `src` directory is where all of our `.go` files, or source code, must be located (pre 1.13 when go modules were introduced!). This shouldn’t be confused with the source code the Go tooling uses, which is located at the `$GOROOT`. As we write Go applications, packages, and libraries, we will place these files under `$GOPATH/src/path/to/code`.
+
+# Application Structure
+
+In order of priority:
+
+- https://blog.golang.org/organizing-go-code
+- https://rakyll.org/style-packages/
+- https://peter.bourgon.org/go-best-practices-2016/#repository-structure
+- https://github.com/golang-standards/project-layout (unofficial, and generally frowned upon by _official_ go authors †)
+
+&gt; † https://github.com/golang-standards/project-layout/issues/117
+
+One of the Google Go authors states:
+
+For the record, the _minimal_ standard layout for an importable Go repo is really:
+
+- Put a `LICENSE` file in your root
+- Put a `go.mod` file in your root
+- Put Go code in your repo, in the root or organized into a directory tree as you see fit
+
+That's it. That's the &quot;standard&quot;.
+
+In particular:
+
+- It is not required to put commands in cmd/.
+- It is not required to put packages in pkg/.
+- It is not required to put web stuff in web/.
+- It is not required to put APIs in api/.
+- It is not required to put web stuff in web/.
+- It is not required to put configurations in configs/.
+- It is not required to put systemd scripts in init/.
+- It is not required to put shell scripts in scripts/.
+- It is not required to put Docker files in build/package/.
+- It is not required to put CI configs in build/ci/.
+- It is not required to put deployment configs in deployments/.
+- It is not required to put test support in test/.
+- It is not required to put documentation in docs/.
+- It is not required to put supporting tools in tools/.
+- It is not required to put examples in examples/.
+- It is not required to put third_party code in third_party/.
+- It is not required to put git hooks in githooks/
+- It is not required to put static assets in assets/.
+- It is not required to put website data in website/.
+
+The importable `golang.org/x` repos break every one of these &quot;rules&quot;.
+</code></pre>
+
+</div>
+</body>
+</html>

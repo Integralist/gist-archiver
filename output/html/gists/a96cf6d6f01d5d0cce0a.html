@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby OOP vs FP (examples are from ThoughtBot's Weekly Iteration -> you should subscribe!)</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-oop-vs-fp-examples-are-from-thoughtbot-s-weekly-iteration-you-should-subscribe">Ruby OOP vs FP (examples are from ThoughtBot&rsquo;s Weekly Iteration -&gt; you should subscribe!)</h1>
+
+<h2 id="1-api-rb">1. API.rb</h2>
+
+<pre><code class="language-ruby"># Examples taken from ThoughtBot's Weekly Iteration
+# We need to implement a solution that allows us to cleanly use two separate APIs
+
+# Our fake APIs
+PayPal.charge!(auth_code, 25)
+Stripe::CreditCard.new(credit_card_token).charge(25)
+</code></pre>
+
+<h2 id="2-oop-rb">2. OOP.rb</h2>
+
+<pre><code class="language-ruby"># Both of the below classes are utilising the principle of polymorphism
+
+# Strategy pattern (passing in object that determines the strategy to be used)
+class Payment &lt; Struct.new(:price, :client)
+  def charge
+    client.charge(price)
+  end
+end
+
+# Adapter pattern (creates a consistent internal API when using an external API)
+class PayPalAdapter &lt; Struct.new(:auth_code)
+  def charge(amount)
+    PayPal.charge!(auth_code, amount)
+  end
+end
+
+# Consistent API thanks to Adapter pattern
+Payment.new(25, Stripe::CreditCard.new(credit_card_token)).charge
+Payment.new(25, PayPalAdapter.new(auth_code)).charge
+</code></pre>
+
+<h2 id="3-fp-rb">3. FP.rb</h2>
+
+<pre><code class="language-ruby"># The .call() method allows us to execute the provided method
+# and pass through an argument to that method.
+# In the following code examples we call Payment.new and pass in a method which can be called
+class Payment &lt; Struct.new(:price, :client)
+  def charge
+    client.call(price)
+  end
+end
+
+# Use .method() to return a Proc which the above charge method can trigger a .call() on
+# http://www.ruby-doc.org/core-2.1.1/Method.html
+Payment.new(
+  25, 
+  Stripe::CreditCard.new(credit_card_token).method(:charge)
+).charge
+
+# Again use .method() to return a Proc
+# This means we can then use Currying to return another Proc 
+# That returned Proc has its first argument pre-filled with :auth_code
+# The above charge method can then trigger .call() on the curried Proc (passing in the remaining argument)
+Payment.new(
+  25, 
+  PayPal.method(:charge!).curry(:auth_code)
+).charge
+</code></pre>
+
+</div>
+</body>
+</html>

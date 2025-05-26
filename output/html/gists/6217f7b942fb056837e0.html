@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ruby Thread speed and fail fast</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ruby-thread-speed-and-fail-fast">Ruby Thread speed and fail fast</h1>
+
+<h2 id="ruby-thread-speed-and-fail-fast-rb">Ruby Thread speed and fail fast.rb</h2>
+
+<pre><code class="language-ruby">[:a, :b, :c].map { |i| 
+  Thread.new { 
+    sleep 5; i.upcase 
+  } 
+}.map { |i| i.value }
+
+# If you call `Thread.new {}.value this would cause the overall time to take 15 seconds
+# But calling `.value` once all the threads have completed mean the resulting time takes 5 seconds
+
+Thread::abort_on_exception=true
+
+[10, 10, 2].map { |i| 
+  Thread.new { 
+    sleep i; fail &quot;a thing&quot;; &quot;success&quot; 
+  } 
+}.map { |i| i.value }
+
+# `Thread::abort_on_exception=true` causes the thread to fail fast if an exception is raised
+</code></pre>
+
+</div>
+</body>
+</html>

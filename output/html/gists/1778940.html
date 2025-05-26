@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>DNS Query</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="dns-query">DNS Query</h1>
+
+<h2 id="query-md">query.md</h2>
+
+<pre><code class="language-markdown">I'm trying to get the domain `www.markandcat.co.uk` pointing to the repository: http://integralist.github.com/Mark-and-Cat/
+
+Looking at the help pages on GitHub the first thing it says to do is to upload a `CNAME` file with your domain name (in this case `markandcat.co.uk`) and this I've done.
+
+The next step apparently is to set-up a CNAME record via your domain registrar (in this case `123-reg`) and looking at 123-reg's DNS page (http://cl.ly/321S0S41121S200f0l1T) what would I need to set and where? As I assumed that I would need to first set the A record 'www' hostname to point to the Github ip (which as you can see I've done) and since then - as you can see in the attached image - I've added a CNAME record with its hostname set to `www` and it's value set to `integralist.github.com.` (the value was forced by 123-reg as `integralist.github.com/Mark-and-Cat/` was invalid) - so I'm not sure how GitHub knows what repo to point the domain to (I'm assuming it will try and sent the domain to the repo integralist.github.com)?
+</code></pre>
+
+</div>
+</body>
+</html>

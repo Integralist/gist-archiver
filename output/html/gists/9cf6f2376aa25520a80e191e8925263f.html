@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang AWS S3 Examples] #go #golang #aws #s3</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-aws-s3-examples-go-golang-aws-s3">[Golang AWS S3 Examples] #go #golang #aws #s3</h1>
+
+<h2 id="1-basic-list-objects-call-go">1. basic list objects call.go</h2>
+
+<pre><code class="language-go">	sessionToken := &quot;&quot; // not required
+	accessKey := &quot;AWS_ACCESS_KEY_ID&quot;
+	secretKey := &quot;AWS_SECRET_ACCESS_KEY&quot;
+
+	sess, err := session.NewSession(&amp;aws.Config{
+		Region:      aws.String(&quot;us-east-1&quot;),
+		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, sessionToken),
+	})
+	if err != nil {
+		log.Fatal(&quot;unable to create aws session&quot;)
+	}
+
+	svc := s3.New(sess)
+
+	input := &amp;s3.ListObjectsInput{
+		Bucket:  aws.String(&quot;some_bucket_name&quot;),
+		MaxKeys: aws.Int64(2), // only return two results!
+	}
+
+	result, err := svc.ListObjects(input)
+	if err != nil {
+		if aerr, ok := err.(awserr.Error); ok {
+			switch aerr.Code() {
+			case s3.ErrCodeNoSuchBucket:
+				fmt.Println(s3.ErrCodeNoSuchBucket, aerr.Error())
+			default:
+				fmt.Println(aerr.Error())
+			}
+		} else {
+			// Print the error, cast err to awserr.Error to get the Code and
+			// Message from an error.
+			fmt.Println(err.Error())
+		}
+		return
+	}
+
+	fmt.Println(result)
+</code></pre>
+
+<h2 id="2-concurrently-list-and-delete-large-number-of-s3-objects-go">2. concurrently list and delete large number of S3 objects.go</h2>
+
+<pre><code class="language-go">/*
+Original written by Mark Gannaway...
+https://gist.github.com/Ganners/86f23c2d121332a8b3968bf05d2f720a
+
+Dry Runs:
+
+# stage
+go run main.go --bucket=&lt;your_bucket_name&gt; --profile=planz-stage
+
+# prod
+go run main.go --bucket=&lt;your_bucket_name&gt; --profile=planz-prod
+
+Real Deletes:
+
+# stage
+go run main.go --bucket=&lt;your_bucket_name&gt; --profile=planz-stage --dryrun=false
+
+# prod
+go run main.go --bucket=&lt;your_bucket_name&gt; --profile=planz-prod --dryrun=false
+*/
+
+package main
+
+import (
+	&quot;errors&quot;
+	&quot;flag&quot;
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;math/rand&quot;
+	&quot;net/url&quot;
+	&quot;strings&quot;
+	&quot;sync&quot;
+	&quot;time&quot;
+
+	&quot;github.com/aws/aws-sdk-go/aws&quot;
+	&quot;github.com/aws/aws-sdk-go/aws/credentials/stscreds&quot;
+	&quot;github.com/aws/aws-sdk-go/aws/session&quot;
+	&quot;github.com/aws/aws-sdk-go/service/s3&quot;
+)
+
+var (
+	whitelist = map[string]struct{}{
+		// Used for /wd/UserWidget (which is used for ads)
+		&quot;bids&quot;:    struct{}{},
+		&quot;cs&quot;:      struct{}{},
+		&quot;ct&quot;:      struct{}{},
+		&quot;network&quot;: struct{}{},
+		&quot;or&quot;:      struct{}{},
+		&quot;u&quot;:       struct{}{},
+		&quot;uo&quot;:      struct{}{},
+		&quot;wid&quot;:     struct{}{},
+
+		// Keep
+		&quot;country&quot;:         struct{}{}, // Used for varying the country, usually used when fetching feeds
+		&quot;p&quot;:               struct{}{}, // Used for selecting page
+		&quot;page&quot;:            struct{}{}, // Used for selecting page
+		&quot;page_quantity&quot;:   struct{}{}, // Used for specifying page size
+		&quot;page_size&quot;:       struct{}{}, // Used for specifying page size
+		&quot;render_template&quot;: struct{}{}, // Used for next pages in, etc. /nifty?render_template=0&amp;page=2
+	}
+
+	invalidSuffix = []string{
+		&quot;.mobile.js&quot;,
+		&quot;.mobile3.js&quot;,
+	}
+
+	invalidPrefix = []string{
+		&quot;/&quot;,
+		&quot;api/comments&quot;,
+	}
+)
+
+const (
+	deleteWorkers   = 100
+	deleteBatchSize = 10
+	listWorkers     = 1000
+)
+
+func main() {
+	dryrun := true
+	bucket := &quot;&quot;
+	profile := &quot;&quot;
+	{
+		flag.BoolVar(&amp;dryrun, &quot;dryrun&quot;, true, &quot;is this a dry run? false will execute deletes&quot;)
+		flag.StringVar(&amp;bucket, &quot;bucket&quot;, &quot;plan-z-stage-us-east-1&quot;, &quot;what bucket to use&quot;)
+		flag.StringVar(&amp;profile, &quot;profile&quot;, &quot;planz&quot;, &quot;what bucket to use&quot;)
+		flag.Parse()
+	}
+
+	svc := s3.New(session.Must(session.NewSessionWithOptions(session.Options{
+		AssumeRoleTokenProvider: stscreds.StdinTokenProvider,
+		Config:                  aws.Config{Region: aws.String(&quot;us-east-1&quot;)},
+		Profile:                 profile,
+	})))
+
+	prefixes := []string{&quot;api/comments/stats&quot;, &quot;/api/comments/stats&quot;, &quot;?&quot;}
+
+	// build the prefix list, this is geared specifically towards speeding up
+	// the plan z deletions
+	for c1 := '0'; c1 &lt;= '9'; c1++ {
+		for c2 := '0'; c2 &lt;= '9'; c2++ {
+			for c3 := '0'; c3 &lt;= '9'; c3++ {
+				// it appears we can have those starting with a slash and not
+				prefixes = append(prefixes, &quot;api/comments/&quot;+string(c1)+string(c2)+string(c3))
+				prefixes = append(prefixes, &quot;/api/comments/&quot;+string(c1)+string(c2)+string(c3))
+			}
+		}
+	}
+	for c1 := '!'; c1 &lt;= '~'; c1++ {
+		for c2 := '!'; c2 &lt;= '~'; c2++ {
+			for c3 := '!'; c3 &lt;= '~'; c3++ {
+				prefix := string(c1) + string(c2) + string(c3)
+				if prefix == &quot;api&quot; {
+					continue
+				}
+				// it appears we can have those starting with a slash and not
+				prefixes = append(prefixes, prefix)
+			}
+		}
+	}
+
+	// shuffle keys
+	for i := range prefixes {
+		j := rand.Intn(i + 1)
+		prefixes[i], prefixes[j] = prefixes[j], prefixes[i]
+	}
+
+	// file list workers
+	outputChan := NewListFilesWorkers(svc, bucket, prefixes, listWorkers)
+
+	if dryrun {
+		for output := range outputChan {
+			// dryrun just prints
+			fmt.Println(output)
+		}
+	} else {
+		// file delete workers
+		&lt;-NewDeleteFilesWorkers(svc, bucket, outputChan, deleteWorkers)
+	}
+}
+
+// DeleteFilesWorkers handles multiple workers to delete files
+type DeleteFilesWorkers struct {
+	svc      *s3.S3
+	bucket   string
+	keysChan chan string
+}
+
+// NewDeleteFilesWorkers will spawn and start a number of workers to handle
+// deletion, will output to the returned channel when complete
+func NewDeleteFilesWorkers(svc *s3.S3, bucket string, keysChan chan string, numWorkers int) chan struct{} {
+	dfw := &amp;DeleteFilesWorkers{
+		svc:      svc,
+		bucket:   bucket,
+		keysChan: keysChan,
+	}
+	return dfw.Start(numWorkers)
+}
+
+// del will handle the actual deletion request to S3, retries up to 5 times
+// with jittered exponential backoff
+func (dfw *DeleteFilesWorkers) del(objects []*s3.ObjectIdentifier) error {
+	if len(objects) == 0 {
+		return nil
+	}
+	for attempt := 0; attempt &lt; 5; attempt++ {
+		if attempt &gt; 0 {
+			sleepJitter := time.Duration(rand.Intn(30))
+			sleepSeconds := sleepJitter + time.Duration(attempt*attempt)
+			time.Sleep(sleepSeconds * time.Second)
+		}
+
+		_, err := dfw.svc.DeleteObjects(&amp;s3.DeleteObjectsInput{
+			Bucket: aws.String(dfw.bucket),
+			Delete: &amp;s3.Delete{
+				Objects: objects,
+			},
+		})
+
+		if err == nil {
+			return nil
+		}
+		log.Println(&quot;delete error&quot;, err)
+	}
+	return errors.New(&quot;unable to delete&quot;)
+}
+
+// Start will start a number of workers to handle file batch deletion
+func (dfw *DeleteFilesWorkers) Start(workers int) chan struct{} {
+	doneCh := make(chan struct{})
+	go func() {
+		wg := sync.WaitGroup{}
+		for i := 0; i &lt; workers; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				objects := make([]*s3.ObjectIdentifier, 0, deleteBatchSize)
+				for key := range dfw.keysChan {
+					objects = append(objects, &amp;s3.ObjectIdentifier{
+						Key: aws.String(key),
+					})
+
+					if len(objects) &lt; deleteBatchSize {
+						continue
+					}
+
+					err := dfw.del(objects)
+					if err == nil {
+						log.Println(&quot;successfully deleted&quot;, len(objects), &quot;items&quot;)
+						objects = make([]*s3.ObjectIdentifier, 0, deleteBatchSize)
+					}
+				}
+
+				// if chan has been closed, trigger final delete
+				dfw.del(objects)
+			}()
+		}
+		wg.Wait()
+		doneCh &lt;- struct{}{}
+	}()
+	return doneCh
+}
+
+// ListFilesWorkers will start a number of workers to list files matching the
+// pattern and then sending them to the outputChan
+type ListFilesWorkers struct {
+	svc        *s3.S3
+	bucket     string
+	prefixes   []string
+	outputChan chan string
+}
+
+// NewListFilesWorkers will spawn a number of workers to iterate over the
+// prefixes to divide up the work
+func NewListFilesWorkers(svc *s3.S3, bucket string, prefixes []string, numWorkers int) chan string {
+	lfw := &amp;ListFilesWorkers{
+		svc:        svc,
+		bucket:     bucket,
+		prefixes:   prefixes,
+		outputChan: make(chan string),
+	}
+
+	go lfw.Start(numWorkers)
+
+	return lfw.outputChan
+}
+
+// listObjects will handle looping and checking the contents of each key
+func (lfw *ListFilesWorkers) listObjects(p *s3.ListObjectsOutput, last bool) bool {
+	for _, obj := range p.Contents {
+		if obj == nil {
+			continue
+		}
+
+		// check if it is valid
+		url, err := url.Parse(strings.Replace(*obj.Key, &quot;%3F&quot;, &quot;?&quot;, -1))
+		if err != nil {
+			// if there was an error, assume it's fine
+			continue
+		}
+
+		invalidParams := []string{}
+		query := url.Query()
+
+		for _, suffix := range invalidSuffix {
+			if strings.HasSuffix(*obj.Key, suffix) {
+				goto delete
+			}
+		}
+		for _, prefix := range invalidPrefix {
+			if strings.HasPrefix(*obj.Key, prefix) {
+				goto delete
+			}
+		}
+
+		for key := range query {
+			if _, ok := whitelist[key]; !ok {
+				invalidParams = append(invalidParams, key)
+			}
+		}
+
+		if len(invalidParams) == 0 {
+			continue
+		}
+
+	delete:
+		lfw.outputChan &lt;- *obj.Key
+	}
+
+	return true
+}
+
+// Start will commence a the workers, should be called in a goroutine. Will
+// close up the outputChan when it is finished
+func (lfw *ListFilesWorkers) Start(workers int) {
+	numPrefixes := len(lfw.prefixes)
+	if numPrefixes &lt; workers {
+		workers = numPrefixes
+	}
+
+	splitPrefixes := [][]string{}
+	for i, j := 0, 0; i &lt;= numPrefixes; j, i = i, (i + numPrefixes/workers) {
+		if i == 0 {
+			continue
+		}
+		splitPrefixes = append(splitPrefixes, lfw.prefixes[j:i])
+	}
+
+	wg := &amp;sync.WaitGroup{}
+	wg.Add(len(splitPrefixes))
+	for _, chunk := range splitPrefixes {
+		go func(chunk []string) {
+			defer wg.Done()
+			for _, prefix := range chunk {
+				err := lfw.svc.ListObjectsPages(
+					&amp;s3.ListObjectsInput{
+						Bucket:  aws.String(lfw.bucket),
+						Prefix:  aws.String(prefix),
+						MaxKeys: aws.Int64(1000),
+					},
+					lfw.listObjects,
+				)
+				if err != nil {
+					fmt.Println(&quot;failed to list objects&quot;, err)
+				}
+			}
+		}(chunk)
+	}
+	wg.Wait()
+	close(lfw.outputChan)
+}
+</code></pre>
+
+</div>
+</body>
+</html>

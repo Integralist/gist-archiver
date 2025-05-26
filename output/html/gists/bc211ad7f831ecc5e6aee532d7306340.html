@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[python argparse cli flags examples] #python #python3 #argparse #flags #options #cli</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-argparse-cli-flags-examples-python-python3-argparse-flags-options-cli">[python argparse cli flags examples] #python #python3 #argparse #flags #options #cli</h1>
+
+<h2 id="python-argparse-cli-flags-examples-py">python argparse cli flags examples.py</h2>
+
+<pre><code class="language-python">import argparse
+
+
+def main():
+    &quot;&quot;&quot;ArgumentParser adds -h/--help default (add_help=True).
+
+    Documentation:
+        https://docs.python.org/3.8/library/argparse.html#add-help
+
+    Example:
+        in the following example we'll see we must provide the -f/--foo flag,
+        while provided value for -b/--bar flag is stored as integer and not a
+        string (which would otherwise be the default behaviour). we see the
+        -fb/--foobar flag is omitted and so it is assigned a default value,
+        while -z/--baz is omitted and so the default value is None. finally the
+        -bl/--boolean flag demonstrates the correct way to handle values that
+        should be stored as True or False bool types (i.e. if the flag is
+        provided, no value needed, then using action=&quot;store_true&quot; will result
+        in the value to be stored as True).
+
+        $ python3 app.py -f 123 --bar 456 --boolean
+        Namespace(bar=456, baz=None, boolean=True, foo='123', foobar='foobar')
+    &quot;&quot;&quot;
+
+    parser = argparse.ArgumentParser(description=&quot;Example CLI&quot;)
+
+    # mandatory flag + all value types are converted to string
+    parser.add_argument('-f', '--foo', required=True)
+
+    # provide a default value for omitted flag
+    parser.add_argument('-fb', '--foobar', default=&quot;foobar&quot;)
+
+    # value type converted to integer
+    parser.add_argument('-b', '--bar', type=int)
+
+    # value type always converted to truthy boolean (unlikely what you want)
+    parser.add_argument('-z', '--baz', type=bool, help=&quot;custom help&quot;)
+
+    # properly handle storing of value as boolean (i.e. stores either True or False)
+    #
+    # the principle is to use either the store_true or store_false actions.
+    #
+    # if you use store_true, then when flag is omitted it's stored as False
+    # if you use store_false, then when flag is omitted it's stored as True
+    parser.add_argument('-bl', '--boolean', action=&quot;store_true&quot;)
+
+    # parse the script's given arguments
+    args = parser.parse_args()
+
+    print(args)
+
+
+main()
+</code></pre>
+
+</div>
+</body>
+</html>

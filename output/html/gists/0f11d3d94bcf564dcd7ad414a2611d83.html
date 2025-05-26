@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go Module Versioning] #go #golang #modules #versioning #semver</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-module-versioning-go-golang-modules-versioning-semver">[Go Module Versioning] #go #golang #modules #versioning #semver</h1>
+
+<h2 id="go-module-versioning-md">Go Module Versioning.md</h2>
+
+<pre><code class="language-markdown">&gt; Reference: https://blog.golang.org/v2-go-modules
+
+You have a dependency you want to use, like `github.com/integralist/delete-just-testing`.
+
+```go
+// delete-just-testing/foo/foo.go 
+//
+package foo
+
+import &quot;fmt&quot;
+
+func Bar() {
+	fmt.Println(&quot;bar&quot;)
+}
+</code></pre>
+
+<p>That dependency has the following <code>go.mod</code> file:</p>
+
+<pre><code class="language-go">module github.com/integralist/delete-just-testing
+
+go 1.15
+</code></pre>
+
+<blockquote>
+<p>Note: Major version suffixes are not allowed at major versions v0 or v1 (e.g. you can&rsquo;t do <code>module github.com/integralist/delete-just-testing/v1</code>). There is no need to change the module path between v0 and v1 because v0 versions are unstable and have no compatibility guarantee. Additionally, for most modules, v1 is backwards compatible with the last v0 version; a v1 version acts as a <em>commitment</em> to compatibility, rather than an indication of incompatible changes compared with v0. &ndash; <a href="https://golang.org/ref/mod#major-version-suffixes" target="_blank">official reference</a>.</p>
+</blockquote>
+
+<p>We want to create a new program, so we start by initializing a new go module for our project:</p>
+
+<pre><code class="language-bash">go mod init testing_gomodules
+</code></pre>
+
+<p>We create an <code>app.go</code> main package:</p>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+
+	&quot;github.com/integralist/delete-just-testing/foo&quot;
+)
+
+func main() {
+	fmt.Println(&quot;main&quot;)
+
+	foo.Bar()
+}
+</code></pre>
+
+<p>We execute <code>go run app.go</code> and find our <code>go.mod</code> file is updated:</p>
+
+<pre><code class="language-bash">$ go run app.go
+go: finding module for package github.com/integralist/delete-just-testing/foo
+go: downloading github.com/integralist/delete-just-testing v0.0.0-20200921145455-530f3130809d
+go: found github.com/integralist/delete-just-testing/foo in github.com/integralist/delete-just-testing v0.0.0-20200921145455-530f3130809d
+main
+bar
+</code></pre>
+
+<p>The <code>go.mod</code> file for our project now looks like:</p>
+
+<pre><code class="language-go">module testing_gomodules
+
+go 1.15
+
+require github.com/integralist/delete-just-testing v0.0.0-20200921145455-530f3130809d // indirect
+</code></pre>
+
+<blockquote>
+<p>Note: when I was running through this example I had pulled in the dependency into my project <em>before</em> I had actually assigned a <code>v1.0.0</code> tag, so the go toolchain generates a <a href="https://golang.org/ref/mod#pseudo-versions" target="_blank">pseudo-version</a> for you. If I had tagged the commit with <code>v1.0.0</code> before trying to use the dependency then instead of the pseudo-version I would have seen <code>v1.0.0</code> after the module path.</p>
+</blockquote>
+
+<p>If we (as the dependency author) want to update our code to be v2, then we have two strategies:</p>
+
+<ol>
+<li>create a new <code>v2/</code> directory and copy our package into it (this is for backwards compatibility with go versions below 1.13 that don&rsquo;t understand go modules).</li>
+<li>just rename the module in the <code>go.mod</code> file (which will require you to update all <em>explicit</em> imports in your code&rsquo;s test files + consumers will need to do the same).</li>
+</ol>
+
+<blockquote>
+<p>Note: <code>go get -u</code> doesn&rsquo;t help consumers of our dependency get the latest major version. If you run <code>go list -u -m all</code> you&rsquo;ll see minor and patch updates but not major version updates. This goes back to how the go team <a href="https://github.com/golang/go/wiki/Modules#releasing-modules-v2-or-higher" target="_blank">perceive v2 and higher major version releases</a> (i.e. they should be a different directory or new module path).</p>
+</blockquote>
+
+<p>Now let&rsquo;s say we take the second approach of just changing the <code>go.mod</code> name in our dependency repository:</p>
+
+<pre><code class="language-go">module github.com/integralist/delete-just-testing/v2 // &lt;&lt; updated to append /v2
+
+go 1.15
+</code></pre>
+
+<p>Then the consumer will need to update their import path to get that change:</p>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+
+	&quot;github.com/integralist/delete-just-testing/v2/foo&quot; // &lt;&lt; updated to include /v2
+)
+
+func main() {
+	fmt.Println(&quot;main&quot;)
+
+	foo.Bar()
+}
+</code></pre>
+
+<p>&hellip;they&rsquo;ll also discover they have an updated <code>go.mod</code>:</p>
+
+<pre><code class="language-go">module testing_gomodules
+
+go 1.15
+
+require (
+	github.com/integralist/delete-just-testing v0.0.0-20200921145455-530f3130809d
+	github.com/integralist/delete-just-testing/v2 v2.0.0
+)
+</code></pre>
+
+<p>You&rsquo;ll see we have the tagged <code>v2.0.0</code> pulled in alongside the original. Running <code>go mod tidy</code> will remove the old version.</p>
+
+<blockquote>
+<p>Note: if you change the import path back to the non <code>/v2</code> version you&rsquo;ll discover the old <code>v0.0.0...</code> <a href="https://golang.org/ref/mod#pseudo-versions" target="_blank">pseudo-version</a> is put back into your <code>go.mod</code> file and you can again use <code>go mod tidy</code> to remove the <code>v2.0.0</code> dependency. This is cool, because although the old pre-v2 code doesn&rsquo;t exist any more at HEAD in the dependency&rsquo;s <code>master</code> branch, the go toolchain is still able to retrieve it.</p>
+</blockquote>
+
+<h2 id="easy-module-path-update-in-vim">Easy module path update in Vim</h2>
+
+<p>Imagine you&rsquo;re using a package called <code>go-fastly</code> and it&rsquo;s currently defined at version <code>2.0.0</code> so it uses <code>/v2</code> in its module path. But then an upgrade to <code>3.0.0</code> is released so you need to bump your imports from <code>v2</code> to reference <code>v3</code>.</p>
+
+<pre><code class="language-viml">:Ack! --go 'go-fastly/v2'
+:cdo s/v2/v3/ | update
+</code></pre>
+
+<p>If you don&rsquo;t have Ack! because you&rsquo;re using a basic vim configuration (e.g. <code>vim -u ~/.vimrc-basic</code>), then use the following instead&hellip;</p>
+
+<pre><code class="language-viml">:vimgrep /go\-fastly\/v2/j fastly/*go
+:copen
+:cdo s/v2/v3/ | update
+</code></pre>
+
+<blockquote>
+<p><strong>NOTE</strong>: The reason to use <code>vim -u ~/.vimrc-basic</code> is because of vim-go and the golang LSP can cause the Vim quickfix window to get updated (various warnings/errors etc about the code) and this means <code>:cdo</code> fails to complete as the quickfix list it was working with has changed. So using a basic Vim configuration means I can use <code>:cdo</code> and have the files updated in a fraction of the time as no LSP means much faster processing.</p>
+</blockquote>
+
+<h2 id="branch-vs-directory-versioning">Branch vs Directory Versioning</h2>
+
+<p>When creating a new module version most people use git branches to separate v0/v1 and v2,v3&hellip;etc and git tag appropriately when creating new releases.</p>
+
+<p>An alternative is to use the same branch but separate directories for each version (this way you can more easily share code between the versions that haven&rsquo;t actually changed).</p>
+
+<ol>
+<li>Directory Versioning Approach
+With directory versioning, instead of creating a new Git branch for each major version (v2, v3, etc.), you place the code for each major version in a dedicated folder within your repository. Each version has its own go.mod file and module path reflecting the correct version.</li>
+</ol>
+
+<p>Here is a directory structure example:</p>
+
+<pre><code>├── v1
+│   ├── go.mod
+│   └── main.go
+├── v2
+│   ├── go.mod
+│   └── main.go
+└── v3
+    ├── go.mod
+    └── main.go
+</code></pre>
+
+<p>In this case, each folder (v1, v2, v3) contains the source code for its respective version, along with its own go.mod file specifying the correct module path.</p>
+
+<p>The <code>v1/go.mod</code> would contain <code>module github.com/your/module</code>.</p>
+
+<p>The <code>v2/go.mod</code> would contain <code>module github.com/your/module/v2</code>.</p>
+
+<p>The <code>v3/go.mod</code> would contain <code>module github.com/your/module/v3</code>.</p>
+
+<p>When users import and use your module, they must reference the correct version using the module path that corresponds to the major version they want.</p>
+
+<pre><code class="language-go">// v0/v1
+import &quot;github.com/your/module&quot;
+// v2
+import &quot;github.com/your/module/v2&quot;
+// v3
+import &quot;github.com/your/module/v3&quot;
+</code></pre>
+
+<p>Using <code>go get</code> or <code>go install</code> would then look like this&hellip;</p>
+
+<pre><code class="language-shell"># Install version 1
+go get github.com/your/module@v1.5.0
+
+# Install version 2
+go get github.com/your/module/v2@v2.3.0
+
+# Install version 3
+go get github.com/your/module/v3@v3.0.0
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>DNS Delegation #dns</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="dns-delegation-dns">DNS Delegation #dns</h1>
+
+<h2 id="dns-delegation-md">DNS Delegation.md</h2>
+
+<pre><code class="language-markdown">## DNS Management and Delegation
+
+If a domain owner wants to use another company for handling DNS management over its domain, then they can update the &quot;Name Servers&quot; for their domain wherever DNS is currently managed, and set the Name Servers to a different DNS provider. 
+
+This is known as DNS _delegation_.
+
+Once that Name Server change has propagated, the new DNS provider will be responsible for managing DNS records for the domain.
+
+## CNAME redirection magic
+
+Through a CNAME, a domain owner can delegate the DNS resolution for a specific hostname to another service, enabling that service to provide the necessary records (like TXT) for that name.
+
+## Example
+
+So as an example, let's say I'm onboarding my domain `integralist.co.uk` with Fastly and Fastly is going to manage a TLS certificate for me using a popular Certificate Authority (CA) such as Let's Encrypt.
+
+The CA (as part of `dns-01` ACME validation) needs to prove that I own the domain before it will issue a certificate. So it asks that the domain owner create a TXT record like `_acme-challenge.integralist.co.uk` with a specific value. It'll then check if that has been done, and if so, it'll issue a TLS certificate.
+
+Now I (as the domain owner) am not communicating with the CA. Fastly is. So Fastly is the one being given the information from the CA as to the TXT record that needs to be created. But Fastly doesn't show me that information. That's because Fastly wants to be responsible for managing TLS certificate _renewals_. It would be annoying if Fastly had to keep coming back to me (as the domain owner) every time the TLS certificate was going to expire and ask me to update my DNS each time with whatever new TXT challenge record the CA is asking to be created to verify domain ownership.
+
+So, Fastly instead asks me to create a CNAME record called `_acme-challenge.integralist.co.uk`. This record name is the same as the TXT record name the CA is expecting, but importantly, it's a CNAME record, not a TXT record. 
+
+Fastly will ask me to create this CNAME record with a value like `&lt;unique-id&gt;.fastly-validations.com`.
+
+Now remember, the CA itself is expecting a TXT record called `_acme-challenge.integralist.co.uk` to be created.
+
+Standard DNS resolver behavior dictates that when looking for a specific record type (like TXT) and encountering a CNAME, the resolver should restart the query for the original record type but using the target of the CNAME.
+
+&gt; [!NOTE]
+&gt; To be clear, the DNS resolver doesn't _choose_ to look at the CNAME instead of the TXT; rather, when it asks for the TXT record, the authoritative server responds with the CNAME because:
+&gt;
+&gt; a) The CNAME exists for that name.\
+&gt; b) The DNS rules forbid a TXT record (or most other types) from existing at the same name as the CNAME.
+&gt;
+&gt; Receiving the CNAME record triggers the standard resolver behavior to follow the alias and re-query for the original record type (TXT) at the target name. It &quot;automatically sees the CNAME&quot; because that's the data the authoritative server provides in response to its TXT query, due to the CNAME's exclusive nature.
+
+This means, it'll restart the query for the TXT record but will look for `&lt;unique-id&gt;.fastly-validations.com` as the value.
+
+The DNS will naturally follow the `&lt;unique-id&gt;.fastly-validations.com` to where Fastly controls the DNS, and Fastly has set-up that TXT record with the secret TXT value that the CA originally asked for.
+
+## Diagram
+
+The following is a very rough proximation of steps...
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Fastly as Fastly Platform
+    participant UserDNS as User's DNS Provider
+    participant FastlyDNS as Fastly's DNS Provider
+    participant AcmeCA as ACME CA Server
+    participant AcmeResolver as ACME CA's DNS Resolver
+
+    Note over User, FastlyDNS: Pre-requisite: User Configures DNS
+    User-&gt;&gt;UserDNS: Create CNAME record: _acme-challenge.integralist.co.uk -&gt; &lt;unique-id&gt;.fastly-validations.com
+
+    Note over User, Fastly: User Initiates Certificate Process
+    User-&gt;&gt;Fastly: Request TLS Certificate for integralist.co.uk
+
+    Note over Fastly, AcmeCA: Fastly Starts ACME Order
+    Fastly-&gt;&gt;AcmeCA: Initiate certificate order (DNS-01 challenge)
+    AcmeCA--&gt;&gt;Fastly: Respond with Challenge (Domain: _acme-challenge.integralist.co.uk, Token: TOKEN_VALUE)
+
+    Note over Fastly, FastlyDNS: Fastly Prepares Validation Record
+    Fastly-&gt;&gt;FastlyDNS: Create TXT record for &lt;unique-id&gt;.fastly-validations.com with value &quot;TOKEN_VALUE&quot;
+    FastlyDNS--&gt;&gt;Fastly: TXT record created/updated
+
+    Note over Fastly, AcmeCA: Fastly Signals Readiness
+    Fastly-&gt;&gt;AcmeCA: Ready for challenge validation
+
+    Note over AcmeCA, AcmeResolver: ACME CA Initiates Verification
+    AcmeCA-&gt;&gt;AcmeResolver: Verify domain control for integralist.co.uk (check TXT at _acme-challenge...)
+
+    Note over AcmeResolver, UserDNS: Resolver Query 1 (Original Domain)
+    AcmeResolver-&gt;&gt;UserDNS: Query: TXT record for _acme-challenge.integralist.co.uk?
+    UserDNS--&gt;&gt;AcmeResolver: Response: CNAME &lt;unique-id&gt;.fastly-validations.com
+
+    Note over AcmeResolver, FastlyDNS: Resolver Query 2 (Following CNAME)
+    AcmeResolver-&gt;&gt;FastlyDNS: Query: TXT record for &lt;unique-id&gt;.fastly-validations.com?
+    FastlyDNS--&gt;&gt;AcmeResolver: Response: TXT &quot;TOKEN_VALUE&quot;
+
+    Note over AcmeResolver, AcmeCA: Resolver Reports Result
+    AcmeResolver--&gt;&gt;AcmeCA: Found TXT record with value &quot;TOKEN_VALUE&quot;
+
+    Note over AcmeCA, Fastly: ACME CA Validates and Issues
+    AcmeCA-&gt;&gt;AcmeCA: Compare found TOKEN_VALUE with expected TOKEN_VALUE
+    alt Validation Successful
+        AcmeCA--&gt;&gt;Fastly: Challenge successful, issuing certificate
+        Fastly-&gt;&gt;Fastly: Receive and deploy certificate
+    else Validation Failed
+        AcmeCA--&gt;&gt;Fastly: Challenge failed
+    end
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

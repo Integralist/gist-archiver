@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go API JSON Issues] #go #golang #json #api #omitempty</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-api-json-issues-go-golang-json-api-omitempty">[Go API JSON Issues] #go #golang #json #api #omitempty</h1>
+
+<h2 id="unmarshal-null-correctly-go">Unmarshal null correctly.go</h2>
+
+<pre><code class="language-go">// We use pointers to avoid a `null` being coerced into a type's zero value.
+// e.g. `Bar` would otherwise contain an &quot;&quot; when, for something like Terraform, we need to know if it was set at all.
+package main
+
+import (
+	&quot;encoding/json&quot;
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;strings&quot;
+)
+
+type Response struct {
+	Foo *int    `json:&quot;foo&quot;`
+	Bar *string `json:&quot;bar&quot;`
+}
+
+func main() {
+	resp := strings.NewReader(`{&quot;foo&quot;: 123, &quot;bar&quot;: null}`)
+	var r *Response
+	if err := json.NewDecoder(resp).Decode(&amp;r); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf(&quot;%#v\n&quot;, r)
+	fmt.Printf(&quot;%d\n&quot;, *r.Foo)
+	fmt.Printf(&quot;%s\n&quot;, *r.Bar) // panic: runtime error: invalid memory address or nil pointer dereference
+}
+</code></pre>
+
+<h2 id="go-api-json-issues-md">Go API JSON Issues.md</h2>
+
+<pre><code class="language-markdown">&gt; Reference: https://willnorris.com/2014/05/go-rest-apis-and-pointers/
+
+If a struct field isn't populated, and is marshalled to JSON, then the field's zero value will be used (e.g. type string zero value == &quot;&quot;, type int zero value == 0).
+
+You can use `omitempty` to prevent the field from being marshalled, but then you won't know if the zero value was intentional or not (e.g. a user might _want_ to set an type int field to zero or a type string field to an empty string).
+
+To avoid that situation you need to have the field be set to a _pointer_ of the type. This is because the zero value for a pointer is `nil`. This means if the field is `nil` then the field was never set but if it looks like a zero value for the type being pointed to, then you know it was set to the zero value intentionally.
+</code></pre>
+
+<h2 id="set-null-when-marshalling-go">Set null when Marshalling.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;encoding/json&quot;
+)
+
+type Repository struct {
+	Name        *string `json:&quot;name,omitempty&quot;`
+	Description *string `json:&quot;description,omitempty&quot;`
+	Private     *bool   `json:&quot;private,omitempty&quot;`
+}
+
+func (r *Repository) MarshalJSON() ([]byte, error) {
+	type CustomRepository struct {
+		Name        any `json:&quot;name,omitempty&quot;`
+		Description any `json:&quot;description,omitempty&quot;`
+		Private     any `json:&quot;private,omitempty&quot;`
+	}
+
+	cr := CustomRepository{}
+
+	if r.Name != nil &amp;&amp; *r.Name == &quot;&quot; {
+		var name *string
+		cr.Name = name
+	} else if r.Name == nil {
+		// This handles the case where you want the field omitted from the JSON response completely
+	} else {
+		cr.Name = r.Name
+	}
+
+	if r.Description != nil &amp;&amp; *r.Description == &quot;&quot; {
+		var description *string
+		cr.Description = description
+	} else if r.Description == nil {
+		// This handles the case where you want the field omitted from the JSON response completely
+	} else {
+		cr.Description = r.Description
+	}
+
+	if r.Private != nil &amp;&amp; *r.Private == false {
+		var private *bool
+		cr.Private = private
+	} else if r.Private == nil {
+		// This handles the case where you want the field omitted from the JSON response completely
+	} else {
+		cr.Private = r.Private
+	}
+
+	return json.Marshal(cr)
+}
+
+func main() {
+	name := &quot;&quot;
+	description := &quot;&quot;
+	private := false
+
+	// Explicitly set name to be a pointer to an empty string (e.g. I want this unset vs passing `nil` which means I've not set the field).
+	r := &amp;Repository{Name: &amp;name}
+	b, _ := json.Marshal(r)
+	println(string(b)) // {&quot;name&quot;:null}
+
+	// Explicitly set name/description/private all to be pointers to their zero value (e.g. I want them all unset vs passing `nil` which means I've not set any of these fields).
+	r = &amp;Repository{Name: &amp;name, Description: &amp;description, Private: &amp;private}
+	b, _ = json.Marshal(r)
+	println(string(b)) // {&quot;name&quot;:null,&quot;description&quot;:null,&quot;private&quot;:null} &lt;&lt;&lt; ISSUE: how do we make this work for someone who WANTS to set a bool type to `false` (rather than turn it to `null`)
+
+	// Explicitly set actual values (e.g. I want these fields to be set to these values, not unset)
+	name = &quot;foo&quot;
+	description = &quot;bar&quot;
+	private = true
+	r = &amp;Repository{Name: &amp;name, Description: &amp;description, Private: &amp;private}
+	b, _ = json.Marshal(r)
+	println(string(b)) // {&quot;name&quot;:&quot;foo&quot;,&quot;description&quot;:&quot;bar&quot;,&quot;private&quot;:true}
+
+	// Explicitly set nothing
+	r = &amp;Repository{}
+	b, _ = json.Marshal(r)
+	println(string(b)) // {}
+}
+</code></pre>
+
+</div>
+</body>
+</html>

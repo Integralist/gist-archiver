@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Track list of open files] #bash #tmux #lsof #unix #shell #monitor #zsh</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="track-list-of-open-files-bash-tmux-lsof-unix-shell-monitor-zsh">[Track list of open files] #bash #tmux #lsof #unix #shell #monitor #zsh</h1>
+
+<h2 id="track-list-of-open-files-sh">Track list of open files.sh</h2>
+
+<pre><code class="language-shell">#!/usr/bin/env zsh
+
+threshold=6000
+
+while true; do
+  files=$(lsof | wc -l | xargs) # xargs for trimming white space
+  replace=&quot;\033[0K\r&quot;
+  threshold=$threshold
+  msg=&quot;lsof:$files (threshold: $threshold)&quot;
+
+  echo -ne &quot;$msg$replace&quot;
+
+  if [[ ! -z &quot;${TMUX}&quot; ]]; then
+    tmux rename-window -t 1 &quot;$msg&quot;
+  fi
+
+  if [ $files -ge $threshold ]; then
+    say &quot;threshold $threshold exceeded&quot;
+    threshold=$( expr $threshold + 1000 )
+  fi
+
+  sleep 1
+done
+</code></pre>
+
+</div>
+</body>
+</html>

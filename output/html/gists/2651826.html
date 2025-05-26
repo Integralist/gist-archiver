@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Custom Scrollbars (WebKit only because no other browser has similar feature)</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="custom-scrollbars-webkit-only-because-no-other-browser-has-similar-feature">Custom Scrollbars (WebKit only because no other browser has similar feature)</h1>
+
+<h2 id="custom-scrollbars-css">custom-scrollbars.css</h2>
+
+<pre><code class="language-css">// See also: http://css-tricks.com/custom-scrollbars-in-webkit/
+
+::-webkit-scrollbar {
+	background-color: #333;
+	height:13px;
+	width:13px;
+}
+
+::-webkit-scrollbar-button {
+	display: none;
+}
+
+::-webkit-scrollbar-thumb {
+	background: url(scrollbar-track.png) left top repeat-y #EC008C;
+	-webkit-border-radius: 5px;
+	border-radius: 7px;
+}
+</code></pre>
+
+</div>
+</body>
+</html>

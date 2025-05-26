@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JavaScript pass by value/reference example</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="javascript-pass-by-value-reference-example">JavaScript pass by value/reference example</h1>
+
+<h2 id="pass-js">pass.js</h2>
+
+<pre><code class="language-javascript">var my_num = 123;
+var my_str = 'abc';
+var my_obj = { name: 'mark' };
+var my_arr = ['a', 'b', 'c'];
+var my_bool = true;
+
+var new_num = my_num;
+var new_str = my_str;
+var new_obj = my_obj;
+var new_arr = my_arr;
+var new_bool = my_bool;
+
+++new_num; // increase value by 1
+new_str += 'def'; // add def to the end of the String
+new_obj.age = 100; // add new property to the Object
+new_arr.push('d'); // add new item to the end of the Array
+new_bool = false; // reverse boolean value
+
+console.group('Original');
+    console.log(my_num);
+    console.log(my_str);
+    console.log(my_obj);
+    console.log(my_arr);
+    console.log(my_bool);
+console.groupEnd();
+
+console.group('New');
+    console.log(new_num);
+    console.log(new_str);
+    console.log(new_obj);
+    console.log(new_arr);
+    console.log(new_bool);
+console.groupEnd();
+
+/*
+ * JavaScript types are split into two groups: primitive types and reference types. 
+ * Numbers, Booleans, Strings, Null and Undefined types are primitive. 
+ * Objects, Arrays, and Functions are reference types. 
+ * 
+ * So you'll notice that JavaScript passes Objects/Arrays/Functions by reference  
+ * and passes primitives such as Booleans/Strings/Numbers by value
+ */
+</code></pre>
+
+</div>
+</body>
+</html>

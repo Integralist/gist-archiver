@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Proxy HTTP requests through a SSH connection via SOCKS5 proxy] #ssh #proxy #tunnel</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="proxy-http-requests-through-a-ssh-connection-via-socks5-proxy-ssh-proxy-tunnel">[Proxy HTTP requests through a SSH connection via SOCKS5 proxy] #ssh #proxy #tunnel</h1>
+
+<h2 id="readme-md">README.md</h2>
+
+<pre><code class="language-markdown">https://www.linkedin.com/pulse/proxying-web-traffic-via-ssh-mark-el-khoury
+
+Essentially your local machines creates a SOCK5 proxy which connects to a remote server via SSH (using either username/password or SSH PKI Cert/Key combination).
+
+The SOCK5 proxy handles sending the HTTP request via the SSH tunnel.
+
+The remote server will automatically process the HTTP request and handle sending it to its intended destination.
+
+The upstream (i.e. the endpoint being requested) will see the request coming from the SSH server and presume that's where it originated.
+
+## Go Example
+
+```go
+package main
+
+import (
+	&quot;golang.org/x/crypto/ssh&quot;
+	&quot;golang.org/x/net/proxy&quot;
+	&quot;net/http&quot;
+	&quot;net/url&quot;
+	&quot;io/ioutil&quot;
+	&quot;log&quot;
+	&quot;time&quot;
+)
+
+func main() {
+	http.HandleFunc(&quot;/&quot;, handleRequestAndRedirect)
+	log.Fatal(http.ListenAndServe(&quot;:8080&quot;, nil))
+}
+
+func handleRequestAndRedirect(w http.ResponseWriter, r *http.Request) {
+	// SSH connection details
+	sshHost := &quot;ssh.example.com:22&quot;
+	sshUser := &quot;your_ssh_user&quot;
+	sshPassword := &quot;your_ssh_password&quot;
+
+	// Upstream service URL
+	upstreamURL := &quot;http://upstream-service.example.com&quot;
+
+	// Create the SSH client configuration
+	sshConfig := &amp;ssh.ClientConfig{
+		User: sshUser,
+		Auth: []ssh.AuthMethod{
+			ssh.Password(sshPassword),
+		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		Timeout:         5 * time.Second,
+	}
+
+	// Establish the SSH connection
+	sshConn, err := ssh.Dial(&quot;tcp&quot;, sshHost, sshConfig)
+	if err != nil {
+		http.Error(w, &quot;Failed to dial SSH: &quot;+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer sshConn.Close()
+
+	// Create a SOCKS5 proxy client over the SSH connection
+	socks5Client, err := proxy.SOCKS5(&quot;tcp&quot;, &quot;localhost:0&quot;, nil, &amp;sshDialer{sshConn})
+	if err != nil {
+		http.Error(w, &quot;Failed to create SOCKS5 proxy: &quot;+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Create an HTTP client that uses the SOCKS5 proxy
+	httpClient := &amp;http.Client{
+		Transport: &amp;http.Transport{
+			Dial: socks5Client.Dial,
+		},
+	}
+
+	// Create the request to the upstream service
+	req, err := http.NewRequest(r.Method, upstreamURL, r.Body)
+	if err != nil {
+		http.Error(w, &quot;Failed to create request: &quot;+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Copy the headers from the original request to the new request
+	for key, values := range r.Header {
+		for _, value := range values {
+			req.Header.Add(key, value)
+		}
+	}
+
+	// Perform the request
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		http.Error(w, &quot;Failed to perform request: &quot;+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Copy the response from the upstream service to the original response
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		http.Error(w, &quot;Failed to read response: &quot;+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	for key, values := range resp.Header {
+		for _, value := range values {
+			w.Header().Add(key, value)
+		}
+	}
+	w.WriteHeader(resp.StatusCode)
+	w.Write(body)
+}
+
+// sshDialer is a custom Dialer implementation that uses an SSH connection
+type sshDialer struct {
+	client *ssh.Client
+}
+
+// Dial connects to the address on the named network using the SSH client.
+func (d *sshDialer) Dial(network, addr string) (net.Conn, error) {
+	return d.client.Dial(network, addr)
+}
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

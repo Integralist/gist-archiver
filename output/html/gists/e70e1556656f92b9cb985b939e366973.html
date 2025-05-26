@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Git Request Pull</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="git-request-pull">Git Request Pull</h1>
+
+<h2 id="git-request-pull-md">Git Request Pull.md</h2>
+
+<pre><code class="language-markdown">In order to do a single commit pull request (without a GitHub Pull Request interface) - i.e. you'll communicate the diff with another collaborator - then first commit the change to a fork of the repository. 
+
+Then run this command:
+
+```git
+git request-pull -p &lt;commit-to-start-from&gt; git@github.com:&lt;org&gt;/&lt;repo&gt;.git
+</code></pre>
+
+<p>This will generate something like the following:</p>
+
+<pre><code class="language-git">The following changes since commit d30a1ab53b80d35ffef00e9ca168c77798431d1c:
+
+  Starting commit message (2016-04-08 15:27:21 +0100)
+
+are available in the git repository at:
+
+  git@github.com:foo/bar.git 
+
+for you to fetch changes up to 74a6c7433b3197761e69efed1387d17861430b73:
+
+  My Commit Message (2016-04-11 11:46:18 +0100)
+
+----------------------------------------------------------------
+Integralist (1):
+      My Commit Message
+
+ README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/README.md b/README.md
+index d6022e0..8663373 100644
+--- a/README.md
++++ b/README.md
+@@ -1,4 +1,4 @@
+-&lt;h1 align=&quot;center&quot;&gt;Original&lt;/h1&gt;
++&lt;h1 align=&quot;center&quot;&gt;New Title&lt;/h1&gt;
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

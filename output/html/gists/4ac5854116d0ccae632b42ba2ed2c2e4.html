@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Generic Slice Map function] #go #golang #slices #map #functional #generics</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-generic-slice-map-function-go-golang-slices-map-functional-generics">[Golang Generic Slice Map function] #go #golang #slices #map #functional #generics</h1>
+
+<h2 id="slice-map-go">slice-map.go</h2>
+
+<pre><code class="language-go">// https://play.golang.com/p/TbawROSRv8X
+
+package main
+
+import (
+	&quot;fmt&quot;
+
+	&quot;golang.org/x/net/idna&quot;
+)
+
+func main() {
+	s := []string{&quot;xn--6frz82g&quot;, &quot;xn--9dbq2a&quot;, &quot;xn--vhquv&quot;}
+	fmt.Printf(&quot;%#v\n&quot;, s)
+	Map[string](s, func(zone string) string {
+		u, err := idna.ToUnicode(zone)
+		if err != nil {
+			return zone
+		}
+		return u
+	})
+	fmt.Printf(&quot;%#v\n&quot;, s)
+}
+
+// Map takes a slice and a map function,
+// then applies it to each element of the slice.
+func Map[T any](s []T, m func(T) T) {
+	for i, e := range s {
+		s[i] = m(e)
+	}
+}
+</code></pre>
+
+</div>
+</body>
+</html>

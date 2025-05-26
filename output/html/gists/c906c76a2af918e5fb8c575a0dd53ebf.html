@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go retry] #go #golang #retry</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-retry-go-golang-retry">[Go retry] #go #golang #retry</h1>
+
+<h2 id="main-go">main.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;context&quot;
+	&quot;fmt&quot;
+	&quot;time&quot;
+
+	&quot;github.com/sethvargo/go-retry&quot;
+)
+
+func main() {
+	ctx := context.Background()
+
+	b := retry.NewConstant(1 * time.Second)
+	b = retry.WithMaxRetries(3, b)
+
+	count := 0
+
+	if err := retry.Do(ctx, b, func(_ context.Context) error {
+		count++
+		if count &lt; 5 {
+			fmt.Println(&quot;error to retry&quot;)
+			return retry.RetryableError(fmt.Errorf(&quot;whoops&quot;))
+		}
+		return nil
+	}); err != nil {
+		fmt.Println(&quot;error happened:&quot;, err)
+		return
+	}
+
+	fmt.Println(&quot;success&quot;)
+}
+</code></pre>
+
+</div>
+</body>
+</html>

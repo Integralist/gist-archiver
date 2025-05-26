@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Function Timer Decorator + Async Version + Passing Arguments Version] #python #python3 #timer #decorator #performance #context #manager</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-function-timer-decorator-async-version-passing-arguments-version-python-python3-timer-decorator-performance-context-manager">[Python Function Timer Decorator + Async Version + Passing Arguments Version] #python #python3 #timer #decorator #performance #context #manager</h1>
+
+<h2 id="2-python-function-timer-decorator-async-py">2. Python Function Timer Decorator Async.py</h2>
+
+<pre><code class="language-python">import asyncio  # NEW: import asyncio module
+import functools
+import time
+
+
+def timer(func):
+    &quot;&quot;&quot;calculate run time of decorated function.&quot;&quot;&quot;
+
+    @functools.wraps(func)
+    async def wrap_timer(*args, **kwargs):  # NEW: async
+        start_time = time.perf_counter_ns()
+        result = await func(*args, **kwargs)  # NEW: await
+
+        end_time = time.perf_counter_ns()
+        run_time = end_time - start_time
+        print(run_time)
+        return result
+
+    return wrap_timer
+
+
+@timer
+async def slow_op():  # NEW: async
+    print(&quot;start&quot;)
+    time.sleep(5)
+    print(&quot;end&quot;)
+
+
+asyncio.run(slow_op())  # NEW: run async function on event loop
+</code></pre>
+
+<h2 id="3-python-function-timer-decorator-async-with-arguments-py">3. Python Function Timer Decorator Async with Arguments.py</h2>
+
+<pre><code class="language-python">import asyncio
+import functools
+import time
+
+
+def timer(metric_name):  # NEW: we're now accepting an argument
+    &quot;&quot;&quot;calculate run time of decorated function.&quot;&quot;&quot;
+
+    def nested_timer(func):  # NEW: basically the wrapping parent function is new and all other code was indented
+        @functools.wraps(func)
+        async def wrap_timer(*args, **kwargs):
+            print(f&quot;metric_name: {metric_name}&quot;)
+
+            start_time = time.perf_counter_ns()
+            result = await func(*args, **kwargs)
+            end_time = time.perf_counter_ns()
+
+            run_time = end_time - start_time
+            print(run_time)
+
+            return result
+
+        return wrap_timer
+
+    return nested_timer
+
+
+@timer(&quot;foo.bar&quot;)  # NEW: passing in an argument
+async def slow_op():
+    print(&quot;start&quot;)
+    time.sleep(5)
+    print(&quot;end&quot;)
+
+
+asyncio.run(slow_op())
+</code></pre>
+
+<h2 id="4-python-function-timer-decorator-with-check-for-async-and-non-async-py">4. Python Function Timer Decorator with check for Async and Non-Async.py</h2>
+
+<pre><code class="language-python">import asyncio
+import functools
+import time
+
+
+def timer(metric_name):
+    &quot;&quot;&quot;calculate run time of decorated function.&quot;&quot;&quot;
+
+    def nested_timer(func):
+        if asyncio.iscoroutinefunction(func):
+            @functools.wraps(func)
+            async def wrap_timer(*args, **kwargs):
+                print(&quot;async call&quot;)
+                print(f&quot;metric_name: {metric_name}&quot;)
+
+                start_time = time.perf_counter_ns()
+                result = await func(*args, **kwargs)
+                end_time = time.perf_counter_ns()
+
+                run_time = end_time - start_time
+                print(run_time)
+
+                return result
+        else:
+            @functools.wraps(func)
+            def wrap_timer(*args, **kwargs):
+                print(&quot;non-async call&quot;)
+                print(f&quot;metric_name: {metric_name}&quot;)
+
+                start_time = time.perf_counter_ns()
+                result = func(*args, **kwargs)
+                end_time = time.perf_counter_ns()
+
+                run_time = end_time - start_time
+                print(run_time)
+
+                return result
+
+        return wrap_timer
+
+    return nested_timer
+
+
+@timer(&quot;foo.bar&quot;)
+async def slow_op(a, b, c):
+    print(a, b, c)
+    print(&quot;start&quot;)
+    time.sleep(5)
+    print(&quot;end&quot;)
+
+
+asyncio.run(slow_op(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;))
+
+
+@timer(&quot;foo.bar&quot;)
+def another_slow_op():
+    print(&quot;start another&quot;)
+    time.sleep(3)
+    print(&quot;end another&quot;)
+
+
+another_slow_op()
+</code></pre>
+
+<h2 id="5-python-function-timer-decorator-with-check-for-async-and-non-async-and-works-as-context-manager-py">5. Python Function Timer Decorator with check for Async and Non-Async and works as Context Manager.py</h2>
+
+<pre><code class="language-python">import asyncio
+import functools
+import time
+
+
+class Timer():
+    def __init__(self, metric_name):
+        self.metric_name = metric_name
+
+    def __call__(self, func):
+        &quot;&quot;&quot;decorator implementation.&quot;&quot;&quot;
+
+        if asyncio.iscoroutinefunction(func):
+            @functools.wraps(func)
+            async def wrap_timer(*args, **kwargs):
+                print(&quot;async call&quot;)
+                print(f&quot;metric_name: {self.metric_name}&quot;)
+
+                start_time = time.perf_counter_ns()
+                result = await func(*args, **kwargs)
+                end_time = time.perf_counter_ns()
+
+                run_time = end_time - start_time
+                print(run_time)
+
+                return result
+        else:
+            @functools.wraps(func)
+            def wrap_timer(*args, **kwargs):
+                print(&quot;non-async call&quot;)
+                print(f&quot;metric_name: {self.metric_name}&quot;)
+
+                start_time = time.perf_counter_ns()
+                result = func(*args, **kwargs)
+                end_time = time.perf_counter_ns()
+
+                run_time = end_time - start_time
+                print(run_time)
+
+                return result
+
+        return wrap_timer
+
+    def __enter__(self):
+        self.start_time = time.perf_counter_ns()
+        return self
+
+    def __exit__(self, *args):
+        end_time = time.perf_counter_ns()
+        run_time = end_time - self.start_time
+        print(run_time)
+
+
+def timer(metric_name):
+    return Timer(metric_name)
+
+
+@timer(&quot;foo.bar&quot;)
+async def slow_op(a, b, c):
+    print(a, b, c)
+    print(&quot;start&quot;)
+    time.sleep(5)
+    print(&quot;end&quot;)
+
+
+asyncio.run(slow_op(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;))
+
+
+@timer(&quot;foo.bar&quot;)
+def another_slow_op():
+    print(&quot;start another&quot;)
+    time.sleep(3)
+    print(&quot;end another&quot;)
+
+
+another_slow_op()
+
+with timer(&quot;foo.bar&quot;):
+    print(&quot;context manager start&quot;)
+    time.sleep(10)
+    print(&quot;context manager finished&quot;)
+</code></pre>
+
+<h2 id="1-python-function-timer-decorator-sync-py">1. Python Function Timer Decorator Sync.py</h2>
+
+<pre><code class="language-python">import functools
+import time
+
+
+def timer(func):
+    &quot;&quot;&quot;calculate run time of decorated function.&quot;&quot;&quot;
+
+    @functools.wraps(func)
+    def wrap_timer(*args, **kwargs):
+        start_time = time.perf_counter()  # could also use perf_counter_ns()
+        result = func(*args, **kwargs)
+
+        end_time = time.perf_counter()
+        run_time = end_time - start_time
+        print(run_time)
+        return result
+
+    return wrap_timer
+
+
+@timer
+def slow_op():
+    print(&quot;start&quot;)
+    time.sleep(5)
+    print(&quot;end&quot;)
+    return &quot;done&quot;
+
+
+print(slow_op())
+</code></pre>
+
+</div>
+</body>
+</html>

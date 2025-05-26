@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go Kingpin CLI IsGlobalFlagsOnly] #go #golang #cli #algorithm</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-kingpin-cli-isglobalflagsonly-go-golang-cli-algorithm">[Go Kingpin CLI IsGlobalFlagsOnly] #go #golang #cli #algorithm</h1>
+
+<h2 id="isglobalflagsonly-go">IsGlobalFlagsOnly.go</h2>
+
+<pre><code class="language-go">// IsGlobalFlagsOnly indicates if the user called the binary with any
+// permutation order of the globally defined flags.
+//
+// NOTE: Some global flags accept a value while others do not. The following
+// algorithm takes this into account by mapping the flag to an expected value.
+// For example, --verbose doesn't accept a value so is set to zero.
+//
+// EXAMPLES:
+//
+// The following would return false as a command was specified:
+//
+// args: [--verbose -v --endpoint ... --token ... -t ... --endpoint ...  version] 11
+// total: 10
+//
+// The following would return true as only global flags were specified:
+//
+// args: [--verbose -v --endpoint ... --token ... -t ... --endpoint ...] 10
+// total: 10
+func IsGlobalFlagsOnly(args []string) bool {
+	// Global flags are defined in pkg/app/run.go#84
+	globals := map[string]int{
+		&quot;--verbose&quot;:  0,
+		&quot;-v&quot;:         0,
+		&quot;--token&quot;:    1,
+		&quot;-t&quot;:         1,
+		&quot;--endpoint&quot;: 1,
+	}
+	var total int
+	for _, a := range args {
+		for k := range globals {
+			if a == k {
+				total += 1
+				total += globals[k]
+			}
+		}
+	}
+	return len(args) == total
+}
+</code></pre>
+
+</div>
+</body>
+</html>

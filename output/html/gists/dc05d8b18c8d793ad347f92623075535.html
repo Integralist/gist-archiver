@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[ffmpeg examples] #ffmpeg #crop #video #concat #split #resize</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="ffmpeg-examples-ffmpeg-crop-video-concat-split-resize">[ffmpeg examples] #ffmpeg #crop #video #concat #split #resize</h1>
+
+<h2 id="ffmpeg-crop-video-and-convert-to-a-gif-bash">ffmpeg crop video and convert to a gif.bash</h2>
+
+<pre><code class="language-shell">ffmpeg -i input.mp4 -ss 00:00:10 -to 00:00:20 -vf &quot;fps=15,scale=480:-1:flags=lanczos&quot; output.gif
+</code></pre>
+
+<h2 id="ffmpeg-crop-video-bash">ffmpeg crop video.bash</h2>
+
+<pre><code class="language-shell">ffmpeg -i 2019-hack-week-vol1.mp4 -ss 00:05:36 -t 00:11:18 -async 1 cut.mp4
+
+# note: -t represents the duration you want the new video crop to last for
+#
+#       we can also use -to to specify a specific finish time (which is much more practical to use)
+#       $ ffmpeg -i foo.mp4 -ss 00:26:42 -to 00:32:11 -async 1 cut.mp4
+</code></pre>
+
+<h2 id="ffmpeg-extract-segments-from-a-video-bash">ffmpeg extract segments from a video.bash</h2>
+
+<pre><code class="language-shell"># https://superuser.com/questions/681885/how-can-i-remove-multiple-segments-from-a-video-using-ffmpeg
+#
+# the following command will generate three new videos (a.tvshow, c.tvshow, e.tvshow) from the single abcdef.tvshow
+#
+# we can then use the `concat` filter (shown earlier) to rejoin them together.
+ffmpeg -i abcdef.tvshow -t 5 a.tvshow -ss 10 -t 5 c.tvshow -ss 20 -t 5 e.tvshow
+</code></pre>
+
+<h2 id="ffmpeg-resize-video-bash">ffmpeg resize video.bash</h2>
+
+<pre><code class="language-shell">ffmpeg -i example.mov -vf &quot;scale=2200:-1&quot; resized.mov
+</code></pre>
+
+<h2 id="example-extract-then-concat-bash">Example extract then concat.bash</h2>
+
+<pre><code class="language-shell"># see the individual 'extract' and 'concat' examples below to understand this 'one liner' version.
+
+ffmpeg -i 1989.02.20\ -\ Chi-Town\ Rumble\ 1989.mp4 -to 00:00:30 1.mp4 -ss 00:02:53 -to 00:05:07 2.mp4 -ss 00:26:53 -to 00:47:55 3.mp4 -ss 01:10:04 -to 01:11:46 4.mp4 -ss 01:29:09 -to 01:42:13 5.mp4 -ss 01:43:53 6.mp4 &amp;&amp; printf &quot;file '1.mp4'\nfile '2.mp4'\nfile '3.mp4'\nfile '4.mp4'\nfile '5.mp4'\nfile '6.mp4'&quot; &gt; concat.txt &amp;&amp; ffmpeg -f concat -safe 0 -i concat.txt -c copy 1989.02.20\ -\ Chi-Town\ Rumble\ 1989--new.mp4 &amp;&amp; rm {1,2,3,4,5,6}.mp4 &amp;&amp; rm concat.txt &amp;&amp; say all done
+</code></pre>
+
+<h2 id="split-video-into-10-minute-chunks-bash">Split video into 10 minute chunks.bash</h2>
+
+<pre><code class="language-shell"># https://unix.stackexchange.com/questions/1670/how-can-i-use-ffmpeg-to-split-mpeg-video-into-10-minute-chunks
+#
+ffmpeg -i input.mp4 -c copy -map 0 -segment_time 00:20:00 -f segment -reset_timestamps 1 output%03d.mp4
+
+</code></pre>
+
+<h2 id="ffmpeg-concat-videos-bash">ffmpeg concat videos.bash</h2>
+
+<pre><code class="language-shell"># https://ffmpeg.org/ffmpeg-formats.html#concat-1
+
+cat mylist.txt
+file '/path/to/file1'
+file '/path/to/file2'
+file '/path/to/file3'
+
+ffmpeg -f concat -safe 0 -i mylist.txt -c copy output.mp4
+</code></pre>
+
+</div>
+</body>
+</html>

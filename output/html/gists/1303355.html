@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Analyze the viewport size with JavaScript</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="analyze-the-viewport-size-with-javascript">Analyze the viewport size with JavaScript</h1>
+
+<h2 id="viewport-txt">viewport.txt</h2>
+
+<pre><code class="language-text">It’s possible to analyze the viewport size in JavaScript but it’s a little messy:
+
+  - Most browsers support `window.innerWidth` and `window.innerHeight`.
+
+  - But IE6, 7, 8 and 9 in quirks mode require `document.body.clientWidth` and `document.body.clientHeight`.
+
+  - All the main browsers support `document.documentElement.clientWidth` and `document.documentElement.clientHeight` but it’s inconsistent. 
+    Either the window or document dimensions will be returned depending on the browser and mode.
+</code></pre>
+
+</div>
+</body>
+</html>

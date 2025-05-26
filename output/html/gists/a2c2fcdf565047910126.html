@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Monads in JavaScript and the power of composability</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="monads-in-javascript-and-the-power-of-composability">Monads in JavaScript and the power of composability</h1>
+
+<h2 id="1-breakdown-of-monads-js">1. Breakdown of Monads.js</h2>
+
+<pre><code class="language-javascript">// The Monad design pattern functions
+// i.e. compose, bind, unit, lift
+
+// These are functions that are part of the design pattern's &quot;interface&quot;
+// Their implementation can change (well, maybe not `compose`) 
+// but these function identifiers should be implemented 
+// as other devs will use those identifiers as a common language 
+// when discussing the Monad pattern
+
+// compose = returns a function that takes a data structure (accepted data structure argument is passed to `g` and then result of that is passed to `f`)
+// bind = returns a function that takes a data structure (function return value is same expected data structure type; function extracts values from original data structure and manipulates them before returning new data structure)
+// unit = wraps the value provided in a data structure that is expected by other functions we'll be using
+// lift = returns a function that accepts a value. The value is passed to the lifted function and that return value is passed to `unit`. It uses partial application to call `compose` with first argument pre-filled (in this case `unit`) and then function provided as argument to `lift` is passed as second argument to `compose` (returning a function that accepts a single value; accepted argument to that function is passed to `g` and then result of that is passed to `f`)
+
+var compose = function(f, g) {
+  return function(x) {
+    return f(g(x));
+  };
+};
+
+var bind = function(f) {
+  return function(tuple) {
+    var x  = tuple[0],
+        s  = tuple[1],
+        fx = f(x),
+        y  = fx[0],
+        t  = fx[1];
+
+    return [y, s + t];
+  };
+};
+
+var unit = function(x) { return [x, ''] };
+var lift = function(f) { return compose(unit, f) };
+
+// User functions
+
+var sine       = function(x) { return [Math.sin(x), 'sine was called.'] };
+var round      = function(x) { return Math.round(x) };
+var roundDebug = lift(round);
+
+// See our example executed...
+
+/*
+  compose(bind(roundDebug), bind(sine))
+
+    function (x) {
+      return f(g(x));
+    }
+*/
+var f = compose(bind(roundDebug), bind(sine));
+
+console.log(
+  f(unit(27))
+); // -&gt; [1, 'sine was called.']
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+// Breakdown of each function's composability...
+
+// [27, &quot;&quot;]
+console.log(unit(27));
+
+// f = function (x) { return f(g(x)) }
+console.log(compose(bind(roundDebug), bind(sine)));
+
+// [0.8414709848078963, &quot;sine was called.&quot;]
+console.log(sine(1));
+
+// 1
+console.log(round(1));
+
+// function (x) { return f(g(x)) }
+// i.e. function (x) { return unit(round(x)) }
+console.log(lift(round));
+
+// [1, &quot;&quot;]
+// roundDebug was `lift`ed
+console.log(roundDebug(1));
+
+/*
+  Both functions below return (where `f` is the function binded)...
+
+  function (tuple) {
+    var x  = tuple[0],
+        s  = tuple[1],
+        fx = f(x),
+        y  = fx[0],
+        t  = fx[1];
+
+    return [y, s + t];
+  }
+*/ 
+console.log(bind(roundDebug));
+console.log(bind(sine));
+
+/*
+  function (x) { return f(g(x)) }
+  
+  i.e.
+  function (x) {
+    return function (tuple) {
+      var x  = tuple[0],
+          s  = tuple[1],
+          fx = roundDebug(x),
+          y  = fx[0],
+          t  = fx[1];
+
+      return [y, s + t];
+    }(
+      function (tuple) {
+        var x  = tuple[0],
+            s  = tuple[1],
+            fx = sine(x),
+            y  = fx[0],
+            t  = fx[1];
+
+        return [y, s + t];
+      }(x)
+    )
+  }
+*/
+console.log(compose(bind(roundDebug), bind(sine)));
+
+// f(unit(27)) == function ([27, &quot;&quot;]) { return f(g([27, &quot;&quot;])) }
+</code></pre>
+
+<h2 id="2-monads-md">2. monads.md</h2>
+
+<pre><code class="language-markdown">All code sourced directly from:
+https://blog.jcoglan.com/2011/03/05/translation-from-haskell-to-javascript-of-selected-portions-of-the-best-introduction-to-monads-ive-ever-read/
+
+- `compose`, which converts two functions into a composed/nested set of functions
+- `bind`, which converts a debuggable function into a composable form
+- `unit`, which converts a simple value into the format required for debugging, by placing it in a container
+- `lift`, which converts a ‘simple’ function into a debuggable function
+
+## some functions
+
+```js
+// These functions want to be composable but aren't because
+// they return different data types to what was passed in.
+// The functions are no longer &quot;pure&quot;
+var sine = function(x) {
+  return [Math.sin(x), 'sine was called.'];
+};
+
+var cube = function(x) {
+  return [x * x * x, 'cube was called.'];
+};
+</code></pre>
+
+<h2 id="compose">compose</h2>
+
+<pre><code class="language-js">// Takes two functions f and g and 
+// returns another function that computes f(g(x))
+var compose = function(f, g) {
+  return function(x) {
+    return f(g(x));
+  };
+};
+</code></pre>
+
+<h2 id="bind">bind</h2>
+
+<pre><code class="language-js">// Take a Number -&gt; (Number,String) function and 
+// return a (Number,String) -&gt; (Number,String) function
+var bind = function(f) {
+  return function(tuple) {
+    var x  = tuple[0],
+        s  = tuple[1],
+        fx = f(x),
+        y  = fx[0],
+        t  = fx[1];
+    
+    return [y, s + t];
+  };
+};
+</code></pre>
+
+<h2 id="unit">unit</h2>
+
+<pre><code class="language-js">// The role of unit is to take a value and wrap it in a basic container 
+// that the functions we’re working with can consume. 
+// For our debuggable functions, this just means 
+// pairing the number with a blank string:
+// unit :: Number -&gt; (Number,String)
+var unit = function(x) { return [x, ''] };
+
+// This unit function also lets us convert any function into a debuggable one, 
+// by converting its return value into an acceptable input for debuggable functions:
+
+// round :: Number -&gt; Number
+var round = function(x) { return Math.round(x) };
+
+// roundDebug :: Number -&gt; (Number,String)
+var roundDebug = function(x) { return unit(round(x)) };
+
+// This type of conversion, from a 'plain' function to a debuggable one, 
+// can be abstracted into a function we’ll call lift (see below)
+</code></pre>
+
+<h2 id="lift">lift</h2>
+
+<pre><code class="language-js">// lift :: (Number -&gt; Number) -&gt; (Number -&gt; (Number,String))
+var lift = function(f) {
+  return function(x) {
+    return unit(f(x));
+  };
+};
+
+// or, more simply:
+var lift = function(f) { return compose(unit, f) };
+</code></pre>
+
+<h2 id="example-using-the-above-functions">Example (using the above functions)</h2>
+
+<pre><code class="language-js">var sine = function(x) {
+  return [Math.sin(x), 'sine was called.'];
+};
+
+var compose = function(f, g) {
+  return function(x) {
+    return f(g(x));
+  };
+};
+
+var bind = function(f) {
+  return function(tuple) {
+    var x  = tuple[0],
+        s  = tuple[1],
+        fx = f(x),
+        y  = fx[0],
+        t  = fx[1];
+
+    return [y, s + t];
+  };
+};
+
+var unit = function(x) { return [x, ''] };
+
+var lift = function(f) { return compose(unit, f) };
+
+// Usage...
+var round = function(x) { return Math.round(x) };
+var roundDebug = lift(round);
+var f = compose(bind(roundDebug), bind(sine));
+f(unit(27)) // -&gt; [1, 'sine was called.']
+</code></pre>
+
+<h2 id="monads">Monads?</h2>
+
+<p>The functions <code>bind</code> and <code>unit</code> describe a Monad.</p>
+
+<p>So what is a monad? Well, it’s a design pattern. It says that whenever you have a class of functions that accept one type of thing and return another type of thing, there are two functions that can be applied across this class to make them composable:</p>
+
+<ul>
+<li>There is a <code>bind</code> function that transforms any function so that accepts the same type as it returns, making it composable</li>
+<li>There is a <code>unit</code> function that wraps a value in the type accepted by the composable functions.</li>
+</ul>
+
+<p>It&rsquo;s a very useful design pattern to be aware of because it helps you spot accidental complexity: code that isn&rsquo;t dealing directly with the problem at hand, but which is dealing with glueing data types together. Being able to spot and extract such boilerplate can radically improve the clarity of your code.</p>
+
+<h2 id="dom-example">DOM example</h2>
+
+<p>Suppose you have a function whose job is to take one DOM node and return all its children as an array;
+its function signature says that it takes a single HTMLElement and returns an array of HTMLElements.</p>
+
+<pre><code class="language-js">// children :: HTMLElement -&gt; [HTMLElement]
+var children = function(node) {
+  var children = node.childNodes, ary = [];
+  for (var i = 0, n = children.length; i &lt; n; i++) {
+    ary[i] = children[i];
+  }
+  return ary;
+};
+
+var heading = document.getElementsByTagName('h3')[0];
+children(heading)
+</code></pre>
+
+<p>To get the grandchildren we might manually write it like:</p>
+
+<pre><code class="language-js">// grandchildren :: HTMLElement -&gt; [HTMLElement]
+var grandchildren = function(node) {
+  var output = [], childs = children(node);
+  for (var i = 0, n = childs.length; i &lt; n; i++) {
+    output = output.concat(children(childs[i]));
+  }
+  return output;
+};
+</code></pre>
+
+<p>But that&rsquo;s not very functional. We need to take two steps to fix this: provide a <code>bind</code> function to turn children into composable form, and write a <code>unit</code> function to turn the initial input – the heading – into an acceptable type.</p>
+
+<pre><code class="language-js">// unit :: a -&gt; [a]
+var unit = function(x) { return [x] };
+
+// bind :: (a -&gt; [a]) -&gt; ([a] -&gt; [a])
+var bind = function(f) {
+  return function(list) {
+    var output = [];
+    for (var i = 0, n = list.length; i &lt; n; i++) {
+      output = output.concat(f(list[i]));
+    }
+    return output;
+  };
+};
+</code></pre>
+
+<p>We can now compose children as desired:</p>
+
+<pre><code class="language-js">var div = document.getElementsByTagName('div')[0];
+var grandchildren = compose(bind(children), bind(children));
+
+grandchildren(unit(div))
+// -&gt; [&lt;h1&gt;…&lt;/h1&gt;, &lt;p&gt;…&lt;/p&gt;, ...]
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

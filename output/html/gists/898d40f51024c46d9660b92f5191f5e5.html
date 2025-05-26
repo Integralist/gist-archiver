@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[CPU bound vs I/O bound] #cpu #io #bound</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="cpu-bound-vs-i-o-bound-cpu-io-bound">[CPU bound vs I/O bound] #cpu #io #bound</h1>
+
+<h2 id="cpu-bound-vs-io-bound-md">CPU bound vs IO bound.md</h2>
+
+<pre><code class="language-markdown">&gt; Note: the following is credited to [yaoyao.codes](http://yaoyao.codes/os/2017/03/20/cpu-bound-vs-io-bound).
+
+- **CPU bound**: the rate at which a process progresses is limited by the speed of the CPU. 
+- **I/O bound**: the rate at which a process progresses is limited by the speed of the I/O subsystem.
+
+This means a task that performs calculations on a small set of numbers, for example multiplying small matrices, is likely to be CPU bound. While a task that processes data from disk, for example, counting the number of lines in a file is likely to be I/O bound.
+
+A program is CPU bound if it would go faster if the CPU were faster.
+
+A program is I/O bound if it would go faster if the I/O subsystem was faster.
+</code></pre>
+
+</div>
+</body>
+</html>

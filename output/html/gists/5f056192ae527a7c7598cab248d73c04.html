@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Pip Python Workflow] #pip #python #workflow</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="pip-python-workflow-pip-python-workflow">[Pip Python Workflow] #pip #python #workflow</h1>
+
+<h2 id="pip-python-workflow-md">Pip Python Workflow.md</h2>
+
+<pre><code class="language-markdown">Some Python projects will have two dependency files:
+
+* `requirements.txt`
+* `requirements-to-freeze.txt`
+
+The latter should contain both 'explicit' versions (i.e. versions of dependencies our service is known to support) and 'non-explicit' versions (e.g. no versions defined), where as the former (`requirements.txt`) simply acts as a lockfile.
+
+If we execute `pip freeze` the output will include dependencies that have the explicit versions we requested and the _latest_ version for those dependencies where we defined no explicit version. We can direct that output to a new file called `requirements.txt`.
+
+For example, your `requirements-to-freeze.txt` could look like:
+
+</code></pre>
+
+<h1 id="install-these-explicit-versions">install these explicit versions&hellip;</h1>
+
+<p>pyjwt&gt;=1.5.3</p>
+
+<h1 id="install-the-latest-of-these">install the latest of these&hellip;</h1>
+
+<p>flake8
+pytest
+pytest-cov
+mock</p>
+
+<pre><code>
+</code></pre>
+
+</div>
+</body>
+</html>

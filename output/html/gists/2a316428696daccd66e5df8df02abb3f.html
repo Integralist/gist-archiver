@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Custom Error Abstraction] #go #golang #error #errorhandling #abstraction</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-custom-error-abstraction-go-golang-error-errorhandling-abstraction">[Golang Custom Error Abstraction] #go #golang #error #errorhandling #abstraction</h1>
+
+<h2 id="1-additional-resources">1. Additional Resources</h2>
+
+<pre><code class="language-text">- https://peter.bourgon.org/blog/2019/09/11/programming-with-errors.html
+</code></pre>
+
+<h2 id="custom-errors-go">custom-errors.go</h2>
+
+<pre><code class="language-go">// inside directory: our.custom to help distinguish from stdlib package of the same name
+package errors
+
+import (
+    &quot;fmt&quot;
+    &quot;runtime&quot;
+    &quot;strings&quot;
+)
+
+const maxStackLength = 50
+
+type Error struct {
+    Err        error
+    StackTrace string
+}
+
+func (m Error) Error() string {
+    return m.Err.Error() + m.StackTrace
+}
+
+func Wrap(err error) Error {
+    return Error{Err: err, StackTrace: getStackTrace()}
+}
+
+func getStackTrace() string {
+    stackBuf := make([]uintptr, maxStackLength)
+    length := runtime.Callers(3, stackBuf[:])
+    stack := stackBuf[:length]
+
+    trace := &quot;&quot;
+    frames := runtime.CallersFrames(stack)
+    for {
+        frame, more := frames.Next()
+        if !strings.Contains(frame.File, &quot;runtime/&quot;) {
+            trace = trace + fmt.Sprintf(&quot;\n\tFile: %s, Line: %d. Function: %s&quot;, frame.File, frame.Line, frame.Function)
+        }
+        if !more {
+            break
+        }
+    }
+    return trace
+}
+</code></pre>
+
+<h2 id="example-go">example.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+    &quot;fmt&quot;
+    &quot;strconv&quot;
+    &quot;our.custom/errors&quot; 
+)
+
+func atoi() (int, error) {
+	i, err := strconv.Atoi(&quot;f42&quot;)
+	if err != nil {
+		return 0, errors.Wrap(err) 
+	}
+	return i, nil
+
+}
+
+func main() {
+	_, err := atoi()
+	if err != nil {
+		fmt.Println(err)
+
+	}
+}
+</code></pre>
+
+<h2 id="output-go">output.go</h2>
+
+<pre><code class="language-go">strconv.Atoi: parsing &quot;f42&quot;: invalid syntax
+    File: /tmp/code/main.go, Line: 50. Function: main.atoi
+    File: /tmp/code/main.go, Line: 57. Function: main.main
+</code></pre>
+
+</div>
+</body>
+</html>

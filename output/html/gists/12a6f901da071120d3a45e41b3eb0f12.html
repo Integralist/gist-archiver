@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[OpenAPI feature flags use different schemas] #schemas #openapi #api #design</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="openapi-feature-flags-use-different-schemas-schemas-openapi-api-design">[OpenAPI feature flags use different schemas] #schemas #openapi #api #design</h1>
+
+<h2 id="readme-md">README.md</h2>
+
+<pre><code class="language-markdown">I don't know if this actually works but apparently you can use a [discriminator](https://swagger.io/docs/specification/v3_0/data-models/inheritance-and-polymorphism/#discriminator) like this...
+
+&gt; [!NOTE]
+&gt; In this example, your API has to return a `type` property that might have a value like `&quot;base&quot;` or `&quot;feature_x&quot;`.
+
+If the API response contains `&quot;type&quot;: &quot;base&quot;`, then the OpenAPI schema will use the `BaseResponse` schema. 
+Otherwise, if it's `&quot;type&quot;: &quot;feature_x&quot;`, the OpenAPI schema will use the `eatureXResponse` schema.
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Discriminator Example API
+  version: 1.0.0
+paths:
+  /example:
+    get:
+      summary: Example endpoint with feature-flagged responses
+      description: Returns different responses based on whether FeatureX is enabled.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          description: &quot;Indicates the type of the response.&quot;
+      discriminator:
+        propertyName: type
+        mapping:
+          base: '#/components/schemas/BaseResponse'
+          feature_x: '#/components/schemas/FeatureXResponse'
+      oneOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - $ref: '#/components/schemas/FeatureXResponse'
+
+    BaseResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - base
+          description: &quot;Base response type&quot;
+        message:
+          type: string
+          description: &quot;A generic message.&quot;
+
+    FeatureXResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - feature_x
+              description: &quot;Indicates FeatureX response.&quot;
+            feature_x_data:
+              type: string
+              description: &quot;Additional data when FeatureX is enabled.&quot;
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

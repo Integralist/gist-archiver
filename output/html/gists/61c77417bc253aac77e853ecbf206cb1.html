@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Rust Book Examples] #rust #rng</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="rust-book-examples-rust-rng">[Rust Book Examples] #rust #rng</h1>
+
+<h2 id="1-guessing-game-rs">1. Guessing Game.rs</h2>
+
+<pre><code class="language-rust">use rand::Rng;
+use std::cmp::Ordering;
+use std::io;
+
+fn main() {
+    let secret_number = rand::thread_rng().gen_range(1, 101);
+
+    println!(&quot;secret number: {}&quot;, secret_number);
+
+    loop {
+        println!(&quot;input a guess...&quot;);
+
+        let mut guess = String::new();
+
+        io::stdin()
+            .read_line(&amp;mut guess)
+            .expect(&quot;failed to read input&quot;);
+
+        let guess: u32 = guess.trim().parse().expect(&quot;please type a number&quot;);
+
+        println!(&quot;you guessed: {}&quot;, guess);
+
+        match guess.cmp(&amp;secret_number) {
+            Ordering::Less =&gt; println!(&quot;too small&quot;),
+            Ordering::Greater =&gt; println!(&quot;too big&quot;),
+            Ordering::Equal =&gt; {
+                println!(&quot;you win&quot;);
+                break;
+            }
+        }
+    }
+}
+</code></pre>
+
+</div>
+</body>
+</html>

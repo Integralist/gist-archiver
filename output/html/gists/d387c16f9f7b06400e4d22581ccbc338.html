@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Fastly to S3 with Query Params] #fastly #vcl #varnish</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="fastly-to-s3-with-query-params-fastly-vcl-varnish">[Fastly to S3 with Query Params] #fastly #vcl #varnish</h1>
+
+<h2 id="fastly-to-s3-with-query-params-vcl">Fastly to S3 with Query Params.vcl</h2>
+
+<pre><code class="language-vcl">sub filter_qs_by_whitelist {
+  # Clean up the query string:
+  #
+  #  - Sort query params by name
+  #  - Remove unnecessary query params (i.e. keep only those that match regex pattern)
+  #
+  # See helper functions documentation:
+  # https://docs.fastly.com/guides/vcl/query-string-manipulation-vcl-features
+  #
+  # tested:
+  # https://fiddle.fastlydemo.net/fiddle/d19f1e72
+  set req.url = querystring.sort(req.url);
+  set req.url = querystring.regfilter_except(req.url, &quot;^(adops_giraffe|bids|country|cs|ct|ids|language|network|or|p|page|page_quantity|page_size|s|sub|u|uo|user_id|wid)$&quot;);
+}
+
+sub plan_z_recv {
+    ...
+    
+    # S3 doesn't understand Query Params
+    # So we need to encode any params into the url itself
+    #
+    # e.g. /news?id=foo -&gt; /news%3Fid%3Dfoo
+    #
+    if (req.url.qs != &quot;&quot;) {
+      call filter_qs_by_whitelist;
+      set req.http.X-URL-Original = req.url;
+      set req.url = req.url.path + urlencode(&quot;?&quot; + req.url.qs);
+      set req.http.X-URL-Modified = req.url;
+    }
+    
+    ...
+}
+</code></pre>
+
+</div>
+</body>
+</html>

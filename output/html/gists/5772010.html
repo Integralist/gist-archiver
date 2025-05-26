@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mocking a Window object for unit-testing purposes</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="mocking-a-window-object-for-unit-testing-purposes">Mocking a Window object for unit-testing purposes</h1>
+
+<h2 id="1-example-spec-js">1. Example Spec.js</h2>
+
+<pre><code class="language-javascript">var mocks = {
+    resizeCalled: false,
+
+    createFakeWindow: function(width, height) {
+        var module = this;
+
+        return {
+            document: {
+                documentElement: {
+                    clientWidth: width,
+                    clientHeight: height
+                }
+            },
+
+            history: {
+                back: function(){}
+            },
+
+            location: {
+                replace: function(){}
+            },
+
+            resizeTo: function(width, height) {
+                this.document.documentElement = {
+                    clientWidth: width,
+                    clientHeight: height
+                };
+            }
+        };
+    },
+
+    fireResizeEvent: function() {
+        this.handler();
+    },
+
+    news: {
+        $: function(element) {
+            return {
+                on: function(event, handler) {
+                    if (event === 'resize') {
+                        mocks.resizeCalled = true;
+                    }
+                    
+                    mocks.handler = handler;
+                }
+            };
+        }
+    }
+};
+
+it('should bind to `resize` event on `init`', function(){
+    var fakeWindow = mocks.createFakeWindow(320, 480);
+
+    deviceInspector.init(fakeWindow, mocks.news);
+
+    expect(mocks.resizeCalled).toBeTruthy();
+});
+
+it('should only publish `device` event when device type changes', function(){
+    var fakeWindow = mocks.createFakeWindow(1008, 1024),
+        device     = deviceInspector.init(fakeWindow, mocks.news);
+
+    fakeWindow.resizeTo(960, 1024);
+    mocks.fireResizeEvent();
+
+    fakeWindow.resizeTo(320, 480);
+    mocks.fireResizeEvent();
+});
+
+it('should take the user back to the previous page in their history', function(){
+    var fakeWindow = mocks.createFakeWindow(),
+        fakeWindowHistoryBackSpy = sinon.spy(fakeWindow.history, 'back'),
+        fakeWindowLocationReplaceSpy = sinon.spy(fakeWindow.location, 'replace');
+
+    pictureViewer.init(fakeWindow);
+
+    $('.picture-viewer__button--back').trigger('click');
+
+    expect(fakeWindowHistoryBackSpy).toHaveBeenCalledOnce();
+    expect(fakeWindowLocationReplaceSpy).toHaveBeenCalledOnce();
+});
+</code></pre>
+
+<h2 id="2-example-code-js">2. Example Code.js</h2>
+
+<pre><code class="language-javascript">function bindEvents() {
+    news.$(global).on('resize', handleResize);
+}
+
+function init(windowMock, newsMock) {
+    global   = windowMock || window;
+    news     = newsMock || newsModule;
+}
+</code></pre>
+
+</div>
+</body>
+</html>

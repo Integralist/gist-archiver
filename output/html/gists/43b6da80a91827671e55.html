@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Process for rebasing Pull Request</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="process-for-rebasing-pull-request">Process for rebasing Pull Request</h1>
+
+<h2 id="process-for-rebasing-pull-request-md">Process for rebasing Pull Request.md</h2>
+
+<pre><code class="language-markdown">1. On the PR branch
+2. `git rebase -i master` (i.e. `git rebase -i {parent_commit_of_first_commit_in_PR}`)
+3. Change top commit (the oldest) to `reword`
+4. Change all other commits to `fixup`
+5. In commit message (line 1) change title to reflect entire PR
+6. In commit message (line 2) add `Closes #n` and/or `Fixes #n`
+7. In commit message (line 3) add `Authors: @integralist`
+8. `git checkout master`
+9. `git merge {PR_branch}` or `git cherry-pick {new_rebased_commit}`
+10. `git branch -D {PR_branch}`
+11. `git push origin master`
+</code></pre>
+
+</div>
+</body>
+</html>

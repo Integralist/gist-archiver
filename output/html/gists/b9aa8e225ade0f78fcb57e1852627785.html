@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[SLI, SLO, SLA] #SLI #SLO #SLA #Process #Service</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="sli-slo-sla-sli-slo-sla-process-service">[SLI, SLO, SLA] #SLI #SLO #SLA #Process #Service</h1>
+
+<h2 id="sli-slo-sla-md">SLI, SLO, SLA.md</h2>
+
+<pre><code class="language-markdown">## SLI, SLO, SLA ?
+
+When building a service, we have a responsibility to define some baseline agreements as to the service’s expected uptime and performance. This document focuses on the various terminology that we use to define these values.
+
+- **Service Level Indicator (SLI)**  
+  What the service owner has chosen to measure progress towards their goal.  
+  e.g. What is good/bad service for your users.
+
+- **Service Level Objective (SLO)**  
+  What the service owner’s goal is for the given indicator.  
+  e.g. A percentage that tells how many SLI errors your service can have in a specific period of time.
+
+- **Service Level Agreement (SLA)**  
+  What the service owner is promising its users (typically the SLO + wiggle room).
+
+### Example
+
+- **Indicator**: request latency.
+- **Objective**: 99.5% of requests will be completed in 5ms.
+- **Agreement**: 99% of requests complete in 5ms or you get a refund.
+
+Below is an alternative example where we state (via a Datadog graph) that if the average request latency over a 1hr period exceeds one second, then we have a ‘service’ issue and it’ll display with a red background. This will signify that we’ve failed our SLA which is defined as being less than one second.
+
+If the average request latency over a 1hr period is greater than half a second, then we have a ‘team’ issue and it’ll display with an orange background. This will signify that we’ve failed our SLO which is defined as being less than half a second.
+
+If the average request latency over a 1hr period is less than half a second, then we have no issues and it’ll display with a green background. This will signify that we’ve reached our SLO which is defined as being less than half a second.
+
+![](https://user-images.githubusercontent.com/180050/58465109-86187180-8126-11e9-94f0-d6e6402a5e47.png)
+</code></pre>
+
+</div>
+</body>
+</html>

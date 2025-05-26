@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Experimenting with component-based HTML/CSS naming and patterns</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="experimenting-with-component-based-html-css-naming-and-patterns">Experimenting with component-based HTML/CSS naming and patterns</h1>
+
+<h2 id="readme-md">README.md</h2>
+
+<pre><code class="language-markdown"># Object-Oriented CSS
+
+Below is how I am currently structuring my CSS to be more object-oriented (with a little assistence from Sass):
+
+* Base
+* Helpers
+* Variables (see my [Guide to Sass](https://github.com/Integralist/Blog-Posts/blob/master/Guide-to-using-SASS.md))
+* Mixins (*careful and limited usage* - see my [Guide to Sass](https://github.com/Integralist/Blog-Posts/blob/master/Guide-to-using-SASS.md))
+* Extensions (*careful and limited usage* - see my [Guide to Sass](https://github.com/Integralist/Blog-Posts/blob/master/Guide-to-using-SASS.md))
+* Layout
+* Modules
+* State
+* Theme
+
+##Base
+
+My base file is normally just called `build.css`. 
+
+Within that file I'll `@import` all the stylesheets I need. Normally you wouldn't use `@import` statements because they're bad for page loading performance (they block the loading of other stylesheets and elements on the page - see [Steve Souders](http://www.stevesouders.com/blog/2009/04/09/dont-use-import/) post on this from 2009 for more information).
+
+If you're using Google's `modpagespeed` Apache module on your server then you no longer have to worry about using `@import` because the latest version now flatterns the imports ([See the issue I submitted which resulted in a bug being discovered and fixed](http://code.google.com/p/modpagespeed/issues/detail?id=398&amp;can=1&amp;q=%40import&amp;sort=-status&amp;colspec=ID%20Type%20Status%20Priority%20Milestone%20Modified%20Owner%20Summary)). 
+
+Alternatively if you're using a pre-processor such as [Sass](http://sass-lang.com/) then you'll be able to import stylesheets and leave it up to Sass to automatically flattern them for you (which is what I'm doing in my projects).
+
+</code></pre>
+
+<p>// This is our &ldquo;base&rdquo;
+@import &ldquo;normalise&rdquo;;</p>
+
+<p>// Miscellaneous helper classes
+@import &ldquo;helpers&rdquo;;</p>
+
+<p>// Project specific
+@import &ldquo;variables&rdquo;;
+@import &ldquo;layout&rdquo;;
+@import &ldquo;modules&rdquo;;
+@import &ldquo;state&rdquo;;
+@import &ldquo;theme&rdquo;;</p>
+
+<pre><code>Below we'll discuss the last four items (layout, modules, state and theme) in more detail… 
+
+##Helpers
+Modules are re-usable design 'patterns' (such as the ['media object'](http://www.stubbornella.org/content/2010/06/25/the-media-object-saves-hundreds-of-lines-of-code/)) where as these helpers (although like modules) are different in that they are re-usable layout utilities.
+
+</code></pre>
+
+<p>// ClearFix - <a href="http://www.nicolasgallagher.com/micro-clearfix-hack/" target="_blank">http://www.nicolasgallagher.com/micro-clearfix-hack/</a>
+.h-clearfix {</p>
+
+<pre><code>zoom:1; // IE6/7
+</code></pre>
+
+<p>}</p>
+
+<p>.h-clearfix:before,
+.h-clearfix:after {</p>
+
+<pre><code>content: &quot;&quot;;
+display: table;
+</code></pre>
+
+<p>}</p>
+
+<p>.h-clearfix:after {</p>
+
+<pre><code>clear: both;
+</code></pre>
+
+<p>}</p>
+
+<p>// Hoz Block (Horizontal) - <a href="http://csswizardry.com/2011/09/the-nav-abstraction/" target="_blank">http://csswizardry.com/2011/09/the-nav-abstraction/</a>
+.h-hoz {</p>
+
+<pre><code>list-style: none;
+padding-left: 0;
+</code></pre>
+
+<p>}</p>
+
+<p>.h-hoz,
+.h-hoz dd {</p>
+
+<pre><code>margin-left: 0;
+</code></pre>
+
+<p>}</p>
+
+<p>.h-hoz li,
+.h-hoz dt,
+.h-hoz dd {</p>
+
+<pre><code>display: inline;
+</code></pre>
+
+<p>}</p>
+
+<p>.h-hoz a {</p>
+
+<pre><code>display: inline-block;
+</code></pre>
+
+<p>}</p>
+
+<p>// Image Replacement - <a href="http://www.zeldman.com/2012/03/01/replacing-the-9999px-hack-new-image-replacement/" target="_blank">http://www.zeldman.com/2012/03/01/replacing-the-9999px-hack-new-image-replacement/</a>
+.h-hidden {</p>
+
+<pre><code>text-indent: 100%;
+white-space: nowrap;
+overflow: hidden;
+</code></pre>
+
+<p>}</p>
+
+<p>// Container Block
+.h-container {</p>
+
+<pre><code>display: block;
+margin-left: auto;
+margin-right: auto;
+padding: 0 10px;
+max-width: 940px;
+width: 90%;
+</code></pre>
+
+<p>}</p>
+
+<p>// Positioning
+.h-posab {</p>
+
+<pre><code>position: absolute;
+</code></pre>
+
+<p>}</p>
+
+<p>.h-posrel {</p>
+
+<pre><code>position: relative;
+</code></pre>
+
+<p>}</p>
+
+<p>.h-alignleft {</p>
+
+<pre><code>float: left;
+</code></pre>
+
+<p>}</p>
+
+<p>.h-alignright {</p>
+
+<pre><code>float: right;
+</code></pre>
+
+<p>}</p>
+
+<pre><code>
+##Layout
+Divide the page into sections. Layouts hold one or more modules together.
+
+**Pattern**
+
+</code></pre>
+
+<p>.l-<layout-type></p>
+
+<pre><code>
+**Examples**
+
+</code></pre>
+
+<p>.l-container
+.l-nav
+.l-basket
+.l-footer</p>
+
+<pre><code>
+##Modules
+These are the reusable, modular parts of our design.
+
+**Pattern**
+
+</code></pre>
+
+<p>.m-<module-type></p>
+
+<pre><code>
+**Examples**
+
+</code></pre>
+
+<p>.m-btn {</p>
+
+<pre><code>@extend .transition;
+
+background-color: $brand-A-main;
+color: $brand-A-sub;
+font-family: Helvetica, Arial, sans-serif;
+font-size: 85%;
+</code></pre>
+
+<p>}</p>
+
+<p>// Media Block - <a href="http://www.stubbornella.org/content/2010/06/25/the-media-object-saves-hundreds-of-lines-of-code/" target="_blank">http://www.stubbornella.org/content/2010/06/25/the-media-object-saves-hundreds-of-lines-of-code/</a>
+.m-media {</p>
+
+<pre><code>display: block;
+</code></pre>
+
+<p>}</p>
+
+<p>.m-media-img {</p>
+
+<pre><code>float: left;
+margin-right: 10px;
+</code></pre>
+
+<p>}</p>
+
+<p>.m-media-body {</p>
+
+<pre><code>overflow: hidden;
+margin-bottom: 0;
+</code></pre>
+
+<p>}</p>
+
+<pre><code>
+##State
+The ways to describe how our modules or layouts will look when in a particular state. 
+Is it hidden or expanded? Is it active or inactive? 
+They are about describing how a module or layout looks on screens that are smaller or bigger. 
+They are also about describing how a module might look in different views like the home page or the inside page.
+
+**Pattern**
+
+</code></pre>
+
+<p>.is-<state-type></p>
+
+<pre><code>
+**Examples**
+
+</code></pre>
+
+<p>.is-hidden
+.is-collapsed
+.is-expanded</p>
+
+<pre><code>
+##Theme
+These are similar to state rules in that they describe how modules or layouts might look. 
+Most sites don’t require a layer of theming but it is good to be aware of it.
+
+**Pattern**
+
+</code></pre>
+
+<p>.t-<theme-type></p>
+
+<pre><code>
+**Examples**
+
+Following classes would represent seasonal theme over-rides: 
+
+</code></pre>
+
+<p>.t-autumn
+.t-spring
+.t-summer
+.t-winter</p>
+
+<pre><code>
+## JavaScript Components
+Used to provide JS-only hooks for a component. Can be used to provide a JS-enhanced UI or to abstract other JS behaviours. These ideally should be set using the `id` HTML attribute as it's more efficient for the JavaScript engine to access these elements using the host method `getElementById`.
+
+**Pattern**
+
+</code></pre>
+
+<p>js-action-name</p>
+
+<pre><code>
+**Examples**
+
+</code></pre>
+
+<p>js-submit
+js-action-save
+js-ui-collapsible
+js-ui-dropdown
+js-ui-dropdown&ndash;control
+js-ui-dropdown&ndash;menu
+js-ui-carousel</p>
+
+<pre><code></code></pre>
+
+</div>
+</body>
+</html>

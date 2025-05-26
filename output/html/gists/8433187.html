@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Example of importing Java libraries into JRuby</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="example-of-importing-java-libraries-into-jruby">Example of importing Java libraries into JRuby</h1>
+
+<h2 id="import-libs-rb">import-libs.rb</h2>
+
+<pre><code class="language-ruby">puts &quot;java.lang.System::out.println('Hello World')&quot;
+puts java.lang.System::out.println(&quot;Hello World&quot;) # =&gt; Hello World (notice Ruby and Java on one line is possible)
+
+puts &quot;java.lang.System.out.println('Hello World')&quot;
+puts java.lang.System.out.println(&quot;Hello World&quot;) # =&gt; Hello World (notice module/package syntax :: is replaceable with dot)
+
+puts &quot;java.lang.System::out.println 'Hello World'&quot;
+puts java.lang.System::out.println &quot;Hello World&quot; # =&gt; Can be Rubyistic with our code (notice no parenthesis required to execute method)
+
+puts &quot;java.lang.Math.methods&quot;
+print java.lang.Math.methods
+
+puts &quot;\n\njava_import java.lang.System&quot;
+puts &quot;System.out.println('We've been imported')&quot;
+java_import java.lang.System
+puts System.out.println(&quot;We've been imported&quot;)
+
+puts &quot;Certain Constants `java.lang.Math` can conflict with Ruby's&quot;
+puts &quot;So rename them...&quot;
+puts 'java_import(&quot;java.lang.Math&quot;) { |package, name| &quot;J#{name}&quot; }'
+puts &quot;Note: you can also pass in an Array of packages&quot;
+java_import('java.lang.Math') { |package, name| &quot;J#{name}&quot; }
+puts JMath::PI
+
+puts &quot;\nJMath.ancestors&quot;
+print JMath.ancestors
+
+puts &quot;\n\nLots of good stuff in the GitHub Wiki: Calling Java from JRuby https://github.com/jruby/jruby/wiki/CallingJavaFromJRuby&quot;
+
+</code></pre>
+
+</div>
+</body>
+</html>

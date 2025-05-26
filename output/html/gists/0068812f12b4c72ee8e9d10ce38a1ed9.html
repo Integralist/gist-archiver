@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang Read HTTP Response Body TWICE!] #go #golang #http #response #body #read</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-read-http-response-body-twice-go-golang-http-response-body-read">[Golang Read HTTP Response Body TWICE!] #go #golang #http #response #body #read</h1>
+
+<h2 id="golang-read-http-response-body-twice-go">Golang Read HTTP Response Body TWICE.go</h2>
+
+<pre><code class="language-go">// ReadBody reads the provided http.Response#Body and resets it to a type that
+// would result in a additional read of the body to not trigger an error.
+//
+// this is to side-step the default behaviour, which for attempting to read a
+// response body twice, is to error with: `http: read on closed response body`.
+//
+// the reason we have to do this is because when
+// httputil.ReverseProxy#ModifyResponse returns an error, the internal
+// implementation calls `r.Body.Close()` automatically before calling
+// httputil.ReverseProxy#ErrorHandler.
+//
+// source code reference:
+// https://github.com/golang/go/blob/18107ed9fbdb0d2ae1006857e21a8a66882e12dd/src/net/http/httputil/reverseproxy.go#L170
+func ReadBody(r *http.Response) []byte {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		body = []byte(http.StatusText(r.StatusCode))
+	}
+
+	r.Body.Close()
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	return body
+}
+
+// PROBABLY BETTER TO USE bytes.NewReader instead of bytes.NewBuffer
+</code></pre>
+
+</div>
+</body>
+</html>

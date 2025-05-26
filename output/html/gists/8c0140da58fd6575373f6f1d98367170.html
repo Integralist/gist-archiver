@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[difference between URL host and Request Header Host] #go #golang #http #url #host</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="difference-between-url-host-and-request-header-host-go-golang-http-url-host">[difference between URL host and Request Header Host] #go #golang #http #url #host</h1>
+
+<h2 id="difference-between-url-host-and-request-header-host-md">difference between URL host and Request Header Host.md</h2>
+
+<pre><code class="language-markdown">The `r.URL` field is created by parsing the HTTP request URI.
+
+The `r.Host` field is the value of the `Host` request header. It's the same value as calling `r.Header.Get(&quot;Host&quot;)`.
+
+If the HTTP request on the wire is:
+
+</code></pre>
+
+<p>GET /pub/WWW/TheProject.html HTTP/1.1
+Host: www.example.org:8080</p>
+
+<pre><code>
+...then `r.URL.Host` is `&quot;&quot;` and `r.Host` is `www.example.org:8080`.
+
+The value of `r.URL.Host` and `r.Host` are almost always different. 
+
+On a proxy server, `r.URL.Host` is the host of the target server and `r.Host` is the host of the proxy server itself. 
+
+When not connecting through a proxy, the client does not specify a host in the request URI. In this scenario, `r.URL.Host` is the empty string.
+
+If you are not implementing a proxy, then you should use `r.Host` to determine the host.
+</code></pre>
+
+</div>
+</body>
+</html>

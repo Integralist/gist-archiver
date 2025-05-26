@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[New Laptop Configuration: Summary] #new #laptop #configuration #macos</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="new-laptop-configuration-summary-new-laptop-configuration-macos">[New Laptop Configuration: Summary] #new #laptop #configuration #macos</h1>
+
+<h2 id="new-laptop-configuration-summary-md">New Laptop Configuration. Summary.md</h2>
+
+<pre><code class="language-markdown">## Backup
+
+```bash
+cd ~/
+mkdir /tmp/keys
+gpg --export-secret-keys --armor &lt;NAME&gt; &gt; /tmp/keys/&lt;NAME&gt;.asc
+gpg --symmetric /tmp/keys/&lt;NAME&gt;.asc
+gpg --export-ownertrust &gt; /tmp/keys/trustdb.txt 
+
+zip -r /tmp/sshbackup ~/.ssh/
+unzip -l /tmp/sshbackup.zip
+</code></pre>
+
+<h2 id="restore">Restore</h2>
+
+<pre><code class="language-bash">mkdir /tmp/keys
+cd /tmp/keys
+
+gpg --symmetric --decrypt /tmp/keys/&lt;NAME&gt;.gpg
+gpg —-import /tmp/keys/&lt;NAME&gt;.asc
+
+rm ~/.gnupg/trustdb.gpg
+gpg --import-ownertrust &lt; /tmp/keys/trustdb.txt
+
+gpg --symmetric --decrypt /tmp/keys/sshbackup.zip.gpg
+unzip /tmp/keys/sshbackup.zip
+mv /tmp/keys/.ssh/ ~/
+
+rm -rf /tmp/keys
+</code></pre>
+
+<h2 id="steps">Steps</h2>
+
+<ul>
+<li>OS Settings
+
+<ul>
+<li>Dock (Automatically hide and show the Dock)</li>
+<li>Keyboard (Key Repeat = Fast, Delay Until Repeat = Short)</li>
+<li>Accessibility &gt; Zoom (Use keyboard shortcuts to zoom)</li>
+<li>Date &amp; Time &gt; Clock (Show date + Display the time with seconds)</li>
+<li>Mission Control (disable &ldquo;Automatically rearrange Spaces based on most recent use&rdquo;)</li>
+<li>Terminal Developer Mode (<code>spctl developer-mode enable-terminal</code>)</li>
+<li>Wake up from sleep (<code>sudo pmset -a standbydelay 7200</code>)</li>
+</ul></li>
+<li>Firefox
+
+<ul>
+<li><a href="https://www.mozilla.org/en-GB/firefox/new/" target="_blank">https://www.mozilla.org/en-GB/firefox/new/</a>
+
+<ul>
+<li>Preferences
+
+<ul>
+<li>General &gt; Startup (Restore previous session + Warn you when quitting the browser)</li>
+<li>Search &gt; Default Search Engine (DuckDuckGo)</li>
+<li>Privacy &amp; Security
+
+<ul>
+<li>Enhanced Tracking Protection (Strict + Do Not Track = Always)</li>
+<li>Firefox Data Collection and Use (disable all options)</li>
+</ul></li>
+<li>Firefox Sync</li>
+<li>Extensions
+
+<ul>
+<li><a href="https://addons.mozilla.org/en-US/firefox/addon/duckduckgo-for-firefox/" target="_blank">https://addons.mozilla.org/en-US/firefox/addon/duckduckgo-for-firefox/</a></li>
+<li><a href="https://addons.mozilla.org/en-GB/firefox/addon/privacy-badger17/" target="_blank">https://addons.mozilla.org/en-GB/firefox/addon/privacy-badger17/</a></li>
+<li><a href="https://addons.mozilla.org/en-GB/firefox/addon/ublock-origin/" target="_blank">https://addons.mozilla.org/en-GB/firefox/addon/ublock-origin/</a></li>
+<li><a href="https://addons.mozilla.org/en-GB/firefox/addon/darkreader/" target="_blank">https://addons.mozilla.org/en-GB/firefox/addon/darkreader/</a></li>
+<li><a href="https://addons.mozilla.org/en-GB/firefox/addon/expressvpn/" target="_blank">https://addons.mozilla.org/en-GB/firefox/addon/expressvpn/</a></li>
+<li><a href="https://addons.mozilla.org/en-GB/firefox/addon/multi-account-containers/" target="_blank">https://addons.mozilla.org/en-GB/firefox/addon/multi-account-containers/</a></li>
+<li><a href="https://addons.mozilla.org/en-GB/firefox/addon/facebook-container/" target="_blank">https://addons.mozilla.org/en-GB/firefox/addon/facebook-container/</a></li>
+<li><a href="https://addons.mozilla.org/en-US/firefox/addon/temporary-containers/" target="_blank">https://addons.mozilla.org/en-US/firefox/addon/temporary-containers/</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>Homebrew
+
+<ul>
+<li><a href="https://brew.sh" target="_blank">https://brew.sh</a>
+
+<ul>
+<li><code>brew bundle install</code></li>
+</ul></li>
+</ul></li>
+<li>Shell
+
+<ul>
+<li><code>echo /usr/local/bin/bash | sudo tee -a /etc/shells</code></li>
+<li><code>chsh -s /usr/local/bin/bash</code></li>
+</ul></li>
+<li>GitHub Access
+
+<ul>
+<li><code>mkdir ~/.ssh</code></li>
+<li><code>cd ~/.ssh &amp;&amp; ssh-keygen -t rsa -b 4096 -C '&lt;your@email.com&gt;'</code></li>
+<li><code>eval &quot;$(ssh-agent -s)&quot;</code></li>
+<li><code>ssh-add -K ~/.ssh/github</code>
+
+<ul>
+<li><code>ssh-add --apple-use-keychain ~/.ssh/github</code> (<code>-K</code> looks to be deprecated).</li>
+</ul></li>
+<li><code>pbcopy &lt; ~/.ssh/github.pub</code></li>
+<li><a href="https://github.com/settings/keys" target="_blank">https://github.com/settings/keys</a></li>
+</ul></li>
+<li>Tools
+
+<ul>
+<li><a href="https://github.com/integralist/dotfiles" target="_blank">https://github.com/integralist/dotfiles</a>
+
+<ul>
+<li><code>git clone git@github.com:Integralist/dotfiles.git</code></li>
+<li><code>mv ...</code> files into <code>~/</code></li>
+</ul></li>
+</ul></li>
+<li>Terminal
+
+<ul>
+<li><a href="https://github.com/alacritty/alacritty/blob/master/INSTALL.md#macos" target="_blank">https://github.com/alacritty/alacritty/blob/master/INSTALL.md#macos</a></li>
+</ul></li>
+<li>Password Store
+
+<ul>
+<li><a href="https://www.passwordstore.org/" target="_blank">https://www.passwordstore.org/</a>
+
+<ul>
+<li><code>gpg --import &lt;/path/to/private/key&gt;</code></li>
+<li><code>keyid=$(gpg --list-keys &lt;your@email.com&gt; | head -n 2 | tail -n 1 | cut -d ' ' -f 7)</code></li>
+<li><code>pass init $keyid</code></li>
+<li><code>pass git init</code></li>
+<li><code>pass git remote add origin git@github.com:&lt;private/repo&gt;</code></li>
+<li><code>pass git pull</code></li>
+<li><code>gpg --edit-key $keyid</code> (type <code>trust</code>)</li>
+</ul></li>
+</ul></li>
+</ul>
+
+<blockquote>
+<p><strong>NOTE</strong>:</p>
+
+<p>Encrypt/Decrypt files&hellip;</p>
+
+<p>Encrypt: <code>gpg --encrypt -r Pass --output ~/encrypted.png.gpg ~/example.png</code><br />
+Decrypt: <code>gpg --decrypt --output ~/example.png ~/encrypted.png.gpg</code></p>
+
+<p>OTP&hellip;</p>
+
+<p>Generate from QRCode image: <code>zbarimg -q --raw example.png | pass otp insert Foo/otp/example</code><br />
+Usage: <code>pass otp -c Foo/otp/example</code></p>
+</blockquote>
+
+<ul>
+<li>Vim
+
+<ul>
+<li><code>mkdir -p ~/Code/ &amp;&amp; cd ~/Code</code></li>
+<li><code>git clone https://github.com/vim/vim.git</code></li>
+<li><code>cd vim</code></li>
+<li><code>make clean distclean</code></li>
+<li><code>./configure --with-features=huge --enable-multibyte --enable-rubyinterp=yes --enable-python3interp=yes --with-python3-command=/Users/integralist/.pyenv/shims/python --enable-perlinterp=yes --enable-luainterp=yes --enable-gui=gtk2 --enable-cscope --prefix=/usr/local</code></li>
+<li><code>make &amp;&amp; make install</code></li>
+<li><code>curl -sfLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim</code></li>
+<li><code>:PlugInstall</code></li>
+</ul></li>
+</ul>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

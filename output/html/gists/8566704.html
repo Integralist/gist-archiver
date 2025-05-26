@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Looking at the Thread API in Ruby</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="looking-at-the-thread-api-in-ruby">Looking at the Thread API in Ruby</h1>
+
+<h2 id="threads-rb">threads.rb</h2>
+
+<pre><code class="language-ruby">threads = []
+
+10.times do |i|
+  puts &quot;Creating a new Thread (#{i} of 10):\n\n&quot;
+  thread = Thread.new do
+    # When you create a thread,
+    # it can access any variables that are within scope
+    # at that point.
+    # Any local variables that are then created
+    # within the thread are entirely local to that thread.
+    10.times do |j|
+      puts &quot;Inside Thread #{i} (#{j} of 10)\n\n&quot;
+      sleep rand(2)
+    end
+  end
+
+  # we'll keep track of all our threads
+  threads &lt;&lt; thread
+end
+
+# The join method makes the main program wait
+# until a thread’s execution is complete before continuing.
+# In this way, you make sure all the threads are complete
+# before exiting.
+threads.each { |thread| thread.join }
+
+# We can provide a timeout for our threads
+# Below is a one second timeout
+# thread.join(1)
+
+# Thread.list holds a global list of threads
+# Thread.list includes Thread.main
+# Thread.current is the currently executing thread
+# Thread.stop only pauses the thread (t.status == 'sleep')
+# Thread.run resumes a stopped thread
+# Thread.kill(thread) causes that thread to exit
+# Thread.exit
+# Thread.pass passes control to another thread
+# Thread.abort_on_exception = true (all threads will abort)
+# t.value is the returned value from a finished thread
+
+</code></pre>
+
+</div>
+</body>
+</html>

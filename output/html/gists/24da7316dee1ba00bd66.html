@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JIRA API creating a ticket/issue</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="jira-api-creating-a-ticket-issue">JIRA API creating a ticket/issue</h1>
+
+<h2 id="jira-api-create-ticket-issue-rb">jira-api-create-ticket-issue.rb</h2>
+
+<pre><code class="language-ruby">require 'restclient'
+require 'json'
+ 
+class Client
+  def self.client
+    @client ||= RestClient::Resource.new('https://jira.mydomain.com/rest/api/latest/issue/',
+      &quot;ssl_version&quot;: 'TLSv1',
+      &quot;ssl_client_cert&quot;: OpenSSL::X509::Certificate.new(File.read('certificate.pem')),
+      &quot;ssl_client_key&quot;: OpenSSL::PKey::RSA.new(File.read('certificate.pem'), ''),
+      &quot;ssl_ca_file&quot;: 'ca.pem',
+      &quot;verify_ssl&quot;: OpenSSL::SSL::VERIFY_NONE,
+      &quot;content_type&quot;: 'application/json'
+    )
+  end
+ 
+  def self.post
+    client.post(File.read('test.json'), content_type: 'application/json', accept: :json)
+  end
+end
+ 
+puts Client.post
+</code></pre>
+
+<h2 id="test-json">test.json</h2>
+
+<pre><code class="language-json">{
+    &quot;fields&quot;: {
+       &quot;project&quot;:
+       {
+          &quot;key&quot;: &quot;NEWS&quot;
+       },
+       &quot;summary&quot;: &quot;This is a test please ignore&quot;,
+       &quot;description&quot;: &quot;Creating an issue using Jira's REST API&quot;,
+       &quot;issuetype&quot;: {
+          &quot;name&quot;: &quot;Backlog Item&quot;
+       }
+   }
+}
+</code></pre>
+
+</div>
+</body>
+</html>

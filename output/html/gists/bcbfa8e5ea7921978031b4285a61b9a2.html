@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang slog structure logging] #go #golang #log #logging #structuredlogs</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-slog-structure-logging-go-golang-log-logging-structuredlogs">[Golang slog structure logging] #go #golang #log #logging #structuredlogs</h1>
+
+<h2 id="1-readme-md">1. README.md</h2>
+
+<pre><code class="language-markdown">Simple TEXT implementation:
+
+```go
+var logger = slog.New(slog.NewTextHandler(os.Stdout, &amp;slog.HandlerOptions{
+	AddSource: true,
+	ReplaceAttr: func(g []string, a slog.Attr) slog.Attr {
+		// Ensure time is always logged in UTC.
+		if len(g) == 0 &amp;&amp; a.Key == slog.TimeKey {
+			a.Value = slog.TimeValue(a.Value.Time().UTC())
+		}
+		// Remove the directory from the source's filename.
+		if a.Key == slog.SourceKey {
+			source := a.Value.Any().(*slog.Source)
+			source.File = filepath.Base(source.File)
+		}
+		return a
+	},
+}))
+</code></pre>
+
+<p>Simple JSON implementation that shows how to switch log level at runtime:</p>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;context&quot;
+	&quot;fmt&quot;
+	&quot;log/slog&quot;
+	&quot;os&quot;
+)
+
+var Level = new(slog.LevelVar)
+
+func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &amp;slog.HandlerOptions{Level: Level}))
+
+	ctx := context.Background()
+
+	logger.LogAttrs(ctx, slog.LevelInfo, &quot;info_one&quot;)   // printed
+	logger.LogAttrs(ctx, slog.LevelDebug, &quot;debug_one&quot;) // not printed
+	logger.Debug(&quot;debug_two&quot;, &quot;foo&quot;, &quot;bar&quot;)            // not printed
+
+	fmt.Println(&quot;---&quot;)
+	Level.Set(slog.LevelDebug)
+	
+	logger.LogAttrs(ctx, slog.LevelInfo, &quot;info_one&quot;)                     // printed
+	logger.LogAttrs(ctx, slog.LevelDebug, &quot;debug_one&quot;)                   // printed
+	logger.Debug(&quot;debug_two&quot;, &quot;foo&quot;, &quot;bar&quot;, slog.Bool(&quot;whatever&quot;, true)) // printed
+}
+</code></pre>
+
+<p><a href="https://play.golang.com/p/yvbOC1lXRGI" target="_blank">https://play.golang.com/p/yvbOC1lXRGI</a></p>
+
+<p>Here is an example that demonstrates how groups work and how they can be nested:</p>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;context&quot;
+	&quot;log/slog&quot;
+	&quot;os&quot;
+)
+
+func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &amp;slog.HandlerOptions{Level: slog.LevelInfo}))
+
+	ctx := context.Background()
+	logger.LogAttrs(ctx, slog.LevelInfo, &quot;one&quot;, slog.String(&quot;foo&quot;, &quot;bar&quot;))
+	// {&quot;time&quot;:&quot;2009-11-10T23:00:00Z&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;one&quot;,&quot;foo&quot;:&quot;bar&quot;}
+
+	logger = logger.WithGroup(&quot;mirror&quot;)
+	logger.LogAttrs(ctx, slog.LevelInfo, &quot;two&quot;, slog.String(&quot;beep&quot;, &quot;boop&quot;))
+	// {&quot;time&quot;:&quot;2009-11-10T23:00:00Z&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;two&quot;,&quot;mirror&quot;:{&quot;beep&quot;:&quot;boop&quot;}}
+
+	attrs := []any{
+		slog.String(&quot;method&quot;, &quot;GET&quot;),
+	}
+	logger = logger.With(slog.Group(&quot;origin_req&quot;, attrs...))
+	logger.LogAttrs(ctx, slog.LevelInfo, &quot;two&quot;, slog.String(&quot;whatever&quot;, &quot;wherever&quot;))
+	// {&quot;time&quot;:&quot;2009-11-10T23:00:00Z&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;two&quot;,&quot;mirror&quot;:{&quot;origin_req&quot;:{&quot;method&quot;:&quot;GET&quot;},&quot;whatever&quot;:&quot;wherever&quot;}}
+}
+</code></pre>
+
+<p><a href="https://play.golang.com/p/F3lBGUhfVkM" target="_blank">https://play.golang.com/p/F3lBGUhfVkM</a></p>
+
+<blockquote>
+<p>[!IMPORTANT]
+Notice <code>logger.WithGroup(&quot;mirror&quot;)</code> is left &ldquo;open&rdquo;.<br />
+There are no attributes pass like with <code>logger.With(slog.Group(&quot;origin_req&quot;, attrs...))</code>.<br />
+This means <code>slog.String(&quot;beep&quot;, &quot;boop&quot;)</code> is logged <em>within</em> the <code>&quot;mirror&quot;</code> group.</p>
+</blockquote>
+
+<p>This is a working example as used by Domainr<br />
+<a href="https://go.dev/play/p/TH_HdwDaUiN" target="_blank">https://go.dev/play/p/TH_HdwDaUiN</a></p>
+
+<p>Here is a text version that&rsquo;s slightly different in setup (more flexible as it doesn&rsquo;t constrain via an interface):
+<a href="https://go.dev/play/p/1TPwtbQB_Oy" target="_blank">https://go.dev/play/p/1TPwtbQB_Oy</a></p>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;context&quot;
+	&quot;fmt&quot;
+	&quot;log/slog&quot;
+	&quot;os&quot;
+
+	&quot;play.ground/logging&quot;
+)
+
+func main() {
+	ctx := context.Background()
+	logger := logging.NewLogger()
+
+	logger.LogAttrs(ctx, slog.LevelDebug, &quot;some_event&quot;, slog.String(&quot;foo&quot;, &quot;bar&quot;))
+	logger.LogAttrs(ctx, slog.LevelInfo, &quot;some_event&quot;, slog.String(&quot;foo&quot;, &quot;bar&quot;))
+	logger.LogAttrs(ctx, slog.LevelWarn, &quot;some_event&quot;, slog.String(&quot;foo&quot;, &quot;bar&quot;))
+	logger.LogAttrs(ctx, slog.LevelError, &quot;some_event&quot;, slog.String(&quot;foo&quot;, &quot;bar&quot;))
+
+	fmt.Println(&quot;NOTICE NO DEBUG LOG ABOVE, BUT THERE IS BELOW (AFTER CHANGING LOG LEVEL)&quot;)
+
+	logging.Level.Set(slog.LevelDebug)
+	logger.LogAttrs(ctx, slog.LevelDebug, &quot;some_event&quot;, slog.String(&quot;foo&quot;, &quot;bar&quot;))
+
+	logger = logging.NewLoggerWithOutputLevel(os.Stdout, logging.Level)
+
+	logger.LogAttrs(ctx, slog.LevelDebug, &quot;some_event&quot;, slog.String(&quot;foo&quot;, &quot;bar&quot;))
+	logger.LogAttrs(ctx, slog.LevelInfo, &quot;some_event&quot;, slog.String(&quot;foo&quot;, &quot;bar&quot;))
+	logger.LogAttrs(ctx, slog.LevelWarn, &quot;some_event&quot;, slog.String(&quot;foo&quot;, &quot;bar&quot;))
+	logger.LogAttrs(ctx, slog.LevelError, &quot;some_event&quot;, slog.String(&quot;foo&quot;, &quot;bar&quot;))
+}
+-- go.mod --
+module play.ground
+-- logging/logging.go --
+package logging
+
+import (
+	&quot;context&quot;
+	&quot;io&quot;
+	&quot;log&quot;
+	&quot;log/slog&quot;
+	&quot;os&quot;
+	&quot;path/filepath&quot;
+	&quot;strconv&quot;
+	&quot;strings&quot;
+)
+
+// Level allows dynamically changing the output level via .Set() method.
+// Defaults to [slog.LevelInfo].
+var Level = new(slog.LevelVar)
+
+// Logger describes the set of features we want to expose from log/slog.
+//
+// NOTE: Don't confuse our custom With() signature with (*slog.Logger).With
+// We return a Logger type where the standard library returns a *slog.Logger
+type Logger interface {
+	Enabled(ctx context.Context, level slog.Level) bool
+	LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr)
+	With(args ...any) Logger
+	_private()
+}
+
+// NewLogger returns a logging.Logger configured for stderr.
+func NewLogger() Logger {
+	return NewLoggerWithOutputLevel(os.Stdout, Level)
+}
+
+// NewLoggerWithOutput returns a [Logger] configured with an output writer.
+func NewLoggerWithOutput(w io.Writer) Logger {
+	return (*logger)(slog.New(slog.NewJSONHandler(w, defaultOptions()).WithAttrs(defaultAttrs())))
+}
+
+// NewLoggerWithOutputLevel returns a [Logger] configured with an output writer and Level.
+func NewLoggerWithOutputLevel(w io.Writer, l slog.Leveler) Logger {
+	opts := defaultOptions()
+	opts.Level = l
+	return (*logger)(slog.New(slog.NewJSONHandler(w, opts).WithAttrs(defaultAttrs())))
+}
+
+// NewBareLoggerWithOutputLevel returns a [Logger] configured with an output location and [slog.Leveler].
+// It does not include any additional attributes.
+func NewBareLoggerWithOutputLevel(w io.Writer, l slog.Leveler) Logger {
+	opts := defaultOptions()
+	opts.Level = l
+	return (*logger)(slog.New(slog.NewJSONHandler(w, opts)))
+}
+
+// nolint:revive
+//
+//lint:ignore U1000 Prevents any other package from implementing this interface
+type private struct{} //nolint:unused
+
+// IMPORTANT: logger is an alias to slog.Logger to avoid a double-pointer deference.
+// All methods off the type will need to type-cast a *logger to *slog.Logger.
+// With() must additionally type-cast back to a Logger compatible type.
+type logger slog.Logger
+
+func (*logger) _private() {}
+
+func (l *logger) Enabled(ctx context.Context, level slog.Level) bool {
+	return (*slog.Logger)(l).Enabled(ctx, level)
+}
+
+func (l *logger) LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr) {
+	(*slog.Logger)(l).LogAttrs(ctx, level, msg, attrs...)
+}
+
+func (l *logger) With(args ...any) Logger {
+	return (*logger)((*slog.Logger)(l).With(args...))
+}
+
+// Adapt returns a [log.Logger] for use with packages that are not yet compatible with
+// [log/slog].
+func Adapt(l Logger, level slog.Level) *log.Logger {
+	// _private() ensures this type assertion cannot panic.
+	slogger := (*slog.Logger)(l.(*logger)) //nolint:revive,forcetypeassert
+	return slog.NewLogLogger(slogger.Handler(), level)
+}
+
+func defaultOptions() *slog.HandlerOptions {
+	return &amp;slog.HandlerOptions{
+		AddSource:   true,
+		ReplaceAttr: slogReplaceAttr,
+		Level:       Level,
+	}
+}
+
+func defaultAttrs() []slog.Attr {
+	return []slog.Attr{slog.Group(&quot;app&quot;,
+		slog.String(&quot;name&quot;, &quot;my app name&quot;),
+		slog.String(&quot;version&quot;, &quot;my app version&quot;),
+	)}
+}
+
+// NullLogger discards logs.
+func NullLogger() Logger {
+	// NOTE: We pass a level not currently defined to reduce operational overhead.
+	// The intent, unlike passing nil for the opts argument, is for the logger to
+	// not even bother generating a message that will just be discarded.
+	// An additional gap of 4 was used as it aligns with Go's original design.
+	// https://github.com/golang/go/blob/1e95fc7/src/log/slog/level.go#L34-L42
+	return (*logger)(slog.New(slog.NewTextHandler(io.Discard, &amp;slog.HandlerOptions{Level: slog.LevelError + 4}))) //nolint:gomnd
+}
+
+// slogReplaceAttr adjusts the log output.
+//
+// - Restricts these changes to top-level keys (not keys within groups)
+//   - Changes default time field value to UTC time zone
+//   - Replaces msg key with event
+//   - Omits event field if empty
+//   - Omits error field if when nil
+//   - Truncates source's filename to domainr-api directory
+//
+// - Formats duration and delay values in microseconds as xxxxµs
+//
+// See https://pkg.go.dev/log/slog#HandlerOptions.ReplaceAttr
+// N.B: TextHandler manages quoting attribute values as necessary.
+func slogReplaceAttr(groups []string, a slog.Attr) slog.Attr {
+	// Limit application of these rules only to top-level keys
+	if len(groups) == 0 {
+		// Set time zone to UTC
+		if a.Key == slog.TimeKey {
+			a.Value = slog.TimeValue(a.Value.Time().UTC())
+			return a
+		}
+		// Use event as the default MessageKey, remove if empty
+		if a.Key == slog.MessageKey {
+			a.Key = &quot;event&quot;
+			if a.Value.String() == &quot;&quot; {
+				return slog.Attr{}
+			}
+			return a
+		}
+		// Display a 'partial' path.
+		// Avoids ambiguity when multiple files have the same name across packages.
+		// e.g. billing.go appears under 'global', 'billing' and 'server' packages.
+		if a.Key == slog.SourceKey {
+			if source, ok := a.Value.Any().(*slog.Source); ok {
+				a.Key = &quot;caller&quot;
+				if _, after, ok := strings.Cut(source.File, &quot;domainr-api&quot;+string(filepath.Separator)); ok {
+					source.File = after
+				}
+			}
+			return a
+		}
+	}
+
+	// Remove error key=value when error is nil
+	if a.Equal(slog.Any(&quot;error&quot;, error(nil))) {
+		return slog.Attr{}
+	}
+
+	// Present durations and delays as xxxxµs
+	switch a.Key {
+	case &quot;dur&quot;, &quot;delay&quot;, &quot;p95&quot;, &quot;previous_p95&quot;, &quot;remaining&quot;, &quot;max_wait&quot;:
+		a.Value = slog.StringValue(strconv.FormatInt(a.Value.Duration().Microseconds(), 10) + &quot;µs&quot;)
+	}
+
+	return a
+}
+</code></pre>
+
+<pre><code>
+## dedupe.go
+
+```go
+// https://go.dev/play/p/dgMult9xaao
+//
+// Code copied verbatim from https://github.com/veqryn/slog-dedup
+
+package main
+
+import (
+	&quot;context&quot;
+	&quot;fmt&quot;
+	&quot;log/slog&quot;
+	&quot;os&quot;
+
+	&quot;modernc.org/b/v2&quot; // Package b implements the B+tree flavor of a BTree.
+)
+
+func main() {
+	slogger := slog.New(NewOverwriteHandler(slog.NewJSONHandler(os.Stdout, &amp;slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	})))
+
+	FuncA(slogger, &quot;foo&quot;)
+}
+
+func FuncA(l *slog.Logger, someAttr string) {
+	l = l.With(slog.String(&quot;foo&quot;, someAttr))
+	l.Debug(&quot;FuncA&quot;)
+	FuncB(l, &quot;foo&quot;) // &quot;foo&quot;:&quot;foo&quot;
+}
+
+func FuncB(l *slog.Logger, someAttr string) {
+	l = l.With(slog.String(&quot;foo&quot;, someAttr))
+	l.Debug(&quot;FuncB&quot;)
+	FuncC(l, someAttr) // &quot;foo&quot;:&quot;foo&quot;,&quot;foo&quot;:&quot;foo&quot;
+}
+
+func FuncC(l *slog.Logger, someAttr string) {
+	l = l.With(slog.String(&quot;foo&quot;, someAttr))
+	l.Debug(&quot;FuncC&quot;) // &quot;foo&quot;:&quot;foo&quot;,&quot;foo&quot;:&quot;foo&quot;,&quot;foo&quot;:&quot;foo&quot;
+}
+
+// NewOverwriteHandler creates an OverwriteHandler slog.Handler middleware that will deduplicate all attributes and
+// groups by overwriting any older attributes or groups with the same string key.
+// It passes the final record and attributes off to the next handler when finished.
+func NewOverwriteHandler(next slog.Handler) *OverwriteHandler {
+	return &amp;OverwriteHandler{
+		next:       next,
+		keyCompare: CaseSensitiveCmp,
+		getKey:     getKeyClosure(IncrementIfBuiltinKeyConflict),
+	}
+}
+
+// OverwriteHandler is a slog.Handler middleware that will deduplicate all attributes and
+// groups by overwriting any older attributes or groups with the same string key.
+// It passes the final record and attributes off to the next handler when finished.
+type OverwriteHandler struct {
+	next       slog.Handler
+	goa        *groupOrAttrs
+	keyCompare func(a, b string) int
+	getKey     func(key string, depth int) (string, bool)
+}
+
+// Enabled reports whether the next handler handles records at the given level.
+// The handler ignores records whose level is lower.
+func (h *OverwriteHandler) Enabled(ctx context.Context, level slog.Level) bool {
+	return h.next.Enabled(ctx, level)
+}
+
+// Handle de-duplicates all attributes and groups, then passes the new set of attributes to the next handler.
+func (h *OverwriteHandler) Handle(ctx context.Context, r slog.Record) error {
+	// The final set of attributes on the record, is basically the same as a final With-Attributes groupOrAttrs.
+	// So collect all final attributes and turn them into a groupOrAttrs so that it can be handled the same.
+	finalAttrs := make([]slog.Attr, 0, r.NumAttrs())
+	r.Attrs(func(a slog.Attr) bool {
+		finalAttrs = append(finalAttrs, a)
+		return true
+	})
+	goas := collectGroupOrAttrs(h.goa, &amp;groupOrAttrs{attrs: finalAttrs})
+
+	// Resolve groups and with-attributes
+	uniq := b.TreeNew[string, any](h.keyCompare)
+	h.createAttrTree(uniq, goas, 0)
+
+	// Add all attributes to new record (because old record has all the old attributes)
+	newR := &amp;slog.Record{
+		Time:    r.Time,
+		Level:   r.Level,
+		Message: r.Message,
+		PC:      r.PC,
+	}
+
+	// Add deduplicated attributes back in
+	newR.AddAttrs(buildAttrs(uniq)...)
+	return h.next.Handle(ctx, *newR)
+}
+
+// WithGroup returns a new OverwriteHandler that still has h's attributes,
+// but any future attributes added will be namespaced.
+func (h *OverwriteHandler) WithGroup(name string) slog.Handler {
+	h2 := *h
+	h2.goa = h2.goa.WithGroup(name)
+	return &amp;h2
+}
+
+// WithAttrs returns a new OverwriteHandler whose attributes consists of h's attributes followed by attrs.
+func (h *OverwriteHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	h2 := *h
+	h2.goa = h2.goa.WithAttrs(attrs)
+	return &amp;h2
+}
+
+// createAttrTree recursively goes through all groupOrAttrs, resolving their attributes and creating subtrees as
+// necessary, adding the results to the map
+func (h *OverwriteHandler) createAttrTree(uniq *b.Tree[string, any], goas []*groupOrAttrs, depth int) {
+	if len(goas) == 0 {
+		return
+	}
+
+	// If a group is encountered, create a subtree for that group and all groupOrAttrs after it
+	if goas[0].group != &quot;&quot; {
+		if key, ok := h.getKey(goas[0].group, depth); ok {
+			uniqGroup := b.TreeNew[string, any](h.keyCompare)
+			h.createAttrTree(uniqGroup, goas[1:], depth+1)
+			// Ignore empty groups, otherwise put subtree into the map
+			if uniqGroup.Len() &gt; 0 {
+				uniq.Set(key, uniqGroup)
+			}
+			return
+		}
+	}
+
+	// Otherwise, set all attributes for this groupOrAttrs, and then call again for remaining groupOrAttrs's
+	h.resolveValues(uniq, goas[0].attrs, depth)
+	h.createAttrTree(uniq, goas[1:], depth)
+}
+
+// resolveValues iterates through the attributes, resolving them and putting them into the map.
+// If a group is encountered (as an attribute), it will be separately resolved and added as a subtree.
+// Since attributes are ordered from oldest to newest, it overwrites keys as it goes.
+func (h *OverwriteHandler) resolveValues(uniq *b.Tree[string, any], attrs []slog.Attr, depth int) {
+	var ok bool
+	for _, a := range attrs {
+		a.Value = a.Value.Resolve()
+		if a.Equal(slog.Attr{}) {
+			continue // Ignore empty attributes, and keep iterating
+		}
+
+		// Default situation: resolve the key and put it into the map
+		a.Key, ok = h.getKey(a.Key, depth)
+		if !ok {
+			continue
+		}
+
+		if a.Value.Kind() != slog.KindGroup {
+			uniq.Set(a.Key, a)
+			continue
+		}
+
+		// Groups with empty keys are inlined
+		if a.Key == &quot;&quot; {
+			h.resolveValues(uniq, a.Value.Group(), depth)
+			continue
+		}
+
+		// Create a subtree for this group
+		uniqGroup := b.TreeNew[string, any](h.keyCompare)
+		h.resolveValues(uniqGroup, a.Value.Group(), depth+1)
+
+		// Ignore empty groups, otherwise put subtree into the map
+		if uniqGroup.Len() &gt; 0 {
+			uniq.Set(a.Key, uniqGroup)
+		}
+	}
+}
+
+// buildAttrs converts the deduplicated map back into an attribute array,
+// with any subtrees converted into slog.Group's
+func buildAttrs(uniq *b.Tree[string, any]) []slog.Attr {
+	en, emptyErr := uniq.SeekFirst()
+	if emptyErr != nil {
+		return nil // Empty (btree only returns an error when empty)
+	}
+	defer en.Close()
+
+	// Iterate through all values in the map, add to slice
+	attrs := make([]slog.Attr, 0, uniq.Len())
+	for k, i, err := en.Next(); err == nil; k, i, err = en.Next() {
+		// Values will either be an attribute, a subtree, or a specially appended slice of the former two
+		switch v := i.(type) {
+		case slog.Attr:
+			attrs = append(attrs, v)
+		case *b.Tree[string, any]:
+			// Convert subtree into a group
+			attrs = append(attrs, slog.Attr{Key: k, Value: slog.GroupValue(buildAttrs(v)...)})
+		case appended:
+			// This case only happens in the AppendHandler
+			anys := make([]any, 0, len(v))
+			for _, sliceVal := range v {
+				switch sliceV := sliceVal.(type) {
+				case slog.Attr:
+					anys = append(anys, sliceV.Value.Any())
+				case *b.Tree[string, any]:
+					// Convert subtree into a map (because having a Group Attribute within a slice doesn't render)
+					anys = append(anys, buildGroupMap(buildAttrs(sliceV)))
+				default:
+					panic(&quot;unexpected type in attribute map&quot;)
+				}
+			}
+			attrs = append(attrs, slog.Any(k, anys))
+		default:
+			panic(&quot;unexpected type in attribute map&quot;)
+		}
+	}
+	return attrs
+}
+
+// appended is a type that exists to allow us to differentiate between a log attribute that is a slice or any's ([]any),
+// versus when we are appending to the key so that it becomes a slice. Only used with the AppendHandler.
+type appended []any
+
+// buildGroupMap takes a slice of attributes (the attributes within a group), and turns them into a map of string keys
+// to a non-attribute resolved value (any).
+// This function exists solely to deal with groups that are inside appended-slices (for the AppendHandler),
+// because slog does not have a &quot;slice&quot; kind, which means that those groups and their values do not render at all.
+func buildGroupMap(attrs []slog.Attr) map[string]any {
+	group := map[string]any{}
+	for _, attr := range attrs {
+		if attr.Value.Kind() != slog.KindGroup {
+			group[attr.Key] = attr.Value.Any()
+		} else {
+			group[attr.Key] = buildGroupMap(attr.Value.Group())
+		}
+	}
+	return group
+}
+
+// groupOrAttrs holds either a group name or a list of slog.Attrs.
+// It also holds a reference/link to its parent groupOrAttrs, forming a linked list.
+type groupOrAttrs struct {
+	group string        // group name if non-empty
+	attrs []slog.Attr   // attrs if non-empty
+	next  *groupOrAttrs // parent
+}
+
+// WithGroup returns a new groupOrAttrs that includes the given group, and links to the old groupOrAttrs.
+// Safe to call on a nil groupOrAttrs.
+func (g *groupOrAttrs) WithGroup(name string) *groupOrAttrs {
+	// Empty-name groups are inlined as if they didn't exist
+	if name == &quot;&quot; {
+		return g
+	}
+	return &amp;groupOrAttrs{
+		group: name,
+		next:  g,
+	}
+}
+
+// WithAttrs returns a new groupOrAttrs that includes the given attrs, and links to the old groupOrAttrs.
+// Safe to call on a nil groupOrAttrs.
+func (g *groupOrAttrs) WithAttrs(attrs []slog.Attr) *groupOrAttrs {
+	if len(attrs) == 0 {
+		return g
+	}
+	return &amp;groupOrAttrs{
+		attrs: attrs,
+		next:  g,
+	}
+}
+
+// collectGroupOrAttrs unrolls all individual groupOrAttrs and collects them into a slice, ordered from oldest to newest
+func collectGroupOrAttrs(gs ...*groupOrAttrs) []*groupOrAttrs {
+	// Get a total count of all groups in the group linked-list chain
+	n := 0
+	for _, g := range gs {
+		for ga := g; ga != nil; ga = ga.next {
+			n++
+		}
+	}
+
+	// The groupOrAttrs on the handler is a linked list starting from the newest to the oldest set of attributes/groups.
+	// Within each groupOrAttrs, all attributes are in a slice that is ordered from oldest to newest.
+	// To make things consistent we will reverse the order of the groupOrAttrs, so that it goes from oldest to newest,
+	// thereby matching the order of the attributes.
+	res := make([]*groupOrAttrs, n)
+	j := 0
+	for i := len(gs) - 1; i &gt;= 0; i-- {
+		for ga := gs[i]; ga != nil; ga = ga.next {
+			res[len(res)-j-1] = ga
+			j++
+		}
+	}
+	return res
+}
+
+// CaseSensitiveCmp is a case-sensitive comparison and ordering function that orders by byte values
+func CaseSensitiveCmp(a, b string) int {
+	if a == b {
+		return 0
+	}
+	if a &gt; b {
+		return 1
+	}
+	return -1
+}
+
+// IncrementIfBuiltinKeyConflict will, if there is a conflict/duplication at the root level (not in a group) with one of
+// the built-in keys, add &quot;#01&quot; to the end of the key
+func IncrementIfBuiltinKeyConflict(key string) (string, bool) {
+	if DoesBuiltinKeyConflict(key) {
+		return IncrementKeyName(key, 1), true // Don't overwrite the built-in attribute keys
+	}
+	return key, true
+}
+
+// DoesBuiltinKeyConflict returns true if the key conflicts with the builtin keys.
+// This will only be called on all root level (not in a group) attribute keys.
+func DoesBuiltinKeyConflict(key string) bool {
+	if key == slog.TimeKey || key == slog.LevelKey || key == slog.MessageKey || key == slog.SourceKey {
+		return true
+	}
+	return false
+}
+
+// IncrementKeyName adds a count onto the key name after the first seen.
+// Example: keyname, keyname#01, keyname#02, keyname#03
+func IncrementKeyName(key string, index int) string {
+	if index == 0 {
+		return key
+	}
+	return fmt.Sprintf(&quot;%s#%02d&quot;, key, index)
+}
+
+// getKeyClosure returns a function to be used to resolve a key at the root level, determining its behavior when it
+// would otherwise conflict/duplicate the 4 built-in attribute keys (time, level, msg, source).
+func getKeyClosure(resolveBuiltinKeyConflict func(k string) (string, bool)) func(key string, depth int) (string, bool) {
+	return func(key string, depth int) (string, bool) {
+		if depth == 0 {
+			return resolveBuiltinKeyConflict(key)
+		}
+		return key, true
+	}
+}
+</code></pre>
+
+<h2 id="logging-go">logging.go</h2>
+
+<pre><code class="language-go">package logging
+
+import (
+	&quot;context&quot;
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;log/slog&quot;
+	&quot;os&quot;
+	&quot;path/filepath&quot;
+	&quot;strings&quot;
+
+	&quot;github.com/domainr/mustang/internal/version&quot;
+)
+
+// Logger describes the set of features we want to expose from log/slog.
+type Logger interface {
+	Enabled(ctx context.Context, level slog.Level) bool
+	LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr)
+	With(args ...any) *slog.Logger
+}
+
+// Level allows dynamically changing the log level via .Set() method.
+var Level = new(slog.LevelVar)
+
+// NewLogger returns a logging.Logger configured for stderr.
+func NewLogger() Logger {
+	return NewLoggerWithOutput(os.Stderr)
+}
+
+// NewLoggerWithOutput returns a logging.Logger configured with a specific
+// output location.
+func NewLoggerWithOutput(w io.Writer) Logger {
+	opts, attrs := loggerDefaults()
+	return slog.New(slog.NewTextHandler(w, opts).WithAttrs(attrs))
+}
+
+// NewLoggerWithOutputLevel returns a logging.Logger configured with a specific
+// output location and Level.
+func NewLoggerWithOutputLevel(w io.Writer, l slog.Leveler) Logger {
+	opts, attrs := loggerDefaults()
+	opts.Level = l
+	return slog.New(slog.NewTextHandler(w, opts).WithAttrs(attrs))
+}
+
+func loggerDefaults() (*slog.HandlerOptions, []slog.Attr) {
+	appName := strings.Replace(os.Getenv(&quot;HEROKU_APP_NAME&quot;), &quot;mustang&quot;, &quot;heroku&quot;, 1)
+	if appName == &quot;&quot; {
+		appName = os.Getenv(&quot;USER&quot;)
+	}
+	opts := &amp;slog.HandlerOptions{
+		AddSource:   true,
+		ReplaceAttr: slogReplaceAttr,
+		Level:       Level,
+	}
+	attrs := []slog.Attr{
+		slog.Group(&quot;mustang&quot;,
+			slog.String(&quot;name&quot;, appName),
+			slog.String(&quot;version&quot;, version.Version()),
+		),
+	}
+	return opts, attrs
+}
+
+// NullLogger discards logs.
+func NullLogger() Logger {
+	// NOTE: We pass a level not currently defined to reduce operational overhead.
+	// The intent, unlike passing nil for the opts argument, is for the logger to
+	// not even bother generating a message that will just be discarded.
+	// An additional gap of 4 was used as it aligns with Go's original design.
+	// https://github.com/golang/go/blob/1e95fc7/src/log/slog/level.go#L34-L42
+	return slog.New(slog.NewTextHandler(io.Discard, &amp;slog.HandlerOptions{Level: slog.LevelError + 4}))
+}
+
+// slogReplaceAttr adjusts the output format of some attributes:
+// - changes timestamps to UTC time zone
+// - shortens source.File by removing path
+// - elides error=&lt;nil&gt;
+// - formats dur values in microseconds as NNNµs
+// See https://pkg.go.dev/log/slog#HandlerOptions.ReplaceAttr
+// N.B: TextHandler manages quoting attribute values as necessary.
+func slogReplaceAttr(groups []string, a slog.Attr) slog.Attr {
+	// Limit application of these rules only to top-level keys
+	if len(groups) == 0 {
+		// Set time zone to UTC
+		if a.Key == slog.TimeKey {
+			a.Value = slog.TimeValue(a.Value.Time().UTC())
+			return a
+		}
+		// Remove empty msg=&quot;&quot;
+		if a.Equal(slog.String(slog.MessageKey, &quot;&quot;)) {
+			return slog.Attr{}
+		}
+		// Remove error key=value when error is nil
+		if a.Equal(slog.Any(&quot;error&quot;, error(nil))) {
+			return slog.Attr{}
+		}
+		// Display a 'partial' path.
+		// Avoids ambiguity when multiple files have the same name across packages.
+		// e.g. billing.go appears under 'global', 'billing' and 'server' packages.
+		if a.Key == slog.SourceKey {
+			if source, ok := a.Value.Any().(*slog.Source); ok {
+				a.Key = &quot;caller&quot;
+				if _, after, ok := strings.Cut(source.File, &quot;mustang&quot;+string(filepath.Separator)); ok {
+					source.File = after
+				}
+				return a
+			}
+		}
+	}
+
+	// Present durations and delays as xxxxµs
+	switch a.Key {
+	case &quot;dur&quot;, &quot;delay&quot;, &quot;p95&quot;, &quot;previous_p95&quot;, &quot;remaining&quot;, &quot;max_wait&quot;:
+		a.Value = slog.StringValue(fmt.Sprintf(&quot;%dµs&quot;, a.Value.Duration().Microseconds()))
+	}
+
+	return a
+}
+</code></pre>
+
+<h2 id="logging-test-go">logging_test.go</h2>
+
+<pre><code class="language-go">package logging
+
+import (
+	&quot;bytes&quot;
+	&quot;context&quot;
+	&quot;fmt&quot;
+	&quot;log/slog&quot;
+	&quot;path/filepath&quot;
+	&quot;strings&quot;
+	&quot;testing&quot;
+	&quot;time&quot;
+)
+
+func TestLogger(t *testing.T) {
+	buf := new(bytes.Buffer)
+	l := NewLoggerWithOutput(buf)
+
+	t.Run(&quot;has expected fields&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;test message&quot;)
+		out := buf.String()
+		for _, field := range []string{
+			&quot;time&quot;,
+			&quot;level&quot;,
+			&quot;caller&quot;,
+			&quot;mustang.name&quot;,
+			&quot;mustang.version&quot;,
+		} {
+			if !strings.Contains(out, field+&quot;=&quot;) {
+				t.Errorf(&quot;missing field %q:&quot;, field)
+			}
+		}
+	})
+
+	t.Run(&quot;adds non-default levels&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		ctx := context.Background()
+		tests := []struct {
+			level   slog.Level
+			enabled bool
+			want    string
+		}{
+			{slog.LevelDebug, false, &quot;&quot;},
+			{slog.LevelInfo, true, &quot;level=INFO&quot;},
+			{slog.LevelWarn, true, &quot;level=WARN&quot;},
+			{slog.LevelError, true, &quot;level=ERROR&quot;},
+			{slog.Level(12), true, &quot;level=ERROR+4&quot;},
+		}
+		for _, tt := range tests {
+			l.LogAttrs(ctx, tt.level, &quot;&quot;)
+			// WARNING: strings.Contains can return true on a &quot;&quot; substr.
+			// For example: LevelInfo with &quot;&quot; would pass, which is misleading.
+			// Because the test would suggest that `level=INFO` shouldn't appear in the output.
+			if tt.enabled &amp;&amp; !strings.Contains(buf.String(), tt.want) {
+				t.Errorf(&quot;missing level=%s&quot;, tt.level)
+			}
+			if got := l.Enabled(ctx, tt.level); tt.enabled != got {
+				t.Errorf(&quot;enabled = %t at level=%s&quot;, got, tt.level)
+			}
+		}
+	})
+
+	t.Run(&quot;adds debug at LevelDebug&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		ctx := context.Background()
+		l = NewLoggerWithOutputLevel(buf, slog.LevelDebug)
+		l.LogAttrs(ctx, slog.LevelDebug, &quot;&quot;)
+		out := buf.String()
+		if !strings.Contains(out, &quot;level=DEBUG&quot;) {
+			t.Errorf(&quot;missing level=DEBUG&quot;)
+		}
+	})
+
+	t.Run(&quot;elides empty message&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;&quot;)
+		out := buf.String()
+		if s := &quot;msg=&quot;; strings.Contains(out, s) {
+			t.Errorf(&quot;log should not contain %q:&quot;, s)
+		}
+	})
+
+	t.Run(&quot;elides empty error&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;test message&quot;, slog.Any(&quot;error&quot;, nil))
+		out := buf.String()
+		if s := &quot;error=&quot;; strings.Contains(out, s) {
+			t.Errorf(&quot;log should not contain %q:&quot;, s)
+		}
+	})
+
+	t.Run(&quot;uses UTC time zone&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;UTC&quot;)
+		out := buf.String()
+		ts := logFieldValue(out, &quot;time&quot;)
+		p, err := time.Parse(time.RFC3339, ts)
+		if err != nil {
+			t.Fatalf(&quot;time field failed to parse: %s&quot;, err)
+		}
+		if z, _ := p.Zone(); z != time.UTC.String() {
+			t.Errorf(&quot;expected time in UTC zone, got %s&quot;, z)
+		}
+	})
+
+	t.Run(&quot;uses short source location&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;source loc&quot;)
+		out := buf.String()
+		source := logFieldValue(out, &quot;source&quot;)
+		if strings.HasPrefix(source, string(filepath.Separator)) {
+			t.Errorf(&quot;source includes full path: %s&quot;, source)
+		}
+	})
+
+	t.Run(&quot;displays microseconds&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		const ts = 1234567890
+		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;&quot;,
+			slog.Duration(&quot;dur&quot;, ts),
+			slog.Duration(&quot;delay&quot;, ts),
+			slog.Duration(&quot;p95&quot;, ts),
+			slog.Duration(&quot;previous_p95&quot;, ts),
+			slog.Duration(&quot;remaining&quot;, ts),
+			slog.Duration(&quot;max_wait&quot;, ts),
+		)
+		out := buf.String()
+		for _, field := range []string{
+			&quot;dur&quot;,
+			&quot;delay&quot;,
+			&quot;p95&quot;,
+			&quot;previous_p95&quot;,
+			&quot;remaining&quot;,
+			&quot;max_wait&quot;,
+		} {
+			want := fmt.Sprintf(&quot;%s=%d%s&quot;, field, 1234567, &quot;µs&quot;)
+			if !strings.Contains(out, want) {
+				t.Errorf(&quot;log should contain: %s&quot;, want)
+			}
+		}
+	})
+}
+
+func logFieldValue(s, field string) string {
+	prefix := field + &quot;=&quot;
+	i := strings.Index(s, prefix)
+	if i == -1 {
+		return s
+	}
+	i += len(prefix)
+	return s[i : i+strings.Index(s[i:], &quot; &quot;)]
+}
+
+func dumpLogs(t *testing.T, buf *bytes.Buffer) {
+	t.Helper()
+	t.Cleanup(func() {
+		t.Helper()
+		if t.Failed() || testing.Verbose() {
+			t.Log(&quot;Logs:\n&quot;, buf.String())
+		}
+		buf.Reset()
+	})
+}
+</code></pre>
+
+<h2 id="main-go">main.go</h2>
+
+<pre><code class="language-go">// Reference:
+// https://betterstack.com/community/guides/logging/logging-in-go/
+//
+// Playground Example:
+// https://goplay.tools/snippet/Ty_22SjTQ1j
+
+package main
+
+import (
+	&quot;context&quot;
+	&quot;errors&quot;
+	&quot;fmt&quot;
+	&quot;log/slog&quot;
+	&quot;os&quot;
+	&quot;path/filepath&quot;
+	&quot;strings&quot;
+)
+
+func main() {
+	logLevelHandler := new(slog.LevelVar)
+	opts := &amp;slog.HandlerOptions{
+		AddSource:   true,
+		ReplaceAttr: slogReplaceAttr,
+		Level:       logLevelHandler, // LevelVar allows for dynamic changing of the log level at runtime!
+	}
+	attrs := []slog.Attr{
+		slog.String(&quot;my_field&quot;, &quot;is_this&quot;),
+		slog.Group(&quot;fastly&quot;,
+			slog.String(&quot;example&quot;, os.Getenv(&quot;SOME_EXAMPLE&quot;)),
+		),
+	}
+	logger := slog.New(slog.NewTextHandler(os.Stderr, opts).WithAttrs(attrs)) // alternatively use slog.NewJSONHandler()
+	logger.Debug(&quot;Debug message 1&quot;)                                           // not displayed
+	logger.Info(&quot;Info message&quot;)
+	logger.Warn(&quot;Warning message&quot;)
+	logger.Error(&quot;Error message&quot;)
+	logLevelHandler.Set(slog.LevelDebug) // dynamically switch the log level
+	logger.Debug(&quot;Debug message 2&quot;)      // is displayed
+
+	// MUCH MORE PEFORMANT!
+	logger.LogAttrs(context.Background(), slog.LevelInfo, &quot;xxxxxxxxxxxxxxxxxx&quot;,
+		slog.String(&quot;foo&quot;, &quot;bar&quot;),
+	)
+
+	var e error = ErrFoo{Code: 123, Err: errors.New(&quot;whoops&quot;)}
+	logger.LogAttrs(context.Background(), slog.LevelError, &quot;&quot;,
+		slog.String(&quot;error&quot;, e.Error()),
+	)
+	logger.LogAttrs(context.Background(), slog.LevelError, &quot;&quot;,
+		slog.Any(&quot;error&quot;, e),
+	)
+
+	newLogger := logger.With(slog.Group(&quot;some_group&quot;, slog.String(&quot;foo&quot;, &quot;bar&quot;)))
+	newLogger.Info(&quot;with group&quot;)
+
+	newLoggerWithDuplicateGroup := newLogger.With(slog.Group(&quot;some_group&quot;, slog.String(&quot;inside_duplicate_group&quot;, &quot;whatever&quot;))) // the duplicated group isn't replaced, the attrs are appended to the original group
+	newLoggerWithDuplicateGroup.Info(&quot;with duplicate group&quot;)
+
+	newLoggerWithDuplicateGroup.LogAttrs(context.Background(), slog.LevelInfo, &quot;does an inline group append to existing group on the logger?&quot;,
+		slog.Group(&quot;some_group&quot;, slog.String(&quot;a_new_inline_group_key&quot;, &quot;with some value&quot;)), // the inlined group is appended to the original group
+	)
+
+	newLoggerWithEmptyGroup := newLogger.With(slog.Group(&quot;some_empty_group&quot;)) // Groups will be omitted if no attributes found
+	newLoggerWithEmptyGroup.Info(&quot;with empty group&quot;)
+
+	logger.LogAttrs(context.Background(), slog.LevelError, &quot;inline group&quot;,
+		slog.Group(&quot;some_group&quot;, slog.String(&quot;foo&quot;, &quot;bar&quot;)), // inline a slog.Group with other slog.Attr
+	)
+
+	logger.LogAttrs(context.Background(), slog.LevelError, &quot;inline group will be omitted&quot;,
+		slog.Group(&quot;some_group&quot;),
+	)
+
+	loggerWithDuplicateField := logger.With(slog.String(&quot;my_field&quot;, &quot;is_now_overridden&quot;)) // NOPE! It's duplicated! so you'll have to fix that in slogReplaceAttr
+	loggerWithDuplicateField.Info(&quot;my message to see if my_field is overridden&quot;)
+
+	attribute := slog.Any(&quot;some_array&quot;, []string{&quot;x&quot;, &quot;y&quot;, &quot;z&quot;})
+	logger.Info(&quot;what does a slice look like&quot;, attribute)
+
+	thing := Foo
+	logger.LogAttrs(context.Background(), slog.LevelError, &quot;what does a custom iota type look like&quot;,
+		slog.Any(&quot;my_thing&quot;, thing),
+	)
+
+	st := StructThing{&quot;foo here&quot;, 123, true}
+	slog.LogAttrs(context.Background(), slog.LevelInfo, &quot;message text&quot;, slog.Any(&quot;&quot;, st))      // no field == foo=&quot;foo here&quot; bar=123 baz=true
+	slog.LogAttrs(context.Background(), slog.LevelInfo, &quot;message text&quot;, slog.Any(&quot;agent&quot;, st)) // field specified == agent.foo=&quot;foo here&quot; agent.bar=123 agent.baz=true
+}
+
+type StructThing struct {
+	Foo string
+	Bar int
+	Baz bool
+}
+
+func (st StructThing) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String(&quot;foo&quot;, st.Foo),
+		slog.Int(&quot;bar&quot;, st.Bar),
+		slog.Bool(&quot;baz&quot;, st.Baz),
+	)
+}
+
+type Thing uint32
+
+const (
+	Unknown Thing = iota
+	Foo     Thing = 1 &lt;&lt; (iota - 1)
+	Bar
+	Baz
+)
+
+// slogReplaceAttr adjusts the output format of some attributes:
+// - changes timestamps to UTC time zone
+// - shortens source.File by removing path
+// - elides error=&lt;nil&gt;
+// - formats dur values in microseconds as NNNµs
+// See https://pkg.go.dev/log/slog#HandlerOptions.ReplaceAttr
+// N.B: TextHandler manages quoting attribute values as necessary.
+func slogReplaceAttr(groups []string, a slog.Attr) slog.Attr {
+	// Limit application of these rules only to top-level keys
+	if len(groups) == 0 {
+		// Set time zone to UTC
+		if a.Key == slog.TimeKey {
+			a.Value = slog.TimeValue(a.Value.Time().UTC())
+			return a
+		}
+		// Remove empty msg=&quot;&quot;
+		if a.Equal(slog.String(slog.MessageKey, &quot;&quot;)) {
+			return slog.Attr{}
+		}
+		// Remove error key=value when error is nil
+		if a.Equal(slog.Any(&quot;error&quot;, error(nil))) {
+			return slog.Attr{}
+		}
+		// Display a 'partial' path.
+		// This avoids ambiguity when you have multiple files called 'example.go' across different packages.
+		//
+		// NOTE: It's implemented based on my own application &quot;mustang&quot; (hence that reference in the path lookup)
+		/*
+			if a.Key == slog.SourceKey {
+				source, _ := a.Value.Any().(*slog.Source)
+				segs := strings.Split(source.File, string(filepath.Separator))
+				idx := slices.Index(segs, &quot;mustang&quot;)
+				path := strings.Join(segs[idx+1:], string(filepath.Separator))
+				source.File = path
+				return a
+			}
+		*/
+		// Rewritten + change the key from `source` to `caller`.
+		if a.Key == slog.SourceKey {
+			if source, ok := a.Value.Any().(*slog.Source); ok {
+				a.Key = &quot;caller&quot;
+				if _, after, ok := strings.Cut(source.File, &quot;mustang&quot;+string(filepath.Separator)); ok {
+					source.File = after
+				}
+				return a
+			}
+		}
+	}
+
+	// Present durations and delays as xxxxµs
+	switch a.Key {
+	case &quot;dur&quot;, &quot;delay&quot;, &quot;p95&quot;, &quot;previous_p95&quot;, &quot;remaining&quot;, &quot;max_wait&quot;:
+		a.Value = slog.StringValue(fmt.Sprintf(&quot;%dµs&quot;, a.Value.Duration().Microseconds()))
+	}
+
+	return a
+}
+
+type ErrFoo struct {
+	Code int // let's pretend we don't want this printed by normal Error() message
+	Err  error
+}
+
+func (ef ErrFoo) Error() string {
+	return fmt.Sprintf(&quot;%d: %s&quot;, ef.Code, ef.Err)
+}
+
+// This method allows us to tell slog to ignore the Code field and just print the Err as a string.
+// https://betterstack.com/community/guides/logging/logging-in-go/#hiding-sensitive-fields-with-the-logvaluer-interface
+func (ef ErrFoo) LogValue() slog.Value {
+	return slog.StringValue(ef.Err.Error())
+}
+</code></pre>
+
+<h2 id="wrapping-go">wrapping.go</h2>
+
+<pre><code class="language-go">// There are issues with LogAttrs when it wraps slog.Logger's LogAttrs. 
+// So we must implement wrapping as described in 
+// https://pkg.go.dev/log/slog#hdr-Wrapping_output_methods 
+// Which helps to preserve the correct source location.
+
+// Package logging wraps the features we want to expose from log/slog and
+// provides standard constructors for loggers.
+package logging
+
+import (
+	&quot;context&quot;
+	&quot;io&quot;
+	&quot;log&quot;
+	&quot;log/slog&quot;
+	&quot;os&quot;
+	&quot;path/filepath&quot;
+	&quot;runtime&quot;
+	&quot;strconv&quot;
+	&quot;strings&quot;
+	&quot;time&quot;
+
+	&quot;github.com/domainr/mustang/internal/version&quot;
+)
+
+// Level allows dynamically changing the output level via .Set() method.
+// Defaults to [slog.LevelInfo].
+var Level = new(slog.LevelVar)
+
+// Logger describes the set of features we want to expose from log/slog.
+//
+// NOTE: Don't confuse our custom With() signature with (*slog.Logger).With
+// We return a Logger type where the standard library returns a *slog.Logger
+type Logger interface {
+	Enabled(ctx context.Context, level slog.Level) bool
+	LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr)
+	With(args ...any) Logger
+	_private(private) // prevents any other package from implementing this interface
+}
+
+// NewLogger returns a logging.Logger configured for stderr.
+func NewLogger() Logger {
+	return NewLoggerWithOutputLevel(os.Stderr, Level)
+}
+
+// NewLoggerWithOutputLevel returns a [Logger] configured with an output writer and Level.
+func NewLoggerWithOutputLevel(w io.Writer, l slog.Leveler) Logger {
+	opts := defaultOptions()
+	opts.Level = l
+	return (*logger)(slog.New(slog.NewTextHandler(w, opts).WithAttrs(defaultAttrs())))
+}
+
+// NewBareLoggerWithOutputLevel returns a [Logger] configured with an output location and [slog.Leveler].
+// It does not include any additional attributes.
+func NewBareLoggerWithOutputLevel(w io.Writer, l slog.Leveler) Logger {
+	opts := defaultOptions()
+	opts.Level = l
+	return (*logger)(slog.New(slog.NewTextHandler(w, opts)))
+}
+
+type private struct{}
+
+// IMPORTANT: logger is an alias to slog.Logger to avoid a double-pointer deference.
+// All methods off the type will need to type-cast a *logger to *slog.Logger.
+// With() must additionally type-cast back to a Logger compatible type.
+type logger slog.Logger
+
+func (*logger) _private(private) {}
+
+func (l *logger) Enabled(ctx context.Context, level slog.Level) bool {
+	return (*slog.Logger)(l).Enabled(ctx, level)
+}
+
+// LogAttrs effectively wraps slog.Logger's LogAttrs, so we must implement wrapping as described
+// in https://pkg.go.dev/log/slog#hdr-Wrapping_output_methods to preserve the correct source location.
+func (l *logger) LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr) {
+	if !l.Enabled(context.Background(), level) {
+		return
+	}
+	var pcs [1]uintptr
+	runtime.Callers(2, pcs[:]) // skip 2 [Callers, LogAttrs]
+	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
+	r.AddAttrs(attrs...)
+	(*slog.Logger)(l).Handler().Handle(ctx, r)
+}
+
+func (l *logger) With(args ...any) Logger {
+	return (*logger)((*slog.Logger)(l).With(args...))
+}
+
+// Adapt returns a [log.Logger] for use with packages that are not yet compatible with
+// [log/slog].
+func Adapt(l Logger, level slog.Level) *log.Logger {
+	// _private() ensures this type assertion cannot panic.
+	slogger := (*slog.Logger)(l.(*logger)) //nolint:revive,forcetypeassert
+	return slog.NewLogLogger(slogger.Handler(), level)
+}
+
+func defaultOptions() *slog.HandlerOptions {
+	return &amp;slog.HandlerOptions{
+		AddSource:   true,
+		ReplaceAttr: slogReplaceAttr,
+		Level:       Level,
+	}
+}
+
+func defaultAttrs() []slog.Attr {
+	appName := strings.Replace(os.Getenv(&quot;HEROKU_APP_NAME&quot;), &quot;mustang&quot;, &quot;heroku&quot;, 1)
+	if appName == &quot;&quot; {
+		appName = os.Getenv(&quot;USER&quot;)
+	}
+	return []slog.Attr{slog.Group(&quot;mustang&quot;,
+		slog.String(&quot;name&quot;, appName),
+		slog.String(&quot;version&quot;, version.Version()),
+	)}
+}
+
+// NullLogger discards logs.
+func NullLogger() Logger {
+	// NOTE: We pass a level not currently defined to reduce operational overhead.
+	// The intent, unlike passing nil for the opts argument, is for the logger to
+	// not even bother generating a message that will just be discarded.
+	// An additional gap of 4 was used as it aligns with Go's original design.
+	// https://github.com/golang/go/blob/1e95fc7/src/log/slog/level.go#L34-L42
+	return (*logger)(slog.New(slog.NewTextHandler(io.Discard, &amp;slog.HandlerOptions{Level: slog.LevelError + 4}))) //nolint:gomnd
+}
+
+// slogReplaceAttr adjusts the log output.
+//
+// - Restricts these changes to top-level keys (not keys within groups)
+//   - Changes default time field value to UTC time zone
+//   - Replaces msg key with event
+//   - Omits event field if empty
+//   - Omits error field if when nil
+//   - Truncates source's filename to mustang directory
+//
+// - Formats duration and delay values in microseconds as xxxxµs
+//
+// See https://pkg.go.dev/log/slog#HandlerOptions.ReplaceAttr
+// N.B: TextHandler manages quoting attribute values as necessary.
+func slogReplaceAttr(groups []string, a slog.Attr) slog.Attr {
+	// Limit application of these rules only to top-level keys
+	if len(groups) == 0 {
+		// Set time zone to UTC
+		if a.Key == slog.TimeKey {
+			a.Value = slog.TimeValue(a.Value.Time().UTC())
+			return a
+		}
+		// Use event as the default MessageKey, remove if empty
+		if a.Key == slog.MessageKey {
+			a.Key = &quot;event&quot;
+			if a.Value.String() == &quot;&quot; {
+				return slog.Attr{}
+			}
+			return a
+		}
+		// Display a 'partial' path.
+		// Avoids ambiguity when multiple files have the same name across packages.
+		// e.g. billing.go appears under 'global', 'billing' and 'server' packages.
+		if a.Key == slog.SourceKey {
+			if source, ok := a.Value.Any().(*slog.Source); ok {
+				a.Key = &quot;caller&quot;
+				if _, after, ok := strings.Cut(source.File, &quot;mustang&quot;+string(filepath.Separator)); ok {
+					source.File = after
+				}
+			}
+			return a
+		}
+	}
+
+	// Remove error key=value when error is nil
+	if a.Equal(slog.Any(&quot;error&quot;, error(nil))) {
+		return slog.Attr{}
+	}
+
+	// Present durations and delays as xxxxµs
+	switch a.Key {
+	case &quot;dur&quot;, &quot;delay&quot;, &quot;p95&quot;, &quot;previous_p95&quot;, &quot;remaining&quot;, &quot;max_wait&quot;:
+		a.Value = slog.StringValue(strconv.FormatInt(a.Value.Duration().Microseconds(), 10) + &quot;µs&quot;)
+	}
+
+	return a
+}
+</code></pre>
+
+</div>
+</body>
+</html>

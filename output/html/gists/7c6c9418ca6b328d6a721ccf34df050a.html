@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go range bug] #go #golang #range</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-range-bug-go-golang-range">[Go range bug] #go #golang #range</h1>
+
+<h2 id="readme-md">README.md</h2>
+
+<pre><code class="language-markdown">## Problem
+
+Consider the following example:
+
+```go
+package main
+
+import &quot;fmt&quot;
+
+func main() {
+	for _, n := range []int{1, 2, 3, 4} {
+		fmt.Printf(&quot;%#v | %d\n&quot;, &amp;n, n) // NOTE: The memory address is the same! Meaning the value could change and print 4 each time.
+	}
+}
+</code></pre>
+
+<p>Static analysis tools (like <code>gosec</code>) will sometimes report:</p>
+
+<blockquote>
+<p>G601: Implicit memory aliasing in for loop. (gosec)</p>
+</blockquote>
+
+<p>This happens because in <a href="https://golang.org/ref/spec#For_statements" target="_blank">for statements</a> the iteration variable is reused.</p>
+
+<p>This means for each iteration, the <em>value</em> of the next element in the <code>range</code> expression is assigned to the iteration variable.</p>
+
+<p>So <code>v</code> doesn&rsquo;t change, only its <em>value</em> changes. Hence, the expression <code>&amp;v</code> is referring to the <em>same location in memory</em>.</p>
+
+<p>When you store the address of the iteration variable, or when you use it in a closure inside the loop, by the time you dereference the pointer, its value might have changed.</p>
+
+<h2 id="solutions">Solutions</h2>
+
+<blockquote>
+<p><strong>NOTE:</strong> Go <em>might</em> fix this in go1.22 (not guaranteed at time of writing).</p>
+</blockquote>
+
+<p>Index the ranged slice/array/map. This takes the address of the actual element at i-th position, instead of the iteration variable:</p>
+
+<pre><code class="language-go">for i := range versions {
+    res := createWorkerFor(&amp;versions[i])
+}
+</code></pre>
+
+<p>Reassign the iteration variable inside the loop:</p>
+
+<pre><code class="language-go">for _, v := range versions {
+    v := v
+    res := createWorkerFor(&amp;v) // this is now the address of the inner v
+}
+</code></pre>
+
+<p>With closures, pass the iteration variable as argument to the closure:</p>
+
+<pre><code class="language-go">for _, v := range versions { 
+    go func(arg ObjectDescription) {
+        x := &amp;arg // safe
+    }(v)
+}
+</code></pre>
+
+<h2 id="reference">Reference</h2>
+
+<p>This gist was produced after reading the answer given here: <a href="https://stackoverflow.com/a/68247837/14849316" target="_blank">https://stackoverflow.com/a/68247837/14849316</a>
+&ldquo;`</p>
+
+</div>
+</body>
+</html>

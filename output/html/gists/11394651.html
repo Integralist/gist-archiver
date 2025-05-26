@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Clojure's "Thread First" and "Thread Last" macros</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="clojure-s-thread-first-and-thread-last-macros">Clojure&rsquo;s &ldquo;Thread First&rdquo; and &ldquo;Thread Last&rdquo; macros</h1>
+
+<h2 id="macros-md">Macros.md</h2>
+
+<pre><code class="language-markdown">In Clojure macros are executed *before* code is evaluated. Macros allow us to manipulate the program being compiled. There are two macros in particular that I like to demonstrate why this is useful:
+
+- Thread First `-&gt;`
+- Thread Last `-&gt;&gt;`
+
+&gt; Note: in Clojure sequence data structures (lists &amp; vectors) are usually the last item in an argument list; where as map data structures are usually the first argument in an argument list
+
+## Thread First
+
+Our original program requires us to effectively read it &quot;inside out&quot;:
+
+```clj
+(dissoc
+  (assoc 
+    {:name &quot;Jonathan&quot; :password &quot;secret&quot;} 
+    :nickname &quot;Jon&quot;) 
+  :password)
+
+; =&gt; {:nickname &quot;Jon&quot;, :name &quot;Jonathan&quot;}
+</code></pre>
+
+<p>But as humans we prefer to read things the other way around (this is where Thread First can help):</p>
+
+<pre><code class="language-clj">(-&gt; {:name &quot;Jonathan&quot; :password &quot;secret&quot;}
+    (assoc :nickname &quot;Jon&quot;)
+    (dissoc :password))
+
+; =&gt; {:nickname &quot;Jon&quot;, :name &quot;Jonathan&quot;} 
+</code></pre>
+
+<p>As you can see, we&rsquo;re telling it to pass the map data structure as the first argument to each of the subsequent lists to be processed. This allows us to read the code in a more natural flow. But as macros are run <em>before</em> code is evaluated, Clojure will receive it in its original form and evaluate that original code.</p>
+
+<h2 id="thread-last">Thread Last</h2>
+
+<p>This macro works the same way but for sequences (see the <code>Note</code> above).</p>
+
+<pre><code class="language-clj">(reduce + (filter odd? (map inc (range 10))))
+
+; you can write it long form if you prefer:
+(reduce + 
+  (filter odd? 
+    (map inc 
+      (range 10))))
+
+; =&gt; 25
+</code></pre>
+
+<p>And now rewritten in a more natural flow&hellip;</p>
+
+<pre><code class="language-clj">(-&gt;&gt; (range 10) (map inc) (filter odd?) (reduce +))
+
+; you can write it long form if you prefer:
+(-&gt;&gt; (range 10)
+     (map inc)
+     (filter odd?)
+     (reduce +))
+
+; =&gt; 25
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Fastly JSON Logging] #fastly #cdn #logging #structured #json</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="fastly-json-logging-fastly-cdn-logging-structured-json">[Fastly JSON Logging] #fastly #cdn #logging #structured #json</h1>
+
+<h2 id="fastly-json-logging-md">Fastly JSON Logging.md</h2>
+
+<pre><code class="language-markdown">&gt; Note: original log format that Fastly translates into VCL:
+&gt; `%h [%{%Y-%m-%d %H:%M:%S}t.%{msec_frac}t] &quot;%r&quot; %&gt;s %B %{tls.client.protocol}V %{fastly_info.state}V  ` 
+
+## Simple
+
+```vcl
+# double quoted strings support percent escapes
+# https://docs.fastly.com/vcl/types/string/
+
+declare local var.json STRING;
+
+set var.json = &quot;{&quot; + 
+  &quot;%22foo%22: %22bar%22,&quot; + 
+  &quot;%22boop%22: %22beep%22,&quot; + 
+  &quot;%22city%22: %22&quot;+ json.escape(client.geo.city.utf8) + &quot;%22&quot; + 
+&quot;}&quot;;
+
+set req.http.X-JSON = var.json;
+
+# output:
+# x-json: {&quot;foo&quot;: &quot;bar&quot;,&quot;boop&quot;: &quot;beep&quot;,&quot;city&quot;: &quot;bristol&quot;}
+</code></pre>
+
+<blockquote>
+<p>Note: <code>%22</code> is the HTML encoding for <code>&quot;</code> (see <a href="https://docs.fastly.com/vcl/functions/json-escape/" target="_blank">docs</a>).</p>
+</blockquote>
+
+<p>Trying without encoding works, but is complicated to get working across multiple lines:</p>
+
+<pre><code class="language-vcl"># what it would be nice to use...
+{
+  &quot;timestamp&quot;:&quot;%{begin:%Y-%m-%dT%H:%M:%S}t&quot;,
+  &quot;time_elapsed&quot;:%{time.elapsed.usec}V,
+  &quot;is_tls&quot;:%{if(req.is_ssl, &quot;true&quot;, &quot;false&quot;)}V,
+  &quot;client_ip&quot;:&quot;%{req.http.Fastly-Client-IP}V&quot;,
+  &quot;geo_city&quot;:&quot;%{client.geo.city}V&quot;,
+  &quot;geo_country_code&quot;:&quot;%{client.geo.country_code}V&quot;,
+  &quot;request&quot;:&quot;%{req.method}V&quot;,
+  &quot;host&quot;:&quot;%{req.http.Fastly-Orig-Host}V&quot;,
+  &quot;url&quot;:&quot;%{json.escape(req.url)}V&quot;,
+  &quot;request_referer&quot;:&quot;%{json.escape(req.http.Referer)}V&quot;,
+  &quot;request_user_agent&quot;:&quot;%{json.escape(req.http.User-Agent)}V&quot;,
+  &quot;request_accept_language&quot;:&quot;%{json.escape(req.http.Accept-Language)}V&quot;,
+  &quot;request_accept_charset&quot;:&quot;%{json.escape(req.http.Accept-Charset)}V&quot;,
+  &quot;cache_status&quot;:&quot;%{regsub(fastly_info.state, &quot;^(HIT-(SYNTH)|(HITPASS|HIT|MISS|PASS|ERROR|PIPE)).*&quot;, &quot;\\2\\3&quot;) }V&quot;
+}
+
+# what we end up using...
+# this is done via the long string format {&quot;...&quot;}
+#
+# simple example:
+# {&quot;{  &quot;foo&quot;:&quot;&quot;} req.http.X-Foo {&quot;&quot;,  &quot;bar&quot;:&quot;} req.http.X-Bar {&quot; }&quot;};
+#
+# which gets fugly quick, when made longer, as in real-world examples (also has to be all on one line!)
+#
+# https://docs.fastly.com/vcl/types/string/
+set req.http.X-JSON2 = {&quot;{   &quot;timestamp&quot;:&quot;&quot;} strftime({&quot;%Y-%m-%dT%H:%M:%S&quot;}, time.start) {&quot;&quot;,   &quot;time_elapsed&quot;:&quot;} time.elapsed.usec {&quot;,   &quot;is_tls&quot;:&quot;} if(req.is_ssl, &quot;true&quot;, &quot;false&quot;) {&quot;,   &quot;client_ip&quot;:&quot;&quot;} req.http.Fastly-Client-IP {&quot;&quot;,   &quot;geo_city&quot;:&quot;&quot;} client.geo.city {&quot;&quot;,   &quot;geo_country_code&quot;:&quot;&quot;} client.geo.country_code {&quot;&quot;,   &quot;request&quot;:&quot;&quot;} req.method {&quot;&quot;,   &quot;host&quot;:&quot;&quot;} req.http.Fastly-Orig-Host {&quot;&quot;,   &quot;url&quot;:&quot;&quot;} json.escape(req.url) {&quot;&quot;,   &quot;request_referer&quot;:&quot;&quot;} json.escape(req.http.Referer) {&quot;&quot;,   &quot;request_user_agent&quot;:&quot;&quot;} json.escape(req.http.User-Agent) {&quot;&quot;,   &quot;request_accept_language&quot;:&quot;&quot;} json.escape(req.http.Accept-Language) {&quot;&quot;,   &quot;request_accept_charset&quot;:&quot;&quot;} json.escape(req.http.Accept-Charset) {&quot;&quot;,   &quot;cache_status&quot;:&quot;&quot;} regsub(fastly_info.state, &quot;^(HIT-(SYNTH)|(HITPASS|HIT|MISS|PASS|ERROR|PIPE)).*&quot;, &quot;\2\3&quot;)  {&quot;&quot; }&quot;};
+</code></pre>
+
+<blockquote>
+<p>Note: both approaches will require <a href="https://docs.fastly.com/guides/streaming-logs/changing-log-line-formats#available-message-formats" target="_blank"><code>blank</code> to be set</a></p>
+
+<pre><code class="language-blank">
+## Advanced (and performance costly)
+
+[https://github.com/fastly/vcl-json-generate](https://github.com/fastly/vcl-json-generate)
+</code></pre>
+</blockquote>
+
+<h2 id="interpolate-fastly-values-md">interpolate fastly values.md</h2>
+
+<pre><code class="language-markdown">&gt; note: variables such as beresp are only available in vcl_fetch
+
+```vcl
+set var.json = &quot;{&quot; + 
+  &quot;%22host%22: %22&quot; + req.http.host + &quot;%22,&quot; + 
+  &quot;%22backend%22: %22&quot; + req.backend + &quot;%22,&quot; + 
+  &quot;%22contentType%22: %22&quot; + beresp.http.Content-Type + &quot;%22,&quot; + 
+  &quot;%22cacheType%22: %22&quot; + fastly_info.state + &quot;%22,&quot; + 
+  &quot;%22pageSize%22: %22&quot; + beresp.http.Content-Length + &quot;%22,&quot; + 
+  &quot;%22bot%22: %22&quot; + req.http.User-Agent + &quot;%22&quot; + 
+&quot;}&quot;;
+</code></pre>
+
+<pre><code>
+## Alernative (not tested).vcl
+
+```vcl
+// this is what's possible in vcl_error but might not be possible in our own subroutines...
+synthetic {&quot;{
+  &quot;geo&quot;: {
+    &quot;gmt_offset&quot;:&quot;} json.escape(client.geo.gmt_offset) {&quot;,
+    &quot;city&quot;: &quot;&quot;} json.escape(client.geo.city) {&quot;&quot;,
+    &quot;country_name&quot;: &quot;&quot;} json.escape(client.geo.country_name) {&quot;&quot;,
+    &quot;ip_override&quot;: &quot;&quot;} json.escape(client.geo.ip_override) {&quot;&quot;
+  },
+  &quot;as&quot;: {
+    &quot;name&quot;: &quot;&quot;} json.escape(client.as.name) {&quot;&quot;
+  }
+}&quot;};
+</code></pre>
+
+</div>
+</body>
+</html>

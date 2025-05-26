@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go manage external tools via go modules] #go #golang #modules #dependencies #tools #external #ci</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-manage-external-tools-via-go-modules-go-golang-modules-dependencies-tools-external-ci">[Go manage external tools via go modules] #go #golang #modules #dependencies #tools #external #ci</h1>
+
+<h2 id="go-manage-external-tools-via-go-modules-md">Go manage external tools via go modules.md</h2>
+
+<pre><code class="language-markdown">&gt; [!IMPORTANT]
+&gt; Read https://gist.github.com/Integralist/e19c9faee86e797125e6d95fe1188912 instead.
+
+## Go 1.16
+
+As of Go version `1.16` the `go` command changed behaviour for `get` and `install`:
+
+- `install`: the recommended way to install packages (ignoring 
+- `get`: adds dependencies to your project's go modules file (i.e. `go.mod`).
+
+The `go install` command now accepts a version suffix:
+
+</code></pre>
+
+<p>go install example.com/cmd@v1.0.0</p>
+
+<pre><code>
+## Pre Go 1.16
+
+Before Go version `1.16` we needed to resort to other ways of getting a resource.
+
+Have the following package `tools/tools.go`:
+
+```go
+// +build tools
+
+package tools
+
+import (
+	// document generation
+	_ &quot;github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs&quot;
+)
+</code></pre>
+
+<blockquote>
+<p><strong>Note</strong>: the use of a build tag means <code>go build</code> won&rsquo;t compile the code into your binary.</p>
+</blockquote>
+
+<p>Have the following <code>Makefile</code>:</p>
+
+<pre><code class="language-Makefile">BIN=$(CURDIR)/bin
+$(BIN)/%:
+	@echo &quot;Installing tools from tools/tools.go&quot;
+	@cat tools/tools.go | grep _ | awk -F '&quot;' '{print $$2}' | GOBIN=$(BIN) xargs -tI {} go install {}
+
+# Inject ./bin into PATH to allow scripts/generate-docs.go to access local tfplugindocs binary
+generate-docs: $(BIN)/tfplugindocs
+	PATH=$(PATH):$(BIN) go run scripts/generate-docs.go
+
+validate-docs: $(BIN)/tfplugindocs
+	$(BIN)/tfplugindocs validate
+</code></pre>
+
+<blockquote>
+<p><strong>Note</strong>: pay special attention to the fact that <code>$</code> is a reserved symbol in a Makefile so we have to escape it: <code>$$</code>.</p>
+</blockquote>
+
+<p>Now you&rsquo;ll find you have the dependency installed:</p>
+
+<pre><code class="language-bash">ls -la $GOPATH/bin
+
+-rwxr-xr-x   1 integralist  staff  22965276  2 Feb 13:52 tfplugindocs*
+</code></pre>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

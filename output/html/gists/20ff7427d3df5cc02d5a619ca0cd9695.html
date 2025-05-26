@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Go Guru and Vim-Go] #go #golang #guru #interfaces #vim #vim-go</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="go-guru-and-vim-go-go-golang-guru-interfaces-vim-vim-go">[Go Guru and Vim-Go] #go #golang #guru #interfaces #vim #vim-go</h1>
+
+<h2 id="go-guru-md">Go Guru.md</h2>
+
+<pre><code class="language-markdown">## Go Guru
+
+&gt; See official doc: [Using Go Guru](https://docs.google.com/document/d/1_Y9xCEMj5S-7rv2ooHpZNH15JgRT5iM742gJkw5LtmQ/edit#heading=h.7q1t7o2y7td3)
+
+```bash
+go get golang.org/x/tools/cmd/guru
+guru -help
+</code></pre>
+
+<p>Guru command line usage:</p>
+
+<pre><code class="language-bash">guru &lt;mode&gt; &lt;position:byte offset&gt;
+</code></pre>
+
+<hr />
+
+<p>Here&rsquo;s an example go program:</p>
+
+<pre><code class="language-go">type statusHandler int
+ 
+func (s statusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+    code := int(s)
+    w.WriteHeader(code)
+    io.WriteString(w, http.StatusText(code))
+}
+</code></pre>
+
+<p>With cursor over the <code>statusHandler</code> type:</p>
+
+<pre><code class="language-bash">guru implements ~/code/go/src/github.com/integralist/http-interface/main.go:#812
+</code></pre>
+
+<p>This tells us that it implements the <code>http.Handler</code> interface:</p>
+
+<pre><code class="language-bash">/Users/markmcdonnell/code/go/src/github.com/integralist/http-interface/main.go:40.6-40.18: basic type statusHandler
+/usr/local/Cellar/go/1.10.3/libexec/src/net/http/server.go:82.6-82.12:  implements net/http.Handler
+</code></pre>
+
+<hr />
+
+<p>With cursor over the <code>ServeHTTP</code> method:</p>
+
+<pre><code class="language-bash">guru implements ~/code/go/src/github.com/integralist/http-interface/main.go:#836
+</code></pre>
+
+<p>This tells us that it implements the <code>http.Handler</code> interface&rsquo;s signature <code>ServeHTTP</code> method:</p>
+
+<pre><code class="language-bash">/Users/markmcdonnell/code/go/src/github.com/integralist/http-interface/main.go:42.24-42.32: concrete method func (statusHandler).ServeHTTP(w net/http.ResponseWriter, r *net/http.Request)
+/usr/local/Cellar/go/1.10.3/libexec/src/net/http/server.go:83.2-83.10:  implements method (net/http.Handler).ServeHTTP
+</code></pre>
+
+<blockquote>
+<p>Note: to convert a line into a byte range you can use in Vim <code>:echo eval(line2byte(line(&quot;.&quot;))+col(&quot;.&quot;))</code></p>
+</blockquote>
+
+<hr />
+
+<pre><code class="language-go">// this is a duplicate of fmt.Stringer interface
+type stringit interface {
+    String() string
+}
+ 
+type testthing struct{}
+ 
+func (t testthing) String() string {
+    return &quot;a test thing&quot;
+}
+</code></pre>
+
+<hr />
+
+<p>With cursor over the testhing type:</p>
+
+<pre><code class="language-bash">guru implements ~/code/go/src/github.com/integralist/http-interface/main.go:#722
+</code></pre>
+
+<p>This tells us that the testthing struct is satisfying multiple interfaces. This helps me to realize that maybe my new interface isn&rsquo;t necessary and that maybe I should consider re-using an existing interface:</p>
+
+<pre><code class="language-bash">/Users/markmcdonnell/code/go/src/github.com/integralist/http-interface/main.go:33.6-33.14: struct type testthing
+/usr/local/Cellar/go/1.10.3/libexec/src/fmt/print.go:62.6-62.13:                           implements fmt.Stringer
+/Users/markmcdonnell/code/go/src/github.com/integralist/http-interface/main.go:29.6-29.13: implements stringit
+/usr/local/Cellar/go/1.10.3/libexec/src/runtime/error.go:66.6-66.13:                       implements runtime.stringer
+</code></pre>
+
+<hr />
+
+<p>With cursor over the interface itself:</p>
+
+<pre><code class="language-bash">guru implements ~/code/go/src/github.com/integralist/http-interface/main.go:#676
+</code></pre>
+
+<p>This shows us everything that sastifies this interface:</p>
+
+<pre><code class="language-bash">main.go|29 col 6| interface type stringit
+/usr/local/Cellar/go/1.10.3/libexec/src/bytes/buffer.go|17 col 6|     is implemented by pointer type *bytes.Buffer
+/usr/local/Cellar/go/1.10.3/libexec/src/context/context.go|316 col 6| is implemented by pointer type *context.cancelCtx
+
+...many things satisfy this...
+</code></pre>
+
+<pre><code>
+## Vim-Go.md
+
+```markdown
+## Vim-Go integration with Guru
+
+vim-go uses `:GoReferrers` to look up references and `:GoImplements` to show what interface the given type is implementing.
+
+```go
+type foo interface {
+	bar(string) string
+}
+
+type thing struct{}
+
+func (t thing) bar(x string) string {
+	fmt.Println(x)
+	return &quot;y&quot;
+}
+</code></pre>
+
+<p>If I execute <code>:GoImplements</code> while cursor is on top of <code>bar</code> method, I&rsquo;ll see:</p>
+
+<pre><code>main.go|35 col 16| concrete method func (thing).bar(x string) string
+main.go|30 col 2| implements method (foo).bar
+</code></pre>
+
+<ul>
+<li><code>:GoCallers</code>: lists callers of this function.</li>
+<li><code>:GoCallees</code>: lists functions called by this function.</li>
+<li><code>:GoReferrers</code>: lists every instance where this function is called.</li>
+<li><code>:GoDescribe</code>: lists selected identifiers definition (inc. method set + struct fields).</li>
+<li><code>:GoImplements</code>: lists all interfaces the selected identifier satisfies.</li>
+<li><code>:GoWhicherrs</code>: lists all possible error types returned.</li>
+<li><code>:GoChannelPeers</code>: lists sends/receives on a <code>&lt;-</code> channel.</li>
+</ul>
+
+<hr />
+
+<h2 id="vim-go-other-features">Vim-Go: Other Features</h2>
+
+<ul>
+<li><code>:GoRename</code>: rename all references to identifier across project.</li>
+<li><code>:GoImpl</code>: implement stubs for specified interface.</li>
+<li><code>:GoDecls</code>: list all function and type declarations for the current file.</li>
+<li><code>:GoDef</code>: takes you to the source of the identifier (i.e. where it&rsquo;s defined).</li>
+<li><code>:GoTest</code>: run all your tests (can also pass <code>./...</code>).</li>
+<li><code>:GoTestFunc</code>: run the specific test function under your cursor.</li>
+</ul>
+
+<p>&rdquo;`</p>
+
+</div>
+</body>
+</html>

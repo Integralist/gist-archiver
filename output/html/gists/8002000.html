@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mocking the `window` object in JavaScript unit tests</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="mocking-the-window-object-in-javascript-unit-tests">Mocking the <code>window</code> object in JavaScript unit tests</h1>
+
+<h2 id="1-windowmock-js">1. WindowMock.js</h2>
+
+<pre><code class="language-javascript">define([
+    'module/bootstrap', // this is jQuery and PubSub libs
+], function (lib) {
+        var windowMock = {
+            resizeSet: false, // set within the fake `lib` object below
+
+            createFakeWindow: function(width, height) {
+                return {
+                    document: {
+                        documentElement: {
+                            clientWidth: width,
+                            clientHeight: height
+                        }
+                    },
+
+                    resizeTo: function(width, height) {
+                        this.document.documentElement = {
+                            clientWidth: width,
+                            clientHeight: height
+                        };
+                    }
+                };
+            },
+
+            fireResizeEvent: function() {
+                this.handler(); // set within the fake `lib` object below
+            },
+
+            lib: {
+                $: function(element) {
+                    return {
+                        on: function(event, handler) {
+                            if (event === 'resize') {
+                                windowMock.resizeSet = true;
+                                windowMock.handler = handler;
+                            }
+                        }
+                    };
+                },
+
+                pubsub: lib.pubsub
+            }
+        };
+
+        return windowMock;
+    }
+);
+</code></pre>
+
+<h2 id="2-test-environment-js">2. Test Environment.js</h2>
+
+<pre><code class="language-javascript">function createFakeWindow (width, height) {
+    var fakeWindow = WindowMock.createFakeWindow(width, height);
+
+    someObject.init(fakeWindow, WindowMock.lib); // this can be removed or changed appropriately
+
+    return fakeWindow;
+}
+
+function resizeWindow (width, height, fakeWindow) {
+    document.body.style.width = width + 'px'; // remember to reset this in the test tear down
+    fakeWindow.resizeTo(width, height);
+    WindowMock.fireResizeEvent();
+}
+</code></pre>
+
+<h2 id="3-code-js">3. Code.js</h2>
+
+<pre><code class="language-javascript">define(['module/bootstrap'], function (lib) {
+    var $, pubsub, someObject;
+
+    someObject = {
+        // Passing mocks to production code stinks!
+        // Would love others to suggest a better solution
+        init: function (windowMock, libMock) {
+            this.global = windowMock || window;
+            this.docEl = this.global.document.documentElement || document.documentElement;
+            this.lib = libMock || lib;
+
+            $ = this.lib.$;
+            pubsub = this.lib.pubsub;
+        }
+    };
+
+    return someObject;
+});
+
+</code></pre>
+
+</div>
+</body>
+</html>

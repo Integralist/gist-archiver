@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Python Boto Exception Handling] #boto #boto3 #python #cognito #aws</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="python-boto-exception-handling-boto-boto3-python-cognito-aws">[Python Boto Exception Handling] #boto #boto3 #python #cognito #aws</h1>
+
+<h2 id="python-boto-exception-handling-py">Python Boto Exception Handling.py</h2>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+pipenv --python 3.7
+pipenv shell
+pip install boto3 structlog ipython
+&quot;&quot;&quot;
+
+import boto3
+from botocore.exceptions import ClientError
+sdk_client = boto3.client('cognito-idp', **{'region_name': 'eu-west-1'})
+
+import logging
+import structlog
+structlogger = structlog.getLogger(__name__)
+structlog.configure(cache_logger_on_first_use=True,
+                    context_class=dict,
+                    logger_factory=structlog.stdlib.LoggerFactory(),
+                    processors=[structlog.stdlib.add_logger_name,
+                                structlog.stdlib.add_log_level,
+                                structlog.processors.TimeStamper(fmt=&quot;%Y-%m-%d %H:%M.%S&quot;),
+                                structlog.processors.JSONRenderer(sort_keys=True)])
+
+try:
+	sdk_client.global_sign_out(AccessToken=&quot;123&quot;)
+except TypeError as err:  
+	structlogger.error('TypeError Caught', 
+                       exc_type=err.__class__.__name__, 
+                       exc_msg=str(err), 
+                       orig_err=err)
+    logging.error(&quot;Stdlib Logger: TypeError Caught: %s&quot;, err, exc_info=True)
+except ClientError as err:
+	structlogger.error('ClientError Caught', 
+                       exc_type=err.__class__.__name__, 
+                       exc_msg=str(err), 
+                       orig_err=err)
+    logging.error(&quot;Stdlib Logger: ClientError Caught: %s&quot;, err, exc_info=True)
+except Exception as err:
+	structlogger.error('Exception Caught', 
+                       exc_type=err.__class__.__name__, 
+                       exc_msg=str(err), 
+                       orig_err=err)
+    logging.error(&quot;Stdlib Logger: Exception Caught: %s&quot;, err, exc_info=False)  # hide stack trace
+
+###################################################################################################
+
+aws_access_key = '111'
+aws_secret_key = '222'
+region = 'us-east-1'
+
+try:
+    iam = boto3.client('iam', **{'aws_access_key_id': aws_access_key,
+                                 'aws_secret_access_key': aws_secret_key,
+                                 'region_name': region})
+    user = iam.create_user(UserName='foobar')
+    print(f&quot;created user! {user}&quot;)
+except TypeError as err:
+    structlogger.error('TypeError Caught',
+                       exc_class=type(err),
+                       exc_type=err.__class__.__name__,
+                       exc_msg=str(err),
+                       err_code=err.response['ResponseMetadata']['HTTPStatusCode'] if hasattr(err, 'response') else 500)
+    logging.error(&quot;Stdlib Logger: TypeError Caught: %s&quot;, err, exc_info=True)
+except ClientError as err:
+    structlogger.error('ClientError Caught',
+                       exc_class=type(err),
+                       exc_type=err.__class__.__name__,
+                       exc_msg=str(err),
+                       err_code=err.response['ResponseMetadata']['HTTPStatusCode'] if hasattr(err, 'response') else 500)
+    logging.error(&quot;Stdlib Logger: ClientError Caught: %s&quot;, err, exc_info=True)
+except Exception as err:
+    structlogger.error('Exception Caught',
+                       exc_class=type(err),
+                       exc_type=err.__class__.__name__,
+                       exc_msg=str(err),
+                       err_code=err.response['ResponseMetadata']['HTTPStatusCode'] if hasattr(err, 'response') else 500)
+    logging.error(&quot;Stdlib Logger: Exception Caught: %s&quot;, err, exc_info=False)  # hide stack trace
+   
+&quot;&quot;&quot;
+log output...
+
+{
+	&quot;err_code&quot;: 403, 
+    &quot;event&quot;: &quot;Exception Caught&quot;, 
+    &quot;exc_msg&quot;: &quot;An error occurred (AccessDenied) when calling the CreateUser operation: User: arn:aws:iam::123:user/beep is not authorized to perform: iam:CreateUser on resource: arn:aws:iam::123:user/foobar&quot;, 
+    &quot;exc_class&quot;: &quot;&lt;class 'botocore.exceptions.ClientError'&gt;&quot;, 
+    &quot;exc_type&quot;: &quot;ClientError&quot;, 
+    &quot;level&quot;: &quot;error&quot;, 
+    &quot;logger&quot;: &quot;__main__&quot;, 
+    &quot;timestamp&quot;: &quot;2018-08-31 11:46.23&quot;
+}
+
+err.response...
+
+{  
+   &quot;err_code&quot;:{  
+      &quot;Error&quot;:{  
+         &quot;Code&quot;:&quot;AccessDenied&quot;,
+         &quot;Message&quot;:&quot;User: arn:aws:iam::123:user/beep is not authorized to perform: iam:CreateUser on resource: arn:aws:iam::123:user/foobar&quot;,
+         &quot;Type&quot;:&quot;Sender&quot;
+      },
+      &quot;ResponseMetadata&quot;:{  
+         &quot;HTTPHeaders&quot;:{  
+            &quot;content-length&quot;:&quot;405&quot;,
+            &quot;content-type&quot;:&quot;text/xml&quot;,
+            &quot;date&quot;:&quot;Fri, 31 Aug 2018 11:30:15 GMT&quot;,
+            &quot;x-amzn-requestid&quot;:&quot;456&quot;
+         },
+         &quot;HTTPStatusCode&quot;:403,
+         &quot;RequestId&quot;:&quot;456&quot;,
+         &quot;RetryAttempts&quot;:0
+      }
+   },
+   &quot;err_type&quot;:&quot;&lt;class 'botocore.exceptions.ClientError'&gt;&quot;,
+   &quot;event&quot;:&quot;ClientError Caught&quot;,
+   &quot;exc_msg&quot;:&quot;An error occurred (AccessDenied) when calling the CreateUser operation: User: arn:aws:iam::123:user/beep is not authorized to perform: iam:CreateUser on resource: arn:aws:iam::123:user/foobar&quot;,
+   &quot;exc_type&quot;:&quot;ClientError&quot;,
+   &quot;level&quot;:&quot;error&quot;,
+   &quot;logger&quot;:&quot;__main__&quot;,
+   &quot;orig_err&quot;:&quot;ClientError('An error occurred (AccessDenied) when calling the CreateUser operation: User: arn:aws:iam::123:user/beep is not authorized to perform: iam:CreateUser on resource: arn:aws:iam::123:user/foobar')&quot;,
+   &quot;timestamp&quot;:&quot;2018-08-31 11:30.16&quot;
+}
+
+See also...
+
+try:
+    # some aws api call
+except ClientError as exc:
+    error = exc.response.get('Error', {})
+    error_code = error.get('Code')
+    error_msg = error.get('Message')
+    invalid_refresh_token = re.compile('Invalid Refresh Token')
+
+    if error_code == 'NotAuthorizedException' and invalid_refresh_token.match(error_msg):
+        instr_exc(exc, msg, state='expired', **exc_tags)
+        raise exceptions.CognitoException(msg, code=extract_status_code(exc))
+
+    instr_exc(exc, msg, state='failed', **exc_tags)
+    raise exceptions.CognitoException(msg, code=extract_status_code(exc))
+    
+    
+...and...
+
+def extract_status_code(exc):
+    &quot;&quot;&quot;If dealing with an AWS SDK response, attempt to extract the status code.&quot;&quot;&quot;
+
+    return exc.response['ResponseMetadata']['HTTPStatusCode'] if hasattr(exc, 'response') else 500
+&quot;&quot;&quot;
+</code></pre>
+
+</div>
+</body>
+</html>

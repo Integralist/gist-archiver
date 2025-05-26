@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Golang CLI progress spinner] #go #golang #cli #spinner #tty</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="golang-cli-progress-spinner-go-golang-cli-spinner-tty">[Golang CLI progress spinner] #go #golang #cli #spinner #tty</h1>
+
+<h2 id="golang-cli-progress-spinner-go">Golang CLI progress spinner.go</h2>
+
+<pre><code class="language-go">package text
+
+import (
+	&quot;bytes&quot;
+	&quot;context&quot;
+	&quot;encoding/hex&quot;
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;os&quot;
+	&quot;runtime&quot;
+	&quot;strings&quot;
+	&quot;sync&quot;
+	&quot;time&quot;
+	&quot;unicode/utf8&quot;
+
+	&quot;github.com/mattn/go-isatty&quot;
+)
+
+// Progress is a producer contract, abstracting over the quiet and verbose
+// Progress types. Consumers may use a Progress value in their code, and assign
+// it based on the presence of a -v, --verbose flag. Callers are expected to
+// call Step for each new major step of their procedural code, and Write with
+// the verbose or detailed output of those steps. Callers must eventually call
+// either Done or Fail, to signal success or failure respectively.
+type Progress interface {
+	io.Writer
+	Tick(rune)
+	Step(string)
+	Done()
+	Fail()
+}
+
+// NewProgress returns a Progress based on the given verbosity level or whether
+// the current process is running in a terminal environment.
+func NewProgress(output io.Writer, verbose bool) Progress {
+	var progress Progress
+	if verbose {
+		progress = NewVerboseProgress(output)
+	} else if isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd()) {
+		progress = NewInteractiveProgress(output)
+	} else {
+		progress = NewQuietProgress(output)
+	}
+	return progress
+}
+
+// Ticker is a small consumer contract for the Spin function,
+// capturing part of the Progress interface.
+type Ticker interface {
+	Tick(r rune)
+}
+
+// Spin calls Tick on the target with the relevant frame every interval. It
+// returns when context is canceled, so should be called in its own goroutine.
+func Spin(ctx context.Context, frames []rune, interval time.Duration, target Ticker) error {
+	var (
+		cursor = 0
+		ticker = time.NewTicker(interval)
+	)
+	defer ticker.Stop()
+	for {
+		select {
+		case &lt;-ticker.C:
+			target.Tick(frames[cursor])
+			cursor = (cursor + 1) % len(frames)
+		case &lt;-ctx.Done():
+			return ctx.Err()
+		}
+	}
+}
+
+// InteractiveProgress is an implementation of Progress that includes a spinner at the
+// beginning of each Step, and where newline-delimited lines written via Write
+// overwrite the current step line in the output.
+type InteractiveProgress struct {
+	mtx    sync.Mutex
+	output io.Writer
+
+	stepHeader     string       // title of current step
+	writeBuffer    bytes.Buffer // receives Write calls
+	lastBufferLine string       // last full line in writeBuffer
+	currentOutput  string       // the content of the current line displayed to user
+
+	cancel func()          // tell Spin to stop
+	done   &lt;-chan struct{} // wait for Spin to stop
+}
+
+// NewInteractiveProgress returns a InteractiveProgress outputting to the writer.
+func NewInteractiveProgress(output io.Writer) *InteractiveProgress {
+	p := &amp;InteractiveProgress{
+		output:     output,
+		stepHeader: &quot;Initializing...&quot;,
+	}
+
+	var (
+		ctx, cancel = context.WithCancel(context.Background())
+		done        = make(chan struct{})
+	)
+	go func() {
+		Spin(ctx, []rune{'-', '\\', '|', '/'}, 100*time.Millisecond, p)
+		close(done)
+	}()
+	p.cancel = cancel
+	p.done = done
+
+	return p
+}
+
+func (p *InteractiveProgress) replaceLine(format string, args ...interface{}) {
+	// Clear the current line.
+	n := utf8.RuneCountInString(p.currentOutput)
+	switch runtime.GOOS {
+	case &quot;windows&quot;:
+		fmt.Fprintf(p.output, &quot;%s\r&quot;, strings.Repeat(&quot; &quot;, n))
+	default:
+		del, _ := hex.DecodeString(&quot;7f&quot;)
+		sequence := fmt.Sprintf(&quot;\b%s\b\033[K&quot;, del)
+		fmt.Fprintf(p.output, &quot;%s\r&quot;, strings.Repeat(sequence, n))
+	}
+
+	// Generate the new line.
+	s := fmt.Sprintf(format, args...)
+	p.currentOutput = s
+	fmt.Fprint(p.output, p.currentOutput)
+}
+
+func (p *InteractiveProgress) getStatus() string {
+	if p.lastBufferLine != &quot;&quot; {
+		return p.lastBufferLine // takes precedence
+	}
+	return p.stepHeader
+}
+
+// Tick implements the Progress interface.
+func (p *InteractiveProgress) Tick(r rune) {
+	p.mtx.Lock()
+	defer p.mtx.Unlock()
+
+	p.replaceLine(&quot;%s %s&quot;, string(r), p.getStatus())
+}
+
+// Write implements the Progress interface, emitting each incoming byte slice
+// to the internal buffer to be written to the terminal on the next tick.
+func (p *InteractiveProgress) Write(buf []byte) (int, error) {
+	p.mtx.Lock()
+	defer p.mtx.Unlock()
+
+	p.writeBuffer.Write(buf)
+	p.lastBufferLine = LastFullLine(p.writeBuffer.String())
+
+	return len(buf), nil
+}
+
+// Step implements the Progress interface.
+func (p *InteractiveProgress) Step(msg string) {
+	msg = strings.TrimSpace(msg)
+
+	p.mtx.Lock()
+	defer p.mtx.Unlock()
+
+	// Previous step complete.
+	p.replaceLine(&quot;%s %s&quot;, Bold(&quot;✓&quot;), p.stepHeader)
+	fmt.Fprintln(p.output)
+
+	// Reset all the stepwise state.
+	p.stepHeader = msg
+	p.writeBuffer.Reset()
+	p.lastBufferLine = &quot;&quot;
+	p.currentOutput = &quot;&quot;
+
+	// New step beginning.
+	p.replaceLine(&quot;%s %s&quot;, Bold(&quot;·&quot;), p.stepHeader)
+}
+
+// Done implements the Progress interface.
+func (p *InteractiveProgress) Done() {
+	// It's important to cancel the Spin goroutine before taking the lock,
+	// because otherwise it's possible to generate a deadlock if the output
+	// io.Writer is also synchronized.
+	p.cancel()
+	&lt;-p.done
+
+	p.mtx.Lock()
+	defer p.mtx.Unlock()
+
+	p.replaceLine(&quot;%s %s&quot;, Bold(&quot;✓&quot;), p.stepHeader)
+	fmt.Fprintln(p.output)
+}
+
+// Fail implements the Progress interface.
+func (p *InteractiveProgress) Fail() {
+	p.cancel()
+	&lt;-p.done
+
+	p.mtx.Lock()
+	defer p.mtx.Unlock()
+
+	p.replaceLine(&quot;%s %s&quot;, Bold(&quot;✗&quot;), p.stepHeader)
+	fmt.Fprintln(p.output)
+}
+
+// LastFullLine returns the last full \n delimited line in s. That is, s must
+// contain at least one \n for LastFullLine to return anything.
+func LastFullLine(s string) string {
+	last := strings.LastIndex(s, &quot;\n&quot;)
+	if last &lt; 0 {
+		return &quot;&quot;
+	}
+
+	prev := strings.LastIndex(s[:last], &quot;\n&quot;)
+	if prev &lt; 0 {
+		prev = 0
+	}
+
+	return strings.TrimSpace(s[prev:last])
+}
+
+//
+//
+//
+
+// QuietProgress is an implementation of Progress that attempts to be quiet in
+// it's output. I.e. it only prints each Step as it progresses and discards any
+// intermediary writes between steps. No spinners are used, therefore it's
+// useful for non-TTY environiments, such as CI.
+type QuietProgress struct {
+	output     io.Writer
+	nullWriter io.Writer
+}
+
+// NewQuietProgress returns a QuietProgress outputting to the writer.
+func NewQuietProgress(output io.Writer) *QuietProgress {
+	qp := &amp;QuietProgress{
+		output:     output,
+		nullWriter: io.Discard,
+	}
+	qp.Step(&quot;Initializing...&quot;)
+	return qp
+}
+
+// Tick implements the Progress interface. It's a no-op.
+func (p *QuietProgress) Tick(r rune) {}
+
+// Tick implements the Progress interface.
+func (p *QuietProgress) Write(buf []byte) (int, error) {
+	return p.nullWriter.Write(buf)
+}
+
+// Step implements the Progress interface.
+func (p *QuietProgress) Step(msg string) {
+	fmt.Fprintln(p.output, strings.TrimSpace(msg))
+}
+
+// Done implements the Progress interface. It's a no-op.
+func (p *QuietProgress) Done() {}
+
+// Fail implements the Progress interface. It's a no-op.
+func (p *QuietProgress) Fail() {}
+
+//
+//
+//
+
+// VerboseProgress is an implementation of Progress that treats Step and Write
+// more or less the same: it simply pipes all output to the provided Writer. No
+// spinners are used.
+type VerboseProgress struct {
+	output io.Writer
+}
+
+// NewVerboseProgress returns a VerboseProgress outputting to the writer.
+func NewVerboseProgress(output io.Writer) *VerboseProgress {
+	return &amp;VerboseProgress{
+		output: output,
+	}
+}
+
+// Tick implements the Progress interface. It's a no-op.
+func (p *VerboseProgress) Tick(r rune) {}
+
+// Tick implements the Progress interface.
+func (p *VerboseProgress) Write(buf []byte) (int, error) {
+	return p.output.Write(buf)
+}
+
+// Step implements the Progress interface.
+func (p *VerboseProgress) Step(msg string) {
+	fmt.Fprintln(p.output, strings.TrimSpace(msg))
+}
+
+// Done implements the Progress interface. It's a no-op.
+func (p *VerboseProgress) Done() {}
+
+// Fail implements the Progress interface. It's a no-op.
+func (p *VerboseProgress) Fail() {}
+
+//
+//
+//
+
+// NullProgress is an implementation of Progress which discards everything
+// written into it and produces no output.
+type NullProgress struct {
+	output io.Writer
+}
+
+// NewNullProgress returns a NullProgress.
+func NewNullProgress() *NullProgress {
+	return &amp;NullProgress{
+		output: io.Discard,
+	}
+}
+
+// Tick implements the Progress interface. It's a no-opt
+func (p *NullProgress) Tick(r rune) {}
+
+// Tick implements the Progress interface.
+func (p *NullProgress) Write(buf []byte) (int, error) {
+	return p.output.Write(buf)
+}
+
+// Step implements the Progress interface.
+func (p *NullProgress) Step(msg string) {}
+
+// Done implements the Progress interface. It's a no-op.
+func (p *NullProgress) Done() {}
+
+// Fail implements the Progress interface. It's a no-op.
+func (p *NullProgress) Fail() {}
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[Cucumber Gherkin Template Feature File] #gherkin #cucumber #userstory #story #feature #scenario</title>
+<style>
+body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
+code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
+h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+a.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="cucumber-gherkin-template-feature-file-gherkin-cucumber-userstory-story-feature-scenario">[Cucumber Gherkin Template Feature File] #gherkin #cucumber #userstory #story #feature #scenario</h1>
+
+<h2 id="3-advanced-table-lookup-feature">3. Advanced Table Lookup.feature</h2>
+
+<pre><code class="language-gherkin">Feature: Restaurant
+
+  Scenario Outline: eating
+
+    Given there are &lt;start&gt; cucumbers
+    When I eat &lt;eat&gt; cucumbers
+    Then I should have &lt;left&gt; cucumbers
+
+    Examples:
+      | start | eat | left |
+      |    12 |   5 |    7 |
+      |    20 |   5 |   15 |
+</code></pre>
+
+<h2 id="1-template-feature">1. Template.feature</h2>
+
+<pre><code class="language-gherkin">Feature: &lt;title&gt;
+  
+  In order to &lt;do something&gt;
+  As a &lt;user&gt;
+  I want to &lt;achieve some goal&gt;
+
+  Scenario: &lt;title&gt;
+  
+    &lt;additional description&gt;
+  
+    Given &lt;some state&gt;
+    When &lt;some action&gt;
+    Then &lt;some expectation&gt; with &lt;some_name&gt; # where &lt;some_name&gt; is actual Gherkin syntax for a table lookup!
+
+    Examples:
+      | some_name |
+      | A         |
+      | B         |
+      | C         |
+      | ...etc    |
+
+  Tasks: # non-standard syntax, but useful for most 'project planning' purposes
+
+    - What: ...
+      Why: ...
+      Impact: ...
+</code></pre>
+
+<h2 id="2-example-feature">2. Example.feature</h2>
+
+<pre><code class="language-gherkin">Feature: Resilience
+
+  In order to provide content to our users
+  As an organisation
+  We want our websites/apps and their dependencies to be available
+
+  Scenario: Fastly Unavailable
+
+    Fastly is our CDN provider, and is effectively the 'front door' to the
+    majority of our publicly consumed content.
+
+    Given Fastly is unavailable
+    When a user requests a public buzzfeed resource (e.g. www.buzzfeed.com)
+    Then we expect the resource to be provided
+
+  Tasks:
+
+    - What: Investigation of 'stale rendering' vs 'multi-region infrastructure'
+      Why: Understand the risk/cost implications of each approach.
+      Impact: We'll be able to proceed with the approach which provides the most value.
+
+    - What: Migration of CDN logic to Perimeter.
+      Why: We want to reduce the amount of unfamilar code.
+      Impact: Will make migrating to an alternative CDN provider easier as there is less logic coupling.
+
+</code></pre>
+
+</div>
+</body>
+</html>
