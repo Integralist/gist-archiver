@@ -120,3 +120,17 @@ code {
 .markdown-content h1 { font-size: 1.6em; }
 .markdown-content h2 { font-size: 1.4em; }
 .markdown-content h3 { font-size: 1.2em; }
+
+.hidden {
+    display: none !important;
+}
+
+#filterInput {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* Ensures padding doesn't add to width */
+    font-size: 1em;
+}

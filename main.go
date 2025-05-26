@@ -164,6 +164,20 @@ code {
 .markdown-content h2 { font-size: 1.4em; }
 .markdown-content h3 { font-size: 1.2em; }
 
+.hidden {
+    display: none !important;
+}
+
+#filterInput {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* Ensures padding doesn't add to width */
+    font-size: 1em;
+}
+
 `
 
 var (
@@ -518,7 +532,7 @@ func processSingleGist(gist GistDetail, indexEntryChan chan<- IndexEntry) {
 }
 
 func generateIndexFiles(entries []IndexEntry) {
-	// Generate Index Markdown
+	// Generate Index Markdown (remains the same)
 	var mdContent strings.Builder
 	mdContent.WriteString("# Gists Archive\n\n")
 	if len(entries) == 0 {
@@ -544,7 +558,12 @@ func generateIndexFiles(entries []IndexEntry) {
 	htmlIndexContent.WriteString(fmt.Sprintf("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s/%s/%s\">\n",
 		assetsSubDir, cssSubDir, cssFileName))
 	htmlIndexContent.WriteString("</head>\n<body>\n<div class=\"container\">\n")
-	htmlIndexContent.WriteString("<h1>Gists Archive</h1>\n<ul>\n")
+	htmlIndexContent.WriteString("<h1>Gists Archive</h1>\n")
+
+	// --- ADDED INPUT FIELD ---
+	htmlIndexContent.WriteString("<input type=\"text\" id=\"filterInput\" placeholder=\"Filter gists by title or date (Press Enter)...\">\n")
+
+	htmlIndexContent.WriteString("<ul id=\"gistList\">\n") // Added ID to UL
 
 	if len(entries) == 0 {
 		htmlIndexContent.WriteString("<li>No gists found or processed.</li>\n")
@@ -554,10 +573,44 @@ func generateIndexFiles(entries []IndexEntry) {
 			if !entry.Date.IsZero() {
 				dateStr = fmt.Sprintf("<br><small class=\"date\">Created: %s</small>", entry.Date.Format("January 2, 2006"))
 			}
+			// Ensure list items have a common class for easier selection if needed, though direct children works
 			htmlIndexContent.WriteString(fmt.Sprintf("<li><a href=\"%s\">%s</a>%s</li>\n", entry.HTMLPath, entry.Title, dateStr))
 		}
 	}
-	htmlIndexContent.WriteString("</ul>\n</div>\n</body>\n</html>")
+	htmlIndexContent.WriteString("</ul>\n")
+
+	// --- ADDED JAVASCRIPT ---
+	htmlIndexContent.WriteString("<script>\n")
+	htmlIndexContent.WriteString("document.addEventListener('DOMContentLoaded', function() {\n")
+	htmlIndexContent.WriteString("    const filterInput = document.getElementById('filterInput');\n")
+	htmlIndexContent.WriteString("    const gistList = document.getElementById('gistList');\n")
+	htmlIndexContent.WriteString("    const listItems = gistList.getElementsByTagName('li');\n")
+	htmlIndexContent.WriteString("\n")
+	htmlIndexContent.WriteString("    filterInput.addEventListener('keydown', function(event) {\n")
+	htmlIndexContent.WriteString("        if (event.key === 'Enter') {\n")
+	htmlIndexContent.WriteString("            event.preventDefault(); // Prevent form submission if it were in a form\n")
+	htmlIndexContent.WriteString("            const filterText = filterInput.value.toLowerCase().trim();\n")
+	htmlIndexContent.WriteString("\n")
+	htmlIndexContent.WriteString("            for (let i = 0; i < listItems.length; i++) {\n")
+	htmlIndexContent.WriteString("                const item = listItems[i];\n")
+	htmlIndexContent.WriteString("                const itemText = item.textContent || item.innerText || '';\n") // Get all text content of the LI
+	htmlIndexContent.WriteString("\n")
+	htmlIndexContent.WriteString("                if (filterText === '') {\n")
+	htmlIndexContent.WriteString("                    item.classList.remove('hidden');\n")
+	htmlIndexContent.WriteString("                } else {\n")
+	htmlIndexContent.WriteString("                    if (itemText.toLowerCase().includes(filterText)) {\n")
+	htmlIndexContent.WriteString("                        item.classList.remove('hidden');\n")
+	htmlIndexContent.WriteString("                    } else {\n")
+	htmlIndexContent.WriteString("                        item.classList.add('hidden');\n")
+	htmlIndexContent.WriteString("                    }\n")
+	htmlIndexContent.WriteString("                }\n")
+	htmlIndexContent.WriteString("            }\n")
+	htmlIndexContent.WriteString("        }\n")
+	htmlIndexContent.WriteString("    });\n")
+	htmlIndexContent.WriteString("});\n")
+	htmlIndexContent.WriteString("</script>\n")
+
+	htmlIndexContent.WriteString("</div>\n</body>\n</html>")
 
 	indexHtmlFilePath := filepath.Join(webDeployDir, "index.html")
 	if err := os.MkdirAll(filepath.Dir(indexHtmlFilePath), 0755); err != nil {

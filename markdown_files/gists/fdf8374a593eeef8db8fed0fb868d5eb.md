@@ -1,4 +1,4 @@
-# [Makefile prompt for user input] #make #shell
+# Make: Makefile prompt for user input #make #shell
 
 ## Makefile
 
