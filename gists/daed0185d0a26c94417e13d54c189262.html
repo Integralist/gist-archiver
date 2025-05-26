@@ -12,8 +12,7 @@
 
 <h2 id="ruby-socket-wrapper-one-connection-multiple-messages-md">Ruby Socket Wrapper (one connection, multiple messages).md</h2>
 
-<pre><code class="language-markdown">```rb
-class SocketWrapper
+<pre><code class="language-rb">class SocketWrapper
   def self.instance
     @inst ||= self.new
   end
@@ -62,8 +61,6 @@ end
 
 <pre><code class="language-rb">SocketWrapper.instance.send_message('blah blah blah')
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

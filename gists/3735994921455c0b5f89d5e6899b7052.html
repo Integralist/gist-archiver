@@ -12,34 +12,37 @@
 
 <h2 id="rust-learning-packages-crates-modules-md">Rust Learning Packages Crates Modules.md</h2>
 
-<pre><code class="language-markdown">## Summary
+<h2 id="summary">Summary</h2>
 
-- **Packages**: A package is one or more crates that provide a set of functionality.
-- **Crates**: A tree of modules that produces a library or executable.
-- **Modules**: Modules let us organize code within a crate into groups for readability and easy reuse.
+<ul>
+<li><strong>Packages</strong>: A package is one or more crates that provide a set of functionality.</li>
+<li><strong>Crates</strong>: A tree of modules that produces a library or executable.</li>
+<li><strong>Modules</strong>: Modules let us organize code within a crate into groups for readability and easy reuse.</li>
+</ul>
 
-&gt; [Ref](https://doc.rust-lang.org/book/ch07-00-managing-growing-projects-with-packages-crates-and-modules.html)
+<blockquote>
+<p><a href="https://doc.rust-lang.org/book/ch07-00-managing-growing-projects-with-packages-crates-and-modules.html" target="_blank">Ref</a></p>
+</blockquote>
 
-## Package
+<h2 id="package">Package</h2>
 
-A package contains a `Cargo.toml` file that describes how to build the crates defined within the package.
+<p>A package contains a <code>Cargo.toml</code> file that describes how to build the crates defined within the package.</p>
 
-A package must contain at least one crate, it can be either a 'library' crate or a 'binary' crate. 
+<p>A package must contain at least one crate, it can be either a &lsquo;library&rsquo; crate or a &lsquo;binary&rsquo; crate.</p>
 
-A package can contain multiple binary crates, but can only one library crate.
+<p>A package can contain multiple binary crates, but can only one library crate.</p>
 
-A package can have multiple binary crates by placing files in the `src/bin` directory: each file will be a separate binary crate.
+<p>A package can have multiple binary crates by placing files in the <code>src/bin</code> directory: each file will be a separate binary crate.</p>
 
-## Crate
+<h2 id="crate">Crate</h2>
 
-To show Rust where to find an item in a module tree, we use a path in the same way we use a path when navigating a filesystem. If we want to call a function, we need to know its path.
+<p>To show Rust where to find an item in a module tree, we use a path in the same way we use a path when navigating a filesystem. If we want to call a function, we need to know its path.</p>
 
-This can be achieved using either an 'absolute' path or a 'relative' path.
+<p>This can be achieved using either an &lsquo;absolute&rsquo; path or a &lsquo;relative&rsquo; path.</p>
 
-**Filename**: `src/lib.rs`
+<p><strong>Filename</strong>: <code>src/lib.rs</code></p>
 
-```rust
-mod front_of_house {
+<pre><code class="language-rust">mod front_of_house {
     mod hosting {
         fn add_to_waitlist() {}
     }
@@ -108,8 +111,7 @@ fn main() {
 </code></pre>
 
 <blockquote>
-<p><strong>NOTE</strong>: Using a semicolon after <code>mod foo</code> rather than using a block <code>{...}</code> tells Rust to load the contents of the module from another file with the same name as the module.
-&ldquo;`</p>
+<p><strong>NOTE</strong>: Using a semicolon after <code>mod foo</code> rather than using a block <code>{...}</code> tells Rust to load the contents of the module from another file with the same name as the module.</p>
 </blockquote>
 
 </div>

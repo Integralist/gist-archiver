@@ -12,61 +12,64 @@
 
 <h2 id="fastly-terraform-1-0-0-migration-guide-md">Fastly Terraform 1.0.0 Migration Guide.md</h2>
 
-<pre><code class="language-markdown">## Migration Guide
+<h2 id="migration-guide">Migration Guide</h2>
 
-**Resources omit `_v1` suffix**:
+<p><strong>Resources omit <code>_v1</code> suffix</strong>:</p>
 
-All resources now have a consistent naming convention which omit the previous v1 suffix.
+<p>All resources now have a consistent naming convention which omit the previous v1 suffix.</p>
 
-- `fastly_service_v1` -&gt; `fastly_service_vcl` (renamed with `_vcl` suffix)
-- `fastly_service_acl_entries_v1` -&gt; `fastly_service_acl_entries`
-- `fastly_service_dictionary_items_v1` -&gt; `fastly_service_dictionary_items`
-- `fastly_service_dynamic_snippet_content_v1` -&gt; `fastly_service_dynamic_snippet_content`
-- `fastly_user_v1` -&gt; `fastly_user`
+<ul>
+<li><code>fastly_service_v1</code> -&gt; <code>fastly_service_vcl</code> (renamed with <code>_vcl</code> suffix)</li>
+<li><code>fastly_service_acl_entries_v1</code> -&gt; <code>fastly_service_acl_entries</code></li>
+<li><code>fastly_service_dictionary_items_v1</code> -&gt; <code>fastly_service_dictionary_items</code></li>
+<li><code>fastly_service_dynamic_snippet_content_v1</code> -&gt; <code>fastly_service_dynamic_snippet_content</code></li>
+<li><code>fastly_user_v1</code> -&gt; <code>fastly_user</code></li>
+</ul>
 
-**Logging resources have consistent naming format**:
+<p><strong>Logging resources have consistent naming format</strong>:</p>
 
-All logging resources now have a consistent naming convention with the provider prefixed with `logging_`.
+<p>All logging resources now have a consistent naming convention with the provider prefixed with <code>logging_</code>.</p>
 
-- `bigquerylogging` -&gt; `logging_bigquery`
-- `blobstoragelogging` -&gt; `logging_blobstorage`
-- `gcslogging` -&gt; `logging_gcs`
-- `httpslogging` -&gt; `logging_https`
-- `logentries` -&gt; `logging_logentries`
-- `papertrail` -&gt; `logging_papertrail`
-- `s3logging` -&gt; `logging_s3`
-- `splunk` -&gt; `logging_splunk`
-- `sumologic` -&gt; `logging_sumologic`
-- `syslog` -&gt; `logging_syslog`
+<ul>
+<li><code>bigquerylogging</code> -&gt; <code>logging_bigquery</code></li>
+<li><code>blobstoragelogging</code> -&gt; <code>logging_blobstorage</code></li>
+<li><code>gcslogging</code> -&gt; <code>logging_gcs</code></li>
+<li><code>httpslogging</code> -&gt; <code>logging_https</code></li>
+<li><code>logentries</code> -&gt; <code>logging_logentries</code></li>
+<li><code>papertrail</code> -&gt; <code>logging_papertrail</code></li>
+<li><code>s3logging</code> -&gt; <code>logging_s3</code></li>
+<li><code>splunk</code> -&gt; <code>logging_splunk</code></li>
+<li><code>sumologic</code> -&gt; <code>logging_sumologic</code></li>
+<li><code>syslog</code> -&gt; <code>logging_syslog</code></li>
+</ul>
 
-**Director `capacity` removed**:
+<p><strong>Director <code>capacity</code> removed</strong>:</p>
 
-The Fastly API never supported the `capacity` field for a `director` resource (this was added to the Terraform provider by mistake). Load balancing of director backends is managed by the `weight` field on each associated `backend` resource.
+<p>The Fastly API never supported the <code>capacity</code> field for a <code>director</code> resource (this was added to the Terraform provider by mistake). Load balancing of director backends is managed by the <code>weight</code> field on each associated <code>backend</code> resource.</p>
 
-**GCS Logging field `email` renamed**:
+<p><strong>GCS Logging field <code>email</code> renamed</strong>:</p>
 
-The Fastly API was updated with a new [`user`](https://developer.fastly.com/reference/api/logging/gcs/) field to replace `email`.
+<p>The Fastly API was updated with a new <a href="https://developer.fastly.com/reference/api/logging/gcs/" target="_blank"><code>user</code></a> field to replace <code>email</code>.</p>
 
-**Logging `format` and `format_version` defaults changed**:
+<p><strong>Logging <code>format</code> and <code>format_version</code> defaults changed</strong>:</p>
 
-Pre-1.0.0 the default values for `format` and `format_version` were incorrectly set to an older version `1`. All new logging endpoints use the version `2` custom log format by default.
+<p>Pre-1.0.0 the default values for <code>format</code> and <code>format_version</code> were incorrectly set to an older version <code>1</code>. All new logging endpoints use the version <code>2</code> custom log format by default.</p>
 
-**Backend `auto_loadbalance` default changed**:
+<p><strong>Backend <code>auto_loadbalance</code> default changed</strong>:</p>
 
-The Fastly web interface defaults &quot;Auto load balance&quot; to &quot;No&quot;. The most common reason for having multiple backends in a single service is to route different paths to different backends, rather than load balance between different origins. The provider pre-1.0.0 defaulted `auto_loadbalance` to `true`, which was considered unexpected behaviour. The default is now `false`.
+<p>The Fastly web interface defaults &ldquo;Auto load balance&rdquo; to &ldquo;No&rdquo;. The most common reason for having multiple backends in a single service is to route different paths to different backends, rather than load balance between different origins. The provider pre-1.0.0 defaulted <code>auto_loadbalance</code> to <code>true</code>, which was considered unexpected behaviour. The default is now <code>false</code>.</p>
 
-**Gzip `content_types` and `extensions` type changed**:
+<p><strong>Gzip <code>content_types</code> and <code>extensions</code> type changed</strong>:</p>
 
-The `content_types` and `extensions` fields for a `gzip` resource, pre-1.0.0, were implemented as a [`TypeSet`](https://www.terraform.io/plugin/sdkv2/schemas/schema-types#typeset) (an **unordered** collection of items whose state index is calculated by the hash of the attributes of the set). This would result in confusing and unexpected diffs. Now they are implemented as a [`TypeList`](https://www.terraform.io/plugin/sdkv2/schemas/schema-types#typelist) (an **ordered** collection of items).
+<p>The <code>content_types</code> and <code>extensions</code> fields for a <code>gzip</code> resource, pre-1.0.0, were implemented as a <a href="https://www.terraform.io/plugin/sdkv2/schemas/schema-types#typeset" target="_blank"><code>TypeSet</code></a> (an <strong>unordered</strong> collection of items whose state index is calculated by the hash of the attributes of the set). This would result in confusing and unexpected diffs. Now they are implemented as a <a href="https://www.terraform.io/plugin/sdkv2/schemas/schema-types#typelist" target="_blank"><code>TypeList</code></a> (an <strong>ordered</strong> collection of items).</p>
 
-**Automatically opt-in to `ignore_changes` behaviour for versionless resources**:
+<p><strong>Automatically opt-in to <code>ignore_changes</code> behaviour for versionless resources</strong>:</p>
 
-The versionless resources (ACL entries, Dictionary items and Dynamic VCL Snippets) are sometimes used in a way whereby they are &quot;seeded&quot; via Terraform and then updated/managed externally via the API or UI console. For this, the documentation suggests using `ignore_changes`, a built-in Terraform meta-argument, that allows the user to specify fields to ignore and from which to allow the state to drift.
+<p>The versionless resources (ACL entries, Dictionary items and Dynamic VCL Snippets) are sometimes used in a way whereby they are &ldquo;seeded&rdquo; via Terraform and then updated/managed externally via the API or UI console. For this, the documentation suggests using <code>ignore_changes</code>, a built-in Terraform meta-argument, that allows the user to specify fields to ignore and from which to allow the state to drift.</p>
 
-However, sometimes this isn't obvious or the user doesn't understand this suggestion until it is too late, and data ends up getting lost. This happens because the user makes changes elsewhere and doesn't use `ignore_changes`, so Terraform takes action to remove the state drift and deletes their changes. This data is then unrecoverable.
+<p>However, sometimes this isn&rsquo;t obvious or the user doesn&rsquo;t understand this suggestion until it is too late, and data ends up getting lost. This happens because the user makes changes elsewhere and doesn&rsquo;t use <code>ignore_changes</code>, so Terraform takes action to remove the state drift and deletes their changes. This data is then unrecoverable.</p>
 
-In 1.0.0 the default behaviour of these resources has changed. Terraform now ignores any changes, and only allows the &quot;dangerous&quot; behaviour by explicitly opting in with a `manage_*` option (e.g. `manage_entries`, `manage_items`, `manage_snippets` depending on the versionless resource).
-</code></pre>
+<p>In 1.0.0 the default behaviour of these resources has changed. Terraform now ignores any changes, and only allows the &ldquo;dangerous&rdquo; behaviour by explicitly opting in with a <code>manage_*</code> option (e.g. <code>manage_entries</code>, <code>manage_items</code>, <code>manage_snippets</code> depending on the versionless resource).</p>
 
 </div>
 </body>

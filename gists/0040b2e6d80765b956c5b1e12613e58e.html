@@ -12,38 +12,35 @@
 
 <h2 id="github-gpg-commit-signing-key-md">Github GPG Commit Signing Key.md</h2>
 
-<pre><code class="language-markdown">https://gist.github.com/troyfontaine/18c9146295168ee9ca2b30c00bd1b41e
+<p><a href="https://gist.github.com/troyfontaine/18c9146295168ee9ca2b30c00bd1b41e" target="_blank">https://gist.github.com/troyfontaine/18c9146295168ee9ca2b30c00bd1b41e</a></p>
 
-## PROBLEM 0: Quick Fix?
+<h2 id="problem-0-quick-fix">PROBLEM 0: Quick Fix?</h2>
 
-Whatever your problem, try restarting your GPG Agent (it will auto-restart the next time gpg is used): 
+<p>Whatever your problem, try restarting your GPG Agent (it will auto-restart the next time gpg is used):</p>
 
+<pre><code>gpgconf --kill gpg-agent
+killall gpg-agent
 </code></pre>
 
-<p>gpgconf &ndash;kill gpg-agent
-killall gpg-agent</p>
+<p>Also try <code>GIT_TRACE=1 ...</code> to see which internal command is failing and try running the command to get at the underlying error.</p>
 
-<pre><code>
-Also try `GIT_TRACE=1 ...` to see which internal command is failing and try running the command to get at the underlying error. 
+<h2 id="problem-1-homebrew-changes-install-locations">PROBLEM 1: Homebrew changes install locations</h2>
 
-## PROBLEM 1: Homebrew changes install locations
+<p>My global <code>~/.gitconfig</code> had a <code>[gpg]</code> section which was configured to the location of the <code>gpp</code> binary. I installed a newer Homebrew version (as part of a new laptop setup) and discovered that Homebrew changed the location of where binaries are installed so I needed to <code>which gpg</code> to find the new location and update my global git config.</p>
 
-My global `~/.gitconfig` had a `[gpg]` section which was configured to the location of the `gpp` binary. I installed a newer Homebrew version (as part of a new laptop setup) and discovered that Homebrew changed the location of where binaries are installed so I needed to `which gpg` to find the new location and update my global git config.
+<h2 id="problem-2-new-laptop">PROBLEM 2: New Laptop</h2>
 
-## PROBLEM 2: New Laptop
+<p>I pulled down a project from GitHub but forgot that originally (on my old laptop) I would have updated the project&rsquo;s local <code>.git/config</code> file to include my user details, and the fact I want to sign my commits (see &ldquo;Project Specific Summary&rdquo; below). So just make sure that data is added.</p>
 
-I pulled down a project from GitHub but forgot that originally (on my old laptop) I would have updated the project's local `.git/config` file to include my user details, and the fact I want to sign my commits (see &quot;Project Specific Summary&quot; below). So just make sure that data is added.
+<h2 id="problem-3-missing-gpg-tty">PROBLEM 3: Missing GPG_TTY</h2>
 
-## PROBLEM 3: Missing GPG_TTY
+<p>I was finding, after a long time of being able to sign commits using the instructions from this gist, that I couldn&rsquo;t sign my commits all of a sudden.</p>
 
-I was finding, after a long time of being able to sign commits using the instructions from this gist, that I couldn't sign my commits all of a sudden. 
+<p>There&rsquo;s a few things you can try.</p>
 
-There's a few things you can try.
+<p>In one instance I needed an esoteric way to tell Git about my user&hellip;</p>
 
-In one instance I needed an esoteric way to tell Git about my user...
-
-```bash
-export GPG_TTY=$(tty)
+<pre><code class="language-bash">export GPG_TTY=$(tty)
 </code></pre>
 
 <h2 id="problem-4-conflicting-branch-names">PROBLEM 4: Conflicting branch names</h2>
@@ -134,8 +131,7 @@ sec   4096R/&lt;GRAB_THIS&gt; ...
 
 <h2 id="references">References</h2>
 
-<p>I recently stumbled across: <a href="https://gist.github.com/troyfontaine/18c9146295168ee9ca2b30c00bd1b41e" target="_blank">https://gist.github.com/troyfontaine/18c9146295168ee9ca2b30c00bd1b41e</a>
-&ldquo;`</p>
+<p>I recently stumbled across: <a href="https://gist.github.com/troyfontaine/18c9146295168ee9ca2b30c00bd1b41e" target="_blank">https://gist.github.com/troyfontaine/18c9146295168ee9ca2b30c00bd1b41e</a></p>
 
 </div>
 </body>

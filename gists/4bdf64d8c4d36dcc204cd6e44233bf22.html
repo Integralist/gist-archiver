@@ -12,15 +12,14 @@
 
 <h2 id="0-readme-md">0. README.md</h2>
 
-<pre><code class="language-markdown">## 2025 Update
+<h2 id="2025-update">2025 Update</h2>
 
-Here's the latest approach I've used:
-https://github.com/fastly/cli/pull/1374/commits/98742dcfebe896e7b97bfbdb8f72906aede71594
+<p>Here&rsquo;s the latest approach I&rsquo;ve used:
+<a href="https://github.com/fastly/cli/pull/1374/commits/98742dcfebe896e7b97bfbdb8f72906aede71594" target="_blank">https://github.com/fastly/cli/pull/1374/commits/98742dcfebe896e7b97bfbdb8f72906aede71594</a></p>
 
-First, the test itself:
+<p>First, the test itself:</p>
 
-```go
-// pkg/commands/domainv1/domain_test.go
+<pre><code class="language-go">// pkg/commands/domainv1/domain_test.go
 package domainv1_test
 
 import (
@@ -121,11 +120,9 @@ if scenario.Client != nil {
 opts.APIClientFactory = acf
 </code></pre>
 
-<pre><code>
-## 1. Golang Mock Response via RoundTripper interface.go
+<h2 id="1-golang-mock-response-via-roundtripper-interface-go">1. Golang Mock Response via RoundTripper interface.go</h2>
 
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;bytes&quot;

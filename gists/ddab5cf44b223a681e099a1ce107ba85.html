@@ -12,10 +12,9 @@
 
 <h2 id="multiple-searches-via-abstraction-and-grep-md">Multiple searches via abstraction and grep.md</h2>
 
-<pre><code class="language-markdown">I have the following abstraction around the `ag` search tool:
+<p>I have the following abstraction around the <code>ag</code> search tool:</p>
 
-```bash
-function search {
+<pre><code class="language-bash">function search {
   # search for files based on content pattern
   # uses 'silver searcher' `ag`
 
@@ -80,8 +79,6 @@ function search {
 
 <pre><code class="language-bash">search &quot;-G Dockerfile -l&quot; &quot;FROM go&quot; | cut -d '/' -f 1 | tee /tmp/goservices | xargs -I {} grep -r --include service.yml launch_type {}
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

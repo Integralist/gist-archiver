@@ -12,82 +12,234 @@
 
 <h2 id="1-readme-md">1. README.md</h2>
 
-<pre><code class="language-markdown">&lt;!-- https://github.com/get-alex/alex?tab=readme-ov-file#control --&gt;
+<!-- https://github.com/get-alex/alex?tab=readme-ov-file#control -->
 
-&lt;!--alex disable dad-mom uk--&gt;
+<!--alex disable dad-mom uk-->
 
-# Compute readthrough cache validator
+<h1 id="compute-readthrough-cache-validator">Compute readthrough cache validator</h1>
 
-This directory contains a Compute application that proxies incoming requests
-onto [https://http-me.glitch.me/](https://http-me.glitch.me/).
+<p>This directory contains a Compute application that proxies incoming requests
+onto <a href="https://http-me.glitch.me/" target="_blank">https://http-me.glitch.me/</a>.</p>
 
-There is a `run.sh` script which will attempt to validate the
-responses from the Compute service to see what cache semantics are respected.
+<p>There is a <code>run.sh</code> script which will attempt to validate the
+responses from the Compute service to see what cache semantics are respected.</p>
 
-&gt; [!TIP]
-&gt; Read the official Fastly documentation: [readthrough cache](https://www.fastly.com/documentation/guides/concepts/edge-state/cache/#readthrough-cache)
+<blockquote>
+<p>[!TIP]
+Read the official Fastly documentation: <a href="https://www.fastly.com/documentation/guides/concepts/edge-state/cache/#readthrough-cache" target="_blank">readthrough cache</a></p>
+</blockquote>
 
-The `run.sh` script does the following:
+<p>The <code>run.sh</code> script does the following:</p>
 
-- Checks if `real` is passed as an input argument.
-  - If yes, it attempts to deploy the Compute application to Fastly.
-  - Otherwise, it attempts to run the Compute application locally.
-- It makes multiple requests to the Compute application.
-- It validates that the responses are as expected.
+<ul>
+<li>Checks if <code>real</code> is passed as an input argument.
 
-&gt; [!IMPORTANT] 
-&gt; It doesn't make sense (currently) to try and run this script without `real` as the input argument, because it causes the script to run the Compute application locally using `fastly compute serve`, which itself uses https://github.com/fastly/viceroy/ and Viceroy (at the moment) has no support for cache semantics.
+<ul>
+<li>If yes, it attempts to deploy the Compute application to Fastly.</li>
+<li>Otherwise, it attempts to run the Compute application locally.</li>
+</ul></li>
+<li>It makes multiple requests to the Compute application.</li>
+<li>It validates that the responses are as expected.</li>
+</ul>
 
-## POPs and Retries
+<blockquote>
+<p>[!IMPORTANT]
+It doesn&rsquo;t make sense (currently) to try and run this script without <code>real</code> as the input argument, because it causes the script to run the Compute application locally using <code>fastly compute serve</code>, which itself uses <a href="https://github.com/fastly/viceroy/" target="_blank">https://github.com/fastly/viceroy/</a> and Viceroy (at the moment) has no support for cache semantics.</p>
+</blockquote>
 
-A request that you might expect to return a cache HIT, could return a MISS. This
+<h2 id="pops-and-retries">POPs and Retries</h2>
+
+<p>A request that you might expect to return a cache HIT, could return a MISS. This
 is because the request can end up at a different POP to where a previous request
-for the resource ended up.
+for the resource ended up.</p>
 
-For example, in the UK there are multiple POPs. Nearest to me are the `LHR` and
-`LCY` POPs. This means I can make a request that ends up at the `LHR` POP, and
-if I make a second request and it also ends up at the same POP, then I'll get a
-cache HIT, otherwise if the request ends up at the `LCY` POP I'll get a cache
-MISS.
+<p>For example, in the UK there are multiple POPs. Nearest to me are the <code>LHR</code> and
+<code>LCY</code> POPs. This means I can make a request that ends up at the <code>LHR</code> POP, and
+if I make a second request and it also ends up at the same POP, then I&rsquo;ll get a
+cache HIT, otherwise if the request ends up at the <code>LCY</code> POP I&rsquo;ll get a cache
+MISS.</p>
 
-To try and account for this the `run.sh` script will re-attempt the request a
+<p>To try and account for this the <code>run.sh</code> script will re-attempt the request a
 number of times before marking it as unsuccessful. Ultimately, we want to be
 sure a request is either cached or not cached, so depending on what the
 expectation is, we give the script the best chance possible to validate the
-expectation accurately.
+expectation accurately.</p>
 
-## Summary of results
+<h2 id="summary-of-results">Summary of results</h2>
 
-Refer to the `run.sh` script for the details.
+<p>Refer to the <code>run.sh</code> script for the details.</p>
 
-|Request Method|Response Code|Response Headers|Cacheable|
-|---|---|---|---|
-|GET|200|   |✅|
-|GET|200|`Cache-Control:max-age=120`|✅|
-|GET|200|`Surrogate-Control:max-age=120`|✅|
-|GET|200|`Cache-Control:max-age=120&amp;Surrogate-Control:max-age=120`|✅|
-|GET|200|`Set-Cookie:foo=bar`|❌|
-|GET|200|`Cache-Control:no-store`|❌|
-|GET|200|`Cache-Control:private`|❌|
-|GET|200|`Surrogate-Control:no-store`|❌|
-|GET|200|`Surrogate-Control:private`|❌|
-|GET|203|   |✅|
-|GET|300|   |✅|
-|GET|301|   |✅|
-|GET|302|   |❌|
-|GET|400|   |❌|
-|GET|404|   |✅|
-|GET|410|   |✅|
-|GET|500|   |❌|
-|GET|503|   |❌|
-|POST|200|   |❌|
-|POST|200|`Cache-Control:max-age=120`|❌|
-|POST|200|`Surrogate-Control:max-age=120`|❌|
-|POST|200|`Cache-Control:max-age=120&amp;Surrogate-Control:max-age=120`|❌|
+<table>
+<thead>
+<tr>
+<th>Request Method</th>
+<th>Response Code</th>
+<th>Response Headers</th>
+<th>Cacheable</th>
+</tr>
+</thead>
 
-&gt; [!NOTE]
-&gt; The [Fastly VCL documentation](https://www.fastly.com/documentation/reference/vcl/variables/backend-response/beresp-cacheable/) suggests a 302 is cacheable, but it's not in Compute.
-</code></pre>
+<tbody>
+<tr>
+<td>GET</td>
+<td>200</td>
+<td></td>
+<td>✅</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>200</td>
+<td><code>Cache-Control:max-age=120</code></td>
+<td>✅</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>200</td>
+<td><code>Surrogate-Control:max-age=120</code></td>
+<td>✅</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>200</td>
+<td><code>Cache-Control:max-age=120&amp;Surrogate-Control:max-age=120</code></td>
+<td>✅</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>200</td>
+<td><code>Set-Cookie:foo=bar</code></td>
+<td>❌</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>200</td>
+<td><code>Cache-Control:no-store</code></td>
+<td>❌</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>200</td>
+<td><code>Cache-Control:private</code></td>
+<td>❌</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>200</td>
+<td><code>Surrogate-Control:no-store</code></td>
+<td>❌</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>200</td>
+<td><code>Surrogate-Control:private</code></td>
+<td>❌</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>203</td>
+<td></td>
+<td>✅</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>300</td>
+<td></td>
+<td>✅</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>301</td>
+<td></td>
+<td>✅</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>302</td>
+<td></td>
+<td>❌</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>400</td>
+<td></td>
+<td>❌</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>404</td>
+<td></td>
+<td>✅</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>410</td>
+<td></td>
+<td>✅</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>500</td>
+<td></td>
+<td>❌</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>503</td>
+<td></td>
+<td>❌</td>
+</tr>
+
+<tr>
+<td>POST</td>
+<td>200</td>
+<td></td>
+<td>❌</td>
+</tr>
+
+<tr>
+<td>POST</td>
+<td>200</td>
+<td><code>Cache-Control:max-age=120</code></td>
+<td>❌</td>
+</tr>
+
+<tr>
+<td>POST</td>
+<td>200</td>
+<td><code>Surrogate-Control:max-age=120</code></td>
+<td>❌</td>
+</tr>
+
+<tr>
+<td>POST</td>
+<td>200</td>
+<td><code>Cache-Control:max-age=120&amp;Surrogate-Control:max-age=120</code></td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>
+<p>[!NOTE]
+The <a href="https://www.fastly.com/documentation/reference/vcl/variables/backend-response/beresp-cacheable/" target="_blank">Fastly VCL documentation</a> suggests a 302 is cacheable, but it&rsquo;s not in Compute.</p>
+</blockquote>
 
 <h2 id="2-run-sh">2. run.sh</h2>
 

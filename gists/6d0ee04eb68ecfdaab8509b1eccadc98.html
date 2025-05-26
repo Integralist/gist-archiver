@@ -12,14 +12,13 @@
 
 <h2 id="memory-sharing-md">Memory Sharing.md</h2>
 
-<pre><code class="language-markdown">ECS Task has memory allocation of 500mb.
+<p>ECS Task has memory allocation of 500mb.</p>
 
-It's a multi-process tornado service with 4 processes.
+<p>It&rsquo;s a multi-process tornado service with 4 processes.</p>
 
-Each process is reporting 200+ mb of RSS (resident) memory usage, which would mean total memory should be larger than 500mb.
+<p>Each process is reporting 200+ mb of RSS (resident) memory usage, which would mean total memory should be larger than 500mb.</p>
 
-But as processes share memory, the total RSS is likely to be the sum of the memory shared across all child processes + the &quot;unique&quot; memory used by each child process as they diverge from one another.
-</code></pre>
+<p>But as processes share memory, the total RSS is likely to be the sum of the memory shared across all child processes + the &ldquo;unique&rdquo; memory used by each child process as they diverge from one another.</p>
 
 </div>
 </body>

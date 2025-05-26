@@ -12,27 +12,22 @@
 
 <h2 id="chmod-explained-md">chmod explained.md</h2>
 
-<pre><code class="language-markdown"></code></pre>
-
-<p>r - Read
+<pre><code>r - Read
 w - Write
-x - Execute</p>
+x - Execute
 
-<p>u - The owner of the file
+u - The owner of the file
 g - The group that the file belongs to
 o - Anybody who is not one of the above
-a - All users</p>
+a - All users
 
-<ul>
-<li>- Add permissions</li>
-<li>- Remove permissions</li>
-</ul>
++ - Add permissions
+- - Remove permissions
+</code></pre>
 
-<pre><code>
-Syntax Structure:
+<p>Syntax Structure:</p>
 
-```bash
-chmod &lt;people&gt;&lt;+/-&gt;&lt;permissions&gt;
+<pre><code class="language-bash">chmod &lt;people&gt;&lt;+/-&gt;&lt;permissions&gt;
 </code></pre>
 
 <p>Examples:</p>
@@ -73,11 +68,9 @@ chmod &lt;people&gt;&lt;+/-&gt;&lt;permissions&gt;
 <li><code>5</code>: read and execute for everyone else</li>
 </ul>
 
-<pre><code>
-## chown explained.sh
+<h2 id="chown-explained-sh">chown explained.sh</h2>
 
-```shell
-chown &lt;user&gt;:&lt;group&gt; &lt;file&gt;
+<pre><code class="language-shell">chown &lt;user&gt;:&lt;group&gt; &lt;file&gt;
 </code></pre>
 
 </div>

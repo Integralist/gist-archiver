@@ -12,72 +12,85 @@
 
 <h2 id="rust-smart-pointers-md">rust smart pointers.md</h2>
 
-<pre><code class="language-markdown">## Summary
+<h2 id="summary">Summary</h2>
 
-- `Box&lt;T&gt;`: A pointer type for heap allocation.
-- `Rc&lt;T&gt;`: A read-only, single-threaded reference-counting (i.e. multiple owners) pointer Ω.
-- `Arc&lt;T&gt;`: A read-only, thread-safe (i.e. extra performance overhead) reference-counting (i.e. multiple owners) pointer †.
-- `Cell&lt;T&gt;`: A single-threaded mutable memory location (where values are _moved_ in and out of the cell).
-- `RefCell&lt;T&gt;`: A single-threaded mutable memory location with dynamically checked (i.e. at _runtime_) borrow rules.
+<ul>
+<li><code>Box&lt;T&gt;</code>: A pointer type for heap allocation.</li>
+<li><code>Rc&lt;T&gt;</code>: A read-only, single-threaded reference-counting (i.e. multiple owners) pointer Ω.</li>
+<li><code>Arc&lt;T&gt;</code>: A read-only, thread-safe (i.e. extra performance overhead) reference-counting (i.e. multiple owners) pointer †.</li>
+<li><code>Cell&lt;T&gt;</code>: A single-threaded mutable memory location (where values are <em>moved</em> in and out of the cell).</li>
+<li><code>RefCell&lt;T&gt;</code>: A single-threaded mutable memory location with dynamically checked (i.e. at <em>runtime</em>) borrow rules.</li>
+</ul>
 
-&gt; Ω Wrap the value inside the `Rc` with either `Cell&lt;T&gt;` or `RefCell&lt;T&gt;` for mutability.  
-&gt; † Wrap the value inside the `Arc` with either `Mutex`, `RwLock` or one of the `Atomic*` types for mutability.
+<blockquote>
+<p>Ω Wrap the value inside the <code>Rc</code> with either <code>Cell&lt;T&gt;</code> or <code>RefCell&lt;T&gt;</code> for mutability.<br />
+† Wrap the value inside the <code>Arc</code> with either <code>Mutex</code>, <code>RwLock</code> or one of the <code>Atomic*</code> types for mutability.</p>
 
-&gt; **NOTE**: Not discussed here are `Mutex&lt;T&gt;` and `RwLock&lt;T&gt;`, which provide mutual-exclusion.
+<p><strong>NOTE</strong>: Not discussed here are <code>Mutex&lt;T&gt;</code> and <code>RwLock&lt;T&gt;</code>, which provide mutual-exclusion.</p>
+</blockquote>
 
-## Context
+<h2 id="context">Context</h2>
 
-A _pointer_ is a general concept for a variable that contains an address in memory. This address refers to, or “points at,” some other data. The most common kind of pointer in Rust is a reference. References are indicated by the &amp; symbol and borrow the value they point to. They don’t have any special capabilities other than referring to data, and have no overhead.
+<p>A <em>pointer</em> is a general concept for a variable that contains an address in memory. This address refers to, or “points at,” some other data. The most common kind of pointer in Rust is a reference. References are indicated by the &amp; symbol and borrow the value they point to. They don’t have any special capabilities other than referring to data, and have no overhead.</p>
 
-_Smart pointers_, on the other hand, are data structures that act like a pointer but also have additional metadata and capabilities.
+<p><em>Smart pointers</em>, on the other hand, are data structures that act like a pointer but also have additional metadata and capabilities.</p>
 
-&gt; **NOTE**: Both `String` and `Vec&lt;T&gt;` types count as smart pointers because they own some memory and allow you to manipulate it. They also have metadata and extra capabilities or guarantees. 
+<blockquote>
+<p><strong>NOTE</strong>: Both <code>String</code> and <code>Vec&lt;T&gt;</code> types count as smart pointers because they own some memory and allow you to manipulate it. They also have metadata and extra capabilities or guarantees.</p>
+</blockquote>
 
-Smart pointers are usually implemented using structs. Unlike an ordinary struct, smart pointers implement the `Deref` and `Drop` traits. The `Deref` trait allows an instance of the smart pointer struct to behave like a reference so you can write your code to work with either references or smart pointers. The `Drop` trait allows you to customize the code that's run when an instance of the smart pointer goes out of scope.
+<p>Smart pointers are usually implemented using structs. Unlike an ordinary struct, smart pointers implement the <code>Deref</code> and <code>Drop</code> traits. The <code>Deref</code> trait allows an instance of the smart pointer struct to behave like a reference so you can write your code to work with either references or smart pointers. The <code>Drop</code> trait allows you to customize the code that&rsquo;s run when an instance of the smart pointer goes out of scope.</p>
 
-## `Box&lt;T&gt;`
+<h2 id="box-t"><code>Box&lt;T&gt;</code></h2>
 
-Boxes allow you to store data on the heap rather than the stack. What remains on the stack is the pointer to the heap data.
+<p>Boxes allow you to store data on the heap rather than the stack. What remains on the stack is the pointer to the heap data.</p>
 
-Usage:
+<p>Usage:</p>
 
-- When you have a type whose size can’t be known at compile time and you want to use a value of that type in a context that requires an exact size (e.g. recursive data types).
-- When you have a large amount of data and you want to transfer ownership but ensure the data won’t be copied when you do so (e.g. only the small amount of pointer data is copied around on the stack, while the data it references stays in one place on the heap).
-- When you want to own a value and you care only that it’s a type that implements a particular trait rather than being of a specific type (i.e. _trait objects_ used for dynamic dispatch).
+<ul>
+<li>When you have a type whose size can’t be known at compile time and you want to use a value of that type in a context that requires an exact size (e.g. recursive data types).</li>
+<li>When you have a large amount of data and you want to transfer ownership but ensure the data won’t be copied when you do so (e.g. only the small amount of pointer data is copied around on the stack, while the data it references stays in one place on the heap).</li>
+<li>When you want to own a value and you care only that it’s a type that implements a particular trait rather than being of a specific type (i.e. <em>trait objects</em> used for dynamic dispatch).</li>
+</ul>
 
-## `Rc&lt;T&gt;`
+<h2 id="rc-t"><code>Rc&lt;T&gt;</code></h2>
 
-This type is an abbreviation for _reference counting_ and it enables multiple ownership. It lets us have multiple “owning” pointers to the same data, and the data will be freed (destructors will be run) when all pointers are out of scope.
+<p>This type is an abbreviation for <em>reference counting</em> and it enables multiple ownership. It lets us have multiple “owning” pointers to the same data, and the data will be freed (destructors will be run) when all pointers are out of scope.</p>
 
-We use the `Rc&lt;T&gt;` type when we want to allocate some data on the heap for multiple parts of our program to read and we can’t determine at compile time which part will finish using the data last. 
+<p>We use the <code>Rc&lt;T&gt;</code> type when we want to allocate some data on the heap for multiple parts of our program to read and we can’t determine at compile time which part will finish using the data last.</p>
 
-&gt; **NOTE**: `Rc&lt;T&gt;` is only for use in single-threaded scenarios. When shared ownership between threads is needed, `Arc&lt;T&gt;` (Atomic Reference Counted) can be used.
+<blockquote>
+<p><strong>NOTE</strong>: <code>Rc&lt;T&gt;</code> is only for use in single-threaded scenarios. When shared ownership between threads is needed, <code>Arc&lt;T&gt;</code> (Atomic Reference Counted) can be used.</p>
+</blockquote>
 
-## `Arc&lt;T&gt;`
+<h2 id="arc-t"><code>Arc&lt;T&gt;</code></h2>
 
-The same as `Rc&lt;T&gt;` but thread-safe (it has the same API as `Rc&lt;T&gt;` to make them interchangeable). But thread-safety comes with a performance cost so if you don't need thread-safety, then definitely opt for `Rc&lt;T&gt;` instead.
+<p>The same as <code>Rc&lt;T&gt;</code> but thread-safe (it has the same API as <code>Rc&lt;T&gt;</code> to make them interchangeable). But thread-safety comes with a performance cost so if you don&rsquo;t need thread-safety, then definitely opt for <code>Rc&lt;T&gt;</code> instead.</p>
 
-## `Cell&lt;T&gt;`/`RefCell&lt;T&gt;`
+<h2 id="cell-t-refcell-t"><code>Cell&lt;T&gt;</code>/<code>RefCell&lt;T&gt;</code></h2>
 
-Rust memory safety is based on this rule: Given an object `T`, it is only possible to have one of the following:
+<p>Rust memory safety is based on this rule: Given an object <code>T</code>, it is only possible to have one of the following:</p>
 
-- Having several immutable references (`&amp;T`) to the object.
-- Having one mutable reference (`&amp;mut T`) to the object.
+<ul>
+<li>Having several immutable references (<code>&amp;T</code>) to the object.</li>
+<li>Having one mutable reference (<code>&amp;mut T</code>) to the object.</li>
+</ul>
 
-This rule can be bent using `Cell&lt;T&gt;` and is referred to as _interior mutability_.
+<p>This rule can be bent using <code>Cell&lt;T&gt;</code> and is referred to as <em>interior mutability</em>.</p>
 
-`Cell&lt;T&gt;` implements interior mutability by moving values in and out of the `Cell&lt;T&gt;`. 
+<p><code>Cell&lt;T&gt;</code> implements interior mutability by moving values in and out of the <code>Cell&lt;T&gt;</code>.</p>
 
-To use references instead of values, use the `RefCell&lt;T&gt;` type, and acquire a write lock before mutating.
+<p>To use references instead of values, use the <code>RefCell&lt;T&gt;</code> type, and acquire a write lock before mutating.</p>
 
-Borrows for `RefCell&lt;T&gt;`s are tracked _at runtime_, unlike Rust’s native reference types which are entirely tracked statically, at compile time. Because `RefCell&lt;T&gt;` borrows are _dynamic_ it is possible to attempt to borrow a value that is already mutably borrowed; when this happens it results in thread panic.
+<p>Borrows for <code>RefCell&lt;T&gt;</code>s are tracked <em>at runtime</em>, unlike Rust’s native reference types which are entirely tracked statically, at compile time. Because <code>RefCell&lt;T&gt;</code> borrows are <em>dynamic</em> it is possible to attempt to borrow a value that is already mutably borrowed; when this happens it results in thread panic.</p>
 
-&gt; **NOTE**: Neither `Cell&lt;T&gt;` nor `RefCell&lt;T&gt;` are thread safe (they do not implement `Sync`).
+<blockquote>
+<p><strong>NOTE</strong>: Neither <code>Cell&lt;T&gt;</code> nor <code>RefCell&lt;T&gt;</code> are thread safe (they do not implement <code>Sync</code>).</p>
+</blockquote>
 
-Many shared smart pointer types, including `Rc&lt;T&gt;` and `Arc&lt;T&gt;`, provide containers that can be cloned and shared between multiple parties. The contained values can only be borrowed with `&amp;`, not `&amp;mut`. Without cells it would be impossible to mutate data inside of these smart pointers at all.
+<p>Many shared smart pointer types, including <code>Rc&lt;T&gt;</code> and <code>Arc&lt;T&gt;</code>, provide containers that can be cloned and shared between multiple parties. The contained values can only be borrowed with <code>&amp;</code>, not <code>&amp;mut</code>. Without cells it would be impossible to mutate data inside of these smart pointers at all.</p>
 
-It’s very common then to put a `RefCell&lt;T&gt;` inside shared pointer types to reintroduce mutability. But as `RefCell&lt;T&gt;`s are for single-threaded scenarios, consider using `RwLock&lt;T&gt;` or `Mutex&lt;T&gt;` instead of `RefCell&lt;T&gt;` if you need shared mutability in a multi-threaded situation.
-</code></pre>
+<p>It’s very common then to put a <code>RefCell&lt;T&gt;</code> inside shared pointer types to reintroduce mutability. But as <code>RefCell&lt;T&gt;</code>s are for single-threaded scenarios, consider using <code>RwLock&lt;T&gt;</code> or <code>Mutex&lt;T&gt;</code> instead of <code>RefCell&lt;T&gt;</code> if you need shared mutability in a multi-threaded situation.</p>
 
 </div>
 </body>

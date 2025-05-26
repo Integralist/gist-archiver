@@ -12,37 +12,36 @@
 
 <h2 id="set-operations-md">Set Operations.md</h2>
 
-<pre><code class="language-markdown">## Union
+<h2 id="union">Union</h2>
 
-The union of two sets is a set containing all elements that are in A or in B (possibly both). For example, `{1,2}∪{2,3}`=`{1,2,3}`.
+<p>The union of two sets is a set containing all elements that are in A or in B (possibly both). For example, <code>{1,2}∪{2,3}</code>=<code>{1,2,3}</code>.</p>
 
-## Intersection
+<h2 id="intersection">Intersection</h2>
 
-The intersection of two sets A and B, denoted by `A∩B`, consists of all elements that are both in A and B. For example, `{1,2}∩{2,3}`=`{2}`.
+<p>The intersection of two sets A and B, denoted by <code>A∩B</code>, consists of all elements that are both in A and B. For example, <code>{1,2}∩{2,3}</code>=<code>{2}</code>.</p>
 
-## Difference
+<h2 id="difference">Difference</h2>
 
-The difference (subtraction) is defined as follows. The set `A−B` consists of elements that are in A but not in B. For example if A=`{1,2,3}` and B=`{3,5}`, then `A−B`=`{1,2}`.
+<p>The difference (subtraction) is defined as follows. The set <code>A−B</code> consists of elements that are in A but not in B. For example if A=<code>{1,2,3}</code> and B=<code>{3,5}</code>, then <code>A−B</code>=<code>{1,2}</code>.</p>
 
-## Complement
+<h2 id="complement">Complement</h2>
 
-The complement of a set A, denoted by `Ac`, is the set of all elements that are in the universal set S but are not in A.
+<p>The complement of a set A, denoted by <code>Ac</code>, is the set of all elements that are in the universal set S but are not in A.</p>
 
-![Set Operations](https://www.onlinemathlearning.com/image-files/set-operations-venn-diagrams.png)
+<p><img src="https://www.onlinemathlearning.com/image-files/set-operations-venn-diagrams.png" alt="Set Operations" /></p>
 
-## Golang
+<h2 id="golang">Golang</h2>
 
-It is easy to create a set from map:
+<p>It is easy to create a set from map:</p>
 
-```go
-s := map[int]bool{5: true, 2: true}
+<pre><code class="language-go">s := map[int]bool{5: true, 2: true}
 
 _, ok := s[6] // check for existence
 s[8] = true   // add element 
 delete(s, 2)  // remove element
 </code></pre>
 
-<h2 id="union">Union</h2>
+<h2 id="union-1">Union</h2>
 
 <pre><code class="language-go">s_union := map[int]bool{}
 for k, _ := range s1{
@@ -53,7 +52,7 @@ for k, _ := range s2{
 }
 </code></pre>
 
-<h2 id="intersection">Intersection</h2>
+<h2 id="intersection-1">Intersection</h2>
 
 <pre><code class="language-go">s_intersection := map[int]bool{}
 for k,_ := range s1 { 
@@ -62,8 +61,6 @@ for k,_ := range s1 {
   }
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

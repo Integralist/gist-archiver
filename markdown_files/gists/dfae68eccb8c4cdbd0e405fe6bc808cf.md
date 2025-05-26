@@ -2,7 +2,6 @@
 
 ## 0. README.md
 
-```markdown
 It is worth considering the variation in load that you get on a normal computer. 
 
 Many background tasks are running (e.g. Dropbox, backups) that could impact the CPU and disk resources at random.
@@ -27,7 +26,6 @@ find / -type d -name <package_name>
 # for example, the result could look like...
 #
 # ./usr/local/lib/python3.6/site-packages/package_name
-```
 ```
 
 ## 1. app-source.py

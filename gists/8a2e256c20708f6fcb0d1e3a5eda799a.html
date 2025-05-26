@@ -10,24 +10,6 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="go-unit-table-test-example-go-golang-tests-testing-unittest-parallel-async-table-matrix">[Go Unit Table Test Example] #go #golang #tests #testing #unittest #parallel #async #table #matrix</h1>
 
-<h2 id="3-test-failure-output-sh">3. Test Failure Output.sh</h2>
-
-<pre><code class="language-shell">% go test
---- FAIL: TestSplit (0.00s)
-    --- FAIL: TestSplit/trailing_sep (0.00s)
-        split_test.go:25: expected: [a b c], got: [a b c ]
-</code></pre>
-
-<h2 id="4-run-specific-test-sh">4. Run Specific Test.sh</h2>
-
-<pre><code class="language-shell">% go test -run=.*/trailing -v
-=== RUN   TestSplit
-=== RUN   TestSplit/trailing_sep
---- FAIL: TestSplit (0.00s)
-    --- FAIL: TestSplit/trailing_sep (0.00s)
-        split_test.go:25: expected: [a b c], got: [a b c ]
-</code></pre>
-
 <h2 id="0-parallel-example-go">0. Parallel Example.go</h2>
 
 <pre><code class="language-go">// Explanation of `tc := tc` https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721
@@ -97,6 +79,24 @@ func main() {
     fmt.Println(cmp.Equal(x, y)) // false
 }
 */
+</code></pre>
+
+<h2 id="3-test-failure-output-sh">3. Test Failure Output.sh</h2>
+
+<pre><code class="language-shell">% go test
+--- FAIL: TestSplit (0.00s)
+    --- FAIL: TestSplit/trailing_sep (0.00s)
+        split_test.go:25: expected: [a b c], got: [a b c ]
+</code></pre>
+
+<h2 id="4-run-specific-test-sh">4. Run Specific Test.sh</h2>
+
+<pre><code class="language-shell">% go test -run=.*/trailing -v
+=== RUN   TestSplit
+=== RUN   TestSplit/trailing_sep
+--- FAIL: TestSplit (0.00s)
+    --- FAIL: TestSplit/trailing_sep (0.00s)
+        split_test.go:25: expected: [a b c], got: [a b c ]
 </code></pre>
 
 </div>

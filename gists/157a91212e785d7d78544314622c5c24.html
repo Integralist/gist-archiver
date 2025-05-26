@@ -12,30 +12,31 @@
 
 <h2 id="git-rebase-theirs-and-ours-md">git rebase theirs and ours.md</h2>
 
-<pre><code class="language-markdown">https://nitaym.github.io/ourstheirs/
+<p><a href="https://nitaym.github.io/ourstheirs/" target="_blank">https://nitaym.github.io/ourstheirs/</a></p>
 
-The summary is: `git checkout` has the following flags whose assigned values can be very confusing.
+<p>The summary is: <code>git checkout</code> has the following flags whose assigned values can be very confusing.</p>
 
-- `--ours` == `main`
-- `--theirs` == the feature branch.
+<ul>
+<li><code>--ours</code> == <code>main</code></li>
+<li><code>--theirs</code> == the feature branch.</li>
+</ul>
 
-The flag values don't change between `git merge` and `git rebase` (e.g. †) so it's safe to remember the above values. 
+<p>The flag values don&rsquo;t change between <code>git merge</code> and <code>git rebase</code> (e.g. †) so it&rsquo;s safe to remember the above values.</p>
 
-&gt; † `git switch main &amp;&amp; git merge feature` vs `git switch feature &amp;&amp; git rebase main`.
+<blockquote>
+<p>† <code>git switch main &amp;&amp; git merge feature</code> vs <code>git switch feature &amp;&amp; git rebase main</code>.</p>
+</blockquote>
 
-## Rebase Example
+<h2 id="rebase-example">Rebase Example</h2>
 
-I typically rebase `feature` over my `main` branch:
+<p>I typically rebase <code>feature</code> over my <code>main</code> branch:</p>
 
-```bash
-git switch feature
+<pre><code class="language-bash">git switch feature
 git pull --rebase origin main
 git checkout --theirs &lt;file&gt;
 git add &lt;file&gt;
 git rebase --continue
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

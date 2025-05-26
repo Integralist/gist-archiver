@@ -12,12 +12,13 @@
 
 <h2 id="go-guru-md">Go Guru.md</h2>
 
-<pre><code class="language-markdown">## Go Guru
+<h2 id="go-guru">Go Guru</h2>
 
-&gt; See official doc: [Using Go Guru](https://docs.google.com/document/d/1_Y9xCEMj5S-7rv2ooHpZNH15JgRT5iM742gJkw5LtmQ/edit#heading=h.7q1t7o2y7td3)
+<blockquote>
+<p>See official doc: <a href="https://docs.google.com/document/d/1_Y9xCEMj5S-7rv2ooHpZNH15JgRT5iM742gJkw5LtmQ/edit#heading=h.7q1t7o2y7td3" target="_blank">Using Go Guru</a></p>
+</blockquote>
 
-```bash
-go get golang.org/x/tools/cmd/guru
+<pre><code class="language-bash">go get golang.org/x/tools/cmd/guru
 guru -help
 </code></pre>
 
@@ -112,16 +113,13 @@ func (t testthing) String() string {
 ...many things satisfy this...
 </code></pre>
 
-<pre><code>
-## Vim-Go.md
+<h2 id="vim-go-md">Vim-Go.md</h2>
 
-```markdown
-## Vim-Go integration with Guru
+<h2 id="vim-go-integration-with-guru">Vim-Go integration with Guru</h2>
 
-vim-go uses `:GoReferrers` to look up references and `:GoImplements` to show what interface the given type is implementing.
+<p>vim-go uses <code>:GoReferrers</code> to look up references and <code>:GoImplements</code> to show what interface the given type is implementing.</p>
 
-```go
-type foo interface {
+<pre><code class="language-go">type foo interface {
 	bar(string) string
 }
 
@@ -161,8 +159,6 @@ main.go|30 col 2| implements method (foo).bar
 <li><code>:GoTest</code>: run all your tests (can also pass <code>./...</code>).</li>
 <li><code>:GoTestFunc</code>: run the specific test function under your cursor.</li>
 </ul>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

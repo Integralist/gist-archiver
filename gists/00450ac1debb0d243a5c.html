@@ -12,164 +12,243 @@
 
 <h2 id="datadog-monitoring-and-metrics-md">Datadog Monitoring and Metrics.md</h2>
 
-<pre><code class="language-markdown">http://thenewstack.io/monitoring-101-collecting-right-data/
+<p><a href="http://thenewstack.io/monitoring-101-collecting-right-data/" target="_blank">http://thenewstack.io/monitoring-101-collecting-right-data/</a></p>
 
-## What is a metric?
+<h2 id="what-is-a-metric">What is a metric?</h2>
 
-Metrics capture a value pertaining to your systems at a specific point in time.
+<p>Metrics capture a value pertaining to your systems at a specific point in time.</p>
 
-Metrics are usually collected once per second, one per minute, or at another regular interval to monitor a system over time.
+<p>Metrics are usually collected once per second, one per minute, or at another regular interval to monitor a system over time.</p>
 
-&gt; For different Metric Data Types and the metric names they produce see https://docs.datadoghq.com/developers/metrics/types/?tab=histogram#metric-types
+<blockquote>
+<p>For different Metric Data Types and the metric names they produce see <a href="https://docs.datadoghq.com/developers/metrics/types/?tab=histogram#metric-types" target="_blank">https://docs.datadoghq.com/developers/metrics/types/?tab=histogram#metric-types</a></p>
+</blockquote>
 
-## Custom Metrics and High-Cardinality Tags
+<h2 id="custom-metrics-and-high-cardinality-tags">Custom Metrics and High-Cardinality Tags</h2>
 
-Datadog's pricing structure is to bill custom metrics at $5/month per 100 custom metrics.
+<p>Datadog&rsquo;s pricing structure is to bill custom metrics at $5/month per 100 custom metrics.</p>
 
-**So what constitutes a 'custom metric'?** 
+<p><strong>So what constitutes a &lsquo;custom metric&rsquo;?</strong></p>
 
-&gt; A custom metric is uniquely identified by a combination of a metric name and tag values (including the host tag). — [Datadog](https://docs.datadoghq.com/account_management/billing/custom_metrics/)
+<blockquote>
+<p>A custom metric is uniquely identified by a combination of a metric name and tag values (including the host tag). — <a href="https://docs.datadoghq.com/account_management/billing/custom_metrics/" target="_blank">Datadog</a></p>
+</blockquote>
 
-This means a metric like `request.latency` with no tags would be charged as a single 'custom metric'. 
+<p>This means a metric like <code>request.latency</code> with no tags would be charged as a single &lsquo;custom metric&rsquo;.</p>
 
-Where as if there were three tags (host, endpoint, status), then with the following combination of unique tag values, we'd end up with four custom metrics:
+<p>Where as if there were three tags (host, endpoint, status), then with the following combination of unique tag values, we&rsquo;d end up with four custom metrics:</p>
 
-![custom-metric](https://user-images.githubusercontent.com/180050/80495836-54281480-8960-11ea-9c3c-c9b9498be248.png)
+<p><img src="https://user-images.githubusercontent.com/180050/80495836-54281480-8960-11ea-9c3c-c9b9498be248.png" alt="custom-metric" /></p>
 
-This demonstrates how we must be careful with the cardinality of any tags we apply to our metrics.
+<p>This demonstrates how we must be careful with the cardinality of any tags we apply to our metrics.</p>
 
-The situation is made worse when using a `HISTOGRAM` metric type, as it ultimately produces five separate metrics. Meaning the `request.latency` example, if reported as a `HISTOGRAM`, would result in twenty custom metrics (`5 metrics * 4 tag combinations`). 
+<p>The situation is made worse when using a <code>HISTOGRAM</code> metric type, as it ultimately produces five separate metrics. Meaning the <code>request.latency</code> example, if reported as a <code>HISTOGRAM</code>, would result in twenty custom metrics (<code>5 metrics * 4 tag combinations</code>).</p>
 
-&gt; Note: the problem of the `HISTOGRAM` metric type can be mitigated using a `DISTRIBUTION` metric instead (see following section).
+<blockquote>
+<p>Note: the problem of the <code>HISTOGRAM</code> metric type can be mitigated using a <code>DISTRIBUTION</code> metric instead (see following section).</p>
+</blockquote>
 
-## Metric Types
+<h2 id="metric-types">Metric Types</h2>
 
-Overall there are five distinct metric 'types' to be aware of ([docs](https://docs.datadoghq.com/developers/metrics/types/?tab=histogram#metric-types)).
+<p>Overall there are five distinct metric &lsquo;types&rsquo; to be aware of (<a href="https://docs.datadoghq.com/developers/metrics/types/?tab=histogram#metric-types" target="_blank">docs</a>).</p>
 
-Two of those metric types require additional clarification with regards to the cost implications associated with instrumenting your code to report metric data.
+<p>Two of those metric types require additional clarification with regards to the cost implications associated with instrumenting your code to report metric data.</p>
 
-- `HISTOGRAM`
-- `DISTRIBUTION`
+<ul>
+<li><code>HISTOGRAM</code></li>
+<li><code>DISTRIBUTION</code></li>
+</ul>
 
-&gt; **Note**: there is also a `TIMER` metric type, which is a subset of `HISTOGRAM` ([docs](https://docs.datadoghq.com/developers/metrics/dogstatsd_metrics_submission/?tab=python#timer)).
+<blockquote>
+<p><strong>Note</strong>: there is also a <code>TIMER</code> metric type, which is a subset of <code>HISTOGRAM</code> (<a href="https://docs.datadoghq.com/developers/metrics/dogstatsd_metrics_submission/?tab=python#timer" target="_blank">docs</a>).</p>
+</blockquote>
 
-The key differences between `HISTOGRAM` and `DISTRIBUTION` are...
+<p>The key differences between <code>HISTOGRAM</code> and <code>DISTRIBUTION</code> are&hellip;</p>
 
-| | `HISTOGRAM` | `DISTRIBUTION` |
-| - | - | - |
-| **Multiple Metrics** | YES | YES |
-| **Percentile Aggregations** | PARTIAL | YES |
-| **Tag Filtering** | NO | YES |
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>HISTOGRAM</code></th>
+<th><code>DISTRIBUTION</code></th>
+</tr>
+</thead>
 
-### Multiple Metrics
+<tbody>
+<tr>
+<td><strong>Multiple Metrics</strong></td>
+<td>YES</td>
+<td>YES</td>
+</tr>
 
-The `HISTOGRAM` metric type will generate five unique custom metrics to represent different aggregations: 
+<tr>
+<td><strong>Percentile Aggregations</strong></td>
+<td>PARTIAL</td>
+<td>YES</td>
+</tr>
 
-For example, if you report a histogram metric `foo.bar`, then this will result in the following metrics being created (representing different aggregation types):
+<tr>
+<td><strong>Tag Filtering</strong></td>
+<td>NO</td>
+<td>YES</td>
+</tr>
+</tbody>
+</table>
 
-- `foo.bar.avg`
-- `foo.bar.count`
-- `foo.bar.median`
-- `foo.bar.max`
-- `foo.bar.95percentile`
+<h3 id="multiple-metrics">Multiple Metrics</h3>
 
-The `DISTRIBUTION` metric type will generate one metric, but provide multiple aggregations via the Datadog UI. 
+<p>The <code>HISTOGRAM</code> metric type will generate five unique custom metrics to represent different aggregations:</p>
 
-The aggregations for a `DISTRIBUTION` metric type are:
+<p>For example, if you report a histogram metric <code>foo.bar</code>, then this will result in the following metrics being created (representing different aggregation types):</p>
 
-- `max`
-- `min`
-- `avg`
-- `sum`
-- `count` 
+<ul>
+<li><code>foo.bar.avg</code></li>
+<li><code>foo.bar.count</code></li>
+<li><code>foo.bar.median</code></li>
+<li><code>foo.bar.max</code></li>
+<li><code>foo.bar.95percentile</code></li>
+</ul>
 
-Now although the `DISTRIBUTION` aggregations may well be applied to a 'single' metric, _internally_ Datadog considers each aggregation a _unique_ metric. This means at face value a `DISTRIBUTION` metric type is no more cost effective than a `HISTOGRAM` with regards to the calculation of ['custom metrics'](#custom-metrics-and-high-cardinality-tags) (as they both ultimately yield five individual metrics). But this isn't necessarily the case, as a `DISTRIBUTION` metric type has the added ability to [filter tags](#tag-filtering) thus reducing the number of calculated custom metrics.
+<p>The <code>DISTRIBUTION</code> metric type will generate one metric, but provide multiple aggregations via the Datadog UI.</p>
 
-### Percentile Aggregations
+<p>The aggregations for a <code>DISTRIBUTION</code> metric type are:</p>
 
-The `HISTOGRAM` metric type provides a `95percentile`, while the `DISTRIBUTION` metric type _can_ provide a `p95` along with `p50`, `p75`, `p90` and `p99` but these aggregations need to be manually generated via the [Datadog UI](https://buzzfeed.datadoghq.com/metric/distribution_metrics).
+<ul>
+<li><code>max</code></li>
+<li><code>min</code></li>
+<li><code>avg</code></li>
+<li><code>sum</code></li>
+<li><code>count</code></li>
+</ul>
 
-Each percentile aggregation for the `DISTRIBUTION` metric type is internally considered a _unique_ metric and thus is subject to Datadog's custom metric cost implications.
+<p>Now although the <code>DISTRIBUTION</code> aggregations may well be applied to a &lsquo;single&rsquo; metric, <em>internally</em> Datadog considers each aggregation a <em>unique</em> metric. This means at face value a <code>DISTRIBUTION</code> metric type is no more cost effective than a <code>HISTOGRAM</code> with regards to the calculation of <a href="#custom-metrics-and-high-cardinality-tags">&lsquo;custom metrics&rsquo;</a> (as they both ultimately yield five individual metrics). But this isn&rsquo;t necessarily the case, as a <code>DISTRIBUTION</code> metric type has the added ability to <a href="#tag-filtering">filter tags</a> thus reducing the number of calculated custom metrics.</p>
 
-### Tag Filtering
+<h3 id="percentile-aggregations">Percentile Aggregations</h3>
 
-The `DISTRIBUTION` metric type allows tags to be filtered, thus reducing the potential number of custom metrics Datadog will charge us for. This is not possible with any other metric type.
+<p>The <code>HISTOGRAM</code> metric type provides a <code>95percentile</code>, while the <code>DISTRIBUTION</code> metric type <em>can</em> provide a <code>p95</code> along with <code>p50</code>, <code>p75</code>, <code>p90</code> and <code>p99</code> but these aggregations need to be manually generated via the <a href="https://buzzfeed.datadoghq.com/metric/distribution_metrics" target="_blank">Datadog UI</a>.</p>
 
-### Choosing `HISTOGRAM` or `DISTRIBUTION` ?
+<p>Each percentile aggregation for the <code>DISTRIBUTION</code> metric type is internally considered a <em>unique</em> metric and thus is subject to Datadog&rsquo;s custom metric cost implications.</p>
 
-The fact that the `DISTRIBUTION` metric type enables tag filtering is an important consideration when choosing between it and a `HISTOGRAM`. This is why the `bf_metrics` timer abstraction (which is used to time your functions and/or code) will use the `DISTRIBUTION` metric type rather than Datadog's `TIMER` metric type (which is a subset of a `HISTOGRAM`).
+<h3 id="tag-filtering">Tag Filtering</h3>
 
-It means that we're able to reduce the number of custom metrics while also allowing consumers to opt-in to percentile aggregations if they require them, and to again utilize tag filtering to help constrain the number of custom metrics.
+<p>The <code>DISTRIBUTION</code> metric type allows tags to be filtered, thus reducing the potential number of custom metrics Datadog will charge us for. This is not possible with any other metric type.</p>
 
-The `DISTRIBUTION` and `HISTOGRAM` have overlapping aggregations (`count`, `avg`, `max`) which means if you do not require an aggregation outside of those specific ones, then choosing a `DISTRIBUTION` metric type would be better as you can utilize tag filtering to help reduce the number of custom metrics.
+<h3 id="choosing-histogram-or-distribution">Choosing <code>HISTOGRAM</code> or <code>DISTRIBUTION</code> ?</h3>
 
-If you do require a percentile aggregation then the trade-off you need to make is between whether a `HISTOGRAM` (with `95percentile` available by default) is more cost effective than a `DISTRIBUTION` which with percentiles added will add up to more individual metrics but with tag filtering available might still end up being more cost effective overall as you can't filter your high-cardinality tags with a `HISTOGRAM`/`TIMER`.
+<p>The fact that the <code>DISTRIBUTION</code> metric type enables tag filtering is an important consideration when choosing between it and a <code>HISTOGRAM</code>. This is why the <code>bf_metrics</code> timer abstraction (which is used to time your functions and/or code) will use the <code>DISTRIBUTION</code> metric type rather than Datadog&rsquo;s <code>TIMER</code> metric type (which is a subset of a <code>HISTOGRAM</code>).</p>
 
-### The `DISTRIBUTION` percentile 'custom metric' conspiracy
+<p>It means that we&rsquo;re able to reduce the number of custom metrics while also allowing consumers to opt-in to percentile aggregations if they require them, and to again utilize tag filtering to help constrain the number of custom metrics.</p>
 
-The way Datadog calculates the number of 'custom metrics' is slightly different (and more costly) for percentile aggregations of a `DISTRIBUTION` metric type. 
+<p>The <code>DISTRIBUTION</code> and <code>HISTOGRAM</code> have overlapping aggregations (<code>count</code>, <code>avg</code>, <code>max</code>) which means if you do not require an aggregation outside of those specific ones, then choosing a <code>DISTRIBUTION</code> metric type would be better as you can utilize tag filtering to help reduce the number of custom metrics.</p>
 
-The `DISTRIBUTION` percentiles take into account every _potentially_ queryable varation of a metric. 
+<p>If you do require a percentile aggregation then the trade-off you need to make is between whether a <code>HISTOGRAM</code> (with <code>95percentile</code> available by default) is more cost effective than a <code>DISTRIBUTION</code> which with percentiles added will add up to more individual metrics but with tag filtering available might still end up being more cost effective overall as you can&rsquo;t filter your high-cardinality tags with a <code>HISTOGRAM</code>/<code>TIMER</code>.</p>
 
-Imagine your metric has three tags A, B and C. Datadog calculates the number of custom metrics like so:
+<h3 id="the-distribution-percentile-custom-metric-conspiracy">The <code>DISTRIBUTION</code> percentile &lsquo;custom metric&rsquo; conspiracy</h3>
 
-- each tag value of {A} 
-- each tag value of {B}
-- each tag value of {C}
-- each tag value of {A,B}
-- each tag value of {A,C}
-- each tag value of {B,C}
-- each tag value of {A,B,C}
-- {*}
+<p>The way Datadog calculates the number of &lsquo;custom metrics&rsquo; is slightly different (and more costly) for percentile aggregations of a <code>DISTRIBUTION</code> metric type.</p>
 
-Datadog's rationale for this difference is...
+<p>The <code>DISTRIBUTION</code> percentiles take into account every <em>potentially</em> queryable varation of a metric.</p>
 
-&gt; The reason we have to store percentiles for each potentially queryable tag value combination is to preserve mathematical accuracy of your values; unlike the non-percentile aggregations which can be mathematically accurate when reaggregated (i.e the global max is the maximum of the maxes), you can't calculate the globally accurate p95 by recombining p95s.
+<p>Imagine your metric has three tags A, B and C. Datadog calculates the number of custom metrics like so:</p>
 
----
+<ul>
+<li>each tag value of {A}</li>
+<li>each tag value of {B}</li>
+<li>each tag value of {C}</li>
+<li>each tag value of {A,B}</li>
+<li>each tag value of {A,C}</li>
+<li>each tag value of {B,C}</li>
+<li>each tag value of {A,B,C}</li>
+<li>{*}</li>
+</ul>
 
-https://docs.datadoghq.com/developers/dogstatsd/data_types/
+<p>Datadog&rsquo;s rationale for this difference is&hellip;</p>
 
-- Counter: track how many times something happens per N (N: seconds or minutes)
-- Gauge: &quot;last write wins&quot;
-- Histogram: when you want to understand the value over time.
-- Distribution: server-side aggregation (+ allows percentile generation for only specific tags).
+<blockquote>
+<p>The reason we have to store percentiles for each potentially queryable tag value combination is to preserve mathematical accuracy of your values; unlike the non-percentile aggregations which can be mathematically accurate when reaggregated (i.e the global max is the maximum of the maxes), you can&rsquo;t calculate the globally accurate p95 by recombining p95s.</p>
+</blockquote>
 
-&gt; **Note**: When thinking about 'guages': imagine many processes sending a gauge for a moment in time. Which one do you record? A histogram can correctly record the distribution of those values.
+<hr />
 
-### Warning about Custom Metrics 
+<p><a href="https://docs.datadoghq.com/developers/dogstatsd/data_types/" target="_blank">https://docs.datadoghq.com/developers/dogstatsd/data_types/</a></p>
 
-&gt; Distribution metrics with percentile aggregations (p50, p75, p90, p95, p99) generate custom metrics or timeseries differently than gauges, counts, histograms, and distributions with nonpercentile aggregations (sum, count, min, max, avg). Because percentiles aren’t reaggregatable, Datadog preserves five timeseries for every potentially queryable tag combination. -- Datadog Docs
+<ul>
+<li>Counter: track how many times something happens per N (N: seconds or minutes)</li>
+<li>Gauge: &ldquo;last write wins&rdquo;</li>
+<li>Histogram: when you want to understand the value over time.</li>
+<li>Distribution: server-side aggregation (+ allows percentile generation for only specific tags).</li>
+</ul>
 
-Ultimately this means that if you used a normal timing metric (which is a sub-set of a histogram) then you'd get five custom metrics created (and for each one you'd have to be mindful of any tags as that will increase the custom metric numbers as we mentioned earlier), but with a distribution metric you're able to have it ignore all tags except for specific tags you specify which can help reduce the number of metrics.
+<blockquote>
+<p><strong>Note</strong>: When thinking about &lsquo;guages&rsquo;: imagine many processes sending a gauge for a moment in time. Which one do you record? A histogram can correctly record the distribution of those values.</p>
+</blockquote>
 
-- **Timer metric** (a sub-set of Histogram) generates five custom metrics: `count`, `avg`, `median`, `max`, `95percentile` (each will then be multiplied by the number of unique tag combinations).
-- **Distribution metric** generates five custom metrics (in its default mode, i.e. non-percentile mode): `max`, `min`, `avg`, `sum`, `count` (each will then be multiplied by the number of unique tag combinations). If we calculate percentiles for the distribution metric this results in an additional five custom metrics for the percentiles: `p50`, `p75`, `p90`, `p95`, `p99` (again, each will then be multiplied by the number of unique tag combinations).
+<h3 id="warning-about-custom-metrics">Warning about Custom Metrics</h3>
 
-My understanding is that if we recorded a metric called `foo.bar`, then...
+<blockquote>
+<p>Distribution metrics with percentile aggregations (p50, p75, p90, p95, p99) generate custom metrics or timeseries differently than gauges, counts, histograms, and distributions with nonpercentile aggregations (sum, count, min, max, avg). Because percentiles aren’t reaggregatable, Datadog preserves five timeseries for every potentially queryable tag combination. &ndash; Datadog Docs</p>
+</blockquote>
 
-- `foo.bar` is itself considered a **_single_** custom metric (multiplied by any available 'tags')
-- while the percentile aggregation will generate five **_additional_** custom metrics (again, multiplied by any available 'tags')
+<p>Ultimately this means that if you used a normal timing metric (which is a sub-set of a histogram) then you&rsquo;d get five custom metrics created (and for each one you&rsquo;d have to be mindful of any tags as that will increase the custom metric numbers as we mentioned earlier), but with a distribution metric you&rsquo;re able to have it ignore all tags except for specific tags you specify which can help reduce the number of metrics.</p>
 
-## What should we check?
+<ul>
+<li><strong>Timer metric</strong> (a sub-set of Histogram) generates five custom metrics: <code>count</code>, <code>avg</code>, <code>median</code>, <code>max</code>, <code>95percentile</code> (each will then be multiplied by the number of unique tag combinations).</li>
+<li><strong>Distribution metric</strong> generates five custom metrics (in its default mode, i.e. non-percentile mode): <code>max</code>, <code>min</code>, <code>avg</code>, <code>sum</code>, <code>count</code> (each will then be multiplied by the number of unique tag combinations). If we calculate percentiles for the distribution metric this results in an additional five custom metrics for the percentiles: <code>p50</code>, <code>p75</code>, <code>p90</code>, <code>p95</code>, <code>p99</code> (again, each will then be multiplied by the number of unique tag combinations).</li>
+</ul>
 
-For a particular 'work metric' you would check the corresponding 'resource metric'.
+<p>My understanding is that if we recorded a metric called <code>foo.bar</code>, then&hellip;</p>
 
-| Work Metrics | Resource Metrics | Events |
-|---|---|---|
-| Throughput | Utilization | Code Changes |
-| Success | Saturation | Alerts |
-| Error | Error | Scaling Events |
-| Performance | Availability | ... |
+<ul>
+<li><code>foo.bar</code> is itself considered a <strong><em>single</em></strong> custom metric (multiplied by any available &lsquo;tags&rsquo;)</li>
+<li>while the percentile aggregation will generate five <strong><em>additional</em></strong> custom metrics (again, multiplied by any available &lsquo;tags&rsquo;)</li>
+</ul>
 
-Work metrics indicate the top-level health of your system by measuring its useful output
+<h2 id="what-should-we-check">What should we check?</h2>
 
-Resource metrics (CPU, memory, disks, and network interfaces) are especially valuable for investigation and diagnosis of resource problems
+<p>For a particular &lsquo;work metric&rsquo; you would check the corresponding &lsquo;resource metric&rsquo;.</p>
 
-There are a few other types of metrics that are neither work nor resource metrics, but that nonetheless may come in handy in diagnosing causes of problems. Common examples include counts of cache hits or database locks
+<table>
+<thead>
+<tr>
+<th>Work Metrics</th>
+<th>Resource Metrics</th>
+<th>Events</th>
+</tr>
+</thead>
 
-In addition to metrics, which are collected more or less continuously, some monitoring systems can also capture events: discrete, infrequent occurrences that can provide crucial context for understanding what changed in your system’s behavior
-</code></pre>
+<tbody>
+<tr>
+<td>Throughput</td>
+<td>Utilization</td>
+<td>Code Changes</td>
+</tr>
+
+<tr>
+<td>Success</td>
+<td>Saturation</td>
+<td>Alerts</td>
+</tr>
+
+<tr>
+<td>Error</td>
+<td>Error</td>
+<td>Scaling Events</td>
+</tr>
+
+<tr>
+<td>Performance</td>
+<td>Availability</td>
+<td>&hellip;</td>
+</tr>
+</tbody>
+</table>
+<p>Work metrics indicate the top-level health of your system by measuring its useful output</p>
+
+<p>Resource metrics (CPU, memory, disks, and network interfaces) are especially valuable for investigation and diagnosis of resource problems</p>
+
+<p>There are a few other types of metrics that are neither work nor resource metrics, but that nonetheless may come in handy in diagnosing causes of problems. Common examples include counts of cache hits or database locks</p>
+
+<p>In addition to metrics, which are collected more or less continuously, some monitoring systems can also capture events: discrete, infrequent occurrences that can provide crucial context for understanding what changed in your system’s behavior</p>
 
 </div>
 </body>

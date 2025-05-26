@@ -12,23 +12,26 @@
 
 <h2 id="cli-terminology-and-design-guidelines-md">CLI terminology and design guidelines.md</h2>
 
-<pre><code class="language-markdown">## Guidelines
+<h2 id="guidelines">Guidelines</h2>
 
-The following information was copied verbatim from https://clig.dev/ (an excellent resource).
+<p>The following information was copied verbatim from <a href="https://clig.dev/" target="_blank">https://clig.dev/</a> (an excellent resource).</p>
 
-This is only a small subset of the overall content, so I highly recommend reading the full document (see link above).
+<p>This is only a small subset of the overall content, so I highly recommend reading the full document (see link above).</p>
 
-## Terminology
+<h2 id="terminology">Terminology</h2>
 
-- _Arguments_, or _args_, are positional parameters to a command. For example, the file paths you provide to `cp` are args. The order of args is often important: `cp foo bar` means something different from `cp bar foo`.
-- _Flags_ are named parameters, denoted with either a hyphen and a single-letter name (`-r`) or a double hyphen and a multiple-letter name (`--recursive`). They may or may not also include a user-specified value (`--file foo.txt`, or `--file=foo.txt`). The order of flags, generally speaking, does not affect program semantics.
+<ul>
+<li><em>Arguments</em>, or <em>args</em>, are positional parameters to a command. For example, the file paths you provide to <code>cp</code> are args. The order of args is often important: <code>cp foo bar</code> means something different from <code>cp bar foo</code>.</li>
+<li><em>Flags</em> are named parameters, denoted with either a hyphen and a single-letter name (<code>-r</code>) or a double hyphen and a multiple-letter name (<code>--recursive</code>). They may or may not also include a user-specified value (<code>--file foo.txt</code>, or <code>--file=foo.txt</code>). The order of flags, generally speaking, does not affect program semantics.</li>
+</ul>
 
-&gt; **NOTE**: You might sometimes see in CLI `--help` output sections such as `FLAGS:` and `OPTIONS:` (the latter functions the same as the flags section). The difference is, and there's no official document or guidelines to support the following, that 'Flags' are boolean on/off switches (e.g. `--debug`) while 'Options' are flags that accept a value (e.g. `--id=123`). This all depends on the library you use to create your CLI. For instance, some libraries will generate `REQUIRED FLAGS` and `OPTIONAL FLAGS` sections instead.
+<blockquote>
+<p><strong>NOTE</strong>: You might sometimes see in CLI <code>--help</code> output sections such as <code>FLAGS:</code> and <code>OPTIONS:</code> (the latter functions the same as the flags section). The difference is, and there&rsquo;s no official document or guidelines to support the following, that &lsquo;Flags&rsquo; are boolean on/off switches (e.g. <code>--debug</code>) while &lsquo;Options&rsquo; are flags that accept a value (e.g. <code>--id=123</code>). This all depends on the library you use to create your CLI. For instance, some libraries will generate <code>REQUIRED FLAGS</code> and <code>OPTIONAL FLAGS</code> sections instead.</p>
+</blockquote>
 
-## Example Structure
+<h2 id="example-structure">Example Structure</h2>
 
-```bash
-&lt;command|program&gt; [&lt;flags|options&gt;] &lt;subcommand&gt; [&lt;flags|options&gt;] [&lt;args&gt; ...]
+<pre><code class="language-bash">&lt;command|program&gt; [&lt;flags|options&gt;] &lt;subcommand&gt; [&lt;flags|options&gt;] [&lt;args&gt; ...]
 </code></pre>
 
 <blockquote>
@@ -68,8 +71,6 @@ This is only a small subset of the overall content, so I highly recommend readin
 <li><code>--version</code>: Version.</li>
 <li><code>-v</code>: This can often mean either verbose or version. You might want to use -d for verbose and this for version, or for nothing to avoid confusion.</li>
 </ul>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

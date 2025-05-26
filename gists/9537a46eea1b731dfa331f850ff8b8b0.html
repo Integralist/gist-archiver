@@ -12,18 +12,15 @@
 
 <h2 id="valid-url-path-md">valid url path.md</h2>
 
-<pre><code class="language-markdown">A [path segment](http://tools.ietf.org/html/rfc3986#section-3.3) (the parts in a path separated by `/`) in an absolute URI path can contain zero or more of _pchar_ that is defined as follows:
+<p>A <a href="http://tools.ietf.org/html/rfc3986#section-3.3" target="_blank">path segment</a> (the parts in a path separated by <code>/</code>) in an absolute URI path can contain zero or more of <em>pchar</em> that is defined as follows:</p>
 
+<pre><code>pchar       = unreserved / pct-encoded / sub-delims / &quot;:&quot; / &quot;@&quot;
+unreserved  = ALPHA / DIGIT / &quot;-&quot; / &quot;.&quot; / &quot;_&quot; / &quot;~&quot;
+pct-encoded = &quot;%&quot; HEXDIG HEXDIG
+sub-delims  = &quot;!&quot; / &quot;$&quot; / &quot;&amp;&quot; / &quot;'&quot; / &quot;(&quot; / &quot;)&quot; / &quot;*&quot; / &quot;+&quot; / &quot;,&quot; / &quot;;&quot; / &quot;=&quot;
 </code></pre>
 
-<p>pchar       = unreserved / pct-encoded / sub-delims / &ldquo;:&rdquo; / &ldquo;@&rdquo;
-unreserved  = ALPHA / DIGIT / &ldquo;-&rdquo; / &ldquo;.&rdquo; / &ldquo;_&rdquo; / &ldquo;~&rdquo;
-pct-encoded = &ldquo;%&rdquo; HEXDIG HEXDIG
-sub-delims  = &ldquo;!&rdquo; / &ldquo;$&rdquo; / &ldquo;&amp;&rdquo; / &ldquo;&lsquo;&rdquo; / &ldquo;(&rdquo; / &ldquo;)&rdquo; / &ldquo;*&rdquo; / &ldquo;+&rdquo; / &ldquo;,&rdquo; / &ldquo;;&rdquo; / &ldquo;=&rdquo;</p>
-
-<pre><code>
-So it’s basically `A–Z`, `a–z`, `0–9`, `-`, `.`, `_`, `~`, `!`, `$`, `&amp;`, `'`, `(`, `)`, `*`, `+`, `,`, `;`, `=`, `:`, `@`, as well as `%` which must be followed by two hexadecimal digits (`0-9` and `A-F`). Any other character/byte needs to be encoded using the percent-encoding.
-</code></pre>
+<p>So it’s basically <code>A–Z</code>, <code>a–z</code>, <code>0–9</code>, <code>-</code>, <code>.</code>, <code>_</code>, <code>~</code>, <code>!</code>, <code>$</code>, <code>&amp;</code>, <code>'</code>, <code>(</code>, <code>)</code>, <code>*</code>, <code>+</code>, <code>,</code>, <code>;</code>, <code>=</code>, <code>:</code>, <code>@</code>, as well as <code>%</code> which must be followed by two hexadecimal digits (<code>0-9</code> and <code>A-F</code>). Any other character/byte needs to be encoded using the percent-encoding.</p>
 
 </div>
 </body>

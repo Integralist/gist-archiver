@@ -10,6 +10,265 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="basic-go-project-structure-go-golang-base-project">Basic Go Project Structure #go #golang #base #project</h1>
 
+<h2 id="1-readme-md">1. README.md</h2>
+
+<pre><code>.
+├── Makefile
+├── cmd
+│   └── api
+│       └── main.go
+├── go.mod
+├── go.sum
+├── internal
+│   ├── api
+│   │   └── api.go
+│   └── log
+│       ├── log.go
+│       └── log_test.go
+├── revive.toml
+├── tools.mod
+└── tools.sum
+</code></pre>
+
+<h2 id="makefile">Makefile</h2>
+
+<pre><code class="language-makefile">.DEFAULT_GOAL := run  ## Default make target
+TOOLS = &quot;&quot;            ## List of dev tools
+TOOLS = \
+	github.com/mgechev/revive \
+	golang.org/x/lint/golint \
+	golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness \
+	golang.org/x/vuln/cmd/govulncheck \
+	honnef.co/go/tools/cmd/staticcheck \
+	mvdan.cc/gofumpt
+
+.PHONY: help
+help: ## Displays list of Makefile targets and documented variables
+	@echo &quot;Targets:&quot;
+	@grep -h -E '^[0-9a-zA-Z_.-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = &quot;:.*?## &quot;}; {printf &quot;  \033[36m%-20s\033[0m %s\n&quot;, $$1, $$2}'
+	@echo &quot;&quot;
+	@echo &quot;Variables:&quot;
+	@grep -h -E '^[0-9a-zA-Z_.-]+\s[?:]?=.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = &quot;[?:]?=.*?## &quot;}; {printf &quot;  \033[36m%-20s\033[0m %s\n&quot;, $$1, $$2}'
+	@echo &quot;&quot;
+	@echo &quot;Default target:&quot;
+	@printf &quot;  \033[36m%s\033[0m\n&quot; $(.DEFAULT_GOAL)
+
+.PHONY: api-update
+api-update: ## Update all API application dependencies
+	go get -u -t ./...
+	go mod tidy
+	if [ -d &quot;vendor&quot; ]; then go mod vendor; fi
+
+.PHONY: fmt
+fmt: ## Format all Go files using gofumpt
+	go tool -modfile=tools.mod gofumpt -w .
+
+.PHONY: lint-all
+lint-all: lint-golint lint-govet lint-govul lint-nilness lint-revive lint-staticcheck ## Lint project using all linters
+
+.PHONY: lint-golint
+lint-golint: ## Lint project using golint
+	go tool -modfile=tools.mod golint -set_exit_status $(shell go list -f '{{.Dir}}' ./... )
+
+.PHONY: lint-govet
+lint-govet: ## Lint project using go vet
+	go vet ./...
+
+.PHONY: lint-govul
+lint-govul: ## Lint project using govulncheck
+	go tool -modfile=tools.mod govulncheck ./...
+
+.PHONY: lint-nilness
+lint-nilness: ## Lint project using nilness
+	go tool -modfile=tools.mod nilness ./...
+
+.PHONY: lint-revive
+lint-revive: ## Lint project using revive
+	go tool -modfile=tools.mod revive -config revive.toml ./...
+
+.PHONY: lint-staticcheck
+lint-staticcheck: ## Lint project using staticcheck
+	go tool -modfile=tools.mod staticcheck ./...
+
+.PHONY: run
+run: ## Run the API server (opts: HUMANLOG=true)
+	@# humanlog doesn't sort keys lexicographically.
+	@# to do that we must set `--sort-longest=false`
+	@# this causes the key sorting we want (as a side effect)
+	@# while at the same time avoiding humanlog from trying to sort by key length
+	go run ./cmd/api/main.go $(if \
+		$(filter true,$(HUMANLOG)),| \
+			humanlog \
+				--message-fields=event \
+				--sort-longest=false \
+				--truncate=false, \
+	)
+
+.PHONY: test
+test: ## Run the Go test suite
+	go test ./...
+
+.PHONY: tools-install
+tools-install: ## Install dev tools
+	@if [ ! -f tools.mod ]; then \
+		echo &quot;Initializing tools.mod&quot;; \
+		go mod init -modfile=tools.mod github.com/fastly/ascerta/tools; \
+	fi
+	@$(foreach tool,$(TOOLS), \
+		if ! go tool -modfile=tools.mod | grep &quot;$(tool)&quot; &gt;/dev/null; then \
+			echo &quot;installing $(tool)&quot;; \
+			go get -modfile=tools.mod -tool &quot;$(tool)&quot;@latest; \
+		fi; \
+	)
+	@[ -x &quot;$(shell which humanlog)&quot; ] || curl -sSL &quot;https://humanlog.io/install.sh&quot; | NONINTERACTIVE=true bash
+
+.PHONY: tools-update
+tools-update: ## Update dev tools
+	go get -u -modfile=tools.mod tool
+	go mod tidy
+
+# checkmake (https://github.com/mrtazz/checkmake) requires these targets be set
+.PHONY: all clean test
+</code></pre>
+
+<h2 id="cmd-api-main-go">cmd - api - main.go</h2>
+
+<pre><code class="language-go">// Package main is the starting point for the Ascerta API.
+package main
+
+import (
+	&quot;context&quot;
+	&quot;log/slog&quot;
+	&quot;os&quot;
+
+	&quot;github.com/fastly/ascerta/internal/api&quot;
+	&quot;github.com/fastly/ascerta/internal/log&quot;
+)
+
+func main() {
+	l := log.New()
+	if err := api.Run(l); err != nil {
+		ctx := context.Background()
+		l.LogAttrs(ctx, slog.LevelError, &quot;api_run&quot;, slog.Any(&quot;err&quot;, err))
+		os.Exit(1)
+	}
+}
+</code></pre>
+
+<h2 id="go-mod">go.mod</h2>
+
+<pre><code class="language-go">module github.com/fastly/ascerta
+
+go 1.24
+
+require github.com/fastly/fst-go v1.13.0
+
+require (
+	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/prometheus/client_golang v1.21.1 // indirect
+	github.com/prometheus/client_model v0.6.1 // indirect
+	github.com/prometheus/common v0.63.0 // indirect
+	github.com/prometheus/procfs v0.15.1 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	google.golang.org/protobuf v1.36.5 // indirect
+)
+</code></pre>
+
+<h2 id="go-sum">go.sum</h2>
+
+<pre><code class="language-go">github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
+github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
+github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
+github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
+github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
+github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/fastly/fst-go v1.13.0 h1:rtRF6RZUjOBMGzaNWD9M87b6yEJn8yPWHZ2dcQjR1TA=
+github.com/fastly/fst-go v1.13.0/go.mod h1:95Gbykg+NKlc2JPo9SfZp5W6wWILlLqdc6HUIWEySsc=
+github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
+github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
+github.com/klauspost/compress v1.17.11 h1:In6xLpyWOi1+C7tXUUWv2ot1QvBjxevKAaI6IXrJmUc=
+github.com/klauspost/compress v1.17.11/go.mod h1:pMDklpSncoRMuLFrf1W9Ss9KT+0rH90U12bZKk7uwG0=
+github.com/kylelemons/godebug v1.1.0 h1:RPNrshWIDI6G2gRW9EHilWtl7Z6Sb1BR0xunSBf0SNc=
+github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
+github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=
+github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
+github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
+github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/prometheus/client_golang v1.21.1 h1:DOvXXTqVzvkIewV/CDPFdejpMCGeMcbGCQ8YOmu+Ibk=
+github.com/prometheus/client_golang v1.21.1/go.mod h1:U9NM32ykUErtVBxdvD3zfi+EuFkkaBvMb09mIfe0Zgg=
+github.com/prometheus/client_model v0.6.1 h1:ZKSh/rekM+n3CeS952MLRAdFwIKqeY8b62p8ais2e9E=
+github.com/prometheus/client_model v0.6.1/go.mod h1:OrxVMOVHjw3lKMa8+x6HeMGkHMQyHDk9E3jmP2AmGiY=
+github.com/prometheus/common v0.63.0 h1:YR/EIY1o3mEFP/kZCD7iDMnLPlGyuU2Gb3HIcXnA98k=
+github.com/prometheus/common v0.63.0/go.mod h1:VVFF/fBIoToEnWRVkYoXEkq3R3paCoxG9PXP74SnV18=
+github.com/prometheus/procfs v0.15.1 h1:YagwOFzUgYfKKHX6Dr+sHT7km/hxC76UB0learggepc=
+github.com/prometheus/procfs v0.15.1/go.mod h1:fB45yRUv8NstnjriLhBQLuOUt+WW4BsoGhij/e3PBqk=
+github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
+github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
+golang.org/x/sys v0.31.0 h1:ioabZlmFYtWhL+TRYpcnNlLwhyxaM9kWTDEmfnprqik=
+golang.org/x/sys v0.31.0/go.mod h1:BJP2sWEmIv4KK5OTEluFJCKSidICx8ciO85XgH3Ak8k=
+google.golang.org/protobuf v1.36.5 h1:tPhr+woSbjfYvY6/GPufUoYizxw1cF/yFoxJ2fmpwlM=
+google.golang.org/protobuf v1.36.5/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=
+gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
+</code></pre>
+
+<h2 id="internal-api-api-go">internal - api - api.go</h2>
+
+<pre><code class="language-go">// Package api contains code for running an API server.
+package api
+
+import (
+	&quot;context&quot;
+	&quot;fmt&quot;
+	&quot;log/slog&quot;
+	&quot;net/http&quot;
+	&quot;os&quot;
+	&quot;os/signal&quot;
+	&quot;syscall&quot;
+	&quot;time&quot;
+)
+
+const (
+	apiPort         = &quot;:8080&quot;
+	apiReadTimeout  = time.Duration(5) * time.Second
+	apiWriteTimeout = time.Duration(5) * time.Second
+)
+
+// Run starts the API.
+func Run(l *slog.Logger) error {
+	ctx := context.Background()
+
+	s := http.Server{
+		Addr:         apiPort,
+		ReadTimeout:  apiReadTimeout,
+		WriteTimeout: apiWriteTimeout,
+	}
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		signalType := &lt;-quit
+		l.LogAttrs(ctx, slog.LevelWarn, &quot;api_shutdown&quot;, slog.String(&quot;signal&quot;, signalType.String()))
+
+		if err := s.Shutdown(context.Background()); err != nil { // nolint:contextcheck // we use a separate context to avoid cancellation
+			err := fmt.Errorf(&quot;unable to gracefully stop API server: %w&quot;, err)
+			l.LogAttrs(ctx, slog.LevelError, &quot;api_shutdown&quot;, slog.Any(&quot;error&quot;, err))
+		}
+	}()
+
+	if err := s.ListenAndServe(); err != nil {
+		err := fmt.Errorf(&quot;api server failed to listen and serve requests: %w&quot;, err)
+		l.LogAttrs(ctx, slog.LevelError, &quot;api_serve&quot;, slog.Any(&quot;error&quot;, err))
+		return err
+	}
+
+	return nil
+}
+</code></pre>
+
 <h2 id="internal-log-log-go">internal - log - log.go</h2>
 
 <pre><code class="language-go">// Package log contains code for creating a structured logger.
@@ -144,6 +403,163 @@ func slogReplaceAttr(groups []string, a slog.Attr) slog.Attr {
 	}
 
 	return a
+}
+</code></pre>
+
+<h2 id="internal-log-log-test-go">internal - log - log_test.go</h2>
+
+<pre><code class="language-go">package log
+
+import (
+	&quot;bytes&quot;
+	&quot;context&quot;
+	&quot;encoding/json&quot;
+	&quot;log/slog&quot;
+	&quot;path/filepath&quot;
+	&quot;strings&quot;
+	&quot;testing&quot;
+	&quot;time&quot;
+)
+
+func TestLogger(t *testing.T) {
+	buf := new(bytes.Buffer)
+	l := NewWithOutput(buf)
+
+	type App struct {
+		Name    string `json:&quot;name&quot;`
+		Version string `json:&quot;version&quot;`
+	}
+
+	type Caller struct {
+		Function string `json:&quot;function&quot;`
+		File     string `json:&quot;file&quot;`
+		Line     int    `json:&quot;line&quot;`
+	}
+
+	type log struct {
+		Time      string  `json:&quot;time&quot;`
+		Level     string  `json:&quot;level&quot;`
+		Caller    Caller  `json:&quot;caller&quot;`
+		Event     string  `json:&quot;event&quot;`
+		App       App     `json:&quot;app&quot;`
+		Error     string  `json:&quot;error&quot;`
+		Dur       float64 `json:&quot;dur&quot;`
+		Delay     float64 `json:&quot;delay&quot;`
+		P95       float64 `json:&quot;p95&quot;`
+		PrevP95   float64 `json:&quot;previous_p95&quot;`
+		Remaining float64 `json:&quot;remaining&quot;`
+		MaxWait   float64 `json:&quot;max_wait&quot;`
+	}
+
+	t.Run(&quot;has expected fields&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;testing&quot;)
+		var data log
+		_ = json.Unmarshal(buf.Bytes(), &amp;data)
+		if data.Time == &quot;&quot; {
+			t.Error(&quot;missing field: time&quot;)
+		}
+	})
+
+	t.Run(&quot;outputs debug at LevelDebug&quot;, func(t *testing.T) {
+		Level.Set(slog.LevelDebug)                                   // change for test
+		defer func(lvl slog.Level) { Level.Set(lvl) }(Level.Level()) // ensure reset to default
+
+		dumpLogs(t, buf)
+		ctx := context.Background()
+		l.LogAttrs(ctx, slog.LevelDebug, &quot;&quot;)
+
+		var data log
+		_ = json.Unmarshal(buf.Bytes(), &amp;data)
+		if data.Level != &quot;DEBUG&quot; {
+			t.Error(&quot;missing level=DEBUG&quot;)
+		}
+	})
+
+	t.Run(&quot;elides empty event message&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;&quot;)
+		var data log
+		_ = json.Unmarshal(buf.Bytes(), &amp;data)
+		if data.Event != &quot;&quot; {
+			t.Error(&quot;log should not contain an event&quot;)
+		}
+	})
+
+	t.Run(&quot;elides empty error&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;test message&quot;, slog.Any(&quot;error&quot;, nil))
+		var data log
+		_ = json.Unmarshal(buf.Bytes(), &amp;data)
+		if data.Error != &quot;&quot; {
+			t.Error(&quot;log should not contain an empty error&quot;)
+		}
+	})
+
+	t.Run(&quot;uses UTC time zone&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;UTC&quot;)
+
+		var data log
+		_ = json.Unmarshal(buf.Bytes(), &amp;data)
+
+		p, err := time.Parse(time.RFC3339, data.Time)
+		if err != nil {
+			t.Fatalf(&quot;time field failed to parse: %s&quot;, err)
+		}
+		if z, _ := p.Zone(); z != time.UTC.String() {
+			t.Errorf(&quot;expected time in UTC zone, got %s&quot;, z)
+		}
+	})
+
+	t.Run(&quot;uses shorter source location&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;source -&gt; caller test&quot;)
+
+		var data log
+		_ = json.Unmarshal(buf.Bytes(), &amp;data)
+
+		// slogReplaceAttr replaces the top-level key &quot;source&quot; with &quot;caller&quot;
+		// IMPORTANT: the name of the repo is hard-coded into the slogReplaceAttr logic
+		if data.Caller.File == &quot;&quot; {
+			t.Error(&quot;field not found&quot;)
+		}
+		if strings.HasPrefix(data.Caller.File, string(filepath.Separator)) {
+			t.Errorf(&quot;caller includes full path: %s&quot;, data.Caller.File)
+		}
+	})
+
+	t.Run(&quot;displays milliseconds&quot;, func(t *testing.T) {
+		dumpLogs(t, buf)
+		const ts = 1234567890
+		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;&quot;,
+			slog.Duration(&quot;dur&quot;, ts),
+			slog.Duration(&quot;delay&quot;, ts),
+			slog.Duration(&quot;p95&quot;, ts),
+			slog.Duration(&quot;previous_p95&quot;, ts),
+			slog.Duration(&quot;remaining&quot;, ts),
+			slog.Duration(&quot;max_wait&quot;, ts),
+		)
+
+		var data log
+		_ = json.Unmarshal(buf.Bytes(), &amp;data)
+
+		want := 1234.56789
+		if data.Dur != want || data.Delay != want || data.P95 != want || data.PrevP95 != want || data.Remaining != want || data.MaxWait != want {
+			t.Errorf(&quot;log should contain: %f&quot;, want)
+		}
+	})
+}
+
+func dumpLogs(t *testing.T, buf *bytes.Buffer) {
+	t.Helper()
+	t.Cleanup(func() {
+		t.Helper()
+		if t.Failed() || testing.Verbose() {
+			t.Log(&quot;Logs:\n&quot;, buf.String())
+		}
+		buf.Reset()
+	})
 }
 </code></pre>
 
@@ -353,9 +769,53 @@ severity = &quot;warning&quot;
 severity = &quot;warning&quot;
 </code></pre>
 
+<h2 id="tools-mod">tools.mod</h2>
+
+<pre><code class="language-linux">module github.com/fastly/ascerta/tools
+
+go 1.24.1
+
+tool (
+	github.com/mgechev/revive
+	golang.org/x/lint/golint
+	golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness
+	golang.org/x/vuln/cmd/govulncheck
+	honnef.co/go/tools/cmd/staticcheck
+	mvdan.cc/gofumpt
+)
+
+require (
+	github.com/BurntSushi/toml v1.4.1-0.20240526193622-a339e1f7089c // indirect
+	github.com/chavacava/garif v0.1.0 // indirect
+	github.com/fatih/color v1.18.0 // indirect
+	github.com/fatih/structtag v1.2.0 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
+	github.com/hashicorp/go-version v1.7.0 // indirect
+	github.com/mattn/go-colorable v0.1.14 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/mgechev/dots v0.0.0-20210922191527-e955255bf517 // indirect
+	github.com/mgechev/revive v1.7.0 // indirect
+	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/spf13/afero v1.14.0 // indirect
+	golang.org/x/exp/typeparams v0.0.0-20250305212735-054e65f0b394 // indirect
+	golang.org/x/lint v0.0.0-20241112194109-818c5a804067 // indirect
+	golang.org/x/mod v0.24.0 // indirect
+	golang.org/x/sync v0.12.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/telemetry v0.0.0-20250310203348-fdfaad844314 // indirect
+	golang.org/x/text v0.23.0 // indirect
+	golang.org/x/tools v0.31.0 // indirect
+	golang.org/x/vuln v1.1.4 // indirect
+	honnef.co/go/tools v0.6.1 // indirect
+	mvdan.cc/gofumpt v0.7.0 // indirect
+)
+</code></pre>
+
 <h2 id="tools-sum">tools.sum</h2>
 
-<pre><code class="language-text">github.com/BurntSushi/toml v1.4.0 h1:kuoIxZQy2WRRk1pttg9asf+WVv6tWQuBNVmK8+nqPr0=
+<pre><code class="language-sum">github.com/BurntSushi/toml v1.4.0 h1:kuoIxZQy2WRRk1pttg9asf+WVv6tWQuBNVmK8+nqPr0=
 github.com/BurntSushi/toml v1.4.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/BurntSushi/toml v1.4.1-0.20240526193622-a339e1f7089c h1:pxW6RcqyfI9/kWtOwnv/G+AzdKuy2ZrqINhenH4HyNs=
 github.com/BurntSushi/toml v1.4.1-0.20240526193622-a339e1f7089c/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
@@ -452,469 +912,6 @@ honnef.co/go/tools v0.6.1 h1:R094WgE8K4JirYjBaOpz/AvTyUu/3wbmAoskKN/pxTI=
 honnef.co/go/tools v0.6.1/go.mod h1:3puzxxljPCe8RGJX7BIy1plGbxEOZni5mR2aXe3/uk4=
 mvdan.cc/gofumpt v0.7.0 h1:bg91ttqXmi9y2xawvkuMXyvAA/1ZGJqYAEGjXuP0JXU=
 mvdan.cc/gofumpt v0.7.0/go.mod h1:txVFJy/Sc/mvaycET54pV8SW8gWxTlUuGHVEcncmNUo=
-</code></pre>
-
-<h2 id="go-mod">go.mod</h2>
-
-<pre><code class="language-go">module github.com/fastly/ascerta
-
-go 1.24
-
-require github.com/fastly/fst-go v1.13.0
-
-require (
-	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/prometheus/client_golang v1.21.1 // indirect
-	github.com/prometheus/client_model v0.6.1 // indirect
-	github.com/prometheus/common v0.63.0 // indirect
-	github.com/prometheus/procfs v0.15.1 // indirect
-	golang.org/x/sys v0.31.0 // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
-)
-</code></pre>
-
-<h2 id="go-sum">go.sum</h2>
-
-<pre><code class="language-go">github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
-github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
-github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
-github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
-github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/fastly/fst-go v1.13.0 h1:rtRF6RZUjOBMGzaNWD9M87b6yEJn8yPWHZ2dcQjR1TA=
-github.com/fastly/fst-go v1.13.0/go.mod h1:95Gbykg+NKlc2JPo9SfZp5W6wWILlLqdc6HUIWEySsc=
-github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
-github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
-github.com/klauspost/compress v1.17.11 h1:In6xLpyWOi1+C7tXUUWv2ot1QvBjxevKAaI6IXrJmUc=
-github.com/klauspost/compress v1.17.11/go.mod h1:pMDklpSncoRMuLFrf1W9Ss9KT+0rH90U12bZKk7uwG0=
-github.com/kylelemons/godebug v1.1.0 h1:RPNrshWIDI6G2gRW9EHilWtl7Z6Sb1BR0xunSBf0SNc=
-github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
-github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=
-github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
-github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
-github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/prometheus/client_golang v1.21.1 h1:DOvXXTqVzvkIewV/CDPFdejpMCGeMcbGCQ8YOmu+Ibk=
-github.com/prometheus/client_golang v1.21.1/go.mod h1:U9NM32ykUErtVBxdvD3zfi+EuFkkaBvMb09mIfe0Zgg=
-github.com/prometheus/client_model v0.6.1 h1:ZKSh/rekM+n3CeS952MLRAdFwIKqeY8b62p8ais2e9E=
-github.com/prometheus/client_model v0.6.1/go.mod h1:OrxVMOVHjw3lKMa8+x6HeMGkHMQyHDk9E3jmP2AmGiY=
-github.com/prometheus/common v0.63.0 h1:YR/EIY1o3mEFP/kZCD7iDMnLPlGyuU2Gb3HIcXnA98k=
-github.com/prometheus/common v0.63.0/go.mod h1:VVFF/fBIoToEnWRVkYoXEkq3R3paCoxG9PXP74SnV18=
-github.com/prometheus/procfs v0.15.1 h1:YagwOFzUgYfKKHX6Dr+sHT7km/hxC76UB0learggepc=
-github.com/prometheus/procfs v0.15.1/go.mod h1:fB45yRUv8NstnjriLhBQLuOUt+WW4BsoGhij/e3PBqk=
-github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
-github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
-golang.org/x/sys v0.31.0 h1:ioabZlmFYtWhL+TRYpcnNlLwhyxaM9kWTDEmfnprqik=
-golang.org/x/sys v0.31.0/go.mod h1:BJP2sWEmIv4KK5OTEluFJCKSidICx8ciO85XgH3Ak8k=
-google.golang.org/protobuf v1.36.5 h1:tPhr+woSbjfYvY6/GPufUoYizxw1cF/yFoxJ2fmpwlM=
-google.golang.org/protobuf v1.36.5/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=
-gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
-gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
-</code></pre>
-
-<h2 id="internal-api-api-go">internal - api - api.go</h2>
-
-<pre><code class="language-go">// Package api contains code for running an API server.
-package api
-
-import (
-	&quot;context&quot;
-	&quot;fmt&quot;
-	&quot;log/slog&quot;
-	&quot;net/http&quot;
-	&quot;os&quot;
-	&quot;os/signal&quot;
-	&quot;syscall&quot;
-	&quot;time&quot;
-)
-
-const (
-	apiPort         = &quot;:8080&quot;
-	apiReadTimeout  = time.Duration(5) * time.Second
-	apiWriteTimeout = time.Duration(5) * time.Second
-)
-
-// Run starts the API.
-func Run(l *slog.Logger) error {
-	ctx := context.Background()
-
-	s := http.Server{
-		Addr:         apiPort,
-		ReadTimeout:  apiReadTimeout,
-		WriteTimeout: apiWriteTimeout,
-	}
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-
-	go func() {
-		signalType := &lt;-quit
-		l.LogAttrs(ctx, slog.LevelWarn, &quot;api_shutdown&quot;, slog.String(&quot;signal&quot;, signalType.String()))
-
-		if err := s.Shutdown(context.Background()); err != nil { // nolint:contextcheck // we use a separate context to avoid cancellation
-			err := fmt.Errorf(&quot;unable to gracefully stop API server: %w&quot;, err)
-			l.LogAttrs(ctx, slog.LevelError, &quot;api_shutdown&quot;, slog.Any(&quot;error&quot;, err))
-		}
-	}()
-
-	if err := s.ListenAndServe(); err != nil {
-		err := fmt.Errorf(&quot;api server failed to listen and serve requests: %w&quot;, err)
-		l.LogAttrs(ctx, slog.LevelError, &quot;api_serve&quot;, slog.Any(&quot;error&quot;, err))
-		return err
-	}
-
-	return nil
-}
-</code></pre>
-
-<h2 id="internal-log-log-test-go">internal - log - log_test.go</h2>
-
-<pre><code class="language-go">package log
-
-import (
-	&quot;bytes&quot;
-	&quot;context&quot;
-	&quot;encoding/json&quot;
-	&quot;log/slog&quot;
-	&quot;path/filepath&quot;
-	&quot;strings&quot;
-	&quot;testing&quot;
-	&quot;time&quot;
-)
-
-func TestLogger(t *testing.T) {
-	buf := new(bytes.Buffer)
-	l := NewWithOutput(buf)
-
-	type App struct {
-		Name    string `json:&quot;name&quot;`
-		Version string `json:&quot;version&quot;`
-	}
-
-	type Caller struct {
-		Function string `json:&quot;function&quot;`
-		File     string `json:&quot;file&quot;`
-		Line     int    `json:&quot;line&quot;`
-	}
-
-	type log struct {
-		Time      string  `json:&quot;time&quot;`
-		Level     string  `json:&quot;level&quot;`
-		Caller    Caller  `json:&quot;caller&quot;`
-		Event     string  `json:&quot;event&quot;`
-		App       App     `json:&quot;app&quot;`
-		Error     string  `json:&quot;error&quot;`
-		Dur       float64 `json:&quot;dur&quot;`
-		Delay     float64 `json:&quot;delay&quot;`
-		P95       float64 `json:&quot;p95&quot;`
-		PrevP95   float64 `json:&quot;previous_p95&quot;`
-		Remaining float64 `json:&quot;remaining&quot;`
-		MaxWait   float64 `json:&quot;max_wait&quot;`
-	}
-
-	t.Run(&quot;has expected fields&quot;, func(t *testing.T) {
-		dumpLogs(t, buf)
-		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;testing&quot;)
-		var data log
-		_ = json.Unmarshal(buf.Bytes(), &amp;data)
-		if data.Time == &quot;&quot; {
-			t.Error(&quot;missing field: time&quot;)
-		}
-	})
-
-	t.Run(&quot;outputs debug at LevelDebug&quot;, func(t *testing.T) {
-		Level.Set(slog.LevelDebug)                                   // change for test
-		defer func(lvl slog.Level) { Level.Set(lvl) }(Level.Level()) // ensure reset to default
-
-		dumpLogs(t, buf)
-		ctx := context.Background()
-		l.LogAttrs(ctx, slog.LevelDebug, &quot;&quot;)
-
-		var data log
-		_ = json.Unmarshal(buf.Bytes(), &amp;data)
-		if data.Level != &quot;DEBUG&quot; {
-			t.Error(&quot;missing level=DEBUG&quot;)
-		}
-	})
-
-	t.Run(&quot;elides empty event message&quot;, func(t *testing.T) {
-		dumpLogs(t, buf)
-		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;&quot;)
-		var data log
-		_ = json.Unmarshal(buf.Bytes(), &amp;data)
-		if data.Event != &quot;&quot; {
-			t.Error(&quot;log should not contain an event&quot;)
-		}
-	})
-
-	t.Run(&quot;elides empty error&quot;, func(t *testing.T) {
-		dumpLogs(t, buf)
-		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;test message&quot;, slog.Any(&quot;error&quot;, nil))
-		var data log
-		_ = json.Unmarshal(buf.Bytes(), &amp;data)
-		if data.Error != &quot;&quot; {
-			t.Error(&quot;log should not contain an empty error&quot;)
-		}
-	})
-
-	t.Run(&quot;uses UTC time zone&quot;, func(t *testing.T) {
-		dumpLogs(t, buf)
-		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;UTC&quot;)
-
-		var data log
-		_ = json.Unmarshal(buf.Bytes(), &amp;data)
-
-		p, err := time.Parse(time.RFC3339, data.Time)
-		if err != nil {
-			t.Fatalf(&quot;time field failed to parse: %s&quot;, err)
-		}
-		if z, _ := p.Zone(); z != time.UTC.String() {
-			t.Errorf(&quot;expected time in UTC zone, got %s&quot;, z)
-		}
-	})
-
-	t.Run(&quot;uses shorter source location&quot;, func(t *testing.T) {
-		dumpLogs(t, buf)
-		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;source -&gt; caller test&quot;)
-
-		var data log
-		_ = json.Unmarshal(buf.Bytes(), &amp;data)
-
-		// slogReplaceAttr replaces the top-level key &quot;source&quot; with &quot;caller&quot;
-		// IMPORTANT: the name of the repo is hard-coded into the slogReplaceAttr logic
-		if data.Caller.File == &quot;&quot; {
-			t.Error(&quot;field not found&quot;)
-		}
-		if strings.HasPrefix(data.Caller.File, string(filepath.Separator)) {
-			t.Errorf(&quot;caller includes full path: %s&quot;, data.Caller.File)
-		}
-	})
-
-	t.Run(&quot;displays milliseconds&quot;, func(t *testing.T) {
-		dumpLogs(t, buf)
-		const ts = 1234567890
-		l.LogAttrs(context.Background(), slog.LevelInfo, &quot;&quot;,
-			slog.Duration(&quot;dur&quot;, ts),
-			slog.Duration(&quot;delay&quot;, ts),
-			slog.Duration(&quot;p95&quot;, ts),
-			slog.Duration(&quot;previous_p95&quot;, ts),
-			slog.Duration(&quot;remaining&quot;, ts),
-			slog.Duration(&quot;max_wait&quot;, ts),
-		)
-
-		var data log
-		_ = json.Unmarshal(buf.Bytes(), &amp;data)
-
-		want := 1234.56789
-		if data.Dur != want || data.Delay != want || data.P95 != want || data.PrevP95 != want || data.Remaining != want || data.MaxWait != want {
-			t.Errorf(&quot;log should contain: %f&quot;, want)
-		}
-	})
-}
-
-func dumpLogs(t *testing.T, buf *bytes.Buffer) {
-	t.Helper()
-	t.Cleanup(func() {
-		t.Helper()
-		if t.Failed() || testing.Verbose() {
-			t.Log(&quot;Logs:\n&quot;, buf.String())
-		}
-		buf.Reset()
-	})
-}
-</code></pre>
-
-<h2 id="tools-mod">tools.mod</h2>
-
-<pre><code class="language-linux">module github.com/fastly/ascerta/tools
-
-go 1.24.1
-
-tool (
-	github.com/mgechev/revive
-	golang.org/x/lint/golint
-	golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness
-	golang.org/x/vuln/cmd/govulncheck
-	honnef.co/go/tools/cmd/staticcheck
-	mvdan.cc/gofumpt
-)
-
-require (
-	github.com/BurntSushi/toml v1.4.1-0.20240526193622-a339e1f7089c // indirect
-	github.com/chavacava/garif v0.1.0 // indirect
-	github.com/fatih/color v1.18.0 // indirect
-	github.com/fatih/structtag v1.2.0 // indirect
-	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/hashicorp/go-version v1.7.0 // indirect
-	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-runewidth v0.0.16 // indirect
-	github.com/mgechev/dots v0.0.0-20210922191527-e955255bf517 // indirect
-	github.com/mgechev/revive v1.7.0 // indirect
-	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/spf13/afero v1.14.0 // indirect
-	golang.org/x/exp/typeparams v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/lint v0.0.0-20241112194109-818c5a804067 // indirect
-	golang.org/x/mod v0.24.0 // indirect
-	golang.org/x/sync v0.12.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
-	golang.org/x/telemetry v0.0.0-20250310203348-fdfaad844314 // indirect
-	golang.org/x/text v0.23.0 // indirect
-	golang.org/x/tools v0.31.0 // indirect
-	golang.org/x/vuln v1.1.4 // indirect
-	honnef.co/go/tools v0.6.1 // indirect
-	mvdan.cc/gofumpt v0.7.0 // indirect
-)
-</code></pre>
-
-<h2 id="1-readme-md">1. README.md</h2>
-
-<pre><code class="language-markdown"></code></pre>
-
-<p>.
-├── Makefile
-├── cmd
-│   └── api
-│       └── main.go
-├── go.mod
-├── go.sum
-├── internal
-│   ├── api
-│   │   └── api.go
-│   └── log
-│       ├── log.go
-│       └── log_test.go
-├── revive.toml
-├── tools.mod
-└── tools.sum</p>
-
-<pre><code></code></pre>
-
-<h2 id="makefile">Makefile</h2>
-
-<pre><code class="language-makefile">.DEFAULT_GOAL := run  ## Default make target
-TOOLS = &quot;&quot;            ## List of dev tools
-TOOLS = \
-	github.com/mgechev/revive \
-	golang.org/x/lint/golint \
-	golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness \
-	golang.org/x/vuln/cmd/govulncheck \
-	honnef.co/go/tools/cmd/staticcheck \
-	mvdan.cc/gofumpt
-
-.PHONY: help
-help: ## Displays list of Makefile targets and documented variables
-	@echo &quot;Targets:&quot;
-	@grep -h -E '^[0-9a-zA-Z_.-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = &quot;:.*?## &quot;}; {printf &quot;  \033[36m%-20s\033[0m %s\n&quot;, $$1, $$2}'
-	@echo &quot;&quot;
-	@echo &quot;Variables:&quot;
-	@grep -h -E '^[0-9a-zA-Z_.-]+\s[?:]?=.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = &quot;[?:]?=.*?## &quot;}; {printf &quot;  \033[36m%-20s\033[0m %s\n&quot;, $$1, $$2}'
-	@echo &quot;&quot;
-	@echo &quot;Default target:&quot;
-	@printf &quot;  \033[36m%s\033[0m\n&quot; $(.DEFAULT_GOAL)
-
-.PHONY: api-update
-api-update: ## Update all API application dependencies
-	go get -u -t ./...
-	go mod tidy
-	if [ -d &quot;vendor&quot; ]; then go mod vendor; fi
-
-.PHONY: fmt
-fmt: ## Format all Go files using gofumpt
-	go tool -modfile=tools.mod gofumpt -w .
-
-.PHONY: lint-all
-lint-all: lint-golint lint-govet lint-govul lint-nilness lint-revive lint-staticcheck ## Lint project using all linters
-
-.PHONY: lint-golint
-lint-golint: ## Lint project using golint
-	go tool -modfile=tools.mod golint -set_exit_status $(shell go list -f '{{.Dir}}' ./... )
-
-.PHONY: lint-govet
-lint-govet: ## Lint project using go vet
-	go vet ./...
-
-.PHONY: lint-govul
-lint-govul: ## Lint project using govulncheck
-	go tool -modfile=tools.mod govulncheck ./...
-
-.PHONY: lint-nilness
-lint-nilness: ## Lint project using nilness
-	go tool -modfile=tools.mod nilness ./...
-
-.PHONY: lint-revive
-lint-revive: ## Lint project using revive
-	go tool -modfile=tools.mod revive -config revive.toml ./...
-
-.PHONY: lint-staticcheck
-lint-staticcheck: ## Lint project using staticcheck
-	go tool -modfile=tools.mod staticcheck ./...
-
-.PHONY: run
-run: ## Run the API server (opts: HUMANLOG=true)
-	@# humanlog doesn't sort keys lexicographically.
-	@# to do that we must set `--sort-longest=false`
-	@# this causes the key sorting we want (as a side effect)
-	@# while at the same time avoiding humanlog from trying to sort by key length
-	go run ./cmd/api/main.go $(if \
-		$(filter true,$(HUMANLOG)),| \
-			humanlog \
-				--message-fields=event \
-				--sort-longest=false \
-				--truncate=false, \
-	)
-
-.PHONY: test
-test: ## Run the Go test suite
-	go test ./...
-
-.PHONY: tools-install
-tools-install: ## Install dev tools
-	@if [ ! -f tools.mod ]; then \
-		echo &quot;Initializing tools.mod&quot;; \
-		go mod init -modfile=tools.mod github.com/fastly/ascerta/tools; \
-	fi
-	@$(foreach tool,$(TOOLS), \
-		if ! go tool -modfile=tools.mod | grep &quot;$(tool)&quot; &gt;/dev/null; then \
-			echo &quot;installing $(tool)&quot;; \
-			go get -modfile=tools.mod -tool &quot;$(tool)&quot;@latest; \
-		fi; \
-	)
-	@[ -x &quot;$(shell which humanlog)&quot; ] || curl -sSL &quot;https://humanlog.io/install.sh&quot; | NONINTERACTIVE=true bash
-
-.PHONY: tools-update
-tools-update: ## Update dev tools
-	go get -u -modfile=tools.mod tool
-	go mod tidy
-
-# checkmake (https://github.com/mrtazz/checkmake) requires these targets be set
-.PHONY: all clean test
-</code></pre>
-
-<h2 id="cmd-api-main-go">cmd - api - main.go</h2>
-
-<pre><code class="language-go">// Package main is the starting point for the Ascerta API.
-package main
-
-import (
-	&quot;context&quot;
-	&quot;log/slog&quot;
-	&quot;os&quot;
-
-	&quot;github.com/fastly/ascerta/internal/api&quot;
-	&quot;github.com/fastly/ascerta/internal/log&quot;
-)
-
-func main() {
-	l := log.New()
-	if err := api.Run(l); err != nil {
-		ctx := context.Background()
-		l.LogAttrs(ctx, slog.LevelError, &quot;api_run&quot;, slog.Any(&quot;err&quot;, err))
-		os.Exit(1)
-	}
-}
 </code></pre>
 
 </div>

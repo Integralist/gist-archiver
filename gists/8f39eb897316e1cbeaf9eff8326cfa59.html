@@ -12,28 +12,27 @@
 
 <h2 id="1-go-code-generation-md">1. Go Code Generation.md</h2>
 
-<pre><code class="language-markdown">&gt; [!NOTE]
-&gt; As of Go 1.17 `go run` works with a version.\
-&gt; So you can avoid the tools.go pattern with something like this (if necessary):\
-&gt; `//go:generate go run golang.org/x/tools/cmd/stringer@v0.25.0 -type=Scope -linecomment`\
-&gt; Refer to https://gist.github.com/Integralist/e19c9faee86e797125e6d95fe1188912 for more details.
+<blockquote>
+<p>[!NOTE]
+As of Go 1.17 <code>go run</code> works with a version.<br />
+So you can avoid the tools.go pattern with something like this (if necessary):<br />
+<code>//go:generate go run golang.org/x/tools/cmd/stringer@v0.25.0 -type=Scope -linecomment</code><br />
+Refer to <a href="https://gist.github.com/Integralist/e19c9faee86e797125e6d95fe1188912" target="_blank">https://gist.github.com/Integralist/e19c9faee86e797125e6d95fe1188912</a> for more details.</p>
+</blockquote>
 
-Files required:
+<p>Files required:</p>
 
-</code></pre>
-
-<p>.
+<pre><code>.
 ├── gen.go
 ├── generator
-│   └── gen.go</p>
+│   └── gen.go
+</code></pre>
 
-<pre><code>
-Running `go generate` will cause a `main.go` file to be created in the root directory.
+<p>Running <code>go generate</code> will cause a <code>main.go</code> file to be created in the root directory.</p>
 
-## gen.go
+<h2 id="gen-go">gen.go</h2>
 
-```go
-//go:generate go run generator/gen.go
+<pre><code class="language-go">//go:generate go run generator/gen.go
 
 package gen
 </code></pre>
@@ -156,13 +155,9 @@ func Parse() {
 <li><a href="https://blog.carlmjohnson.net/post/2021/how-to-use-go-embed/" target="_blank">https://blog.carlmjohnson.net/post/2021/how-to-use-go-embed/</a></li>
 </ul>
 
-<pre><code>
-## 2. API Clients generator with OpenAPI.md
+<h2 id="2-api-clients-generator-with-openapi-md">2. API Clients generator with OpenAPI.md</h2>
 
-```markdown
-</code></pre>
-
-<p>.
+<pre><code>.
 ├── README.md
 ├── client.go
 ├── fastly.yaml
@@ -170,15 +165,14 @@ func Parse() {
 │   └── generator.go
 ├── go.mod
 ├── go.sum
-└── main.go</p>
+└── main.go
 
-<p>2 directories, 7 files</p>
+2 directories, 7 files
+</code></pre>
 
-<pre><code>
-The following code is what's inside the `generator/generator.go` file:
+<p>The following code is what&rsquo;s inside the <code>generator/generator.go</code> file:</p>
 
-```go
-//go:build ignore
+<pre><code class="language-go">//go:build ignore
 
 package main
 
@@ -1327,51 +1321,54 @@ func (c *Client) {{ toCamelCase $operation.OperationId }}(i *{{ toCamelCase $ope
 }
 </code></pre>
 
-<pre><code>
-## 3. Output.md
+<h2 id="3-output-md">3. Output.md</h2>
 
-```markdown
-The above template code/logic produces the below code (refer to &quot;Code Output&quot;). 
+<p>The above template code/logic produces the below code (refer to &ldquo;Code Output&rdquo;).</p>
 
-## Caveats
+<h2 id="caveats-1">Caveats</h2>
 
-The outputted code is incomplete as I didn't get a chance to finish the implementation. 
+<p>The outputted code is incomplete as I didn&rsquo;t get a chance to finish the implementation.</p>
 
-The code generation logic also ouputs more whitespace, which is typical of code-generation as it's a trade-off between template maintainability and code readability. 
+<p>The code generation logic also ouputs more whitespace, which is typical of code-generation as it&rsquo;s a trade-off between template maintainability and code readability.</p>
 
-## Notes
+<h2 id="notes">Notes</h2>
 
-For the sake of reviewing the output below, I've manually removed unnecessary white space to make it easier to read + I've also removed the HTTP client logic † 
+<p>For the sake of reviewing the output below, I&rsquo;ve manually removed unnecessary white space to make it easier to read + I&rsquo;ve also removed the HTTP client logic †</p>
 
-&gt; † The HTTP client code takes up most of the space and isn't dynamically generated, but copied from the go-fastly client library. I did this as the library is battle-tested and works with all the Fastly API request/response types (including JSON-API) so it made sense to use that rather than attempt to rewrite it from scratch.
+<blockquote>
+<p>† The HTTP client code takes up most of the space and isn&rsquo;t dynamically generated, but copied from the go-fastly client library. I did this as the library is battle-tested and works with all the Fastly API request/response types (including JSON-API) so it made sense to use that rather than attempt to rewrite it from scratch.</p>
+</blockquote>
 
-I also wrote the code-generator to produce a single file for the output, where as for a real project you'd have it output to different files for maintainability.
+<p>I also wrote the code-generator to produce a single file for the output, where as for a real project you&rsquo;d have it output to different files for maintainability.</p>
 
-The code generator logic was also constrained to producing output for a single resource path `&quot;/service/{service_id}/version/{version_id}/backend/{backend_name}&quot;`.
+<p>The code generator logic was also constrained to producing output for a single resource path <code>&quot;/service/{service_id}/version/{version_id}/backend/{backend_name}&quot;</code>.</p>
 
-## What's working?
+<h2 id="what-s-working">What&rsquo;s working?</h2>
 
-What this example output demonstrates is... 
+<p>What this example output demonstrates is&hellip;</p>
 
-- Generation of individual operations (e.g. `DeleteBackend`, `GetBackend`, `UpdateBackend` etc)
-- Generation of operation inputs (e.g. `DeleteBackendInput`, `GetBackendInput`, `UpdateBackendInput` etc)
-- Validation for 'required' input fields. 
-- Interpolation of the input fields into the request path.
+<ul>
+<li>Generation of individual operations (e.g. <code>DeleteBackend</code>, <code>GetBackend</code>, <code>UpdateBackend</code> etc)</li>
+<li>Generation of operation inputs (e.g. <code>DeleteBackendInput</code>, <code>GetBackendInput</code>, <code>UpdateBackendInput</code> etc)</li>
+<li>Validation for &lsquo;required&rsquo; input fields.</li>
+<li>Interpolation of the input fields into the request path.</li>
+</ul>
 
-## What's missing?
+<h2 id="what-s-missing">What&rsquo;s missing?</h2>
 
-Things outstanding:
+<p>Things outstanding:</p>
 
-- Generate response object for each operation.
-- Use path escape for fields that require it.
-- Check for query params and ensure they're added to the request.
-- Check for request body and ensure that's added to the request.
-- Call the JSON-API methods if dealing with those types of endpoints.
- 
-## Code Output
- 
-```go
-// Code generated by go generate; DO NOT EDIT.
+<ul>
+<li>Generate response object for each operation.</li>
+<li>Use path escape for fields that require it.</li>
+<li>Check for query params and ensure they&rsquo;re added to the request.</li>
+<li>Check for request body and ensure that&rsquo;s added to the request.</li>
+<li>Call the JSON-API methods if dealing with those types of endpoints.</li>
+</ul>
+
+<h2 id="code-output">Code Output</h2>
+
+<pre><code class="language-go">// Code generated by go generate; DO NOT EDIT.
 // This file was generated by robots at
 // 2023-06-21 10:03:11.390429 +0100 BST m=+0.299988084
 //
@@ -1569,8 +1566,6 @@ func (c *Client) UpdateBackend(i *UpdateBackendInput) (*Backend, error) {
   return b, nil
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

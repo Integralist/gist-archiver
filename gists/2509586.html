@@ -12,106 +12,111 @@
 
 <h2 id="questions-md">Questions.md</h2>
 
-<pre><code class="language-markdown">##JavaScript specific Questions
+<p>##JavaScript specific Questions</p>
 
-* Which JavaScript libraries have you used?
-* How is JavaScript different from Java?
-* What are undefined and undeclared variables?
-* What is an expression?
-* What is a statement?
-* Give an example of a function declaration
-* Give an example of a function expression
-* Explain what the DOM is and some best practices for interacting with it.
-* What is a closure, and how/why would you use one?
-* What's a typical use case for anonymous functions?
-* Explain the &quot;JavaScript module pattern&quot; and when you'd use it.
-* How do you organize your code? (AMD, module pattern, classical inheritance)
-* What's the difference between host objects and native objects?
-* Explain Function.prototype.bind?
-* When do you optimize your code?
-* Can you explain how inheritance works in JavaScript?
-* When would you use document.write()?
-* What's the difference between feature detection, feature inference, and using the UA string?
-* Explain AJAX in as much detail as possible
-* Explain how JSONP works?
-* Have you ever used JavaScript templating, and if so, what/how?
-* Explain &quot;hoisting&quot;.
-* What is FOUC? How do you avoid FOUC?
-* Describe event bubbling.
-* What's the difference between an &quot;attribute&quot; and a &quot;property&quot;?
-* Why is extending host objects not a good idea?
-* Difference between document load event and document ready event?
-* What is the difference between == and ===?
-* Explain how you would get a query string parameter from the browser window's URL.
-* Explain event delegation.
-* Describe inheritance patterns in JavaScript.
-* Describe a strategy for memoization (avoiding calculation repetition) in JavaScript.
-* What's the best way to handle lots of arguments passed to a function?
-* Have you used the Canvas element and if so what did you use it for?
-* How do you debug errors in your code?
-* Do you validate your code and if so what tools do you use?
-* Show us how you would get the internal class of a native object, specifically an Array (e.g. `typeof [1, 2, 3]` results in 'object' which is incorrect, we want to get the actual class value which should be 'Array').
-* Write a quick events library that abstracts the basic 'add' and 'remove' event listeners so they work across multiple browsers (specifically needs to work with Internet Explorer)
-* Write a quick function which lets an object inherit the methods and properties from another object (you can use either an inheritance pattern or a composite pattern).
-* Write a quick function which demonstrates the 'module pattern' (this pattern keeps variables and methods private and can also provide an API to allow another user to access the internal methods via 'privileged' methods).
-* Write a quick function which allows the user to specify an element and to add a class to that element (being careful not to overwrite the existing classes or adding the same class twice).
-* Write a quick function that truncates a String of text which is over 30 characters long (e.g. if the String of text is over 30 characters then the text is shortened to 30 characters and a '...' placed at the end to show the text has been shortened)
-* What are some best practices when using a framework such as jQuery?
-* What's wrong with the following jQuery code? (extra points for pointing out other issues with the HTML - inc. best practices and performance):
+<ul>
+<li>Which JavaScript libraries have you used?</li>
+<li>How is JavaScript different from Java?</li>
+<li>What are undefined and undeclared variables?</li>
+<li>What is an expression?</li>
+<li>What is a statement?</li>
+<li>Give an example of a function declaration</li>
+<li>Give an example of a function expression</li>
+<li>Explain what the DOM is and some best practices for interacting with it.</li>
+<li>What is a closure, and how/why would you use one?</li>
+<li>What&rsquo;s a typical use case for anonymous functions?</li>
+<li>Explain the &ldquo;JavaScript module pattern&rdquo; and when you&rsquo;d use it.</li>
+<li>How do you organize your code? (AMD, module pattern, classical inheritance)</li>
+<li>What&rsquo;s the difference between host objects and native objects?</li>
+<li>Explain Function.prototype.bind?</li>
+<li>When do you optimize your code?</li>
+<li>Can you explain how inheritance works in JavaScript?</li>
+<li>When would you use document.write()?</li>
+<li>What&rsquo;s the difference between feature detection, feature inference, and using the UA string?</li>
+<li>Explain AJAX in as much detail as possible</li>
+<li>Explain how JSONP works?</li>
+<li>Have you ever used JavaScript templating, and if so, what/how?</li>
+<li>Explain &ldquo;hoisting&rdquo;.</li>
+<li>What is FOUC? How do you avoid FOUC?</li>
+<li>Describe event bubbling.</li>
+<li>What&rsquo;s the difference between an &ldquo;attribute&rdquo; and a &ldquo;property&rdquo;?</li>
+<li>Why is extending host objects not a good idea?</li>
+<li>Difference between document load event and document ready event?</li>
+<li>What is the difference between == and ===?</li>
+<li>Explain how you would get a query string parameter from the browser window&rsquo;s URL.</li>
+<li>Explain event delegation.</li>
+<li>Describe inheritance patterns in JavaScript.</li>
+<li>Describe a strategy for memoization (avoiding calculation repetition) in JavaScript.</li>
+<li>What&rsquo;s the best way to handle lots of arguments passed to a function?</li>
+<li>Have you used the Canvas element and if so what did you use it for?</li>
+<li>How do you debug errors in your code?</li>
+<li>Do you validate your code and if so what tools do you use?</li>
+<li>Show us how you would get the internal class of a native object, specifically an Array (e.g. <code>typeof [1, 2, 3]</code> results in &lsquo;object&rsquo; which is incorrect, we want to get the actual class value which should be &lsquo;Array&rsquo;).</li>
+<li>Write a quick events library that abstracts the basic &lsquo;add&rsquo; and &lsquo;remove&rsquo; event listeners so they work across multiple browsers (specifically needs to work with Internet Explorer)</li>
+<li>Write a quick function which lets an object inherit the methods and properties from another object (you can use either an inheritance pattern or a composite pattern).</li>
+<li>Write a quick function which demonstrates the &lsquo;module pattern&rsquo; (this pattern keeps variables and methods private and can also provide an API to allow another user to access the internal methods via &lsquo;privileged&rsquo; methods).</li>
+<li>Write a quick function which allows the user to specify an element and to add a class to that element (being careful not to overwrite the existing classes or adding the same class twice).</li>
+<li>Write a quick function that truncates a String of text which is over 30 characters long (e.g. if the String of text is over 30 characters then the text is shortened to 30 characters and a &lsquo;&hellip;&rsquo; placed at the end to show the text has been shortened)</li>
+<li>What are some best practices when using a framework such as jQuery?</li>
+<li>What&rsquo;s wrong with the following jQuery code? (extra points for pointing out other issues with the HTML - inc. best practices and performance):</li>
+</ul>
 
-![](http://f.cl.ly/items/0x3r132T322e2f3D0S2N/whats-wrong-with-this-code.png)
+<p><img src="http://f.cl.ly/items/0x3r132T322e2f3D0S2N/whats-wrong-with-this-code.png" alt="" /></p>
 
-##General Questions
+<p>##General Questions</p>
 
-* Are you on twitter? If so who do you follow? and is there any one of interest following you!
-* Are you on GitHub? If so can you show us some of your repositories and tell us a bit about why you've mentioned them specifically?
-* What (if any) Version Control systems have you used? Also, which one do you prefer and why?
-* What development tools do you use (e.g. IDE's such as Eclipse, or more CLI like vim)?
-* What is your development environment? (e.g. do you work with Mac or Windows? do you use an IDE or basic text editor?)
-* Can you describe your workflow when you create a web page?
-* What is a design pattern?
-* Briefly explain creatively what Object Oriented programming is.
-* You need to make your site as quick as possible to load, what are some of the things you can do to help page performance?
-* You need to build an online auction system that works like eBay. How would you plan and structure your code? What important aspects would you need to consider?
-* You need to build the next big social networking web application. It's going to be used by millions of users. How would you plan and structure your code? What important aspects would you need to consider?
-* How would you work with a group of developers on the same code base?
-* Working on a website with a high volume of users, how would you push new features to the live site without disrupting the website or current users?
-* What is progressive enhancement and graceful degradation?
-* Explain what &quot;Semantic HTML&quot; means.
-* What does &quot;minification&quot; do?
-* Why is it better to serve site assets from multiple domains?
-* If you have 8 different stylesheets for a given design, how would you integrate them into the site?
-* What tools do you use to test your code's performance?
-* If you could master one technology this year, what would it be?
-* Name 3 ways to decrease page load?
-* What tools do you use to analyse website performance?
-* What does a doctype do?
-* What's the difference between standards mode and quirks mode?
-* What are the limitations when serving XHTML pages? Are there any problems with serving pages as application/xhtml+xml?
-* What are data- attributes good for?
-* What are the content models in HTML4 and are they different in HTML5?
-* What is HTML5?
-* Describe the difference between cookies, sessionStorage and localStorage.
+<ul>
+<li>Are you on twitter? If so who do you follow? and is there any one of interest following you!</li>
+<li>Are you on GitHub? If so can you show us some of your repositories and tell us a bit about why you&rsquo;ve mentioned them specifically?</li>
+<li>What (if any) Version Control systems have you used? Also, which one do you prefer and why?</li>
+<li>What development tools do you use (e.g. IDE&rsquo;s such as Eclipse, or more CLI like vim)?</li>
+<li>What is your development environment? (e.g. do you work with Mac or Windows? do you use an IDE or basic text editor?)</li>
+<li>Can you describe your workflow when you create a web page?</li>
+<li>What is a design pattern?</li>
+<li>Briefly explain creatively what Object Oriented programming is.</li>
+<li>You need to make your site as quick as possible to load, what are some of the things you can do to help page performance?</li>
+<li>You need to build an online auction system that works like eBay. How would you plan and structure your code? What important aspects would you need to consider?</li>
+<li>You need to build the next big social networking web application. It&rsquo;s going to be used by millions of users. How would you plan and structure your code? What important aspects would you need to consider?</li>
+<li>How would you work with a group of developers on the same code base?</li>
+<li>Working on a website with a high volume of users, how would you push new features to the live site without disrupting the website or current users?</li>
+<li>What is progressive enhancement and graceful degradation?</li>
+<li>Explain what &ldquo;Semantic HTML&rdquo; means.</li>
+<li>What does &ldquo;minification&rdquo; do?</li>
+<li>Why is it better to serve site assets from multiple domains?</li>
+<li>If you have 8 different stylesheets for a given design, how would you integrate them into the site?</li>
+<li>What tools do you use to test your code&rsquo;s performance?</li>
+<li>If you could master one technology this year, what would it be?</li>
+<li>Name 3 ways to decrease page load?</li>
+<li>What tools do you use to analyse website performance?</li>
+<li>What does a doctype do?</li>
+<li>What&rsquo;s the difference between standards mode and quirks mode?</li>
+<li>What are the limitations when serving XHTML pages? Are there any problems with serving pages as application/xhtml+xml?</li>
+<li>What are data- attributes good for?</li>
+<li>What are the content models in HTML4 and are they different in HTML5?</li>
+<li>What is HTML5?</li>
+<li>Describe the difference between cookies, sessionStorage and localStorage.</li>
+</ul>
 
-##CSS Specific Questions
+<p>##CSS Specific Questions</p>
 
-* Describe what a &quot;reset&quot; CSS file does and whether you think they are useful or not.
-* How do you structure your CSS?
-* Explain CSS sprites.
-* What are the differences between the IE box model and the W3C box model?
-* What are your favourite image replacement techniques and which do you use and when?
-* CSS property hacks, conditionally included .css files, or... something else?
-* How do you serve certain CSS features to older browsers who do not support them?
-* What technique do you use to hide content?
-* Have you ever used a grid system, and if so, which one and what are your thoughts on grid systems in general?
-* Have you used media queries or implemented a mobile specific layout/CSS?
-* How do you optimize your webpages for print?
-* What are some rules for writing efficient CSS?
-* Do you use CSS preprocessors? If so, describe what you like and dislike about the CSS preprocessors you have used.
-* How would you implement a web design comp that uses non-standard fonts?
-* What's the coolest thing you've ever coded, what are you most proud of?
-* Do you have any side projects? What kind?
-</code></pre>
+<ul>
+<li>Describe what a &ldquo;reset&rdquo; CSS file does and whether you think they are useful or not.</li>
+<li>How do you structure your CSS?</li>
+<li>Explain CSS sprites.</li>
+<li>What are the differences between the IE box model and the W3C box model?</li>
+<li>What are your favourite image replacement techniques and which do you use and when?</li>
+<li>CSS property hacks, conditionally included .css files, or&hellip; something else?</li>
+<li>How do you serve certain CSS features to older browsers who do not support them?</li>
+<li>What technique do you use to hide content?</li>
+<li>Have you ever used a grid system, and if so, which one and what are your thoughts on grid systems in general?</li>
+<li>Have you used media queries or implemented a mobile specific layout/CSS?</li>
+<li>How do you optimize your webpages for print?</li>
+<li>What are some rules for writing efficient CSS?</li>
+<li>Do you use CSS preprocessors? If so, describe what you like and dislike about the CSS preprocessors you have used.</li>
+<li>How would you implement a web design comp that uses non-standard fonts?</li>
+<li>What&rsquo;s the coolest thing you&rsquo;ve ever coded, what are you most proud of?</li>
+<li>Do you have any side projects? What kind?</li>
+</ul>
 
 </div>
 </body>

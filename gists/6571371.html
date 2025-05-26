@@ -12,18 +12,25 @@
 
 <h2 id="uncss-md">UnCSS.md</h2>
 
-<pre><code class="language-markdown">There are a couple of steps (and issues) that need to be considered for a solution to present itself...
+<p>There are a couple of steps (and issues) that need to be considered for a solution to present itself&hellip;</p>
 
-- Load CSS
-- Check each rule's list of selectors
-- If the selector is a `class` or an `id` then we can just see if it appears in the HTML markup
-- If it's neither a `class` or an `id` then we'll need to somehow parse the HTML and see if the CSS applies
-    - But how do we work around HTML that is post loaded via JavaScript?
-    - This is where using a headless browser would be required, and if that's the case we may as well go headless completely
-- We need to check each media query found and see if selectors within match at some point
-    - The same process as above needs to happen (if `class` or `id` then we can just check HTML markup)
-    - Otherwise we'll need to parse HTML to see if the CSS applies
-</code></pre>
+<ul>
+<li>Load CSS</li>
+<li>Check each rule&rsquo;s list of selectors</li>
+<li>If the selector is a <code>class</code> or an <code>id</code> then we can just see if it appears in the HTML markup</li>
+<li>If it&rsquo;s neither a <code>class</code> or an <code>id</code> then we&rsquo;ll need to somehow parse the HTML and see if the CSS applies
+
+<ul>
+<li>But how do we work around HTML that is post loaded via JavaScript?</li>
+<li>This is where using a headless browser would be required, and if that&rsquo;s the case we may as well go headless completely</li>
+</ul></li>
+<li>We need to check each media query found and see if selectors within match at some point
+
+<ul>
+<li>The same process as above needs to happen (if <code>class</code> or <code>id</code> then we can just check HTML markup)</li>
+<li>Otherwise we&rsquo;ll need to parse HTML to see if the CSS applies</li>
+</ul></li>
+</ul>
 
 </div>
 </body>

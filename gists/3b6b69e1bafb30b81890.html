@@ -12,70 +12,102 @@
 
 <h2 id="data-structures-md">data structures.md</h2>
 
-<pre><code class="language-markdown">## Update
+<h2 id="update">Update</h2>
 
-This gist has been superseded by https://github.com/Integralist/Data-Structures and also https://www.integralist.co.uk/data-types-and-data-structures/
+<p>This gist has been superseded by <a href="https://github.com/Integralist/Data-Structures" target="_blank">https://github.com/Integralist/Data-Structures</a> and also <a href="https://www.integralist.co.uk/data-types-and-data-structures/" target="_blank">https://www.integralist.co.uk/data-types-and-data-structures/</a></p>
 
----
+<hr />
 
-&gt; Note:  
-&gt; sequential == collection keeps order of population  
-&gt; ordered == collection is re-ordered (implements a Sequence interface)
+<blockquote>
+<p>Note:<br />
+sequential == collection keeps order of population<br />
+ordered == collection is re-ordered (implements a Sequence interface)</p>
+</blockquote>
 
-**Tuple**
+<p><strong>Tuple</strong></p>
 
-- ordered
-- duplicates allowed
+<ul>
+<li>ordered</li>
+<li>duplicates allowed</li>
+</ul>
 
-**Set**
+<p><strong>Set</strong></p>
 
-- sequential
-- no duplicates
+<ul>
+<li>sequential</li>
+<li>no duplicates</li>
+</ul>
 
-&gt; Note: Clojure's Set data structure appears to be ordered `#{3 1 2}`, `(first #{3 1 2})` returns 1
+<blockquote>
+<p>Note: Clojure&rsquo;s Set data structure appears to be ordered <code>#{3 1 2}</code>, <code>(first #{3 1 2})</code> returns 1</p>
+</blockquote>
 
-**Linked list**
+<p><strong>Linked list</strong></p>
 
-- list contains nodes
-- each node holds: 
-  - data
-  - pointer to the next node
-- the last node's pointer points to `null` 
-  - this is a singly linked list
-  - a doubly linked list will also have a pointer to the previous node
-- no direct access to individual elements
-  - you must access the head and navigate until element is found
+<ul>
+<li>list contains nodes</li>
+<li>each node holds:
 
-**Array/Vector**
+<ul>
+<li>data</li>
+<li>pointer to the next node</li>
+</ul></li>
+<li>the last node&rsquo;s pointer points to <code>null</code>
 
-- index access
-- duplicates allowed
-- Vectors are synchronised (i.e. thread-safe)
-- Arrays allow operations across multiple threads (i.e. not thread-safe)
-- Array size is determined up front
-  - you cannot remove an element from an Array
-    - but you can put a null pointer or no value to it
-- Vector is dynamic (i.e. it can resize dynamically based on new elements added)
-- Arrays can't add elements to a specific index, only to the end. 
-- Vectors are like super Arrays.
+<ul>
+<li>this is a singly linked list</li>
+<li>a doubly linked list will also have a pointer to the previous node</li>
+</ul></li>
+<li>no direct access to individual elements
 
-**List/Sequence**
+<ul>
+<li>you must access the head and navigate until element is found</li>
+</ul></li>
+</ul>
 
-- ordered
-- duplicates allowed (but finite size)
+<p><strong>Array/Vector</strong></p>
 
-**Stack**
+<ul>
+<li>index access</li>
+<li>duplicates allowed</li>
+<li>Vectors are synchronised (i.e. thread-safe)</li>
+<li>Arrays allow operations across multiple threads (i.e. not thread-safe)</li>
+<li>Array size is determined up front
 
-- ordered
-- LIFO (last in, first out)
-- only actions available are `push` and `pop` (`push` directs &quot;in&quot;, `pop` directs &quot;out&quot;)
+<ul>
+<li>you cannot remove an element from an Array
 
-**Queue**
+<ul>
+<li>but you can put a null pointer or no value to it</li>
+</ul></li>
+</ul></li>
+<li>Vector is dynamic (i.e. it can resize dynamically based on new elements added)</li>
+<li>Arrays can&rsquo;t add elements to a specific index, only to the end.</li>
+<li>Vectors are like super Arrays.</li>
+</ul>
 
-- ordered
-- FIFO (first in, first out)
-- only actions available are `enqueue` and `dequeue` (`enqueue` directs &quot;in&quot;, `dequeue` directs &quot;out&quot;)
-</code></pre>
+<p><strong>List/Sequence</strong></p>
+
+<ul>
+<li>ordered</li>
+<li>duplicates allowed (but finite size)</li>
+</ul>
+
+<p><strong>Stack</strong></p>
+
+<ul>
+<li>ordered</li>
+<li>LIFO (last in, first out)</li>
+<li>only actions available are <code>push</code> and <code>pop</code> (<code>push</code> directs &ldquo;in&rdquo;, <code>pop</code> directs &ldquo;out&rdquo;)</li>
+</ul>
+
+<p><strong>Queue</strong></p>
+
+<ul>
+<li>ordered</li>
+<li>FIFO (first in, first out)</li>
+<li>only actions available are <code>enqueue</code> and <code>dequeue</code> (<code>enqueue</code> directs &ldquo;in&rdquo;, <code>dequeue</code> directs &ldquo;out&rdquo;)</li>
+</ul>
 
 </div>
 </body>

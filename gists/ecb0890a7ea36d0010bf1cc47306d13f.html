@@ -10,6 +10,21 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="vcl-logging-abstraction-vcl-abstraction-around-logging-to-make-calls-cleaner-tags-vcl-varnish-logging">[VCL Logging Abstraction] vcl abstraction around logging to make calls cleaner #tags: vcl, varnish, logging</h1>
 
+<h2 id="1-2019-approach-vcl">1. 2019 approach.vcl</h2>
+
+<pre><code class="language-vcl"># log_it.vcl
+sub log_it {
+  log {&quot;syslog &lt;service_id&gt; &lt;service_name&gt; :: &quot;} req.http.X-MutableThing;
+}
+
+# vcl_recv
+import &quot;log_it&quot;
+set req.http.X-MutableThing = &quot;foo&quot;
+call log_it;
+set req.http.X-MutableThing = &quot;bar&quot;
+call log_it;
+</code></pre>
+
 <h2 id="logging-updated-vcl">logging-updated.vcl</h2>
 
 <pre><code class="language-vcl">declare local var.stage_id STRING;
@@ -62,21 +77,6 @@ set var.defaults = if (var.logs_active, &quot;syslog &lt;service_id&gt; &lt;endp
   include &quot;logging&quot;
   log var.defaults req.restarts &quot; [main.vcl] X-FOO HEADER VALUE: &quot; req.http.X-Foo;
 }
-</code></pre>
-
-<h2 id="1-2019-approach-vcl">1. 2019 approach.vcl</h2>
-
-<pre><code class="language-vcl"># log_it.vcl
-sub log_it {
-  log {&quot;syslog &lt;service_id&gt; &lt;service_name&gt; :: &quot;} req.http.X-MutableThing;
-}
-
-# vcl_recv
-import &quot;log_it&quot;
-set req.http.X-MutableThing = &quot;foo&quot;
-call log_it;
-set req.http.X-MutableThing = &quot;bar&quot;
-call log_it;
 </code></pre>
 
 </div>

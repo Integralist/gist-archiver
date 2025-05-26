@@ -12,14 +12,13 @@
 
 <h2 id="mocking-and-faking-md">mocking-and-faking.md</h2>
 
-<pre><code class="language-markdown">### The problem with Faking it
+<h3 id="the-problem-with-faking-it">The problem with Faking it</h3>
 
-**The Problem**
+<p><strong>The Problem</strong></p>
 
-Developer (A) creates 2 classes, MyClass and Dependency:
+<p>Developer (A) creates 2 classes, MyClass and Dependency:</p>
 
-```php
-class MyClass
+<pre><code class="language-php">class MyClass
 {
     private $dependency;
 
@@ -136,8 +135,6 @@ class Dependency
 <p>This way you&rsquo;ll always find out if a change to a dependency class breaks your code or not. Testing your class in isolations doesn&rsquo;t mean mocking and faking all the dependencies, it means not making calls to the db, http requests and i/o operations, just to name a few.</p>
 
 <p>HTH</p>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

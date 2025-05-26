@@ -10,6 +10,28 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="avoid-direct-access-to-complex-data-structures-transform-them-to-avoid-problems-when-the-structure-changes">Avoid direct access to complex data structures, transform them to avoid problems when the structure changes</h1>
 
+<h2 id="1-bad-example-rb">1. Bad Example.rb</h2>
+
+<pre><code class="language-ruby">class MyClass
+    attr_reader :data
+    
+    def initialize(data)
+        @data = data
+    end
+
+    def do_something
+        data.each do |item| 
+            puts item[0]
+            puts item[1]
+            puts '---'
+        end
+    end
+end
+
+obj = MyClass.new([[10, 25],[3, 9],[41, 7]])
+obj.do_something
+</code></pre>
+
 <h2 id="2-better-example-rb">2. Better Example.rb</h2>
 
 <pre><code class="language-ruby">class MyClass
@@ -33,28 +55,6 @@
     
     def transform(data)
         data.map { |item| Transform.new(item[0], item[1]) }
-    end
-end
-
-obj = MyClass.new([[10, 25],[3, 9],[41, 7]])
-obj.do_something
-</code></pre>
-
-<h2 id="1-bad-example-rb">1. Bad Example.rb</h2>
-
-<pre><code class="language-ruby">class MyClass
-    attr_reader :data
-    
-    def initialize(data)
-        @data = data
-    end
-
-    def do_something
-        data.each do |item| 
-            puts item[0]
-            puts item[1]
-            puts '---'
-        end
     end
 end
 

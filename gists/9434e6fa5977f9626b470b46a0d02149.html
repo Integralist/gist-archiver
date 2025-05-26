@@ -12,20 +12,23 @@
 
 <h2 id="1-github-action-workflow-example-md">1. Github Action Workflow Example.md</h2>
 
-<pre><code class="language-markdown">See https://github.com/Integralist/actions-testing for working examples.
+<p>See <a href="https://github.com/Integralist/actions-testing" target="_blank">https://github.com/Integralist/actions-testing</a> for working examples.</p>
 
-&gt; **DOCS**: [Syntax](https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions) and [Expressions](https://docs.github.com/en/actions/learn-github-actions/expressions).
+<blockquote>
+<p><strong>DOCS</strong>: <a href="https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions" target="_blank">Syntax</a> and <a href="https://docs.github.com/en/actions/learn-github-actions/expressions" target="_blank">Expressions</a>.</p>
+</blockquote>
 
-The following example demonstrates a few things...
+<p>The following example demonstrates a few things&hellip;</p>
 
-1. Events using `on`.
-2. Generating multiple jobs using `strategy.matrix`.
-3. Overriding specific variables using `include`.
-4. Setting environment variables using `env`.
-5. Defining a multiline script (for readability) using yaml `|` operator.
+<ol>
+<li>Events using <code>on</code>.</li>
+<li>Generating multiple jobs using <code>strategy.matrix</code>.</li>
+<li>Overriding specific variables using <code>include</code>.</li>
+<li>Setting environment variables using <code>env</code>.</li>
+<li>Defining a multiline script (for readability) using yaml <code>|</code> operator.</li>
+</ol>
 
-```yml
-# .github/workflows/release.yaml 
+<pre><code class="language-yml"># .github/workflows/release.yaml 
 
 name: Main
 
@@ -96,11 +99,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 </code></pre>
 
-<pre><code>
-## 2. Evolved version with C cross-compilation required.yaml
+<h2 id="2-evolved-version-with-c-cross-compilation-required-yaml">2. Evolved version with C cross-compilation required.yaml</h2>
 
-```yaml
-# .github/workflows/release.yaml 
+<pre><code class="language-yaml"># .github/workflows/release.yaml 
 name: Main
 
 on:

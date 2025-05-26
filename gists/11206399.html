@@ -12,12 +12,11 @@
 
 <h2 id="ruby-set-md">Ruby Set.md</h2>
 
-<pre><code class="language-markdown">Set, included in the stdlib, is an un-ordered collection of elements with no duplicates. However you’ll find that Set’s most useful feature is that its #include? method is much faster than Array’s. In fact Set#include? will always take the same amount of time, regardless of how many elements it contains, whereas Array#include? takes longer the more elements in the array.
+<p>Set, included in the stdlib, is an un-ordered collection of elements with no duplicates. However you’ll find that Set’s most useful feature is that its #include? method is much faster than Array’s. In fact Set#include? will always take the same amount of time, regardless of how many elements it contains, whereas Array#include? takes longer the more elements in the array.</p>
 
-Sets do take longer to build than Arrays, so work best when they can be created just once and assigned to a constant, or instance variable of a long lived object.
+<p>Sets do take longer to build than Arrays, so work best when they can be created just once and assigned to a constant, or instance variable of a long lived object.</p>
 
-```ruby
-require &quot;set&quot;
+<pre><code class="language-ruby">require &quot;set&quot;
 
 TEMP_EMAIL_PROVIDERS = Set[&quot;temp-email.tld&quot;, &quot;throwaway-mail.tld&quot;, ...]
 
@@ -25,8 +24,6 @@ def temporary_email?(address)
   TEMP_EMAIL_PROVIDERS.include?(address.split(&quot;@&quot;).last.downcase)
 end
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

@@ -12,28 +12,59 @@
 
 <h2 id="rest-design-put-vs-post-md">rest-design-put-vs-post.md</h2>
 
-<pre><code class="language-markdown">**UPDATE Dec 2020**
+<p><strong>UPDATE Dec 2020</strong></p>
 
-HTTP Method | Description
-------------|------------
-`GET`       | To _read_ a single or collection resource.
-`POST`      | To _create_ a resource.
-`PUT`       | To _entirely replace_ a resource.
-`PATCH`     | To _partially_ update a resource.
-`DELETE`    | To _delete_ a resource.
+<table>
+<thead>
+<tr>
+<th>HTTP Method</th>
+<th>Description</th>
+</tr>
+</thead>
 
-&gt; See more at: [restcookbook.com](http://restcookbook.com/HTTP%20Methods/put-vs-post/#sthash.uH9tVV9x.dpuf), [restapitutorial.com](https://www.restapitutorial.com/lessons/httpmethods.html) and this blog post on [best practices](https://hackernoon.com/restful-api-designing-guidelines-the-best-practices-60e1d954e7c9).
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td>To <em>read</em> a single or collection resource.</td>
+</tr>
 
-## PUT
+<tr>
+<td><code>POST</code></td>
+<td>To <em>create</em> a resource.</td>
+</tr>
 
-Use PUT when you can update a resource completely through a specific resource. For instance, if you know that an article resides at http://example.org/article/1234, you can PUT a new resource representation of this article directly through a PUT on this URL.
+<tr>
+<td><code>PUT</code></td>
+<td>To <em>entirely replace</em> a resource.</td>
+</tr>
 
-## POST
+<tr>
+<td><code>PATCH</code></td>
+<td>To <em>partially</em> update a resource.</td>
+</tr>
 
-If you do not know the actual resource location, for instance, when you add a new article, but do not have any idea where to store it, you can POST it to an URL, and let the server decide the actual URL.
+<tr>
+<td><code>DELETE</code></td>
+<td>To <em>delete</em> a resource.</td>
+</tr>
+</tbody>
+</table>
 
-&gt; Note: there must always be a body param passed to the server when executing a POST or a PUT operation. Meaning you only pass enough information in the URL to identify the resource and not including any data for that resource. For example, this is bad: `/user/&lt;id&gt;/username/&lt;new_username&gt;` but this is ok: `/user/&lt;id&gt;/username` upon which you'll then pass the new username as the body param: `curl --method PUT --header 'Content-Type: application/json' --data '{&quot;username&quot;: &quot;foobar&quot;}' https://api.example.com/user/id/123/username`.
-</code></pre>
+<blockquote>
+<p>See more at: <a href="http://restcookbook.com/HTTP%20Methods/put-vs-post/#sthash.uH9tVV9x.dpuf" target="_blank">restcookbook.com</a>, <a href="https://www.restapitutorial.com/lessons/httpmethods.html" target="_blank">restapitutorial.com</a> and this blog post on <a href="https://hackernoon.com/restful-api-designing-guidelines-the-best-practices-60e1d954e7c9" target="_blank">best practices</a>.</p>
+</blockquote>
+
+<h2 id="put">PUT</h2>
+
+<p>Use PUT when you can update a resource completely through a specific resource. For instance, if you know that an article resides at <a href="http://example.org/article/1234" target="_blank">http://example.org/article/1234</a>, you can PUT a new resource representation of this article directly through a PUT on this URL.</p>
+
+<h2 id="post">POST</h2>
+
+<p>If you do not know the actual resource location, for instance, when you add a new article, but do not have any idea where to store it, you can POST it to an URL, and let the server decide the actual URL.</p>
+
+<blockquote>
+<p>Note: there must always be a body param passed to the server when executing a POST or a PUT operation. Meaning you only pass enough information in the URL to identify the resource and not including any data for that resource. For example, this is bad: <code>/user/&lt;id&gt;/username/&lt;new_username&gt;</code> but this is ok: <code>/user/&lt;id&gt;/username</code> upon which you&rsquo;ll then pass the new username as the body param: <code>curl --method PUT --header 'Content-Type: application/json' --data '{&quot;username&quot;: &quot;foobar&quot;}' https://api.example.com/user/id/123/username</code>.</p>
+</blockquote>
 
 </div>
 </body>

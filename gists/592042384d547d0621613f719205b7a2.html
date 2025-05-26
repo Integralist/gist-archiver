@@ -12,46 +12,57 @@
 
 <h2 id="python3-virtual-environment-with-virtualenv-md">Python3 Virtual Environment with virtualenv.md</h2>
 
-<pre><code class="language-markdown">Use [virtualenv](https://virtualenv.pypa.io/en/latest/) to allow each of your projects to have their own set of dependencies. This is similar to how Ruby has Bundler and Gemfiles so you don't install certain packages globally.
+<p>Use <a href="https://virtualenv.pypa.io/en/latest/" target="_blank">virtualenv</a> to allow each of your projects to have their own set of dependencies. This is similar to how Ruby has Bundler and Gemfiles so you don&rsquo;t install certain packages globally.</p>
 
-- `sudo pip install virtualenv` (installs it globally; ironic I know but this is OK)
-- `virtualenv env` (`env` is the dir that'll be created; this name is common practice)
+<ul>
+<li><code>sudo pip install virtualenv</code> (installs it globally; ironic I know but this is OK)</li>
+<li><code>virtualenv env</code> (<code>env</code> is the dir that&rsquo;ll be created; this name is common practice)</li>
+</ul>
 
-Avoid commiting `env` into version control by utilising `.gitignore`
+<p>Avoid commiting <code>env</code> into version control by utilising <code>.gitignore</code></p>
 
-&gt; `virtualenv .` side-steps the folder creation if you really prefer
+<blockquote>
+<p><code>virtualenv .</code> side-steps the folder creation if you really prefer</p>
+</blockquote>
 
-Now you can install packages using:
+<p>Now you can install packages using:</p>
 
-- `env/bin/pip install &lt;package&gt;`
+<ul>
+<li><code>env/bin/pip install &lt;package&gt;</code></li>
+</ul>
 
-To run the Python binary you don't use the system version; instead:
+<p>To run the Python binary you don&rsquo;t use the system version; instead:</p>
 
-- `env/bin/python &lt;...&gt;`
+<ul>
+<li><code>env/bin/python &lt;...&gt;</code></li>
+</ul>
 
-If you don't like typing, you can shorten the `env/bin` so it becomes part of your shell's environment:
+<p>If you don&rsquo;t like typing, you can shorten the <code>env/bin</code> so it becomes part of your shell&rsquo;s environment:</p>
 
-- `source env/bin/activate`
+<ul>
+<li><code>source env/bin/activate</code></li>
+</ul>
 
-To demonstrate:
+<p>To demonstrate:</p>
 
-- `which python` = `/usr/bin/python`
-- `source env/bin/activate`
-- `which python` = `~/Projects/python/foo-project/env/bin/python`
+<ul>
+<li><code>which python</code> = <code>/usr/bin/python</code></li>
+<li><code>source env/bin/activate</code></li>
+<li><code>which python</code> = <code>~/Projects/python/foo-project/env/bin/python</code></li>
+</ul>
 
-&gt; Use `deactivate` whenever using the same shell to swith between projects
+<blockquote>
+<p>Use <code>deactivate</code> whenever using the same shell to swith between projects</p>
+</blockquote>
 
-### Switching Python versions
+<h3 id="switching-python-versions">Switching Python versions</h3>
 
-So `virtualenv` will use the default Python version installed (for me it was `2.7.10`).
+<p>So <code>virtualenv</code> will use the default Python version installed (for me it was <code>2.7.10</code>).</p>
 
-To switch it to using Python 3, execute the following:
+<p>To switch it to using Python 3, execute the following:</p>
 
-```bash
-virtualenv -p python3 &lt;env&gt;
+<pre><code class="language-bash">virtualenv -p python3 &lt;env&gt;
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

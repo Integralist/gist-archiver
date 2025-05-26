@@ -12,10 +12,9 @@
 
 <h2 id="makefile-environment-variables-and-passing-values-to-make-target-markdown">Makefile environment variables and passing values to make target.markdown</h2>
 
-<pre><code class="language-markdown">In the following example the value of `beep` will only be used when there is no existing `TF_LOG` data anywhere.
+<p>In the following example the value of <code>beep</code> will only be used when there is no existing <code>TF_LOG</code> data anywhere.</p>
 
-```makefile
-TF_LOG ?= &quot;beep&quot;
+<pre><code class="language-makefile">TF_LOG ?= &quot;beep&quot;
 run:
 	echo $(TF_LOG)
 	env | grep -i tf_log
@@ -59,8 +58,6 @@ beep
 env | grep -i tf_log
 make: *** [run] Error 1
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

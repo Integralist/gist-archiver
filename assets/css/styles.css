@@ -25,17 +25,22 @@ h1, h2 {
     margin-bottom: 16px;
 }
 
-h1:first-child, h2:first-child {
+/* Specific styling for H2 when used as a file section header */
+.gist-file-header {
+    margin-top: 30px; /* More space before a new file section */
+    font-size: 1.3em; /* Slightly smaller than primary H2 if needed */
+    color: #1f2328;
+}
+
+
+h1:first-child, h2.gist-file-header:first-child { /* Adjust if .gist-file-header is the first */
     margin-top: 0;
 }
 
-h1 {
+h1 { /* Page title / Gist title */
     font-size: 2em;
 }
 
-h2 { /* For filenames */
-    font-size: 1.5em;
-}
 
 /* Links */
 a {
@@ -85,6 +90,7 @@ pre {
     border-radius: 6px;
     border: 1px solid #ddd;
     margin-bottom: 16px;
+    margin-top: 8px; /* Add some space above pre if it follows a heading */
 }
 
 code {
@@ -99,3 +105,18 @@ code {
   background-color: rgba(27,31,35,0.07);
   border-radius: 3px;
 }
+
+/* Styles for rendered Markdown content within a gist page */
+.markdown-content {
+    margin-top: 8px; /* Space between file header and rendered markdown */
+}
+.markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4, .markdown-content h5, .markdown-content h6 {
+    /* Reset gist-file-header specific margins if needed or add specific styling */
+    /* For example, make them less prominent than the file header */
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    border-bottom: none; /* Remove double border if h2 is used in MD */
+}
+.markdown-content h1 { font-size: 1.6em; }
+.markdown-content h2 { font-size: 1.4em; }
+.markdown-content h3 { font-size: 1.2em; }

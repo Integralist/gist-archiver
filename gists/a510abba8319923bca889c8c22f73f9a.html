@@ -12,10 +12,11 @@
 
 <h2 id="terraform-provider-local-dev-environment-md">Terraform Provider Local Dev Environment.md</h2>
 
-<pre><code class="language-markdown">&gt; [Terraform Documentation Reference](https://www.terraform.io/docs/cli/config/config-file.html#development-overrides-for-provider-developers)
+<blockquote>
+<p><a href="https://www.terraform.io/docs/cli/config/config-file.html#development-overrides-for-provider-developers" target="_blank">Terraform Documentation Reference</a></p>
+</blockquote>
 
-```bash
-export TF_CLI_CONFIG_FILE=/example-project/dev.tfrc
+<pre><code class="language-bash">export TF_CLI_CONFIG_FILE=/example-project/dev.tfrc
 </code></pre>
 
 <blockquote>
@@ -92,8 +93,6 @@ test:
 testacc: 
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m   
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

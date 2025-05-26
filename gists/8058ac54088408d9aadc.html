@@ -12,18 +12,21 @@
 
 <h2 id="ruby-fail-vs-raise-md">Ruby Fail vs Raise.md</h2>
 
-<pre><code class="language-markdown">## Raise
+<h2 id="raise">Raise</h2>
 
-&gt; Use `raise` instead of `fail` to *rethrow* exceptions
+<blockquote>
+<p>Use <code>raise</code> instead of <code>fail</code> to <em>rethrow</em> exceptions</p>
+</blockquote>
 
-This means if you catch an error that's been thrown by an external gem/library then you can choose to re-throw it as a different exception (i.e. your own Exception error, named specifically relevant to your application)
+<p>This means if you catch an error that&rsquo;s been thrown by an external gem/library then you can choose to re-throw it as a different exception (i.e. your own Exception error, named specifically relevant to your application)</p>
 
-## Fail
+<h2 id="fail">Fail</h2>
 
-&gt; Use `fail` instead of `raise` to *signal* exceptions
+<blockquote>
+<p>Use <code>fail</code> instead of <code>raise</code> to <em>signal</em> exceptions</p>
+</blockquote>
 
-This means if you catch an error that's been thrown by your own code (e.g. you've raised a custom error/exception), then this means you don't intend to re-throw the exception as something else, you'll instead deal with that exact exception now
-</code></pre>
+<p>This means if you catch an error that&rsquo;s been thrown by your own code (e.g. you&rsquo;ve raised a custom error/exception), then this means you don&rsquo;t intend to re-throw the exception as something else, you&rsquo;ll instead deal with that exact exception now</p>
 
 </div>
 </body>

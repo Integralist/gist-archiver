@@ -143,18 +143,19 @@ console.log(compose(bind(roundDebug), bind(sine)));
 
 <h2 id="2-monads-md">2. monads.md</h2>
 
-<pre><code class="language-markdown">All code sourced directly from:
-https://blog.jcoglan.com/2011/03/05/translation-from-haskell-to-javascript-of-selected-portions-of-the-best-introduction-to-monads-ive-ever-read/
+<p>All code sourced directly from:
+<a href="https://blog.jcoglan.com/2011/03/05/translation-from-haskell-to-javascript-of-selected-portions-of-the-best-introduction-to-monads-ive-ever-read/" target="_blank">https://blog.jcoglan.com/2011/03/05/translation-from-haskell-to-javascript-of-selected-portions-of-the-best-introduction-to-monads-ive-ever-read/</a></p>
 
-- `compose`, which converts two functions into a composed/nested set of functions
-- `bind`, which converts a debuggable function into a composable form
-- `unit`, which converts a simple value into the format required for debugging, by placing it in a container
-- `lift`, which converts a ‘simple’ function into a debuggable function
+<ul>
+<li><code>compose</code>, which converts two functions into a composed/nested set of functions</li>
+<li><code>bind</code>, which converts a debuggable function into a composable form</li>
+<li><code>unit</code>, which converts a simple value into the format required for debugging, by placing it in a container</li>
+<li><code>lift</code>, which converts a ‘simple’ function into a debuggable function</li>
+</ul>
 
-## some functions
+<h2 id="some-functions">some functions</h2>
 
-```js
-// These functions want to be composable but aren't because
+<pre><code class="language-js">// These functions want to be composable but aren't because
 // they return different data types to what was passed in.
 // The functions are no longer &quot;pure&quot;
 var sine = function(x) {
@@ -332,8 +333,6 @@ var grandchildren = compose(bind(children), bind(children));
 grandchildren(unit(div))
 // -&gt; [&lt;h1&gt;…&lt;/h1&gt;, &lt;p&gt;…&lt;/p&gt;, ...]
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

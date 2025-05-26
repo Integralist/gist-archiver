@@ -2,38 +2,37 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>[YAML anchors] #yaml #anchors</title>
+<title>YAML: anchors #yaml #anchors</title>
 <link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
-<h1 id="yaml-anchors-yaml-anchors">[YAML anchors] #yaml #anchors</h1>
+<h1 id="yaml-anchors-yaml-anchors">YAML: anchors #yaml #anchors</h1>
 
 <h2 id="yaml-anchors-md">yaml-anchors.md</h2>
 
-<pre><code class="language-markdown">If you've not used YAML before you might be wondering what `&amp;&lt;name&gt;` means. 
+<p>If you&rsquo;ve not used YAML before you might be wondering what <code>&amp;&lt;name&gt;</code> means.</p>
 
-What this will do is create an 'anchor'. 
+<p>What this will do is create an &lsquo;anchor&rsquo;.</p>
 
-Anchors allow you to inject the associated block of data any where else within your YAML configuration file. 
+<p>Anchors allow you to inject the associated block of data any where else within your YAML configuration file.</p>
 
-This allows you to avoid duplicating those particular settings.
+<p>This allows you to avoid duplicating those particular settings.</p>
 
-The way to do that injection is to 'dereference' the anchor with an asterisk. 
+<p>The way to do that injection is to &lsquo;dereference&rsquo; the anchor with an asterisk.</p>
 
-e.g. `log_format: *log_format` or inject it _inside_ another block using a double chevron (e.g. `&lt;&lt;: *upstreams`). 
+<p>e.g. <code>log_format: *log_format</code> or inject it <em>inside</em> another block using a double chevron (e.g. <code>&lt;&lt;: *upstreams</code>).</p>
 
-I recommend having a read through the YAML documentation to get a better feel for how these YAML features work.
+<p>I recommend having a read through the YAML documentation to get a better feel for how these YAML features work.</p>
 
-https://onlineyamltools.com/convert-yaml-to-json is a good site to test this out on as it can convert your YAML to JSON and you can see if it works how you expect.
+<p><a href="https://onlineyamltools.com/convert-yaml-to-json" target="_blank">https://onlineyamltools.com/convert-yaml-to-json</a> is a good site to test this out on as it can convert your YAML to JSON and you can see if it works how you expect.</p>
 
-Below demonstrates a problem with this feature, which is it works best with objects, not arrays... 
+<p>Below demonstrates a problem with this feature, which is it works best with objects, not arrays&hellip;</p>
 
-In the below example I want to inject the same `args:` array into the array entry that follows...
+<p>In the below example I want to inject the same <code>args:</code> array into the array entry that follows&hellip;</p>
 
-```yaml
-- containers:
+<pre><code class="language-yaml">- containers:
     - args: &amp;args
         - -cfg
         - /vault/secrets/datasync.conf
@@ -117,8 +116,6 @@ In the below example I want to inject the same `args:` array into the array entr
   }
 ]
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

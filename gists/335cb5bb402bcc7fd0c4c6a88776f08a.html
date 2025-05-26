@@ -12,10 +12,9 @@
 
 <h2 id="terminal-resize-images-with-imagemagick-md">Terminal Resize Images with ImageMagick.md</h2>
 
-<pre><code class="language-markdown">## Installation
+<h2 id="installation">Installation</h2>
 
-```bash
-brew install imagemagick
+<pre><code class="language-bash">brew install imagemagick
 </code></pre>
 
 <h2 id="commands">Commands</h2>
@@ -82,8 +81,6 @@ for i in *.png; do convert &quot;$i&quot; &quot;Newimage/${i%.*}.jpg&quot;; done
 
 <pre><code class="language-bash">for i in *.png; do convert -resize &quot;790&gt;&quot; -border 1x1 -bordercolor &quot;#000000&quot; -quality 70 &quot;$i&quot; &quot;Newimage/${i%.*}.jpg&quot;; done
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

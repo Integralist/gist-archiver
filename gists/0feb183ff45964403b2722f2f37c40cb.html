@@ -12,36 +12,41 @@
 
 <h2 id="rollout-strategies-for-large-code-changes-md">Rollout strategies for large code changes.md</h2>
 
-<pre><code class="language-markdown">Getting into production _sooner_ should be part of our business plan.
+<p>Getting into production <em>sooner</em> should be part of our business plan.</p>
 
-Rather than spending lots of time getting _all_ planned features 'finished', we should have a plan for slowly rolling out _incremental_ changes. In doing so we would have more confidence that the features we were releasing would not break something in production and make it difficult to rollback. In effect we want to avoid ending up with a 'big bang' rollout.
+<p>Rather than spending lots of time getting <em>all</em> planned features &lsquo;finished&rsquo;, we should have a plan for slowly rolling out <em>incremental</em> changes. In doing so we would have more confidence that the features we were releasing would not break something in production and make it difficult to rollback. In effect we want to avoid ending up with a &lsquo;big bang&rsquo; rollout.</p>
 
-The following steps could be a useful plan of action to take:
+<p>The following steps could be a useful plan of action to take:</p>
 
-1. define code 'boundaries'
-2. filter traffic by 'funnels'
-3. build features, then deploy them within our secured boundaries
+<ol>
+<li>define code &lsquo;boundaries&rsquo;</li>
+<li>filter traffic by &lsquo;funnels&rsquo;</li>
+<li>build features, then deploy them within our secured boundaries</li>
+</ol>
 
-&gt; Note: I've since discovered that this approach is a form of [Strangler Pattern](https://www.martinfowler.com/bliki/StranglerApplication.html). I've been using it for years but was unaware that it had a _name_ and that Martin Fowler was responsible for that way back in 2004!
+<blockquote>
+<p>Note: I&rsquo;ve since discovered that this approach is a form of <a href="https://www.martinfowler.com/bliki/StranglerApplication.html" target="_blank">Strangler Pattern</a>. I&rsquo;ve been using it for years but was unaware that it had a <em>name</em> and that Martin Fowler was responsible for that way back in 2004!</p>
+</blockquote>
 
-## Boundaries
+<h2 id="boundaries">Boundaries</h2>
 
-Identify areas of the existing code base where new changes (e.g. replacement of existing services) will need to happen, and ensure their are appropriate code branches in place. 
+<p>Identify areas of the existing code base where new changes (e.g. replacement of existing services) will need to happen, and ensure their are appropriate code branches in place.</p>
 
-In essence, build a wall around where your new code will end up.
+<p>In essence, build a wall around where your new code will end up.</p>
 
-## Funnels
+<h2 id="funnels">Funnels</h2>
 
-Define what users (or general traffic) can access the code that sits inside of the defined boundaries. For example, maybe just traffic from your own team should be able to penetrate the code branches (via some form of authentication process: self-signed certs, cookies or a custom header etc).
+<p>Define what users (or general traffic) can access the code that sits inside of the defined boundaries. For example, maybe just traffic from your own team should be able to penetrate the code branches (via some form of authentication process: self-signed certs, cookies or a custom header etc).</p>
 
-&gt; **Important!** make sure your funnels are working and then code you place within these new 'boundaries' does not break anything in production (have tests written to ensure this).
+<blockquote>
+<p><strong>Important!</strong> make sure your funnels are working and then code you place within these new &lsquo;boundaries&rsquo; does not break anything in production (have tests written to ensure this).</p>
+</blockquote>
 
-As the project reaches a state where it can be exposed to more uses, you update the 'funnel' to allow more an more throughput. Thus increasing the allowed traffic range (e.g. not only your team can access it, via authentication, but so can multiple teams within your organization; then moving forward you can replace the authentication process with a locality check -- so users in Australia get the new feature, etc).
+<p>As the project reaches a state where it can be exposed to more uses, you update the &lsquo;funnel&rsquo; to allow more an more throughput. Thus increasing the allowed traffic range (e.g. not only your team can access it, via authentication, but so can multiple teams within your organization; then moving forward you can replace the authentication process with a locality check &ndash; so users in Australia get the new feature, etc).</p>
 
-## Deploy Incrementally
+<h2 id="deploy-incrementally">Deploy Incrementally</h2>
 
-While you have the boundaries for your new code defined, and a small funnel in place to control the traffic, you can then start quickly deploying new code without fear of it breaking anything in production.
-</code></pre>
+<p>While you have the boundaries for your new code defined, and a small funnel in place to control the traffic, you can then start quickly deploying new code without fear of it breaking anything in production.</p>
 
 </div>
 </body>

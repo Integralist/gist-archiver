@@ -12,40 +12,49 @@
 
 <h2 id="golang-json-decoder-vs-json-unmarshal-md">Golang json.Decoder vs json.Unmarshal.md</h2>
 
-<pre><code class="language-markdown">## General Rule of Thumb
+<h2 id="general-rule-of-thumb">General Rule of Thumb</h2>
 
-- Use `json.Unmarshal` when the JSON data is already in memory (like a string or `[]byte`) and you know the data is small or moderate in size.
-- Use `json.NewDecoder` for large JSON files, streaming data (such as from network requests), or when you need to handle data incrementally.
+<ul>
+<li>Use <code>json.Unmarshal</code> when the JSON data is already in memory (like a string or <code>[]byte</code>) and you know the data is small or moderate in size.</li>
+<li>Use <code>json.NewDecoder</code> for large JSON files, streaming data (such as from network requests), or when you need to handle data incrementally.</li>
+</ul>
 
-`json.Unmarshal` reads the entire JSON into memory and decodes it directly into a Go variable, where as `json.NewDecoder` reads JSON data incrementally, parsing one token at a time, which is more memory-efficient with large JSON payloads.
+<p><code>json.Unmarshal</code> reads the entire JSON into memory and decodes it directly into a Go variable, where as <code>json.NewDecoder</code> reads JSON data incrementally, parsing one token at a time, which is more memory-efficient with large JSON payloads.</p>
 
-In summary, use `json.Unmarshal` for _simplicity_ with smaller data, and `json.NewDecoder` for _efficiency_ with large or streaming data.
+<p>In summary, use <code>json.Unmarshal</code> for <em>simplicity</em> with smaller data, and <code>json.NewDecoder</code> for <em>efficiency</em> with large or streaming data.</p>
 
-## Terminology
+<h2 id="terminology">Terminology</h2>
 
-- `json.Marshal`: encode data structure as JSON.
-- `json.Unmarshal`: decode JSON into data structure.
+<ul>
+<li><code>json.Marshal</code>: encode data structure as JSON.</li>
+<li><code>json.Unmarshal</code>: decode JSON into data structure.</li>
+</ul>
 
-&gt; [!NOTE] 
-&gt; This is also sometimes referred to as 'serialize' and 'deserialize`.
+<blockquote>
+<p>[!NOTE]
+This is also sometimes referred to as &lsquo;serialize&rsquo; and &lsquo;deserialize`.</p>
+</blockquote>
 
-## Differences in `json.Decoder`
+<h2 id="differences-in-json-decoder">Differences in <code>json.Decoder</code></h2>
 
-1. `json.Decoder` is for JSON streams.
-2. `json.Decoder` silently ignores invalid syntax.
-3. `json.Decoder` does not drain HTTP connections properly.
+<ol>
+<li><code>json.Decoder</code> is for JSON streams.</li>
+<li><code>json.Decoder</code> silently ignores invalid syntax.</li>
+<li><code>json.Decoder</code> does not drain HTTP connections properly.</li>
+</ol>
 
-&gt; [!NOTE]
-&gt; The issues with `json.Decoder` are summarized from https://ahmet.im/blog/golang-json-decoder-pitfalls/
+<blockquote>
+<p>[!NOTE]
+The issues with <code>json.Decoder</code> are summarized from <a href="https://ahmet.im/blog/golang-json-decoder-pitfalls/" target="_blank">https://ahmet.im/blog/golang-json-decoder-pitfalls/</a></p>
+</blockquote>
 
-### JSON Streams
+<h3 id="json-streams">JSON Streams</h3>
 
-`json.Decoder` is for JSON _streams_ (which are just concatenated/or new-line separated JSON values).
+<p><code>json.Decoder</code> is for JSON <em>streams</em> (which are just concatenated/or new-line separated JSON values).</p>
 
-Example of a JSON stream:
+<p>Example of a JSON stream:</p>
 
-```json
-{&quot;Name&quot;: &quot;Ed&quot;}{&quot;Name&quot;: &quot;Sam&quot;}{&quot;Name&quot;: &quot;Bob&quot;}
+<pre><code class="language-json">{&quot;Name&quot;: &quot;Ed&quot;}{&quot;Name&quot;: &quot;Sam&quot;}{&quot;Name&quot;: &quot;Bob&quot;}
 </code></pre>
 
 <blockquote>
@@ -79,8 +88,7 @@ Field int `json:&quot;,omitempty&quot;`
 
 <p>This can slows down HTTP requests up to ~4x (although this is fixed by the time of Go 1.7).</p>
 
-<p>If the HTTP endpoint is responding with a single JSON object and you are calling <code>json.Decoder#Decode()</code> only once (in which case you should be using <code>json.Unmarshal()</code> instead!), it means you are not getting <code>io.EOF</code> returned yet. Therefore you are not terminating <code>json.Decoder</code> by seeing that <code>io.EOF</code> and the response body remains open and therefore the TCP connection (or another <code>Transport</code> used) cannot be returned to the connection pool even though you are done with it.
-&ldquo;`</p>
+<p>If the HTTP endpoint is responding with a single JSON object and you are calling <code>json.Decoder#Decode()</code> only once (in which case you should be using <code>json.Unmarshal()</code> instead!), it means you are not getting <code>io.EOF</code> returned yet. Therefore you are not terminating <code>json.Decoder</code> by seeing that <code>io.EOF</code> and the response body remains open and therefore the TCP connection (or another <code>Transport</code> used) cannot be returned to the connection pool even though you are done with it.</p>
 
 </div>
 </body>

@@ -12,10 +12,9 @@
 
 <h2 id="1-bash-autocomplete-for-your-custom-programs-md">1. bash autocomplete for your custom programs.md</h2>
 
-<pre><code class="language-markdown">Here's an example taken from the https://github.com/fastly/cli
+<p>Here&rsquo;s an example taken from the <a href="https://github.com/fastly/cli" target="_blank">https://github.com/fastly/cli</a></p>
 
-```bash
-_fastly_bash_autocomplete() {
+<pre><code class="language-bash">_fastly_bash_autocomplete() {
     local cur prev opts base
     COMPREPLY=()
     cur=&quot;${COMP_WORDS[COMP_CWORD]}&quot;
@@ -34,89 +33,77 @@ complete -F _fastly_bash_autocomplete fastly
 
 <p>The available opts are stored in the local variable <code>opts</code> and that is produced by executing the <code>fastly</code> binary (i.e. <code>${COMP_WORDS[0]}</code>) and passing it a flag that the binary knows how to handle (i.e. <code>--completion-bash</code>).</p>
 
-<pre><code>
-## 2. OLD NOTES COPIED FROM SOME ARTICLE ONLINE THAT I NO LONGER HAVE THE LINK FOR.md
+<h2 id="2-old-notes-copied-from-some-article-online-that-i-no-longer-have-the-link-for-md">2. OLD NOTES COPIED FROM SOME ARTICLE ONLINE THAT I NO LONGER HAVE THE LINK FOR.md</h2>
 
-```markdown
-One of the nicest facilities of the modern shell is the built in &quot;completion&quot; support. These facilities allow you to complete commands and their arguments easily. Read on for a brief introduction to adding your own command completions.
+<p>One of the nicest facilities of the modern shell is the built in &ldquo;completion&rdquo; support. These facilities allow you to complete commands and their arguments easily. Read on for a brief introduction to adding your own command completions.</p>
 
-Most shells allow command completion, typically bound to the TAB key, which allow you to complete the names of commands stored upon your PATH, file names, or directory names. This is typically used like so:
+<p>Most shells allow command completion, typically bound to the TAB key, which allow you to complete the names of commands stored upon your PATH, file names, or directory names. This is typically used like so:</p>
 
+<pre><code>ls /bo[TAB]
 </code></pre>
 
-<p>ls /bo[TAB]</p>
+<p>When you press the TAB key the argument /bo is automatically replaced with the value /boot.</p>
 
-<pre><code>
-When you press the TAB key the argument /bo is automatically replaced with the value /boot.
+<p>Recently some shells have started allowing you to do even more: completing arguments to commands. Two notable shells which allow this are zsh, and bash. Since I&rsquo;m a bash user I&rsquo;m only going to cover that.</p>
 
-Recently some shells have started allowing you to do even more: completing arguments to commands. Two notable shells which allow this are zsh, and bash. Since I'm a bash user I'm only going to cover that.
+<p>The Debian bash package supplies a command line completion file /etc/bash_completion which sets up some common support.</p>
 
-The Debian bash package supplies a command line completion file /etc/bash_completion which sets up some common support.
+<p>If you&rsquo;re not using it right now you can load it by typing into your shell &ldquo;. /etc/bash_completion&rdquo; as shown here:</p>
 
-If you're not using it right now you can load it by typing into your shell &quot;. /etc/bash_completion&quot; as shown here:
-
+<pre><code>skx@lappy:~$ . /etc/bash_completion
+skx@lappy:~$
 </code></pre>
 
-<p>skx@lappy:<em>$ . /etc/bash_completion
-skx@lappy:</em>$</p>
+<p>Once this is done you&rsquo;ll be able to TAB-complete many common arguments to programs, for example:</p>
 
-<pre><code>
-Once this is done you'll be able to TAB-complete many common arguments to programs, for example:
-
+<pre><code>skx@lappy:~$ apt-get upd[TAB]
+skx@lappy:~$ apt-get upg[TAB]
 </code></pre>
 
-<p>skx@lappy:<em>$ apt-get upd[TAB]
-skx@lappy:</em>$ apt-get upg[TAB]</p>
+<p>But how do you extend the support yourself? Well the completion routines supplied make use of several internal bash commands such as complete. These can be used by your own shell startup files, or more easily by creating a small file and dropping it into the directory /etc/bash_completion.d/.</p>
 
-<pre><code>
-But how do you extend the support yourself? Well the completion routines supplied make use of several internal bash commands such as complete. These can be used by your own shell startup files, or more easily by creating a small file and dropping it into the directory /etc/bash_completion.d/.
+<p>When the bash_completion file is sourced (or loaded) everything inside the /etc/bash_completion.d directory is also loaded. This makes it a simple matter to add your own hooks.</p>
 
-When the bash_completion file is sourced (or loaded) everything inside the /etc/bash_completion.d directory is also loaded. This makes it a simple matter to add your own hooks.
+<p>One of the things which bash allows you to complete is hostnames, this can be very useful for some commands.</p>
 
-One of the things which bash allows you to complete is hostnames, this can be very useful for some commands.
+<p>I remotely manage some computers using VNC and I usually do that by running the command &ldquo;xvncviewer hostname&rdquo;.</p>
 
-I remotely manage some computers using VNC and I usually do that by running the command &quot;xvncviewer hostname&quot;.
+<p>To allow bash to complete the hostname fragment I type with we&rsquo;ll use the complete command to tell it that xvncviewer requires a hostname:</p>
 
-To allow bash to complete the hostname fragment I type with we'll use the complete command to tell it that xvncviewer requires a hostname:
+<pre><code>skx@lappy:~$ complete -F _known_hosts xvncviewer
 
-</code></pre>
+Once I've done this I can type [TAB] to complete hostnames:
 
-<p>skx@lappy:~$ complete -F _known_hosts xvncviewer</p>
-
-<p>Once I&rsquo;ve done this I can type [TAB] to complete hostnames:</p>
-
-<p>skx@lappy:<em>$ xvncviewer s[TAB]
+skx@lappy:~$ xvncviewer s[TAB]
 savannah.gnu.org            ssh.tardis.ed.ac.uk
 scratchy                    steve.org.uk
 security.debian.org         security-master.debian.org
 sun
-skx@lappy:</em>$ xvncviewer sc[TAB]</p>
-
-<pre><code>
-This has now completed the hostname scratchy for me.
-
-The function _known_hosts is defined in the file /etc/bash_completion. How did I know I could use it? By using the command &quot;complete -p&quot; to display all of the bindings in use:
-
+skx@lappy:~$ xvncviewer sc[TAB]
 </code></pre>
 
-<p>skx@lappy:~$ complete -p
-&hellip;.
+<p>This has now completed the hostname scratchy for me.</p>
+
+<p>The function _known_hosts is defined in the file /etc/bash_completion. How did I know I could use it? By using the command &ldquo;complete -p&rdquo; to display all of the bindings in use:</p>
+
+<pre><code>skx@lappy:~$ complete -p
+....
 complete -F _known_hosts tracepath6
 complete -F _known_hosts host
-&hellip;</p>
-
-<pre><code>
-So what have we learnt so far?
-
-    Command line completion exists.
-    Completion is implemented in the file /etc/bash_completion
-    New completion commands may be placed inside the directory /etc/bash_completion.d
-    We can list all the current completion routines bound via &quot;complete -p&quot;
-
-In part two we'll look at defining custom command line handling routines - similar to those already in place. So we can add command line completion to our own programs, or commands not yet covered.
-
-Until then you might want to experiment a little yourself.
+...
 </code></pre>
+
+<p>So what have we learnt so far?</p>
+
+<pre><code>Command line completion exists.
+Completion is implemented in the file /etc/bash_completion
+New completion commands may be placed inside the directory /etc/bash_completion.d
+We can list all the current completion routines bound via &quot;complete -p&quot;
+</code></pre>
+
+<p>In part two we&rsquo;ll look at defining custom command line handling routines - similar to those already in place. So we can add command line completion to our own programs, or commands not yet covered.</p>
+
+<p>Until then you might want to experiment a little yourself.</p>
 
 </div>
 </body>

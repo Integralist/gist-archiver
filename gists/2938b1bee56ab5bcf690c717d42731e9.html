@@ -12,10 +12,9 @@
 
 <h2 id="ruby-webmock-example-md">Ruby WebMock Example.md</h2>
 
-<pre><code class="language-markdown">When using WebMock with RSpec:
+<p>When using WebMock with RSpec:</p>
 
-```rb
-require 'webmock'
+<pre><code class="language-rb">require 'webmock'
 require 'webmock/rspec'
 
 before do
@@ -39,8 +38,6 @@ WebMock.stub_request(:any, endpoint).to_return(:body =&gt; &quot;something else&
 
 p Faraday.get(endpoint).body
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

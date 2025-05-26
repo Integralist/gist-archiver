@@ -2,7 +2,6 @@
 
 ## Single Sign-On SSO].md
 
-```markdown
 > These are all suggestions from AWS Technical Support
 
 ## Initial suggestion
@@ -38,5 +37,4 @@ The auth flow would look something like this, and I hope it improves on my previ
    7a. user already signed-in to the User Pool (step3.), directly redirect back to application B with tokens 
 
 The outlined flow provided by our local SME is one using IdP SSO for multiple applications. If you can consider to use the Cognito Hosted UI, I think this would also remove some of the heavy lifting. 
-```
 

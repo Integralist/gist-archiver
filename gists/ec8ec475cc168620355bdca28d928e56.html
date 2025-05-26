@@ -12,24 +12,26 @@
 
 <h2 id="php-setup-composer-with-local-code-md">PHP - setup Composer with local code.md</h2>
 
-<pre><code class="language-markdown">## Install Composer
-- macOS comes with php version 7.3.24
-- Download composer ([instructions](https://getcomposer.org/download/)) and move binary to your `$PATH`
-- Create a new project directory (e.g. `~/path/to/your/code/project`)
-- Run `$ composer init` and select the 'project' package type.
+<h2 id="install-composer">Install Composer</h2>
 
-### Debugging
+<ul>
+<li>macOS comes with php version 7.3.24</li>
+<li>Download composer (<a href="https://getcomposer.org/download/" target="_blank">instructions</a>) and move binary to your <code>$PATH</code></li>
+<li>Create a new project directory (e.g. <code>~/path/to/your/code/project</code>)</li>
+<li>Run <code>$ composer init</code> and select the &lsquo;project&rsquo; package type.</li>
+</ul>
 
-For debugging use https://github.com/tacnoman/dephpugger (e.g. `composer require tacnoman/dephpugger`). 
+<h3 id="debugging">Debugging</h3>
 
-You'll need `xdebug` too, which has to be installed via `pecl` and _that_ is only available on PHP when installed via macOS Homebrew. 
+<p>For debugging use <a href="https://github.com/tacnoman/dephpugger" target="_blank">https://github.com/tacnoman/dephpugger</a> (e.g. <code>composer require tacnoman/dephpugger</code>).</p>
 
-Also, with latest version of xdebug you'll find some properties have been updated and so until there is a newer version of dephpugger that supports xdebug 3 you'll have to manually update `vendor/tacnoman/dephpugger/src/Dephpug/Console/CliCommand.php` with renamed fields (see https://xdebug.org/docs/errors#CFG-C-CHANGED and the upgrade guide for details).
+<p>You&rsquo;ll need <code>xdebug</code> too, which has to be installed via <code>pecl</code> and <em>that</em> is only available on PHP when installed via macOS Homebrew.</p>
 
-The summary of those changes being:
+<p>Also, with latest version of xdebug you&rsquo;ll find some properties have been updated and so until there is a newer version of dephpugger that supports xdebug 3 you&rsquo;ll have to manually update <code>vendor/tacnoman/dephpugger/src/Dephpug/Console/CliCommand.php</code> with renamed fields (see <a href="https://xdebug.org/docs/errors#CFG-C-CHANGED" target="_blank">https://xdebug.org/docs/errors#CFG-C-CHANGED</a> and the upgrade guide for details).</p>
 
-```diff
-- $command = &quot;{$configVar} {$phpPath} -dxdebug.remote_enable=1 -dxdebug.remote_mode=req -dxdebug.remote_port={$debuggerPort} -dxdebug.remote_host=127.0.0.1 {$phpFile}&quot;;
+<p>The summary of those changes being:</p>
+
+<pre><code class="language-diff">- $command = &quot;{$configVar} {$phpPath} -dxdebug.remote_enable=1 -dxdebug.remote_mode=req -dxdebug.remote_port={$debuggerPort} -dxdebug.remote_host=127.0.0.1 {$phpFile}&quot;;
 + $command = &quot;{$configVar} {$phpPath} -dxdebug.mode=debug -dxdebug.start_with_request=trigger -dxdebug.client_port={$debuggerPort} -dxdebug.client_host=127.0.0.1 {$phpFile}&quot;;
 </code></pre>
 
@@ -67,8 +69,7 @@ $ git commit -m &quot;Initial Commit&quot;
 </code></pre>
 
 <blockquote>
-<p><strong>NOTE</strong>: The <code>dev-</code> prefix inside the <code>require</code> block denotes a development branch, where typically a semver value (like <code>1.0.0</code>) would otherwise be required.
-&ldquo;`</p>
+<p><strong>NOTE</strong>: The <code>dev-</code> prefix inside the <code>require</code> block denotes a development branch, where typically a semver value (like <code>1.0.0</code>) would otherwise be required.</p>
 </blockquote>
 
 </div>

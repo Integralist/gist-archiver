@@ -12,10 +12,9 @@
 
 <h2 id="git-bisect-md">git bisect.md</h2>
 
-<pre><code class="language-markdown">http://git-scm.com/docs/git-bisect
+<p><a href="http://git-scm.com/docs/git-bisect" target="_blank">http://git-scm.com/docs/git-bisect</a></p>
 
-```sh
-git bisect start
+<pre><code class="language-sh">git bisect start
 git bisect bad # to indicate current commit is broken
 git bisect good {commit} # to indicate the last good commit
 
@@ -41,8 +40,7 @@ git bisect reset # to bail out of everything and move back to original HEAD (i.e
 <p>This will mean only commits that affected files inside of <code>./sub_directory</code> are considered.</p>
 
 <blockquote>
-<p>Note: you can also specify a range of commits to skip: <code>git bisect skip 0dae5f ff049ab ...</code>
-&ldquo;`</p>
+<p>Note: you can also specify a range of commits to skip: <code>git bisect skip 0dae5f ff049ab ...</code></p>
 </blockquote>
 
 </div>

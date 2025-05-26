@@ -12,65 +12,81 @@
 
 <h2 id="publishing-packages-for-multiple-languages-md">Publishing packages for multiple languages.md</h2>
 
-<pre><code class="language-markdown"># Manual release process
+<h1 id="manual-release-process">Manual release process</h1>
 
-The following steps describe the manual steps to take so you can publish a specific Fastly API client.
+<p>The following steps describe the manual steps to take so you can publish a specific Fastly API client.</p>
 
-## fastly-go
+<h2 id="fastly-go">fastly-go</h2>
 
-- Clone https://github.com/fastly/fastly-go
-- Run `tag=&quot;v1.0.0-beta.0&quot; &amp;&amp; git tag -s $tag -m $tag &amp;&amp; git push origin $tag`
-- Create a new 'release' https://github.com/fastly/fastly-go/releases
-- Check https://pkg.go.dev/github.com/fastly/fastly-go for latest release
+<ul>
+<li>Clone <a href="https://github.com/fastly/fastly-go" target="_blank">https://github.com/fastly/fastly-go</a></li>
+<li>Run <code>tag=&quot;v1.0.0-beta.0&quot; &amp;&amp; git tag -s $tag -m $tag &amp;&amp; git push origin $tag</code></li>
+<li>Create a new &lsquo;release&rsquo; <a href="https://github.com/fastly/fastly-go/releases" target="_blank">https://github.com/fastly/fastly-go/releases</a></li>
+<li>Check <a href="https://pkg.go.dev/github.com/fastly/fastly-go" target="_blank">https://pkg.go.dev/github.com/fastly/fastly-go</a> for latest release</li>
+</ul>
 
-## fastly-js
+<h2 id="fastly-js">fastly-js</h2>
 
-- Clone https://github.com/fastly/fastly-js
-- Run `tag=&quot;v3.0.0&quot; &amp;&amp; git tag -s $tag -m $tag &amp;&amp; git push origin $tag`
-- Run `npm login` and follow instructions
-- Run `npm publish --dry-run` and check there are no errors
-- Run `npm publish` to publish the module to https://www.npmjs.com/package/fastly
+<ul>
+<li>Clone <a href="https://github.com/fastly/fastly-js" target="_blank">https://github.com/fastly/fastly-js</a></li>
+<li>Run <code>tag=&quot;v3.0.0&quot; &amp;&amp; git tag -s $tag -m $tag &amp;&amp; git push origin $tag</code></li>
+<li>Run <code>npm login</code> and follow instructions</li>
+<li>Run <code>npm publish --dry-run</code> and check there are no errors</li>
+<li>Run <code>npm publish</code> to publish the module to <a href="https://www.npmjs.com/package/fastly" target="_blank">https://www.npmjs.com/package/fastly</a></li>
+</ul>
 
-&gt; **Reference**: https://docs.npmjs.com/cli/v9/commands/npm-publish
+<blockquote>
+<p><strong>Reference</strong>: <a href="https://docs.npmjs.com/cli/v9/commands/npm-publish" target="_blank">https://docs.npmjs.com/cli/v9/commands/npm-publish</a></p>
+</blockquote>
 
-## fastly-perl
+<h2 id="fastly-perl">fastly-perl</h2>
 
-...
+<p>&hellip;</p>
 
-## fastly-php
+<h2 id="fastly-php">fastly-php</h2>
 
-- Clone https://github.com/fastly/fastly-php
-- Run `tag=&quot;v1.0.0&quot; &amp;&amp; git tag -s $tag -m $tag &amp;&amp; git push origin $tag`
-- Create a new 'release' https://github.com/fastly/fastly-php/releases
-- Check https://packagist.org/packages/fastly/fastly for latest release
+<ul>
+<li>Clone <a href="https://github.com/fastly/fastly-php" target="_blank">https://github.com/fastly/fastly-php</a></li>
+<li>Run <code>tag=&quot;v1.0.0&quot; &amp;&amp; git tag -s $tag -m $tag &amp;&amp; git push origin $tag</code></li>
+<li>Create a new &lsquo;release&rsquo; <a href="https://github.com/fastly/fastly-php/releases" target="_blank">https://github.com/fastly/fastly-php/releases</a></li>
+<li>Check <a href="https://packagist.org/packages/fastly/fastly" target="_blank">https://packagist.org/packages/fastly/fastly</a> for latest release</li>
+</ul>
 
-## fastly-py
+<h2 id="fastly-py">fastly-py</h2>
 
-- Clone https://github.com/fastly/fastly-py
-- Run `tag=&quot;v1.0.0&quot; &amp;&amp; git tag -s $tag -m $tag &amp;&amp; git push origin $tag`
-- Run `python3 -m pip install --upgrade build &amp;&amp; python3 -m build` to build the package
-- Run `python3 -m pip install --upgrade twine &amp;&amp; python3 -m twine upload --repository pypi dist/*` to publish the package to https://pypi.org/project/fastly/
+<ul>
+<li>Clone <a href="https://github.com/fastly/fastly-py" target="_blank">https://github.com/fastly/fastly-py</a></li>
+<li>Run <code>tag=&quot;v1.0.0&quot; &amp;&amp; git tag -s $tag -m $tag &amp;&amp; git push origin $tag</code></li>
+<li>Run <code>python3 -m pip install --upgrade build &amp;&amp; python3 -m build</code> to build the package</li>
+<li>Run <code>python3 -m pip install --upgrade twine &amp;&amp; python3 -m twine upload --repository pypi dist/*</code> to publish the package to <a href="https://pypi.org/project/fastly/" target="_blank">https://pypi.org/project/fastly/</a></li>
+</ul>
 
-&gt; **Reference**: https://packaging.python.org/en/latest/tutorials/packaging-projects/
+<blockquote>
+<p><strong>Reference</strong>: <a href="https://packaging.python.org/en/latest/tutorials/packaging-projects/" target="_blank">https://packaging.python.org/en/latest/tutorials/packaging-projects/</a></p>
+</blockquote>
 
-## fastly-ruby
+<h2 id="fastly-ruby">fastly-ruby</h2>
 
-- Clone https://github.com/fastly/fastly-ruby
-- Run `tag=&quot;v4.0.0&quot; &amp;&amp; git tag -s $tag -m $tag &amp;&amp; git push origin $tag`
-- Create a new 'release' https://github.com/fastly/fastly-ruby/releases
-- Run `gem build fastly.gemspec`
-- Run `gem push fastly-4.0.0.gem`
+<ul>
+<li>Clone <a href="https://github.com/fastly/fastly-ruby" target="_blank">https://github.com/fastly/fastly-ruby</a></li>
+<li>Run <code>tag=&quot;v4.0.0&quot; &amp;&amp; git tag -s $tag -m $tag &amp;&amp; git push origin $tag</code></li>
+<li>Create a new &lsquo;release&rsquo; <a href="https://github.com/fastly/fastly-ruby/releases" target="_blank">https://github.com/fastly/fastly-ruby/releases</a></li>
+<li>Run <code>gem build fastly.gemspec</code></li>
+<li>Run <code>gem push fastly-4.0.0.gem</code></li>
+</ul>
 
-## fastly-rust
+<h2 id="fastly-rust">fastly-rust</h2>
 
-- Clone https://github.com/fastly/fastly-rust 
-- Run `cargo login` and following instructions
-- Run `cargo publish --dry-run` and check there are no errors
-- Run `cargo publish` to publish the crate to https://crates.io/crates/fastly-api
+<ul>
+<li>Clone <a href="https://github.com/fastly/fastly-rust" target="_blank">https://github.com/fastly/fastly-rust</a></li>
+<li>Run <code>cargo login</code> and following instructions</li>
+<li>Run <code>cargo publish --dry-run</code> and check there are no errors</li>
+<li>Run <code>cargo publish</code> to publish the crate to <a href="https://crates.io/crates/fastly-api" target="_blank">https://crates.io/crates/fastly-api</a></li>
+</ul>
 
-&gt; **Reference**: https://doc.rust-lang.org/cargo/reference/publishing.html
-
-</code></pre>
+<blockquote>
+<p><strong>Reference</strong>: <a href="https://doc.rust-lang.org/cargo/reference/publishing.html" target="_blank">https://doc.rust-lang.org/cargo/reference/publishing.html</a></p>
+</blockquote>
 
 </div>
 </body>

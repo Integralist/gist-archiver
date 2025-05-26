@@ -10,6 +10,292 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="go-basic-middleware-abstraction-go-golang-middleware">[Go basic middleware abstraction] #go #golang #middleware</h1>
 
+<h2 id="1-middleware-go">1. middleware.go</h2>
+
+<pre><code class="language-go">// THIS IS THE REDESIGNED VERSION (see 3. middleware.go for my original approach)
+
+package middleware
+
+import (
+	&quot;net/http&quot;
+)
+
+// Decorator is a middleware function.
+type Decorator func(http.Handler) http.Handler
+
+// Pipeline is a type for wrapping an http.Handler and adding optional logging,
+// metrics and tracing.
+type Pipeline struct {
+	middleware []Decorator
+}
+
+// New returns a middleware Pipeline.
+func New(middleware ...Decorator) *Pipeline {
+	p := &amp;Pipeline{}
+	p.middleware = append(p.middleware, middleware...)
+	return p
+}
+
+// Decorate wraps next in the defined middleware and executes the pipeline.
+func (p *Pipeline) Decorate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		for i := len(p.middleware) - 1; i &gt;= 0; i-- {
+			next = p.middleware[i](next)
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+</code></pre>
+
+<h2 id="2-main-go">2. main.go</h2>
+
+<pre><code class="language-go">// THIS IS THE REDESIGNED VERSION (see 4. main.go for my original approach)
+
+// Package main is the entry point for the application.
+package main
+
+import (
+	&quot;context&quot;
+	&quot;flag&quot;
+	&quot;fmt&quot;
+	&quot;log/slog&quot;
+	&quot;net/http&quot;
+	&quot;os&quot;
+	&quot;os/signal&quot;
+	&quot;runtime&quot;
+	&quot;syscall&quot;
+	&quot;time&quot;
+
+	&quot;github.com/prometheus/client_golang/prometheus&quot;
+	&quot;golang.org/x/sync/errgroup&quot;
+
+	&quot;github.com/org/repo/internal/config&quot;
+	h &quot;github.com/org/repo/internal/http&quot;
+	&quot;github.com/org/repo/internal/logging&quot;
+	&quot;github.com/org/repo/internal/metrics&quot;
+	&quot;github.com/org/repo/internal/middleware&quot;
+	&quot;github.com/org/repo/internal/traces&quot;
+)
+
+var (
+	cfgPath     = flag.String(&quot;cfg&quot;, &quot;&quot;, &quot;Path to config&quot;)
+	metricsHost = flag.String(&quot;metrics-host&quot;, &quot;127.0.0.1&quot;, &quot;Host to use for metrics &amp; pprof&quot;)
+	metricsPort = flag.Int(&quot;metrics-port&quot;, 8447, &quot;Port to expose for metrics &amp; pprof&quot;) //nolint:gomnd
+)
+
+// ImageTag is the container image version and is displayed in the healthcheck.
+// It is overridden at run/build time (see ../../Makefile).
+var ImageTag = &quot;dev&quot;
+
+func main() {
+	build.AddVersionFlag()
+	flag.Parse()
+
+	// NOTE: Moving the logic to `app()` allows us to honour `defer` calls.
+	if err := app(); err != nil {
+		os.Exit(1)
+	}
+}
+
+func app() error {
+	ctx := context.Background()
+	logger := logging.NewLogger()
+
+	cfg, err := config.Load(*cfgPath)
+	if err != nil {
+		logger.LogAttrs(ctx, slog.LevelError, &quot;config_load&quot;, slog.Any(&quot;error&quot;, fmt.Errorf(&quot;unable to load config: %w&quot;, err)))
+	}
+	if err := cfg.Validate(); err != nil {
+		logger.LogAttrs(ctx, slog.LevelError, &quot;config_validate&quot;, slog.Any(&quot;error&quot;, fmt.Errorf(&quot;invalid config: %w&quot;, err)))
+	}
+
+	// validate secret is available
+	fmt.Printf(&quot;foo secret: %#v\n&quot;, cfg.Secrets)
+
+	// setup observability
+	registry := prometheus.NewRegistry()
+	metric := metrics.New(registry)
+	state := &quot;enabled&quot;
+	if cfg.OtelDisabled {
+		state = &quot;disabled&quot;
+	}
+	logger.LogAttrs(ctx, slog.LevelInfo, &quot;trace exporting &quot;+state)
+	traceShutdown, tracer, err := traces.New(ctx, cfg)
+	if err != nil {
+		logger.LogAttrs(ctx, slog.LevelError, &quot;trace create&quot;, slog.Any(&quot;error&quot;, fmt.Errorf(&quot;unable to start tracing: %w&quot;, err)))
+	}
+	defer func() {
+		// NOTE: We use a separate context for the shutdown.
+		// This is so that the graceful shutdown of the main HTTP server doesn't
+		// end up cancelling the traceShutdown context before it has a chance to
+		// complete its shutdown process.
+		if err := traceShutdown(context.WithoutCancel(ctx)); err != nil {
+			logger.LogAttrs(ctx, slog.LevelError, &quot;trace shutdown&quot;, slog.Any(&quot;error&quot;, err))
+		}
+	}()
+
+	g := new(errgroup.Group)
+	timeout := time.Duration(10) * time.Second //nolint:gomnd
+
+	// Setup separate /metrics endpoint for Prometheus scraping.
+	// Needs to be separate listener as metrics service runs on its own port.
+	var (
+		metricsAddr  string
+		metricServer *http.Server
+	)
+	if *metricsPort != 0 {
+		metricsAddr = fmt.Sprintf(&quot;%s:%d&quot;, *metricsHost, *metricsPort)
+		g.Go(func() error {
+			mux := http.NewServeMux()
+			mux.Handle(&quot;/metrics&quot;, metric.Handler())
+			metricServer = &amp;http.Server{
+				Addr:              metricsAddr,
+				Handler:           mux,
+				ReadHeaderTimeout: timeout, // avoid slowloris https://app.deepsource.com/directory/analyzers/go/issues/GO-S2114
+			}
+			if err := metricServer.ListenAndServe(); err != nil {
+				err := fmt.Errorf(&quot;metrics server failed to listen and serve requests: %w&quot;, err)
+				logger.LogAttrs(ctx, slog.LevelError, &quot;error handling metric requests&quot;,
+					slog.Any(&quot;error&quot;, err),
+					slog.String(&quot;metrics_addr&quot;, metricsAddr),
+				)
+				return err
+			}
+			return nil
+		})
+	}
+
+	logger = logger.With(
+		slog.Int(&quot;gomaxprocs&quot;, runtime.GOMAXPROCS(0)),
+		slog.String(&quot;build_info&quot;, build.Info.String()),
+		slog.String(&quot;cfg&quot;, *cfgPath),
+		slog.String(&quot;cfg_addr&quot;, cfg.Addr),
+		slog.String(&quot;metrics_addr&quot;, metricsAddr),
+	)
+	logger.LogAttrs(ctx, slog.LevelInfo, &quot;service starting&quot;)
+
+	// Routing
+	mux := http.NewServeMux()
+
+	// NOTE: We have separate pipelines.
+	// One for the healthcheck and another for all other endpoints.
+	// This is because we want to avoid tracing the healthcheck endpoint.
+	// For some apps, tracing the healthcheck can result in poor performance.
+
+	pipelineHealth := middleware.New(logging.WithRoutePattern(mux, logger), metric.WithHealthCheckMetrics, h.WithHeaders(cfg))
+	healthHandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, `{&quot;status&quot;: &quot;success&quot;, &quot;image_tag&quot;: &quot;%s&quot;}`, ImageTag)
+	})
+	mux.Handle(&quot;/healthcheck&quot;, pipelineHealth.Decorate(healthHandler))
+
+	// NOTE: The order of the middleware is deliberate.
+	// WithSpan updates the request context with a Span ID.
+	// WithRoutePattern checks for the Span ID and attaches it to the logger.
+	// WithMetrics, WithRouteTag and WithParamAttrs all check for the route pattern added by WithRoutePattern.
+
+	pipeline := middleware.New(traces.WithSpan(tracer), logging.WithRoutePattern(mux, logger), metric.WithMetrics, traces.WithRouteTag, traces.WithParamAttrs, h.WithHeaders(cfg))
+	exampleHandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{&quot;endpoint&quot;: &quot;example&quot;}`)
+	})
+	mux.Handle(&quot;/example/{id}&quot;, pipeline.Decorate(exampleHandler))
+
+	// API Server
+	apiServer := &amp;http.Server{
+		Addr:              cfg.Addr,
+		Handler:           mux,
+		ReadHeaderTimeout: timeout, // avoid slowloris https://app.deepsource.com/directory/analyzers/go/issues/GO-S2114
+	}
+	g.Go(func() error {
+		if err := apiServer.ListenAndServe(); err != nil {
+			err := fmt.Errorf(&quot;api server failed to listen and serve requests: %w&quot;, err)
+			logger.LogAttrs(ctx, slog.LevelError, &quot;error handling API requests&quot;,
+				slog.Any(&quot;error&quot;, err),
+				slog.String(&quot;metrics_addr&quot;, metricsAddr),
+			)
+			return err
+		}
+		return nil
+	})
+
+	// Graceful shutdown
+	g.Go(func() error {
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		signalType := &lt;-quit
+		logger.LogAttrs(ctx, slog.LevelWarn, &quot;http server graceful shutdown&quot;,
+			slog.String(&quot;signal&quot;, signalType.String()),
+		)
+		// NOTE: Shutdown is given a separate context from the API server.
+		if apiServer != nil {
+			if err := apiServer.Shutdown(context.Background()); err != nil { //nolint:contextcheck
+				err := fmt.Errorf(&quot;unable to gracefully stop API server: %w&quot;, err)
+				logger.LogAttrs(ctx, slog.LevelError, &quot;error shutting down API server&quot;,
+					slog.Any(&quot;error&quot;, err),
+				)
+				return err
+			}
+		}
+		if metricServer != nil {
+			if err := metricServer.Shutdown(context.Background()); err != nil { //nolint:contextcheck
+				err := fmt.Errorf(&quot;unable to gracefully stop metrics server: %w&quot;, err)
+				logger.LogAttrs(ctx, slog.LevelError, &quot;error shutting down metrics server&quot;,
+					slog.Any(&quot;error&quot;, err),
+				)
+				return err
+			}
+		}
+		return nil
+	})
+
+	return g.Wait()
+}
+
+</code></pre>
+
+<h2 id="3-middleware-go">3. middleware.go</h2>
+
+<pre><code class="language-go">package middleware
+
+import (
+	&quot;net/http&quot;
+)
+
+// Decorator is a middleware function.
+type Decorator func(http.Handler) http.Handler
+
+// Pipeline is a type for wrapping an http.Handler and adding optional logging,
+// metrics and tracing.
+type Pipeline struct {
+	middleware []Decorator
+	mux        *http.ServeMux
+}
+
+// New returns a middleware Pipeline.
+func New(mux *http.ServeMux) *Pipeline {
+	return &amp;Pipeline{
+		mux: mux,
+	}
+}
+
+// Use installs one or more middleware in the request cycle.
+func (p *Pipeline) Use(middleware ...Decorator) {
+	p.middleware = append(p.middleware, middleware...)
+}
+
+// Handle registers a handler for the given path.
+func (p *Pipeline) Handle(path string, handler http.Handler, middleware ...Decorator) {
+	for i := len(middleware) - 1; i &gt;= 0; i-- {
+		handler = middleware[i](handler)
+	}
+	for i := len(p.middleware) - 1; i &gt;= 0; i-- {
+		handler = p.middleware[i](handler)
+	}
+	p.mux.Handle(path, handler)
+}
+</code></pre>
+
 <h2 id="4-main-go">4. main.go</h2>
 
 <pre><code class="language-go">// Package main is the entry point for the application.
@@ -774,292 +1060,6 @@ func WithParamAttrs(next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, r)
 	})
-}
-</code></pre>
-
-<h2 id="1-middleware-go">1. middleware.go</h2>
-
-<pre><code class="language-go">// THIS IS THE REDESIGNED VERSION (see 3. middleware.go for my original approach)
-
-package middleware
-
-import (
-	&quot;net/http&quot;
-)
-
-// Decorator is a middleware function.
-type Decorator func(http.Handler) http.Handler
-
-// Pipeline is a type for wrapping an http.Handler and adding optional logging,
-// metrics and tracing.
-type Pipeline struct {
-	middleware []Decorator
-}
-
-// New returns a middleware Pipeline.
-func New(middleware ...Decorator) *Pipeline {
-	p := &amp;Pipeline{}
-	p.middleware = append(p.middleware, middleware...)
-	return p
-}
-
-// Decorate wraps next in the defined middleware and executes the pipeline.
-func (p *Pipeline) Decorate(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		for i := len(p.middleware) - 1; i &gt;= 0; i-- {
-			next = p.middleware[i](next)
-		}
-		next.ServeHTTP(w, r)
-	})
-}
-</code></pre>
-
-<h2 id="2-main-go">2. main.go</h2>
-
-<pre><code class="language-go">// THIS IS THE REDESIGNED VERSION (see 4. main.go for my original approach)
-
-// Package main is the entry point for the application.
-package main
-
-import (
-	&quot;context&quot;
-	&quot;flag&quot;
-	&quot;fmt&quot;
-	&quot;log/slog&quot;
-	&quot;net/http&quot;
-	&quot;os&quot;
-	&quot;os/signal&quot;
-	&quot;runtime&quot;
-	&quot;syscall&quot;
-	&quot;time&quot;
-
-	&quot;github.com/prometheus/client_golang/prometheus&quot;
-	&quot;golang.org/x/sync/errgroup&quot;
-
-	&quot;github.com/org/repo/internal/config&quot;
-	h &quot;github.com/org/repo/internal/http&quot;
-	&quot;github.com/org/repo/internal/logging&quot;
-	&quot;github.com/org/repo/internal/metrics&quot;
-	&quot;github.com/org/repo/internal/middleware&quot;
-	&quot;github.com/org/repo/internal/traces&quot;
-)
-
-var (
-	cfgPath     = flag.String(&quot;cfg&quot;, &quot;&quot;, &quot;Path to config&quot;)
-	metricsHost = flag.String(&quot;metrics-host&quot;, &quot;127.0.0.1&quot;, &quot;Host to use for metrics &amp; pprof&quot;)
-	metricsPort = flag.Int(&quot;metrics-port&quot;, 8447, &quot;Port to expose for metrics &amp; pprof&quot;) //nolint:gomnd
-)
-
-// ImageTag is the container image version and is displayed in the healthcheck.
-// It is overridden at run/build time (see ../../Makefile).
-var ImageTag = &quot;dev&quot;
-
-func main() {
-	build.AddVersionFlag()
-	flag.Parse()
-
-	// NOTE: Moving the logic to `app()` allows us to honour `defer` calls.
-	if err := app(); err != nil {
-		os.Exit(1)
-	}
-}
-
-func app() error {
-	ctx := context.Background()
-	logger := logging.NewLogger()
-
-	cfg, err := config.Load(*cfgPath)
-	if err != nil {
-		logger.LogAttrs(ctx, slog.LevelError, &quot;config_load&quot;, slog.Any(&quot;error&quot;, fmt.Errorf(&quot;unable to load config: %w&quot;, err)))
-	}
-	if err := cfg.Validate(); err != nil {
-		logger.LogAttrs(ctx, slog.LevelError, &quot;config_validate&quot;, slog.Any(&quot;error&quot;, fmt.Errorf(&quot;invalid config: %w&quot;, err)))
-	}
-
-	// validate secret is available
-	fmt.Printf(&quot;foo secret: %#v\n&quot;, cfg.Secrets)
-
-	// setup observability
-	registry := prometheus.NewRegistry()
-	metric := metrics.New(registry)
-	state := &quot;enabled&quot;
-	if cfg.OtelDisabled {
-		state = &quot;disabled&quot;
-	}
-	logger.LogAttrs(ctx, slog.LevelInfo, &quot;trace exporting &quot;+state)
-	traceShutdown, tracer, err := traces.New(ctx, cfg)
-	if err != nil {
-		logger.LogAttrs(ctx, slog.LevelError, &quot;trace create&quot;, slog.Any(&quot;error&quot;, fmt.Errorf(&quot;unable to start tracing: %w&quot;, err)))
-	}
-	defer func() {
-		// NOTE: We use a separate context for the shutdown.
-		// This is so that the graceful shutdown of the main HTTP server doesn't
-		// end up cancelling the traceShutdown context before it has a chance to
-		// complete its shutdown process.
-		if err := traceShutdown(context.WithoutCancel(ctx)); err != nil {
-			logger.LogAttrs(ctx, slog.LevelError, &quot;trace shutdown&quot;, slog.Any(&quot;error&quot;, err))
-		}
-	}()
-
-	g := new(errgroup.Group)
-	timeout := time.Duration(10) * time.Second //nolint:gomnd
-
-	// Setup separate /metrics endpoint for Prometheus scraping.
-	// Needs to be separate listener as metrics service runs on its own port.
-	var (
-		metricsAddr  string
-		metricServer *http.Server
-	)
-	if *metricsPort != 0 {
-		metricsAddr = fmt.Sprintf(&quot;%s:%d&quot;, *metricsHost, *metricsPort)
-		g.Go(func() error {
-			mux := http.NewServeMux()
-			mux.Handle(&quot;/metrics&quot;, metric.Handler())
-			metricServer = &amp;http.Server{
-				Addr:              metricsAddr,
-				Handler:           mux,
-				ReadHeaderTimeout: timeout, // avoid slowloris https://app.deepsource.com/directory/analyzers/go/issues/GO-S2114
-			}
-			if err := metricServer.ListenAndServe(); err != nil {
-				err := fmt.Errorf(&quot;metrics server failed to listen and serve requests: %w&quot;, err)
-				logger.LogAttrs(ctx, slog.LevelError, &quot;error handling metric requests&quot;,
-					slog.Any(&quot;error&quot;, err),
-					slog.String(&quot;metrics_addr&quot;, metricsAddr),
-				)
-				return err
-			}
-			return nil
-		})
-	}
-
-	logger = logger.With(
-		slog.Int(&quot;gomaxprocs&quot;, runtime.GOMAXPROCS(0)),
-		slog.String(&quot;build_info&quot;, build.Info.String()),
-		slog.String(&quot;cfg&quot;, *cfgPath),
-		slog.String(&quot;cfg_addr&quot;, cfg.Addr),
-		slog.String(&quot;metrics_addr&quot;, metricsAddr),
-	)
-	logger.LogAttrs(ctx, slog.LevelInfo, &quot;service starting&quot;)
-
-	// Routing
-	mux := http.NewServeMux()
-
-	// NOTE: We have separate pipelines.
-	// One for the healthcheck and another for all other endpoints.
-	// This is because we want to avoid tracing the healthcheck endpoint.
-	// For some apps, tracing the healthcheck can result in poor performance.
-
-	pipelineHealth := middleware.New(logging.WithRoutePattern(mux, logger), metric.WithHealthCheckMetrics, h.WithHeaders(cfg))
-	healthHandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, `{&quot;status&quot;: &quot;success&quot;, &quot;image_tag&quot;: &quot;%s&quot;}`, ImageTag)
-	})
-	mux.Handle(&quot;/healthcheck&quot;, pipelineHealth.Decorate(healthHandler))
-
-	// NOTE: The order of the middleware is deliberate.
-	// WithSpan updates the request context with a Span ID.
-	// WithRoutePattern checks for the Span ID and attaches it to the logger.
-	// WithMetrics, WithRouteTag and WithParamAttrs all check for the route pattern added by WithRoutePattern.
-
-	pipeline := middleware.New(traces.WithSpan(tracer), logging.WithRoutePattern(mux, logger), metric.WithMetrics, traces.WithRouteTag, traces.WithParamAttrs, h.WithHeaders(cfg))
-	exampleHandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, `{&quot;endpoint&quot;: &quot;example&quot;}`)
-	})
-	mux.Handle(&quot;/example/{id}&quot;, pipeline.Decorate(exampleHandler))
-
-	// API Server
-	apiServer := &amp;http.Server{
-		Addr:              cfg.Addr,
-		Handler:           mux,
-		ReadHeaderTimeout: timeout, // avoid slowloris https://app.deepsource.com/directory/analyzers/go/issues/GO-S2114
-	}
-	g.Go(func() error {
-		if err := apiServer.ListenAndServe(); err != nil {
-			err := fmt.Errorf(&quot;api server failed to listen and serve requests: %w&quot;, err)
-			logger.LogAttrs(ctx, slog.LevelError, &quot;error handling API requests&quot;,
-				slog.Any(&quot;error&quot;, err),
-				slog.String(&quot;metrics_addr&quot;, metricsAddr),
-			)
-			return err
-		}
-		return nil
-	})
-
-	// Graceful shutdown
-	g.Go(func() error {
-		quit := make(chan os.Signal, 1)
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		signalType := &lt;-quit
-		logger.LogAttrs(ctx, slog.LevelWarn, &quot;http server graceful shutdown&quot;,
-			slog.String(&quot;signal&quot;, signalType.String()),
-		)
-		// NOTE: Shutdown is given a separate context from the API server.
-		if apiServer != nil {
-			if err := apiServer.Shutdown(context.Background()); err != nil { //nolint:contextcheck
-				err := fmt.Errorf(&quot;unable to gracefully stop API server: %w&quot;, err)
-				logger.LogAttrs(ctx, slog.LevelError, &quot;error shutting down API server&quot;,
-					slog.Any(&quot;error&quot;, err),
-				)
-				return err
-			}
-		}
-		if metricServer != nil {
-			if err := metricServer.Shutdown(context.Background()); err != nil { //nolint:contextcheck
-				err := fmt.Errorf(&quot;unable to gracefully stop metrics server: %w&quot;, err)
-				logger.LogAttrs(ctx, slog.LevelError, &quot;error shutting down metrics server&quot;,
-					slog.Any(&quot;error&quot;, err),
-				)
-				return err
-			}
-		}
-		return nil
-	})
-
-	return g.Wait()
-}
-
-</code></pre>
-
-<h2 id="3-middleware-go">3. middleware.go</h2>
-
-<pre><code class="language-go">package middleware
-
-import (
-	&quot;net/http&quot;
-)
-
-// Decorator is a middleware function.
-type Decorator func(http.Handler) http.Handler
-
-// Pipeline is a type for wrapping an http.Handler and adding optional logging,
-// metrics and tracing.
-type Pipeline struct {
-	middleware []Decorator
-	mux        *http.ServeMux
-}
-
-// New returns a middleware Pipeline.
-func New(mux *http.ServeMux) *Pipeline {
-	return &amp;Pipeline{
-		mux: mux,
-	}
-}
-
-// Use installs one or more middleware in the request cycle.
-func (p *Pipeline) Use(middleware ...Decorator) {
-	p.middleware = append(p.middleware, middleware...)
-}
-
-// Handle registers a handler for the given path.
-func (p *Pipeline) Handle(path string, handler http.Handler, middleware ...Decorator) {
-	for i := len(middleware) - 1; i &gt;= 0; i-- {
-		handler = middleware[i](handler)
-	}
-	for i := len(p.middleware) - 1; i &gt;= 0; i-- {
-		handler = p.middleware[i](handler)
-	}
-	p.mux.Handle(path, handler)
 }
 </code></pre>
 

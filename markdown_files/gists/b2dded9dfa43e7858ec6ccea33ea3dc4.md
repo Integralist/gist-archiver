@@ -2,7 +2,6 @@
 
 ## Business Success.md
 
-```markdown
 ## Key Points
 
 - the product direction should drive the type of work that we prioritize.
@@ -23,5 +22,4 @@ We should encourage a Netflix mentality of 'get on board, or get off'. It's not 
 If the business is successful, then YOU will be successful.
 
 If the business is NOT successful, then you'll have the greatest software and tools in the world that no one uses (and you'll soon find the company goes under).
-```
 

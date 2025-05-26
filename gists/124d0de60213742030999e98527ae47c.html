@@ -12,8 +12,7 @@
 
 <h2 id="golang-don-t-follow-301-redirect-md">golang don&rsquo;t follow 301 redirect.md</h2>
 
-<pre><code class="language-markdown">```go
-client: &amp;http.Client{
+<pre><code class="language-go">client: &amp;http.Client{
     CheckRedirect: func(req *http.Request, via []*http.Request) error {
         return http.ErrUseLastResponse
     },
@@ -21,8 +20,7 @@ client: &amp;http.Client{
 </code></pre>
 
 <blockquote>
-<p>if <code>CheckRedirect</code> returns <code>http.ErrUseLastResponse</code>, then the most recent response is returned with its body unclosed, along with a <code>nil</code> error.
-&ldquo;`</p>
+<p>if <code>CheckRedirect</code> returns <code>http.ErrUseLastResponse</code>, then the most recent response is returned with its body unclosed, along with a <code>nil</code> error.</p>
 </blockquote>
 
 </div>

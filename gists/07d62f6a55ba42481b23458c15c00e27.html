@@ -12,10 +12,9 @@
 
 <h2 id="1-python-lambda-md">1. Python Lambda.md</h2>
 
-<pre><code class="language-markdown">The AWS Python SDK (Boto) is pre-installed with AWS Lambda, so if all we need is the `requests` library, then we can use the following trick to avoid needing to package up our lambda script and its dependencies...
+<p>The AWS Python SDK (Boto) is pre-installed with AWS Lambda, so if all we need is the <code>requests</code> library, then we can use the following trick to avoid needing to package up our lambda script and its dependencies&hellip;</p>
 
-```py
-from botocore.vendored import requests
+<pre><code class="language-py">from botocore.vendored import requests
 </code></pre>
 
 <blockquote>
@@ -40,12 +39,11 @@ lambda_function.py
 
 <blockquote>
 <p><code>unzip -vl lambda.zip</code> to check contents of zip</p>
+</blockquote>
 
-<pre><code>
-## 2. Makefile
+<h2 id="2-makefile">2. Makefile</h2>
 
-```text
-SHELL := /bin/bash
+<pre><code class="language-makefile">SHELL := /bin/bash
 
 build: clean
 	pipenv run pip install -r &lt;(pipenv lock -r) --target ./
@@ -62,7 +60,6 @@ run:
 	@# env vars can be set in the AWS Lambda console
 	FOO=123 BAR=456 python lambda_function.py
 </code></pre>
-</blockquote>
 
 <h2 id="lambda-function-py">lambda_function.py</h2>
 

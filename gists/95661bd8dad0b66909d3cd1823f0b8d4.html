@@ -12,36 +12,41 @@
 
 <h2 id="vim-for-beginners-md">Vim for beginners.md</h2>
 
-<pre><code class="language-markdown">There are many 'motions' and things you can do but I would probably say there are some essential motions you'll use a lot...
+<p>There are many &lsquo;motions&rsquo; and things you can do but I would probably say there are some essential motions you&rsquo;ll use a lot&hellip;</p>
 
-- `:&lt;LINE_NUMBER&gt;` to jump to a specific line number (e.g. `:10`)
-- `gg` to go to the top of the file (`G` to go to the bottom)
-- `Ctrl+d` to go down half a page (`Ctrl+u` to go up half a page)
-- `{` and `}` to jump back and forth between paragraphs
-- `f&lt;CHARACTER&gt;` to jump forward on the current line to a specific character (use `F` to search backwards in the line).
-- `^` to go to the start of the line (`0` if you want to specifically go back to the zero column)
-- `$` to go to the end of the line
-- `/&lt;PATTERN&gt;` to search for text in the current buffer (see https://www.vimregex.com/ or use `\v` flag to make regexes a bit more sane, e.g. `/\v&lt;PATTERN`)
+<ul>
+<li><code>:&lt;LINE_NUMBER&gt;</code> to jump to a specific line number (e.g. <code>:10</code>)</li>
+<li><code>gg</code> to go to the top of the file (<code>G</code> to go to the bottom)</li>
+<li><code>Ctrl+d</code> to go down half a page (<code>Ctrl+u</code> to go up half a page)</li>
+<li><code>{</code> and <code>}</code> to jump back and forth between paragraphs</li>
+<li><code>f&lt;CHARACTER&gt;</code> to jump forward on the current line to a specific character (use <code>F</code> to search backwards in the line).</li>
+<li><code>^</code> to go to the start of the line (<code>0</code> if you want to specifically go back to the zero column)</li>
+<li><code>$</code> to go to the end of the line</li>
+<li><code>/&lt;PATTERN&gt;</code> to search for text in the current buffer (see <a href="https://www.vimregex.com/" target="_blank">https://www.vimregex.com/</a> or use <code>\v</code> flag to make regexes a bit more sane, e.g. <code>/\v&lt;PATTERN</code>)</li>
+</ul>
 
-The typical structure for doing something like &quot;delete the text inside parentheses&quot; is... &quot;operation, placement, pattern&quot; (not sure if that's the correct terminology to use, I've not had to think about that sort of stuff in a long time 😅) but an example would be `di(` where `d` is the operation (i.e. delete), `i` is the placement (i.e. inside), `(` is the pattern (i.e. the parenthesis).
+<p>The typical structure for doing something like &ldquo;delete the text inside parentheses&rdquo; is&hellip; &ldquo;operation, placement, pattern&rdquo; (not sure if that&rsquo;s the correct terminology to use, I&rsquo;ve not had to think about that sort of stuff in a long time 😅) but an example would be <code>di(</code> where <code>d</code> is the operation (i.e. delete), <code>i</code> is the placement (i.e. inside), <code>(</code> is the pattern (i.e. the parenthesis).</p>
 
-For the &quot;operation&quot;: you have `d` for delete, `v` for select, `c` for change.
+<p>For the &ldquo;operation&rdquo;: you have <code>d</code> for delete, <code>v</code> for select, <code>c</code> for change.</p>
 
-For the &quot;placement&quot;: you have `i` for inside, `a` for around.
+<p>For the &ldquo;placement&rdquo;: you have <code>i</code> for inside, <code>a</code> for around.</p>
 
-**Example:** if I have the text `myFunction(something)` and my cursor is inside the parentheses then I can do...
+<p><strong>Example:</strong> if I have the text <code>myFunction(something)</code> and my cursor is inside the parentheses then I can do&hellip;</p>
 
-- `ci(` to remove the text inside the parentheses and put me into `INSERT` mode so I can type new text 
-- `vi(` to select the text inside the parentheses, where I can then `y` to &quot;yank&quot; the text into my clipboard
-- `di(` to get `myFunction()` 
-- `da(` to get `myFunction`
+<ul>
+<li><code>ci(</code> to remove the text inside the parentheses and put me into <code>INSERT</code> mode so I can type new text</li>
+<li><code>vi(</code> to select the text inside the parentheses, where I can then <code>y</code> to &ldquo;yank&rdquo; the text into my clipboard</li>
+<li><code>di(</code> to get <code>myFunction()</code></li>
+<li><code>da(</code> to get <code>myFunction</code></li>
+</ul>
 
-Of course there's a lifetime of motions/movement/modal stuff you can learn but I'd definitely say the above is my &quot;bread and butter&quot; of things I use a lot (outside of features from plugins).
+<p>Of course there&rsquo;s a lifetime of motions/movement/modal stuff you can learn but I&rsquo;d definitely say the above is my &ldquo;bread and butter&rdquo; of things I use a lot (outside of features from plugins).</p>
 
-Good luck!
+<p>Good luck!</p>
 
-&gt; **EDIT:** the following Neovim plugins can help you https://github.com/jinh0/eyeliner.nvim + https://github.com/folke/which-key.nvim
-</code></pre>
+<blockquote>
+<p><strong>EDIT:</strong> the following Neovim plugins can help you <a href="https://github.com/jinh0/eyeliner.nvim" target="_blank">https://github.com/jinh0/eyeliner.nvim</a> + <a href="https://github.com/folke/which-key.nvim" target="_blank">https://github.com/folke/which-key.nvim</a></p>
+</blockquote>
 
 </div>
 </body>

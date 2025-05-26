@@ -12,13 +12,14 @@
 
 <h2 id="compiling-python-md">Compiling Python.md</h2>
 
-<pre><code class="language-markdown">&gt; DOCUMENTATION:
-&gt; https://devguide.python.org/setup/#macos-and-os-x
+<blockquote>
+<p>DOCUMENTATION:
+<a href="https://devguide.python.org/setup/#macos-and-os-x" target="_blank">https://devguide.python.org/setup/#macos-and-os-x</a></p>
+</blockquote>
 
-The `python3-setuptools` package provides the `easy_install3` command, which we can use to install `pip` (not sure why it's not included with Python beta as it normally is with standard releases?)
+<p>The <code>python3-setuptools</code> package provides the <code>easy_install3</code> command, which we can use to install <code>pip</code> (not sure why it&rsquo;s not included with Python beta as it normally is with standard releases?)</p>
 
-```bash
-apt-get update &amp;&amp; \
+<pre><code class="language-bash">apt-get update &amp;&amp; \
 apt-get install -y -q wget &amp;&amp; \
 apt-get install -y -q build-essential python3-setuptools &amp;&amp; \
 apt-get build-dep -y -q python3 &amp;&amp; \
@@ -100,11 +101,9 @@ ENV PYTHONPATH=&quot;${PYTHONPATH}:/usr/local/lib/python3.4/dist-packages&quot;
 <li><a href="https://www.iram.fr/IRAMFR/GILDAS/doc/html/gildas-python-html/node36.html" target="_blank">https://www.iram.fr/IRAMFR/GILDAS/doc/html/gildas-python-html/node36.html</a></li>
 </ul>
 
-<pre><code>
-## newer (but still flawed on macOS).bash
+<h2 id="newer-but-still-flawed-on-macos-bash">newer (but still flawed on macOS).bash</h2>
 
-```shell
-# DOCUMENTATION:
+<pre><code class="language-shell"># DOCUMENTATION:
 # https://devguide.python.org/setup/#macos-and-os-x
 
 # GET FILES...

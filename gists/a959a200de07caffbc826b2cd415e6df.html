@@ -12,28 +12,30 @@
 
 <h2 id="vim-tips-md">Vim Tips.md</h2>
 
-<pre><code class="language-markdown">- `:windo set scrollbind` and `:windo set cursorbind` to make two windows scroll together.
-- `gf` takes you to the file referenced (e.g. `[Makefile](../Makefile)`) but if you add a `:` followed by a line number to the link (e.g. `[Makefile](../Makefile:123)`) then pressing `gF` will take you to the specific line number as well.
-- `:-d` and `:+d` delete the line above or below the current line, unlike `dj` or `dk` which would also delete the current line.
-- `:copy` allows you to copy a line to another location (e.g. `:10 copy 20` copies the range, in this case line 10, to _below_ line 20), where I had always `:10y` then moved to the destination).
-- `:&lt;range&gt;put &lt;register&gt;` allows you to paste a register to a specific line.
-- `:packadd cfilter` enables filtering results from quickfix window (e.g. `:Cfilter /pattern/`, also has negated version `Cfilter!`).
-- To 'append' to multiple lines: `Ctrl+v` and select multiple lines, then `$`, then `Shift+a` and start typing (this is the opposite of 'insert' with `Ctrl+v` and `Shift+i`).
-- To autoformat text to a specific width (e.g. `set textwidth=80`), first select the text and then execute `gq`. This is super useful for when you have a code comment that you need to tweak/edit, and then it messes up the line breaks. You can just select the entire text and `gq` to have it fixed!
-- `:%!jq` will format the entire file
-- modelines (https://vimhelp.org/options.txt.html#modeline)
-  - Markdown: `&lt;!-- vim: set colorcolumn=57,80: --&gt;`
-  - Go: `// vim: foldmethod=indent foldlevel=0`
+<ul>
+<li><code>:windo set scrollbind</code> and <code>:windo set cursorbind</code> to make two windows scroll together.</li>
+<li><code>gf</code> takes you to the file referenced (e.g. <code>[Makefile](../Makefile)</code>) but if you add a <code>:</code> followed by a line number to the link (e.g. <code>[Makefile](../Makefile:123)</code>) then pressing <code>gF</code> will take you to the specific line number as well.</li>
+<li><code>:-d</code> and <code>:+d</code> delete the line above or below the current line, unlike <code>dj</code> or <code>dk</code> which would also delete the current line.</li>
+<li><code>:copy</code> allows you to copy a line to another location (e.g. <code>:10 copy 20</code> copies the range, in this case line 10, to <em>below</em> line 20), where I had always <code>:10y</code> then moved to the destination).</li>
+<li><code>:&lt;range&gt;put &lt;register&gt;</code> allows you to paste a register to a specific line.</li>
+<li><code>:packadd cfilter</code> enables filtering results from quickfix window (e.g. <code>:Cfilter /pattern/</code>, also has negated version <code>Cfilter!</code>).</li>
+<li>To &lsquo;append&rsquo; to multiple lines: <code>Ctrl+v</code> and select multiple lines, then <code>$</code>, then <code>Shift+a</code> and start typing (this is the opposite of &lsquo;insert&rsquo; with <code>Ctrl+v</code> and <code>Shift+i</code>).</li>
+<li>To autoformat text to a specific width (e.g. <code>set textwidth=80</code>), first select the text and then execute <code>gq</code>. This is super useful for when you have a code comment that you need to tweak/edit, and then it messes up the line breaks. You can just select the entire text and <code>gq</code> to have it fixed!</li>
+<li><code>:%!jq</code> will format the entire file</li>
+<li>modelines (<a href="https://vimhelp.org/options.txt.html#modeline" target="_blank">https://vimhelp.org/options.txt.html#modeline</a>)
 
-```shell
-vim -E -s config.txt &lt;&lt;-EOF
+<ul>
+<li>Markdown: <code>&lt;!-- vim: set colorcolumn=57,80: --&gt;</code></li>
+<li>Go: <code>// vim: foldmethod=indent foldlevel=0</code></li>
+</ul></li>
+</ul>
+
+<pre><code class="language-shell">vim -E -s config.txt &lt;&lt;-EOF
 :%s/foo/bar/
 :update
 :quit
 EOF
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

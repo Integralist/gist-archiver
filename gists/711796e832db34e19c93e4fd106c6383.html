@@ -12,14 +12,15 @@
 
 <h2 id="crdt-conflict-free-replicated-data-type-md">CRDT. conflict-free replicated data type.md</h2>
 
-<pre><code class="language-markdown">Operations on CRDTs need to adhere to the following rules:
+<p>Operations on CRDTs need to adhere to the following rules:</p>
 
-- Associativity `(a+(b+c)=(a+b)+c)`, so that grouping doesn't matter.
-- Commutativity `(a+b=b+a)`, so that order of application doesn't matter.
-- Idempotence `(a+a=a)`, so that duplication doesn't matter.
+<ul>
+<li>Associativity <code>(a+(b+c)=(a+b)+c)</code>, so that grouping doesn&rsquo;t matter.</li>
+<li>Commutativity <code>(a+b=b+a)</code>, so that order of application doesn&rsquo;t matter.</li>
+<li>Idempotence <code>(a+a=a)</code>, so that duplication doesn&rsquo;t matter.</li>
+</ul>
 
-Data types as well as operations have to be specifically crafted to meet these rules. CRDTs have known implementations for counters, registers, sets, graphs, and others.  
-</code></pre>
+<p>Data types as well as operations have to be specifically crafted to meet these rules. CRDTs have known implementations for counters, registers, sets, graphs, and others.</p>
 
 </div>
 </body>

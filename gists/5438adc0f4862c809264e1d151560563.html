@@ -12,14 +12,15 @@
 
 <h2 id="yaml-merge-key-and-reference-pointer-md">yaml merge key and reference pointer.md</h2>
 
-<pre><code class="language-markdown">&gt; NOTE: use https://onlineyamltools.com/convert-yaml-to-json for testing conversions.
+<blockquote>
+<p>NOTE: use <a href="https://onlineyamltools.com/convert-yaml-to-json" target="_blank">https://onlineyamltools.com/convert-yaml-to-json</a> for testing conversions.</p>
+</blockquote>
 
-## Lists
+<h2 id="lists">Lists</h2>
 
-You can create a reference pointer using `&amp;` and dereference the pointer using `*` as shown here:
+<p>You can create a reference pointer using <code>&amp;</code> and dereference the pointer using <code>*</code> as shown here:</p>
 
-```yaml
-foo:
+<pre><code class="language-yaml">foo:
  - &amp;ref |-
   x
  - y
@@ -142,8 +143,6 @@ beep: boop
 nested:
   &lt;&lt; : *ref   # but 'using' the ref in this way IS invalid
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

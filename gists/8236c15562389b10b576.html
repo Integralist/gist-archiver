@@ -12,10 +12,9 @@
 
 <h2 id="1-sumo-filter-explanation-md">1. Sumo Filter Explanation.md</h2>
 
-<pre><code class="language-markdown">Take log message and parse as JSON (create new column `jsonobj`):
+<p>Take log message and parse as JSON (create new column <code>jsonobj</code>):</p>
 
-```bash
-parse &quot;*&quot; as jsonobj
+<pre><code class="language-bash">parse &quot;*&quot; as jsonobj
 </code></pre>
 
 <p>Take new <code>jsonobj</code> column and create a new column for the specified key in the JSON:</p>
@@ -53,11 +52,9 @@ parse &quot;*&quot; as jsonobj
 <pre><code class="language-bash">(_collector=Mozart) environment = &quot;live&quot; component = &quot;mozart-composition&quot;
 </code></pre>
 
-<pre><code>
-## Sumo Logic.xq
+<h2 id="sumo-logic-xq">Sumo Logic.xq</h2>
 
-```xquery
-_collector=Newsbeat AND read_feed | where environment = &quot;live&quot; | where component = &quot;newsbeat-most-popular-renderer&quot;
+<pre><code class="language-xquery">_collector=Newsbeat AND read_feed | where environment = &quot;live&quot; | where component = &quot;newsbeat-most-popular-renderer&quot;
 
 _collector=Mozart | where component=&quot;mozart-composition&quot; | where environment=&quot;int&quot; | parse &quot;*&quot; as jsonobj | json field=jsonobj &quot;event&quot; | where event=&quot;ComponentLoaded&quot;
 

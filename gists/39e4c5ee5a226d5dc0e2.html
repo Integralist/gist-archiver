@@ -12,161 +12,165 @@
 
 <h2 id="1-designing-systems-and-applications-md">1. Designing Systems and Applications.md</h2>
 
-<pre><code class="language-markdown"># Designing Systems and Applications
+<h1 id="designing-systems-and-applications-1">Designing Systems and Applications</h1>
 
-This is a short document of tips and notes I've accumulated while learning more about designing distributed systems and building concurrent applications. It is by no means definitive and merely scratches the surface of what is needed to be considered when designing an architecture expected to handle large scale traffic.
+<p>This is a short document of tips and notes I&rsquo;ve accumulated while learning more about designing distributed systems and building concurrent applications. It is by no means definitive and merely scratches the surface of what is needed to be considered when designing an architecture expected to handle large scale traffic.</p>
 
-## Distributed Systems
+<h2 id="distributed-systems">Distributed Systems</h2>
 
-### Scale *out*, not *up*
+<h3 id="scale-out-not-up">Scale <em>out</em>, not <em>up</em></h3>
 
-There reaches a point in your application's design where by merely throwing more hardware at the problem (i.e. &quot;scaling up&quot;) will fail to resolve the scalability issues you're encountering. 
+<p>There reaches a point in your application&rsquo;s design where by merely throwing more hardware at the problem (i.e. &ldquo;scaling up&rdquo;) will fail to resolve the scalability issues you&rsquo;re encountering.</p>
 
-You should aim for an system designed to scale horizontally (i.e. &quot;scaling out&quot;) as it allows for easier growth and improvement.
+<p>You should aim for an system designed to scale horizontally (i.e. &ldquo;scaling out&rdquo;) as it allows for easier growth and improvement.</p>
 
-### Build smaller applications
+<h3 id="build-smaller-applications">Build smaller applications</h3>
 
-If you currently have a monolithic application, then you should consider drawing a top level diagram of your current architecture. Find logical areas of the application which can be split into separate services that communicate with each other. This allows each individual service to scale separately depending on its load.
+<p>If you currently have a monolithic application, then you should consider drawing a top level diagram of your current architecture. Find logical areas of the application which can be split into separate services that communicate with each other. This allows each individual service to scale separately depending on its load.</p>
 
-&gt; Note: mechanisms for communication could be pubsub (e.g. AWS SNS)  
-or via a push/pull design using queues (e.g. AWS SQS)  
-and use temporary storage to pass between services (e.g. AWS S3)
+<blockquote>
+<p>Note: mechanisms for communication could be pubsub (e.g. AWS SNS)<br />
+or via a push/pull design using queues (e.g. AWS SQS)<br />
+and use temporary storage to pass between services (e.g. AWS S3)</p>
+</blockquote>
 
-The discussion of designing modular systems and applications (which are connected via different mechanisms to potentially avoid single points of failure) will always cause some contention between the arguments of &quot;pure scalability&quot; &amp; &quot;economical financial stability&quot;; e.g. smaller set of servers sharing multiple services is cheaper than a individual servers for each service. The outcome will depend on the size of the organisation and whether it's financially viable to support an extremely granular architecture.
+<p>The discussion of designing modular systems and applications (which are connected via different mechanisms to potentially avoid single points of failure) will always cause some contention between the arguments of &ldquo;pure scalability&rdquo; &amp; &ldquo;economical financial stability&rdquo;; e.g. smaller set of servers sharing multiple services is cheaper than a individual servers for each service. The outcome will depend on the size of the organisation and whether it&rsquo;s financially viable to support an extremely granular architecture.</p>
 
-### Measure, Monitor, Log
+<h3 id="measure-monitor-log">Measure, Monitor, Log</h3>
 
-Implement solutions to application logging and server monitoring as soon as possible. Aim to *prevent* disasters rather than just automating recovery from them. Identify unhealthy services before they become an unrecoverable problem.
+<p>Implement solutions to application logging and server monitoring as soon as possible. Aim to <em>prevent</em> disasters rather than just automating recovery from them. Identify unhealthy services before they become an unrecoverable problem.</p>
 
-Also, by measuring and monitoring appropriately, we can ascertain whether our instances are too small/large and can be scaled up/down accordingly.
+<p>Also, by measuring and monitoring appropriately, we can ascertain whether our instances are too small/large and can be scaled up/down accordingly.</p>
 
-### Utilization
+<h3 id="utilization">Utilization</h3>
 
-Don't just think about automatically scaling; you should definitely scale where appropriate, but also think about optimizing utilization. For example, look at your application/service design and look at ways to modify them so they can handle more traffic, more efficiently. Doing this will help to reduce costs by not needing to scale as much as we'll be better utilizing the resources.
+<p>Don&rsquo;t just think about automatically scaling; you should definitely scale where appropriate, but also think about optimizing utilization. For example, look at your application/service design and look at ways to modify them so they can handle more traffic, more efficiently. Doing this will help to reduce costs by not needing to scale as much as we&rsquo;ll be better utilizing the resources.</p>
 
-### Single Points of Failure (SPOF)
+<h3 id="single-points-of-failure-spof">Single Points of Failure (SPOF)</h3>
 
-You should look to identify weak spots (e.g. &quot;single points of failure&quot;) in your architecture. These are places where by if any part of your application or service goes down, then the whole application becomes useless (see next section on failing gracefully). See the [architecture diagrams at the bottom of this page](https://gist.github.com/Integralist/39e4c5ee5a226d5dc0e2#file-designing-systems-md) which demonstrate a simple application which had a SPOF but re-architectured the applications and services so they could better handle potential failures and keep users unaware there was a problem with the system.
+<p>You should look to identify weak spots (e.g. &ldquo;single points of failure&rdquo;) in your architecture. These are places where by if any part of your application or service goes down, then the whole application becomes useless (see next section on failing gracefully). See the <a href="https://gist.github.com/Integralist/39e4c5ee5a226d5dc0e2#file-designing-systems-md" target="_blank">architecture diagrams at the bottom of this page</a> which demonstrate a simple application which had a SPOF but re-architectured the applications and services so they could better handle potential failures and keep users unaware there was a problem with the system.</p>
 
-### Fail Gracefully
+<h3 id="fail-gracefully">Fail Gracefully</h3>
 
-Certain components can't scale easily (such as databases &amp; nosql document stores). In an ideal world we would build the application to fail gracefully. For example, we could monitor/watch for &quot;warning&quot; thresholds; and when critical mass is reached and the relevant alarm is fired (let's say an AWS SNS notification is sent) our applications (if subscribed to the SNS topic) would be able to take action to store off important data in an external service (in case of imminent failure) or worst case temporarily disabling certain features so the user doesn't lose important data.
+<p>Certain components can&rsquo;t scale easily (such as databases &amp; nosql document stores). In an ideal world we would build the application to fail gracefully. For example, we could monitor/watch for &ldquo;warning&rdquo; thresholds; and when critical mass is reached and the relevant alarm is fired (let&rsquo;s say an AWS SNS notification is sent) our applications (if subscribed to the SNS topic) would be able to take action to store off important data in an external service (in case of imminent failure) or worst case temporarily disabling certain features so the user doesn&rsquo;t lose important data.</p>
 
-How we fail should be determined by us and our application and will be dependent on the application being built (i.e. you couldn't fail in the exact same way for every application type as the requirements would be vastly different).
+<p>How we fail should be determined by us and our application and will be dependent on the application being built (i.e. you couldn&rsquo;t fail in the exact same way for every application type as the requirements would be vastly different).</p>
 
-### Caching
+<h3 id="caching">Caching</h3>
 
-Analyse your architecture not only for SPOF but also to see where we can implement caching layers to reduce traffic load.
+<p>Analyse your architecture not only for SPOF but also to see where we can implement caching layers to reduce traffic load.</p>
 
-## Concurrency
+<h2 id="concurrency">Concurrency</h2>
 
-Concurrency introduces many different types of problems. As an example, think of the classic &quot;Banker's Dilemma&quot; where by you have two customers: John and Bob who both have access to a joint account, which currently holds £10. If both John and Bob trigger an action at the same time (let's say John takes out £10 and Bob takes out £5) then what should be the outcome? If John's action was handled first then the account balance should be 0, but if Bob's action was triggered at the same time but didn't finish as quickly then we have an issue where he'll be attempting to take £5 from a 0 balance account.
+<p>Concurrency introduces many different types of problems. As an example, think of the classic &ldquo;Banker&rsquo;s Dilemma&rdquo; where by you have two customers: John and Bob who both have access to a joint account, which currently holds £10. If both John and Bob trigger an action at the same time (let&rsquo;s say John takes out £10 and Bob takes out £5) then what should be the outcome? If John&rsquo;s action was handled first then the account balance should be 0, but if Bob&rsquo;s action was triggered at the same time but didn&rsquo;t finish as quickly then we have an issue where he&rsquo;ll be attempting to take £5 from a 0 balance account.</p>
 
-### Thread Safety
+<h3 id="thread-safety">Thread Safety</h3>
 
-Although a much larger discussion by itself, the principle of data being &quot;thread safe&quot; is that it is accessible via multiple threads at the same time and will not cause conflict. Usually have globally shared state can help, or better yet, writing applications that work with the idea of immutable data (where by a copy of the modified data is used and the original is left untouched - see languages such as Haskell and Clojure).
+<p>Although a much larger discussion by itself, the principle of data being &ldquo;thread safe&rdquo; is that it is accessible via multiple threads at the same time and will not cause conflict. Usually have globally shared state can help, or better yet, writing applications that work with the idea of immutable data (where by a copy of the modified data is used and the original is left untouched - see languages such as Haskell and Clojure).</p>
 
-&gt; Note: for more information on thread safety, have a read of  
-http://en.wikipedia.org/wiki/Thread_safety
+<blockquote>
+<p>Note: for more information on thread safety, have a read of<br />
+<a href="http://en.wikipedia.org/wiki/Thread_safety" target="_blank">http://en.wikipedia.org/wiki/Thread_safety</a></p>
+</blockquote>
 
-### Eventual Consistency
+<h3 id="eventual-consistency">Eventual Consistency</h3>
 
-The principle of &quot;eventual consistency&quot; is implemented in distributed systems as a way to ensure that a data change will &quot;eventually&quot; be applied to all available nodes (i.e. it wont be immediate; as that is the tradeoff with the principle of &quot;high availability&quot;).
+<p>The principle of &ldquo;eventual consistency&rdquo; is implemented in distributed systems as a way to ensure that a data change will &ldquo;eventually&rdquo; be applied to all available nodes (i.e. it wont be immediate; as that is the tradeoff with the principle of &ldquo;high availability&rdquo;).</p>
 
-If you want a change to be made immediately across multiple nodes then those nodes would need to be locked down long enough for the change to be replicated throughout. This could be a lengthy process and so the eventual consistency model was designed to keep availability high and allow for systems to keep running until the change had been safely applied throughout all available nodes.
+<p>If you want a change to be made immediately across multiple nodes then those nodes would need to be locked down long enough for the change to be replicated throughout. This could be a lengthy process and so the eventual consistency model was designed to keep availability high and allow for systems to keep running until the change had been safely applied throughout all available nodes.</p>
 
-### CPU vs I/O
+<h3 id="cpu-vs-i-o">CPU vs I/O</h3>
 
-A CPU/Processor can contain one or more cores. For example, a quad core processor that runs at speed of 3GHz will have 4 cores running at that speed.
+<p>A CPU/Processor can contain one or more cores. For example, a quad core processor that runs at speed of 3GHz will have 4 cores running at that speed.</p>
 
-I/O, whether a file system action or Network - e.g. HTTP - action, can block and so if the application is designed to work concurrently (e.g. there are other threads the CPU can jump to in the mean time) then the current thread will be left to finish and another thread will be picked up instead (this is how concurrency works - the CPU interleaves between threads - this should also clarify how concurrency *is not* the same thing as paralleism).
+<p>I/O, whether a file system action or Network - e.g. HTTP - action, can block and so if the application is designed to work concurrently (e.g. there are other threads the CPU can jump to in the mean time) then the current thread will be left to finish and another thread will be picked up instead (this is how concurrency works - the CPU interleaves between threads - this should also clarify how concurrency <em>is not</em> the same thing as paralleism).</p>
 
-For computational intensive operations you'll want the number of threads to be equal to the number of cores available.
+<p>For computational intensive operations you&rsquo;ll want the number of threads to be equal to the number of cores available.</p>
 
-For I/O intensive operations you'll want more threads than available cores. This is because (as explained above) the CPU/Processor will &quot;context switch&quot; to another thread when the current thread is blocked (hence it is better to have more threads than cores for I/O).
+<p>For I/O intensive operations you&rsquo;ll want more threads than available cores. This is because (as explained above) the CPU/Processor will &ldquo;context switch&rdquo; to another thread when the current thread is blocked (hence it is better to have more threads than cores for I/O).</p>
 
-### Calculating The Number of Threads
+<h3 id="calculating-the-number-of-threads">Calculating The Number of Threads</h3>
 
-To calculate how many more threads than cores you'll need for an intensive set of I/O operations, use the following algorithm: 
+<p>To calculate how many more threads than cores you&rsquo;ll need for an intensive set of I/O operations, use the following algorithm:</p>
 
-Number of Threads = Number of Available Cores / (1 - Blocking Coefficient)
+<p>Number of Threads = Number of Available Cores / (1 - Blocking Coefficient)</p>
 
-&gt; Note: the blocking coefficient (coefficient being a fancy word that means: a value used as a multiplier) is different depending on the operation. For a computational operation it is 0, where as a fully blocking operation it is 1.
+<blockquote>
+<p>Note: the blocking coefficient (coefficient being a fancy word that means: a value used as a multiplier) is different depending on the operation. For a computational operation it is 0, where as a fully blocking operation it is 1.</p>
+</blockquote>
 
-An example of a blocking coefficient would be: `0.9` - which means a task blocks 90% (`0.9`) of the time &amp; works only 10% (`0.1`) of the time. Meaning, if you has 2 cores then you'd want 20 threads.
+<p>An example of a blocking coefficient would be: <code>0.9</code> - which means a task blocks 90% (<code>0.9</code>) of the time &amp; works only 10% (<code>0.1</code>) of the time. Meaning, if you has 2 cores then you&rsquo;d want 20 threads.</p>
 
-`2 / (1 - 0.9) = 20`
+<p><code>2 / (1 - 0.9) = 20</code></p>
 
-### Thread Pools
+<h3 id="thread-pools">Thread Pools</h3>
 
-A thread pool is a collection of pre-determined threads that automatically handles the management of tasks from a queue. Thread pools can sometimes be more efficient (and practical) than manually maintaining individual threads via your own application. Languages such as Java (and indirectly JRuby) has built-in support for thread pools.
+<p>A thread pool is a collection of pre-determined threads that automatically handles the management of tasks from a queue. Thread pools can sometimes be more efficient (and practical) than manually maintaining individual threads via your own application. Languages such as Java (and indirectly JRuby) has built-in support for thread pools.</p>
 
-![thread pool](https://cloud.githubusercontent.com/assets/180050/4523399/f7b9065c-4d36-11e4-98ed-65eb7b80313e.png)
+<p><img src="https://cloud.githubusercontent.com/assets/180050/4523399/f7b9065c-4d36-11e4-98ed-65eb7b80313e.png" alt="thread pool" /></p>
 
-### Even Workload Distribution
+<h3 id="even-workload-distribution">Even Workload Distribution</h3>
 
-If you have two cores and a very large queue of messages to process, then your initial thought would maybe be to split the queue (i.e. the tasks) into two. This would mean you could have two threads running (i.e. utilising both cores); the first thread processing the first queue data and the second thread handling the other half of the queue data.
+<p>If you have two cores and a very large queue of messages to process, then your initial thought would maybe be to split the queue (i.e. the tasks) into two. This would mean you could have two threads running (i.e. utilising both cores); the first thread processing the first queue data and the second thread handling the other half of the queue data.</p>
 
-The problem with this solution is that is doesn't necessarily guarantee even distribution of the tasks across your available cores. If our queue data consisted of a computational task such as calculating prime numbers then the first half of the queue would take a lot less time to process because the smaller prime numbers would take less time to calculate than the other queue (which if evenly split in two would mean the other queue would have the much larger prime numbers to calculate).
+<p>The problem with this solution is that is doesn&rsquo;t necessarily guarantee even distribution of the tasks across your available cores. If our queue data consisted of a computational task such as calculating prime numbers then the first half of the queue would take a lot less time to process because the smaller prime numbers would take less time to calculate than the other queue (which if evenly split in two would mean the other queue would have the much larger prime numbers to calculate).</p>
 
-This means one core will be sitting idle while the other core is still processing data.
+<p>This means one core will be sitting idle while the other core is still processing data.</p>
 
-What would be better is to have more *parts* than threads/cores. So if one &quot;part&quot; finishes more quickly than expected, then another part can be picked up. Simply diving our tasks into two parts means one core will likely be sitting idle for longer than the other core. But if we divide our tasks into more granular parts, then we can aim to utilise as much of each core as possible. 
+<p>What would be better is to have more <em>parts</em> than threads/cores. So if one &ldquo;part&rdquo; finishes more quickly than expected, then another part can be picked up. Simply diving our tasks into two parts means one core will likely be sitting idle for longer than the other core. But if we divide our tasks into more granular parts, then we can aim to utilise as much of each core as possible.</p>
 
-## AWS
+<h2 id="aws">AWS</h2>
 
-### Understanding AutoScaling
+<h3 id="understanding-autoscaling">Understanding AutoScaling</h3>
 
-ASG contains instances and so requires a Launch Configuration
+<p>ASG contains instances and so requires a Launch Configuration</p>
 
-Launch Configurations determine which instance is launched (AMI &amp; Instance Type)
+<p>Launch Configurations determine which instance is launched (AMI &amp; Instance Type)</p>
 
-Alarms are from CloudWatch and they determine when a scaling action (i.e. policy) should take place
+<p>Alarms are from CloudWatch and they determine when a scaling action (i.e. policy) should take place</p>
 
-Policies specify that instances should be launched or terminated
+<p>Policies specify that instances should be launched or terminated</p>
 
-Scale up/down amount should be a multiple of the number availability zones (so ELB can evenly distribute)
+<p>Scale up/down amount should be a multiple of the number availability zones (so ELB can evenly distribute)</p>
 
-Steps: create launch config (specify AMI &amp; instance type); create ASG (pass in launch config, availability zones, main/max instances, load balancers); create policies (to represent scaling actions); create alarms to trigger policies
+<p>Steps: create launch config (specify AMI &amp; instance type); create ASG (pass in launch config, availability zones, main/max instances, load balancers); create policies (to represent scaling actions); create alarms to trigger policies</p>
 
-### Calculating Costs
+<h3 id="calculating-costs">Calculating Costs</h3>
 
-Use the official [AWS Simple Monthly Calculator](http://calculator.s3.amazonaws.com/index.html) to estimate costs of all services used. This is to help communicate to the business that we're aware of cost concerns and are designing our applications to be as cost effective as possible.
+<p>Use the official <a href="http://calculator.s3.amazonaws.com/index.html" target="_blank">AWS Simple Monthly Calculator</a> to estimate costs of all services used. This is to help communicate to the business that we&rsquo;re aware of cost concerns and are designing our applications to be as cost effective as possible.</p>
 
-### Prevention *AND* Reaction
+<h3 id="prevention-and-reaction">Prevention <em>AND</em> Reaction</h3>
 
-As mentioned earlier, we don't want to just react to issues, but be prepared by proactively monitoring our services and utilizing resources such as CloudWatch alarms as a way to indicate preventative thresholds be crossed.  
+<p>As mentioned earlier, we don&rsquo;t want to just react to issues, but be prepared by proactively monitoring our services and utilizing resources such as CloudWatch alarms as a way to indicate preventative thresholds be crossed.</p>
 
-We should be looking for sustained high usage and not solely worrying about specific spikes/peaks in traffic. High usage could be an indicator of a potential optimisation hot spot.
+<p>We should be looking for sustained high usage and not solely worrying about specific spikes/peaks in traffic. High usage could be an indicator of a potential optimisation hot spot.</p>
 
-We should also be considerate of high profile events in our industry. With this knowledge we could indicate a potential to pre-warm our servers rather than just reacting to sudden high traffic loads. 
+<p>We should also be considerate of high profile events in our industry. With this knowledge we could indicate a potential to pre-warm our servers rather than just reacting to sudden high traffic loads.</p>
 
-### Analyse Groups
+<h3 id="analyse-groups">Analyse Groups</h3>
 
-We should try to utilise CloudWatch within the AWS console to analyse multiple servers at once. In doing this we can then monitor AutoScaling groups to ensure the group, as a whole, is healthy - rather than simply analysing smaller instances and not getting a view of the bigger picture.
+<p>We should try to utilise CloudWatch within the AWS console to analyse multiple servers at once. In doing this we can then monitor AutoScaling groups to ensure the group, as a whole, is healthy - rather than simply analysing smaller instances and not getting a view of the bigger picture.</p>
 
-Depending on the system design and workflow of your application, the throughput on a queue should give us a correlating throughput in subsequent queues. For example, you might have a queue that takes in messages for orders to be processed, then once processed the successful order details are sent to a subsequent queue which are processed and emailed to the relevant customers. The &quot;processing&quot; queue &amp; &quot;successful orders&quot; queue should have similar throughput - giving us a useful indication of a healthy overall system (i.e. we're not just processing orders and failing to process the emails to customers). 
-</code></pre>
+<p>Depending on the system design and workflow of your application, the throughput on a queue should give us a correlating throughput in subsequent queues. For example, you might have a queue that takes in messages for orders to be processed, then once processed the successful order details are sent to a subsequent queue which are processed and emailed to the relevant customers. The &ldquo;processing&rdquo; queue &amp; &ldquo;successful orders&rdquo; queue should have similar throughput - giving us a useful indication of a healthy overall system (i.e. we&rsquo;re not just processing orders and failing to process the emails to customers).</p>
 
 <h2 id="designing-systems-md">Designing Systems.md</h2>
 
-<pre><code class="language-markdown">Images taken from http://www.slideshare.net/IanMassingham/aws-devops-event-aws-services-enabling-devops-automated-testing-monitoring-and-continuous-deployment
+<p>Images taken from <a href="http://www.slideshare.net/IanMassingham/aws-devops-event-aws-services-enabling-devops-automated-testing-monitoring-and-continuous-deployment" target="_blank">http://www.slideshare.net/IanMassingham/aws-devops-event-aws-services-enabling-devops-automated-testing-monitoring-and-continuous-deployment</a></p>
 
-## Bad Application Design
+<h2 id="bad-application-design">Bad Application Design</h2>
 
-![1](https://cloud.githubusercontent.com/assets/180050/4507524/4db2f3e6-4b0d-11e4-9f73-9d446e23a838.jpg)
-![2](https://cloud.githubusercontent.com/assets/180050/4507527/4db9cc52-4b0d-11e4-9e0d-6af792cd0b1c.jpg)
+<p><img src="https://cloud.githubusercontent.com/assets/180050/4507524/4db2f3e6-4b0d-11e4-9f73-9d446e23a838.jpg" alt="1" />
+<img src="https://cloud.githubusercontent.com/assets/180050/4507527/4db9cc52-4b0d-11e4-9e0d-6af792cd0b1c.jpg" alt="2" /></p>
 
-## Good Application Design
+<h2 id="good-application-design">Good Application Design</h2>
 
-![3](https://cloud.githubusercontent.com/assets/180050/4507529/4dc06d50-4b0d-11e4-8b94-181b147d242c.jpg)
-![4](https://cloud.githubusercontent.com/assets/180050/4507528/4dbdf11a-4b0d-11e4-8f0a-a01f057cad3e.jpg)
-![5](https://cloud.githubusercontent.com/assets/180050/4507525/4db828de-4b0d-11e4-8844-c0dbc475495c.jpg)
-![6](https://cloud.githubusercontent.com/assets/180050/4507526/4db8b6e6-4b0d-11e4-85c6-1633e9e065ff.jpg)
-![7](https://cloud.githubusercontent.com/assets/180050/4507530/4dc33f6c-4b0d-11e4-89ed-3a2edf53bf41.jpg)
-![8](https://cloud.githubusercontent.com/assets/180050/4507531/4dca75ac-4b0d-11e4-8b45-3fb232fa909b.jpg)
-![9](https://cloud.githubusercontent.com/assets/180050/4507532/4dccd464-4b0d-11e4-9602-827647debd7a.jpg)
-</code></pre>
+<p><img src="https://cloud.githubusercontent.com/assets/180050/4507529/4dc06d50-4b0d-11e4-8b94-181b147d242c.jpg" alt="3" />
+<img src="https://cloud.githubusercontent.com/assets/180050/4507528/4dbdf11a-4b0d-11e4-8f0a-a01f057cad3e.jpg" alt="4" />
+<img src="https://cloud.githubusercontent.com/assets/180050/4507525/4db828de-4b0d-11e4-8844-c0dbc475495c.jpg" alt="5" />
+<img src="https://cloud.githubusercontent.com/assets/180050/4507526/4db8b6e6-4b0d-11e4-85c6-1633e9e065ff.jpg" alt="6" />
+<img src="https://cloud.githubusercontent.com/assets/180050/4507530/4dc33f6c-4b0d-11e4-89ed-3a2edf53bf41.jpg" alt="7" />
+<img src="https://cloud.githubusercontent.com/assets/180050/4507531/4dca75ac-4b0d-11e4-8b45-3fb232fa909b.jpg" alt="8" />
+<img src="https://cloud.githubusercontent.com/assets/180050/4507532/4dccd464-4b0d-11e4-9602-827647debd7a.jpg" alt="9" /></p>
 
 </div>
 </body>

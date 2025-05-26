@@ -2,7 +2,6 @@
 
 ## 1. [CURRENT] Brew switch.md
 
-```markdown
 If you wish to switch your `python` command to use a different Python interpreter (and it's a Python version you previously had installed using Homebrew):
 
 ```bash
@@ -60,11 +59,9 @@ Now we know the commit hash for the Python version `3.7.5` (i.e. `2efdfe5519`) w
 brew unlink python # ONLY if you have installed (with brew) another version of python 3
 brew install --ignore-dependencies https://raw.githubusercontent.com/Homebrew/homebrew-core/2efdfe5519/Formula/python.rb
 ```
-```
 
 ## 2. [OLD] Brew switch.md
 
-```markdown
 - `brew versions {package}`
 - `brew switch {package} {version}`
 
@@ -74,5 +71,4 @@ OR
 - `brew versions {package}`
 - `git checkout {commit} Library/Formula/{package}.rb`
 - `brew install {package}`
-```
 

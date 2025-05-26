@@ -12,48 +12,43 @@
 
 <h2 id="github-collapsible-drop-down-menus-md">GitHub Collapsible Drop Down Menus.md</h2>
 
-<pre><code class="language-markdown">## collapsible markdown?
+<h2 id="collapsible-markdown">collapsible markdown?</h2>
 
-Short version:
+<p>Short version:</p>
 
+<pre><code>&lt;details&gt;&lt;summary&gt;...&lt;/summary&gt;
+&lt;p&gt;
+&lt;!-- following line break is intentional otherwise the code block wont render + don't forget to use triple backticks! --&gt;
+
+``bash
+# 
+``
+
+&lt;/p&gt;
+&lt;/details&gt;
 </code></pre>
 
-<p><details><summary>&hellip;</summary>
-<p>
-<!-- following line break is intentional otherwise the code block wont render + don't forget to use triple backticks! --></p>
+<p>Long version:</p>
 
-<p>&ldquo;bash</p>
+<pre><code>&lt;details&gt;&lt;summary&gt;CLICK ME&lt;/summary&gt;
+&lt;p&gt;
 
-<p>&rdquo;</p>
+The line break after the paragraph is intentional.
+Without it the rendering of the below code block fails.
 
-<p></p>
-</details></p>
+#### yes, even hidden code blocks!
 
-<pre><code>
-Long version:
+Don't forget to use triple backticks, I've used two for the purposes of rendering this code within a Markdown formatted gist...
 
-</code></pre>
-
-<p><details><summary>CLICK ME</summary>
-<p></p>
-
-<p>The line break after the paragraph is intentional.
-Without it the rendering of the below code block fails.</p>
-
-<h4 id="yes-even-hidden-code-blocks">yes, even hidden code blocks!</h4>
-
-<p>Don&rsquo;t forget to use triple backticks, I&rsquo;ve used two for the purposes of rendering this code within a Markdown formatted gist&hellip;</p>
-
-<p><code>python
+``python
 print(&quot;hello world!&quot;)
-</code></p>
+``
 
-<p>&hellip;only using two for sake of displaying nested code block</p>
+...only using two for sake of displaying nested code block
 
-<p></p>
-</details></p>
-
-<pre><code></code></pre>
+&lt;/p&gt;
+&lt;/details&gt;
+</code></pre>
 
 </div>
 </body>

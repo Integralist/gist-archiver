@@ -12,12 +12,11 @@
 
 <h2 id="updating-a-pointer-field-value-md">updating a pointer field value.md</h2>
 
-<pre><code class="language-markdown">I have a struct with a field that’s a pointer, and I want to update the value.
+<p>I have a struct with a field that’s a pointer, and I want to update the value.</p>
 
-The following code does that (notice the memory address for the field changes, which is what I would expect once I change the value)...
+<p>The following code does that (notice the memory address for the field changes, which is what I would expect once I change the value)&hellip;</p>
 
-```go
-package main
+<pre><code class="language-go">package main
 
 import &quot;fmt&quot;
 
@@ -67,8 +66,7 @@ func main() {
 }
 </code></pre>
 
-<p>So the latter could be considered better because it doesn’t cause another allocation of memory.
-&ldquo;`</p>
+<p>So the latter could be considered better because it doesn’t cause another allocation of memory.</p>
 
 </div>
 </body>

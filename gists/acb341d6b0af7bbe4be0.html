@@ -12,20 +12,17 @@
 
 <h2 id="00-destructuring-md-1">00_destructuring.md</h2>
 
-<pre><code class="language-markdown">Clojure Destructuring Tutorial and Cheat Sheet
-==============================================
+<h1 id="clojure-destructuring-tutorial-and-cheat-sheet">Clojure Destructuring Tutorial and Cheat Sheet</h1>
 
-([Related blog post](http://john2x.com/blog/clojure-destructuring))
+<p>(<a href="http://john2x.com/blog/clojure-destructuring" target="_blank">Related blog post</a>)</p>
 
-Simply put, destructuring in Clojure is a way extract values from a datastructure and bind them to symbols, without having to explicitly traverse the datstructure. It allows for elegant and concise Clojure code.
+<p>Simply put, destructuring in Clojure is a way extract values from a datastructure and bind them to symbols, without having to explicitly traverse the datstructure. It allows for elegant and concise Clojure code.</p>
 
-Vectors
--------
+<h2 id="vectors">Vectors</h2>
 
-**Syntax:** `[symbol another-symbol] [&quot;value&quot; &quot;another-value&quot;]`
+<p><strong>Syntax:</strong> <code>[symbol another-symbol] [&quot;value&quot; &quot;another-value&quot;]</code></p>
 
-```clojure
-(def my-vector [:a :b :c :d])
+<pre><code class="language-clojure">(def my-vector [:a :b :c :d])
 (def my-nested-vector [:a :b :c :d [:x :y :z]])
 
 (let [[a b c d] my-vector]
@@ -209,29 +206,22 @@ Vectors
 
 <p><strong>TODO</strong></p>
 
-<pre><code>
-## 01_compojure.md
+<h2 id="01-compojure-md">01_compojure.md</h2>
 
-```markdown
-Compojure Destructuring
-=======================
+<h1 id="compojure-destructuring">Compojure Destructuring</h1>
 
-[Official docs][compojure]
+<p><a href="https://github.com/weavejester/compojure/wiki/Destructuring-Syntax" target="_blank">Official docs</a></p>
 
-The basic syntax of a Compojure route is as follows:
+<p>The basic syntax of a Compojure route is as follows:</p>
 
+<pre><code>(REQUEST-METHOD &quot;/path&quot; request-data (handler-fn request-data))
 </code></pre>
 
-<p>(REQUEST-METHOD &ldquo;/path&rdquo; request-data (handler-fn request-data))</p>
+<p>The simplest form is to pass the entire <a href="https://github.com/ring-clojure/ring/wiki/Concepts#requests" target="_blank">Ring request map</a> to your handler function.</p>
 
-<pre><code>
-The simplest form is to pass the entire [Ring request map][ring-request-map] to your handler function.
+<p>Here, the request map will be bound to the <code>request</code> var and when <code>my-handler</code> is called it is passed as an argument. You can then extract/manipulate whatever data you want in the <code>request</code> map:</p>
 
-Here, the request map will be bound to the `request` var and when `my-handler` is called it is passed as an argument. You can then extract/manipulate whatever data you want in the `request` map:
-
-
-```clojure
-(defn my-handler [request] ...)
+<pre><code class="language-clojure">(defn my-handler [request] ...)
 ;;                   ___________________
 ;;                  |                   V
 (GET &quot;/some/path&quot; request (my-handler request))
@@ -269,8 +259,6 @@ The <code>wrap-params</code> middleware parses the value of <code>:query-string<
 <p>From here, assume that all handlers are wrapped with <code>wrap-params</code>.</p>
 
 <p>(I got sleepy)</p>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

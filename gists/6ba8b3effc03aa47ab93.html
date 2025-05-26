@@ -12,19 +12,22 @@
 
 <h2 id="0-description-md">0. description.md</h2>
 
-<pre><code class="language-markdown">- `defprotocol`: defines an interface
-- `deftype`: create a bare-bones object which implements a protocol
-- `defrecord`: creates an immutable persistent map which implements a protocol
+<ul>
+<li><code>defprotocol</code>: defines an interface</li>
+<li><code>deftype</code>: create a bare-bones object which implements a protocol</li>
+<li><code>defrecord</code>: creates an immutable persistent map which implements a protocol</li>
+</ul>
 
-Typically you'll use `defrecord` (or even a basic `map`);  
-unless you need some specific Java inter-op,  
-where by you'll want to use `deftype` instead.
+<p>Typically you&rsquo;ll use <code>defrecord</code> (or even a basic <code>map</code>);<br />
+unless you need some specific Java inter-op,<br />
+where by you&rsquo;ll want to use <code>deftype</code> instead.</p>
 
-&gt; Note: `defprotocol` allows you to add new abstractions in a clean way
+<blockquote>
+<p>Note: <code>defprotocol</code> allows you to add new abstractions in a clean way
 Rather than (like OOP) having polymorphism on the class itself,
 polymorphic functions are created in namespaces.
-Meaning different namespaces can implement different functionality
-</code></pre>
+Meaning different namespaces can implement different functionality</p>
+</blockquote>
 
 <h2 id="1-class-clj">1. class.clj</h2>
 

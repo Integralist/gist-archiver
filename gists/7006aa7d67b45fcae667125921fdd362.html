@@ -12,24 +12,23 @@
 
 <h2 id="openssl-essentials-md">OpenSSL Essentials.md</h2>
 
-<pre><code class="language-markdown">https://www.digitalocean.com/community/tutorials/openssl-essentials-working-with-ssl-certificates-private-keys-and-csrs
+<p><a href="https://www.digitalocean.com/community/tutorials/openssl-essentials-working-with-ssl-certificates-private-keys-and-csrs" target="_blank">https://www.digitalocean.com/community/tutorials/openssl-essentials-working-with-ssl-certificates-private-keys-and-csrs</a></p>
 
-# OpenSSL Essentials: Working with SSL Certificates, Private Keys and CSRs
+<h1 id="openssl-essentials-working-with-ssl-certificates-private-keys-and-csrs">OpenSSL Essentials: Working with SSL Certificates, Private Keys and CSRs</h1>
 
-OpenSSL is a versatile command line tool that can be used for a large variety of tasks related to Public Key Infrastructure (PKI) and HTTPS (HTTP over TLS).
+<p>OpenSSL is a versatile command line tool that can be used for a large variety of tasks related to Public Key Infrastructure (PKI) and HTTPS (HTTP over TLS).</p>
 
-## Certificate Signing Requests (CSRs)
+<h2 id="certificate-signing-requests-csrs">Certificate Signing Requests (CSRs)</h2>
 
-If you would like to obtain an SSL certificate from a commercial certificate authority (CA), you must generate a certificate signing request (CSR). A CSR consists mainly of the public key of a key pair, and some additional information. Both of these components are inserted into the certificate when it is signed.
+<p>If you would like to obtain an SSL certificate from a commercial certificate authority (CA), you must generate a certificate signing request (CSR). A CSR consists mainly of the public key of a key pair, and some additional information. Both of these components are inserted into the certificate when it is signed.</p>
 
-Whenever you generate a CSR, you will be prompted to provide information regarding the certificate. This information is known as a Distinguished Name (DN). An important field in the DN is the Common Name (CN), which should be the exact Fully Qualified Domain Name (FQDN) of the host that you intend to use the certificate with. It is also possible to skip the interactive prompts when creating a CSR by passing the information via command line or from a file.
+<p>Whenever you generate a CSR, you will be prompted to provide information regarding the certificate. This information is known as a Distinguished Name (DN). An important field in the DN is the Common Name (CN), which should be the exact Fully Qualified Domain Name (FQDN) of the host that you intend to use the certificate with. It is also possible to skip the interactive prompts when creating a CSR by passing the information via command line or from a file.</p>
 
-The other items in a DN provide additional information about your business or organization. If you are purchasing an SSL certificate from a certificate authority, it is often required that these additional fields, such as “Organization”, accurately reflect your organization’s details.
+<p>The other items in a DN provide additional information about your business or organization. If you are purchasing an SSL certificate from a certificate authority, it is often required that these additional fields, such as “Organization”, accurately reflect your organization’s details.</p>
 
-If you want to non-interactively answer the CSR information prompt, you can do so by adding the -subj option to any OpenSSL commands that request CSR information. Here is an example of the option, using the same information displayed in the code block above:
+<p>If you want to non-interactively answer the CSR information prompt, you can do so by adding the -subj option to any OpenSSL commands that request CSR information. Here is an example of the option, using the same information displayed in the code block above:</p>
 
-```shell
--subj &quot;/C=US/ST=New York/L=Brooklyn/O=Example Brooklyn Company/CN=examplebrooklyn.com&quot;
+<pre><code class="language-shell">-subj &quot;/C=US/ST=New York/L=Brooklyn/O=Example Brooklyn Company/CN=examplebrooklyn.com&quot;
 </code></pre>
 
 <h2 id="generate-a-private-key-and-a-csr">Generate a Private Key and a CSR</h2>
@@ -302,8 +301,7 @@ openssl req -noout -modulus -in domain.csr | openssl md5
        -nodes -out domain.combined.crt
 </code></pre>
 
-<p>Note that if your PKCS12 file has multiple items in it (e.g. a certificate and private key), the PEM file that is created will contain all of the items in it.
-&ldquo;`</p>
+<p>Note that if your PKCS12 file has multiple items in it (e.g. a certificate and private key), the PEM file that is created will contain all of the items in it.</p>
 
 </div>
 </body>

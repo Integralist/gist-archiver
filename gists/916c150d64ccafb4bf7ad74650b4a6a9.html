@@ -10,28 +10,19 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="python-type-hinting-mypy-mypy-python-types-hinting">[Python Type Hinting MyPy] #mypy #python #types #hinting</h1>
 
-<h2 id="python-type-hinting-mypy-py">Python Type Hinting MyPy.py</h2>
-
-<pre><code class="language-python">from typing import Union
-
-Number = Union[int, float]
-
-def add(x: Number = 10, y: Number = 5) -&gt; Number:
-  print(x, y)
-</code></pre>
-
 <h2 id="generating-stubs-md">Generating stubs.md</h2>
 
-<pre><code class="language-markdown">You need to generate stubs that are missing, since dependencies such as `boto3` doesn’t provide type hints (as do most packages unfortunately). Mostly we don’t really care about external packages, and type hinting is mostly useful as a documentation tool and can help with autocompletion tools.
+<p>You need to generate stubs that are missing, since dependencies such as <code>boto3</code> doesn’t provide type hints (as do most packages unfortunately). Mostly we don’t really care about external packages, and type hinting is mostly useful as a documentation tool and can help with autocompletion tools.</p>
 
-So typically you'll run MyPy with: `--ignore-missing-imports`.
+<p>So typically you&rsquo;ll run MyPy with: <code>--ignore-missing-imports</code>.</p>
 
-&gt; Note: alternatively specify which modules you want to ignore [like this](https://github.com/python/mypy/issues/3905#issuecomment-421065323).
+<blockquote>
+<p>Note: alternatively specify which modules you want to ignore <a href="https://github.com/python/mypy/issues/3905#issuecomment-421065323" target="_blank">like this</a>.</p>
+</blockquote>
 
-Consider the following code:
+<p>Consider the following code:</p>
 
-```py
-import boto3
+<pre><code class="language-py">import boto3
 
 from botocore.client import BaseClient
 
@@ -61,7 +52,15 @@ foo('ccccc')
 <pre><code>test.py:12: error: Argument 1 to &quot;foo&quot; has incompatible type &quot;str&quot;; expected &quot;BaseClient&quot;
 </code></pre>
 
-<p>&rdquo;`</p>
+<h2 id="python-type-hinting-mypy-py">Python Type Hinting MyPy.py</h2>
+
+<pre><code class="language-python">from typing import Union
+
+Number = Union[int, float]
+
+def add(x: Number = 10, y: Number = 5) -&gt; Number:
+  print(x, y)
+</code></pre>
 
 </div>
 </body>

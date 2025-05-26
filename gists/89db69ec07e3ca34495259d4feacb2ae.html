@@ -12,32 +12,33 @@
 
 <h2 id="what-s-the-difference-between-a-router-and-a-modem-md">What&rsquo;s the difference between a router and a modem.md</h2>
 
-<pre><code class="language-markdown">## Modem
+<h2 id="modem">Modem</h2>
 
-A modem is a box that you plug your telephone (or cable) line into. Doing this will provide you with a connection to your ISP (Internet Service Provider) who are the company responsible for providing you with a public IP address so you may connect to the internet.
+<p>A modem is a box that you plug your telephone (or cable) line into. Doing this will provide you with a connection to your ISP (Internet Service Provider) who are the company responsible for providing you with a public IP address so you may connect to the internet.</p>
 
-The internet is based on the TCP/IP protocol, which means you need a public IP address so that any requests you make for online content has a place to send a response to (e.g. if you open a web browser and make a request for www.google.com then the response needs to know your IP so it can come back to you).
+<p>The internet is based on the TCP/IP protocol, which means you need a public IP address so that any requests you make for online content has a place to send a response to (e.g. if you open a web browser and make a request for www.google.com then the response needs to know your IP so it can come back to you).</p>
 
-## Router
+<h2 id="router">Router</h2>
 
-A router is a box that allows multiple devices to connect to it. By itself it's probably not that useful (unless you configure it so that devices can share folders and files). So a router provides a LAN (local area network). 
+<p>A router is a box that allows multiple devices to connect to it. By itself it&rsquo;s probably not that useful (unless you configure it so that devices can share folders and files). So a router provides a LAN (local area network).</p>
 
-Typically you'll connect your router to a modem, meaning that every device that connects to the router can connect to the internet. The router uses DHCP to dynamically assign private IPs to your LAN connected devices. 
+<p>Typically you&rsquo;ll connect your router to a modem, meaning that every device that connects to the router can connect to the internet. The router uses DHCP to dynamically assign private IPs to your LAN connected devices.</p>
 
-If someone tries to connect to your router’s public IP address (remember this public IP is provided by your ISP), your router has no idea where it should send that traffic. All your router can do is take the traffic and discard it. This means your router acts as a firewall, discarding unrequested inbound traffic. 
+<p>If someone tries to connect to your router’s public IP address (remember this public IP is provided by your ISP), your router has no idea where it should send that traffic. All your router can do is take the traffic and discard it. This means your router acts as a firewall, discarding unrequested inbound traffic.</p>
 
-Although you can configure your router to use &quot;port forwarding&quot;, so any requests for port 9000 (as an example) could be routed to a local private IP. 
+<p>Although you can configure your router to use &ldquo;port forwarding&rdquo;, so any requests for port 9000 (as an example) could be routed to a local private IP.</p>
 
-But you'd also need to ensure it was a _static_ private IP, otherwise the local device (which is expected to handle the incoming request coming from outside the LAN) could end up being different each time due to DHCP _dynamically_ assigning private IPs to local devices when they connect † 
+<p>But you&rsquo;d also need to ensure it was a <em>static</em> private IP, otherwise the local device (which is expected to handle the incoming request coming from outside the LAN) could end up being different each time due to DHCP <em>dynamically</em> assigning private IPs to local devices when they connect †</p>
 
-&gt; † but that in itself is a bit silly because if you had a local web server running (as an example), then you'd want it to _always_ be connected to the router. You wouldn't disconnect the server from the router before bed as people in other timezones might still want to access it; but the principle is still the same: your server might accidentally fail and so when you restart it the connection to the router would give you a different IP, unless you configured it to give you a static IP.
+<blockquote>
+<p>† but that in itself is a bit silly because if you had a local web server running (as an example), then you&rsquo;d want it to <em>always</em> be connected to the router. You wouldn&rsquo;t disconnect the server from the router before bed as people in other timezones might still want to access it; but the principle is still the same: your server might accidentally fail and so when you restart it the connection to the router would give you a different IP, unless you configured it to give you a static IP.</p>
+</blockquote>
 
-## ISP Provided Public IPs
+<h2 id="isp-provided-public-ips">ISP Provided Public IPs</h2>
 
-There are a limit to the number of IPv4 IPs that can be created (hence the move to IPv6 IPs). ISPs will typically own a range of public IPs and then lease them to each of their customers for a set amount of time.
+<p>There are a limit to the number of IPv4 IPs that can be created (hence the move to IPv6 IPs). ISPs will typically own a range of public IPs and then lease them to each of their customers for a set amount of time.</p>
 
-When the lease expires, your modem has to re-negotiate a new public IP (from the pool of public IPs your ISP makes available to its customers). This is typically why if you check a website like http://www.whatsmyip.org/ you'll find after a while (it could be days or months even), that the IP shown will change.
-</code></pre>
+<p>When the lease expires, your modem has to re-negotiate a new public IP (from the pool of public IPs your ISP makes available to its customers). This is typically why if you check a website like <a href="http://www.whatsmyip.org/" target="_blank">http://www.whatsmyip.org/</a> you&rsquo;ll find after a while (it could be days or months even), that the IP shown will change.</p>
 
 </div>
 </body>

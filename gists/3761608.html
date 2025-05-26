@@ -10,6 +10,63 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="the-model-only-triggers-the-change-event-when-the-value-being-set-is-unique-i-e-not-set-before">The model only triggers the change event when the value being set is unique (i.e. not set before)</h1>
 
+<h2 id="model-js">Model.js</h2>
+
+<pre><code class="language-javascript">define(['Backbone'], function(){
+
+    var min = 50;
+    var max = 400;
+
+    return Backbone.Model.extend({
+        defaults: {
+            amount: 0,
+            code: null,
+            date: (new Date())
+        },
+
+        initialize: function(){
+            this.on('error', this.handle_errors);
+            this.on('change:amount', this.amount_change);
+        },  
+                      
+        validate: function (attributes) {
+            var errors = [];
+            var amount = parseInt(attributes.amount, 10);
+
+            /*
+                We first parse the amount (as it comes through as a String)
+                Once it's converted to a number we check that the value is NaN.
+                We also check if the amount entered fits within the allowed range.
+             */
+            if (_.isNaN(amount) || amount &lt; min || amount &gt; max) {
+                errors.push({
+                    field: 'amount',
+                    error: 'The amount was invalid'
+                });
+            }
+
+            if (errors.length) {
+                return errors
+            }
+        },
+
+        handle_errors: function (model, error) {
+            // Context of 'this' gets lost within _.each()
+            var self = this;
+            
+            _.each(error, function (item, iterator) {
+                self.trigger('item:invalid', item);
+            });
+        },
+
+        amount_change: function(){
+            this.trigger('amount:changed');
+        }
+    });
+
+});
+</code></pre>
+
 <h2 id="view-js">View.js</h2>
 
 <pre><code class="language-javascript">define(['../Utils/Templating/hogan', '../Utils/Datepicker/kalendae', '../Models/LoanApplication', '../Utils/DOM/getEl', 'Backbone'], function (hogan, Kalendae, LoanApplication, getElement) {
@@ -184,63 +241,6 @@
             this.amount.value = ''; // we reset the value so the Model's &quot;change&quot; event can be fired (which is what we rely upon to trigger the popup)
         }
 
-    });
-
-});
-</code></pre>
-
-<h2 id="model-js">Model.js</h2>
-
-<pre><code class="language-javascript">define(['Backbone'], function(){
-
-    var min = 50;
-    var max = 400;
-
-    return Backbone.Model.extend({
-        defaults: {
-            amount: 0,
-            code: null,
-            date: (new Date())
-        },
-
-        initialize: function(){
-            this.on('error', this.handle_errors);
-            this.on('change:amount', this.amount_change);
-        },  
-                      
-        validate: function (attributes) {
-            var errors = [];
-            var amount = parseInt(attributes.amount, 10);
-
-            /*
-                We first parse the amount (as it comes through as a String)
-                Once it's converted to a number we check that the value is NaN.
-                We also check if the amount entered fits within the allowed range.
-             */
-            if (_.isNaN(amount) || amount &lt; min || amount &gt; max) {
-                errors.push({
-                    field: 'amount',
-                    error: 'The amount was invalid'
-                });
-            }
-
-            if (errors.length) {
-                return errors
-            }
-        },
-
-        handle_errors: function (model, error) {
-            // Context of 'this' gets lost within _.each()
-            var self = this;
-            
-            _.each(error, function (item, iterator) {
-                self.trigger('item:invalid', item);
-            });
-        },
-
-        amount_change: function(){
-            this.trigger('amount:changed');
-        }
     });
 
 });

@@ -12,23 +12,26 @@
 
 <h2 id="terraform-what-should-and-shouldn-t-be-there-markdown">Terraform - what should and shouldn&rsquo;t be there.markdown</h2>
 
-<pre><code class="language-markdown">**Summary**  
-Store configuration, NOT data.
+<p><strong>Summary</strong><br />
+Store configuration, NOT data.</p>
 
-**Why?**  
-Data is going to be stored in the tfstate file and because of how the `terraform` command-line interface works (e.g. it communicates with a separate 'core' process over gRPC) there's a size limitation of 4mb going over the wire.
+<p><strong>Why?</strong><br />
+Data is going to be stored in the tfstate file and because of how the <code>terraform</code> command-line interface works (e.g. it communicates with a separate &lsquo;core&rsquo; process over gRPC) there&rsquo;s a size limitation of 4mb going over the wire.</p>
 
-**Additional Comments**  
-Populating resources with data externally from Terraform is very dangerous, as you're side-stepping the protection guarantees that Terraform is designed to provide. If Terraform's tfstate file doesn't know about data that's been created/pushed externally (i.e. data not defined within a terraform file and CRUD'ed using the `terraform` CLI), then Terraform is going to delete that data on the next plan/apply operation because (as far as Terraform is concerned) it shouldn't exist. 
+<p><strong>Additional Comments</strong><br />
+Populating resources with data externally from Terraform is very dangerous, as you&rsquo;re side-stepping the protection guarantees that Terraform is designed to provide. If Terraform&rsquo;s tfstate file doesn&rsquo;t know about data that&rsquo;s been created/pushed externally (i.e. data not defined within a terraform file and CRUD&rsquo;ed using the <code>terraform</code> CLI), then Terraform is going to delete that data on the next plan/apply operation because (as far as Terraform is concerned) it shouldn&rsquo;t exist.</p>
 
-Consider the [Fastly terraform provider](https://registry.terraform.io/providers/fastly/fastly/latest/docs). We've seen the following situations:
+<p>Consider the <a href="https://registry.terraform.io/providers/fastly/fastly/latest/docs" target="_blank">Fastly terraform provider</a>. We&rsquo;ve seen the following situations:</p>
 
-- **Edge Dictionary loses records**: Fastly provides an 'edge dictionary' which can be created via terraform, but once created the values can be updated via Fastly API calls. This means if you were to define initial key/values in terraform for the edge dictionary, it would mean any new content added outside of terraform (which is the whole benefit of an edge dictionary, to allow dynamic updates without requiring a redeploy of a service) will cause the new content to be lost whenever a new `terraform apply` is actioned (unless you set `ignore_changes` as stated in [the Fastly documentation](https://registry.terraform.io/providers/fastly/fastly/latest/docs/resources/service_dictionary_items_v1)) as terraform's tfstate file will not contain the new edge dictionary elements that were added via API calls.  
-  
-- **Large number of ACL records causes gRPC error**: A customer had lots of ACL records data defined in their terraform HCL and so eventually the tfstate file would be pushed via gRPC to the 'core' process and that's when a gRPC error would bubble up (due to the 4mb limitation). The solution is to use terraform to manage the existence of an ACL 'container' and then manage the population of ACL records via some other service or tool (e.g. a script that uses the Fastly API to CRUD ACL records). To prevent terraform from getting confused you would need to set `ignore_changes` so it knows that any additional data discovered shouldn't be stored in the tfstate file.
+<ul>
+<li><p><strong>Edge Dictionary loses records</strong>: Fastly provides an &lsquo;edge dictionary&rsquo; which can be created via terraform, but once created the values can be updated via Fastly API calls. This means if you were to define initial key/values in terraform for the edge dictionary, it would mean any new content added outside of terraform (which is the whole benefit of an edge dictionary, to allow dynamic updates without requiring a redeploy of a service) will cause the new content to be lost whenever a new <code>terraform apply</code> is actioned (unless you set <code>ignore_changes</code> as stated in <a href="https://registry.terraform.io/providers/fastly/fastly/latest/docs/resources/service_dictionary_items_v1" target="_blank">the Fastly documentation</a>) as terraform&rsquo;s tfstate file will not contain the new edge dictionary elements that were added via API calls.</p></li>
 
-&gt; **NOTE**: if you manage data in terraform, and only add `ignore_changes` until _much_ later (e.g. after adding 50k ACL records you finally add `ignore_changes`), then you'll discover that terraform's tfstate file will still know about the data and try to move it around (e.g. `terraform plan` will attempt to pull down 50k records and pass it internally to its 'core' process, thus triggering the gRPC 4mb limit error). The only way to solve the issue from the point is to remove the data from the tfstate file using `terraform rm`.
-</code></pre>
+<li><p><strong>Large number of ACL records causes gRPC error</strong>: A customer had lots of ACL records data defined in their terraform HCL and so eventually the tfstate file would be pushed via gRPC to the &lsquo;core&rsquo; process and that&rsquo;s when a gRPC error would bubble up (due to the 4mb limitation). The solution is to use terraform to manage the existence of an ACL &lsquo;container&rsquo; and then manage the population of ACL records via some other service or tool (e.g. a script that uses the Fastly API to CRUD ACL records). To prevent terraform from getting confused you would need to set <code>ignore_changes</code> so it knows that any additional data discovered shouldn&rsquo;t be stored in the tfstate file.</p></li>
+</ul>
+
+<blockquote>
+<p><strong>NOTE</strong>: if you manage data in terraform, and only add <code>ignore_changes</code> until <em>much</em> later (e.g. after adding 50k ACL records you finally add <code>ignore_changes</code>), then you&rsquo;ll discover that terraform&rsquo;s tfstate file will still know about the data and try to move it around (e.g. <code>terraform plan</code> will attempt to pull down 50k records and pass it internally to its &lsquo;core&rsquo; process, thus triggering the gRPC 4mb limit error). The only way to solve the issue from the point is to remove the data from the tfstate file using <code>terraform rm</code>.</p>
+</blockquote>
 
 </div>
 </body>

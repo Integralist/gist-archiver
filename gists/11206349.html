@@ -12,12 +12,11 @@
 
 <h2 id="ruby-queue-md">Ruby Queue.md</h2>
 
-<pre><code class="language-markdown">Another useful data structure is Queue. This is a synchronised, i.e. thread safe, first-in first-out queue. This makes it easy to coordinate work between threads. \
+<p>Another useful data structure is Queue. This is a synchronised, i.e. thread safe, first-in first-out queue. This makes it easy to coordinate work between threads. </p>
 
-Below is a simple example of a program that lets you enter multiple URLs to download, then works through them one by one in the background:
+<p>Below is a simple example of a program that lets you enter multiple URLs to download, then works through them one by one in the background:</p>
 
-```ruby
-require &quot;thread&quot; # Queue is part of the thread library
+<pre><code class="language-ruby">require &quot;thread&quot; # Queue is part of the thread library
 require &quot;net/http&quot;
 
 to_do = Queue.new
@@ -50,8 +49,6 @@ end
 
 [interface, fetcher].each(&amp;:join) # don't exit until the threads are done
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

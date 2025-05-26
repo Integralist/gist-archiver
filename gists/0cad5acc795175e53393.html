@@ -12,35 +12,84 @@
 
 <h2 id="building-an-rpm-md">Building an RPM.md</h2>
 
-<pre><code class="language-markdown">See my working application (and additional notes) here:
+<p>See my working application (and additional notes) here:</p>
 
-https://github.com/integralist/simple-rpm
+<p><a href="https://github.com/integralist/simple-rpm" target="_blank">https://github.com/integralist/simple-rpm</a></p>
 
-&gt; Other information that led to the above repository, can be found below
+<blockquote>
+<p>Other information that led to the above repository, can be found below</p>
+</blockquote>
 
-## References
+<h2 id="references">References</h2>
 
-- http://www.rpm.org/max-rpm/s1-rpm-anywhere-different-build-area.html
-- http://www.tldp.org/HOWTO/RPM-HOWTO/build.html
-- https://fedoraproject.org/wiki/How_to_create_an_RPM_package
-- http://www.thegeekstuff.com/2015/02/rpm-build-package-example/
-- https://github.com/darnould/simple-rpm
+<ul>
+<li><a href="http://www.rpm.org/max-rpm/s1-rpm-anywhere-different-build-area.html" target="_blank">http://www.rpm.org/max-rpm/s1-rpm-anywhere-different-build-area.html</a></li>
+<li><a href="http://www.tldp.org/HOWTO/RPM-HOWTO/build.html" target="_blank">http://www.tldp.org/HOWTO/RPM-HOWTO/build.html</a></li>
+<li><a href="https://fedoraproject.org/wiki/How_to_create_an_RPM_package" target="_blank">https://fedoraproject.org/wiki/How_to_create_an_RPM_package</a></li>
+<li><a href="http://www.thegeekstuff.com/2015/02/rpm-build-package-example/" target="_blank">http://www.thegeekstuff.com/2015/02/rpm-build-package-example/</a></li>
+<li><a href="https://github.com/darnould/simple-rpm" target="_blank">https://github.com/darnould/simple-rpm</a></li>
+</ul>
 
-## Folders
+<h2 id="folders">Folders</h2>
 
-| Macro Name       | Name                    | Location               | Purpose |
-|:-----------------|:------------------------|:-----------------------|:------- |
-| `%_specdir`      | Specification directory | `~/rpmbuild/SPECS`     | RPM specifications (`.spec`) files |
-| `%_sourcedir`    | Source directory        | `~/rpmbuild/SOURCES`   | Pristine source package (e.g. tarballs) and patches |
-| `%_builddir`     | Build directory         | `~/rpmbuild/BUILD`     | Source files are unpacked and compiled in a subdirectory underneath this. |
-| `%_buildrootdir` | Build root directory    | `~/rpmbuild/BUILDROOT` | Files are installed under here during the `%install` stage. |
-| `%_rpmdir`       | Binary RPM directory    | `~/rpmbuild/RPMS`      | Binary RPMs are created and stored under here. |
-| `%_srcrpmdir`    | Source RPM directory    | `~/rpmbuild/SRPMS`     | Source RPMs are created and stored here. |
+<table>
+<thead>
+<tr>
+<th align="left">Macro Name</th>
+<th align="left">Name</th>
+<th align="left">Location</th>
+<th align="left">Purpose</th>
+</tr>
+</thead>
 
-## Setup
+<tbody>
+<tr>
+<td align="left"><code>%_specdir</code></td>
+<td align="left">Specification directory</td>
+<td align="left"><code>~/rpmbuild/SPECS</code></td>
+<td align="left">RPM specifications (<code>.spec</code>) files</td>
+</tr>
 
-```bash
-mkdir -p ~/rpmbuild/{RPMS,SRPMS,BUILD,SOURCES,SPECS,tmp}
+<tr>
+<td align="left"><code>%_sourcedir</code></td>
+<td align="left">Source directory</td>
+<td align="left"><code>~/rpmbuild/SOURCES</code></td>
+<td align="left">Pristine source package (e.g. tarballs) and patches</td>
+</tr>
+
+<tr>
+<td align="left"><code>%_builddir</code></td>
+<td align="left">Build directory</td>
+<td align="left"><code>~/rpmbuild/BUILD</code></td>
+<td align="left">Source files are unpacked and compiled in a subdirectory underneath this.</td>
+</tr>
+
+<tr>
+<td align="left"><code>%_buildrootdir</code></td>
+<td align="left">Build root directory</td>
+<td align="left"><code>~/rpmbuild/BUILDROOT</code></td>
+<td align="left">Files are installed under here during the <code>%install</code> stage.</td>
+</tr>
+
+<tr>
+<td align="left"><code>%_rpmdir</code></td>
+<td align="left">Binary RPM directory</td>
+<td align="left"><code>~/rpmbuild/RPMS</code></td>
+<td align="left">Binary RPMs are created and stored under here.</td>
+</tr>
+
+<tr>
+<td align="left"><code>%_srcrpmdir</code></td>
+<td align="left">Source RPM directory</td>
+<td align="left"><code>~/rpmbuild/SRPMS</code></td>
+<td align="left">Source RPMs are created and stored here.</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="setup">Setup</h2>
+
+<pre><code class="language-bash">mkdir -p ~/rpmbuild/{RPMS,SRPMS,BUILD,SOURCES,SPECS,tmp}
 
 cat &lt;&lt;EOF &gt;~/.rpmmacros
 %_topdir   %(echo $HOME)/rpmbuild
@@ -157,8 +206,6 @@ EOF
 <li>Variables are case insensitive; e.g. <code>%{foo}</code> matches <code>Foo</code> variable</li>
 </ul></li>
 </ul>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

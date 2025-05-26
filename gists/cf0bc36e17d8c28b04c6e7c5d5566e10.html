@@ -2,26 +2,25 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>[Golang go work] #go #golang #gowork</title>
+<title>Go: go work #go #golang #gowork</title>
 <link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
-<h1 id="golang-go-work-go-golang-gowork">[Golang go work] #go #golang #gowork</h1>
+<h1 id="go-go-work-go-golang-gowork">Go: go work #go #golang #gowork</h1>
 
 <h2 id="go-work-md">go work.md</h2>
 
-<pre><code class="language-markdown">Create a new directory for your project.
+<p>Create a new directory for your project.</p>
 
-Inside the directory `git clone` your projects.
+<p>Inside the directory <code>git clone</code> your projects.</p>
 
-Next, from within the project directory (where the individual projects are cloned _within_), create your `go.work` file.
+<p>Next, from within the project directory (where the individual projects are cloned <em>within</em>), create your <code>go.work</code> file.</p>
 
-You can do this in one of two ways:
+<p>You can do this in one of two ways:</p>
 
-```shell
-go work init ./cli ./go-fastly
+<pre><code class="language-shell">go work init ./cli ./go-fastly
 </code></pre>
 
 <p>or</p>
@@ -48,8 +47,7 @@ go work use ./cli ./go-fastly
 <blockquote>
 <p>[!WARNING]
 This causes gopls in Neovim to report an error (although the LSP still works).<br />
-<code>LSP[gopls]: Error SERVER_REQUEST_HANDLER_ERROR &quot;... ENOENT: no such file or directory&quot;</code>
-&ldquo;`</p>
+<code>LSP[gopls]: Error SERVER_REQUEST_HANDLER_ERROR &quot;... ENOENT: no such file or directory&quot;</code></p>
 </blockquote>
 
 </div>

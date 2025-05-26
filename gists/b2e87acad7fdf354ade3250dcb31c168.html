@@ -12,26 +12,27 @@
 
 <h2 id="1-md">1.md</h2>
 
-<pre><code class="language-markdown">Embedding an interface into a struct means that field will need to be assigned a value that fulfils the interface.
+<p>Embedding an interface into a struct means that field will need to be assigned a value that fulfils the interface.</p>
 
-This forces the struct to implement the given methods because when you assign a type to that field it needs to have those methods available.
+<p>This forces the struct to implement the given methods because when you assign a type to that field it needs to have those methods available.</p>
 
-This is especially useful when you want to re-implement only a single method of the interface for testing purposes as noted here...
+<p>This is especially useful when you want to re-implement only a single method of the interface for testing purposes as noted here&hellip;</p>
 
-https://dmv.myhatchpad.com/insight/mocking-techniques-for-go/
+<p><a href="https://dmv.myhatchpad.com/insight/mocking-techniques-for-go/" target="_blank">https://dmv.myhatchpad.com/insight/mocking-techniques-for-go/</a></p>
 
-&gt; Use when you need to mock out a small set of methods defined in a large interface.
-&gt;
-&gt; A great example of this situation comes from the DynamoDB documentation.
-&gt;
-&gt; When working with the aws-sdk, they provide interfaces for all of their major services that are quite large since they contain all of the calls that can be made for each particular client. Take a look at the dynamodbiface.DynamoDBAPI interface from the link. Rather than pass around the concrete client type, you should pass around this interface to other functions. But then, when testing some of your code that calls one particular function of the interface, how do you mock out that call only without mocking every other function in an attempt to satisfy the interface?
+<blockquote>
+<p>Use when you need to mock out a small set of methods defined in a large interface.</p>
 
-**WARNING**: assigning `nil` breaks this compile time safety!
+<p>A great example of this situation comes from the DynamoDB documentation.</p>
 
-This is best demonstrated by way of an example (https://play.golang.org/p/i8q0gv4WgkQ)
+<p>When working with the aws-sdk, they provide interfaces for all of their major services that are quite large since they contain all of the calls that can be made for each particular client. Take a look at the dynamodbiface.DynamoDBAPI interface from the link. Rather than pass around the concrete client type, you should pass around this interface to other functions. But then, when testing some of your code that calls one particular function of the interface, how do you mock out that call only without mocking every other function in an attempt to satisfy the interface?</p>
+</blockquote>
 
-```go
-package main
+<p><strong>WARNING</strong>: assigning <code>nil</code> breaks this compile time safety!</p>
+
+<p>This is best demonstrated by way of an example (<a href="https://play.golang.org/p/i8q0gv4WgkQ" target="_blank">https://play.golang.org/p/i8q0gv4WgkQ</a>)</p>
+
+<pre><code class="language-go">package main
 
 import (
 	&quot;fmt&quot;
@@ -163,11 +164,9 @@ func main() {
 }
 </code></pre>
 
-<pre><code>
-## embed interface into struct (real example).go
+<h2 id="embed-interface-into-struct-real-example-go">embed interface into struct (real example).go</h2>
 
-```go
-// Package middleware provides wrapper functions around the http.Handler
+<pre><code class="language-go">// Package middleware provides wrapper functions around the http.Handler
 // interface, allowing for an incoming HTTP request to be modified or analysed.
 package middleware
 

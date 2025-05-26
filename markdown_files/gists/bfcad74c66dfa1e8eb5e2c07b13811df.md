@@ -2,7 +2,6 @@
 
 ## Project Planning.md
 
-```markdown
 There are three types of documents you should write, in this specific order:
 
 1. **Project** document
@@ -59,5 +58,4 @@ This document presents an objective assessment of the existing system's requirem
 - **Open Questions:** Note anything for further investigation or future problems to solve (create action items and assign for follow-up if needed).
 - **Stakeholders & Approval:** Primary stakeholders listed check the box to indicate sign-off or add comments with questions/concerns.
 - **References:** Include any links to related documents: Problem Statement, PRD, POC proposals, boards or architecture documentation for additional context.
-```
 

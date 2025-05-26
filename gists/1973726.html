@@ -10,28 +10,13 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="automatically-generated-images-via-javascript-canvas-api">Automatically generated images via JavaScript Canvas API</h1>
 
-<h2 id="saveimage-php">saveimage.php</h2>
-
-<pre><code class="language-php">&lt;?php
-    // Get data
-    $data = $_POST['imgdata'];
-
-    // Remove the &quot;data:image/png;base64,&quot; part
-    $uri =  substr($data, strpos($data, &quot;,&quot;) + 1);
-    
-    // Save the file to the machine (try to make it unique)
-    file_put_contents(&quot;./Generated/card-&quot; . mt_rand() . &quot;.png&quot;, base64_decode($uri));
-?&gt;
-</code></pre>
-
 <h2 id="description-md">Description.md</h2>
 
-<pre><code class="language-markdown">This is a quick prototype I knocked together (in under an hour) for a family member who had a business idea that he wasn't sure how to implement. 
+<p>This is a quick prototype I knocked together (in under an hour) for a family member who had a business idea that he wasn&rsquo;t sure how to implement.</p>
 
-I had never used the HTML5 Canvas API before but it sounded like it could be a good fit for what he was trying to achieve.
+<p>I had never used the HTML5 Canvas API before but it sounded like it could be a good fit for what he was trying to achieve.</p>
 
-It was a fun little thing to work on as it gave me a chance to play around with using Canvas and I discovered that text written in Canvas cannot (currently) wrap to the width of the Canvas element. Although I believe there may now be some new additions to the API which works around this wrapping issue.
-</code></pre>
+<p>It was a fun little thing to work on as it gave me a chance to play around with using Canvas and I discovered that text written in Canvas cannot (currently) wrap to the width of the Canvas element. Although I believe there may now be some new additions to the API which works around this wrapping issue.</p>
 
 <h2 id="index-html">index.html</h2>
 
@@ -203,6 +188,20 @@ It was a fun little thing to work on as it gave me a chance to play around with 
     	&lt;/script&gt;
     &lt;/body&gt;
 &lt;/html&gt;
+</code></pre>
+
+<h2 id="saveimage-php">saveimage.php</h2>
+
+<pre><code class="language-php">&lt;?php
+    // Get data
+    $data = $_POST['imgdata'];
+
+    // Remove the &quot;data:image/png;base64,&quot; part
+    $uri =  substr($data, strpos($data, &quot;,&quot;) + 1);
+    
+    // Save the file to the machine (try to make it unique)
+    file_put_contents(&quot;./Generated/card-&quot; . mt_rand() . &quot;.png&quot;, base64_decode($uri));
+?&gt;
 </code></pre>
 
 </div>

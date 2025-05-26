@@ -12,25 +12,28 @@
 
 <h2 id="golang-io-md">Golang IO.md</h2>
 
-<pre><code class="language-markdown"># Sections
+<h1 id="sections">Sections</h1>
 
-- [Package io](#package-io)
-- [Package ioutil](#package-ioutil)
-- [Package bufio](#package-bufio)
-- [Package os](#package-os)
-- [Miscellaneous Notes](#miscellaneous-notes)
-- [Other Examples](#examples)
+<ul>
+<li><a href="#package-io">Package io</a></li>
+<li><a href="#package-ioutil">Package ioutil</a></li>
+<li><a href="#package-bufio">Package bufio</a></li>
+<li><a href="#package-os">Package os</a></li>
+<li><a href="#miscellaneous-notes">Miscellaneous Notes</a></li>
+<li><a href="#examples">Other Examples</a></li>
+</ul>
 
-## Package io
+<h2 id="package-io">Package io</h2>
 
-&gt; Package io provides basic interfaces to I/O primitives. Its primary job is to wrap existing implementations of such primitives, such as those in package os, into shared public interfaces that abstract the functionality, plus some other related primitives.
-&gt;
-&gt; Because these interfaces and primitives wrap lower-level operations with various implementations, unless otherwise informed clients should not assume they are safe for parallel execution.
+<blockquote>
+<p>Package io provides basic interfaces to I/O primitives. Its primary job is to wrap existing implementations of such primitives, such as those in package os, into shared public interfaces that abstract the functionality, plus some other related primitives.</p>
 
-Example functionality: read section of a file into memory
+<p>Because these interfaces and primitives wrap lower-level operations with various implementations, unless otherwise informed clients should not assume they are safe for parallel execution.</p>
+</blockquote>
 
-```go
-package main
+<p>Example functionality: read section of a file into memory</p>
+
+<pre><code class="language-go">package main
 
 import (
 	&quot;fmt&quot;
@@ -236,8 +239,6 @@ if _, err := io.Copy(os.Stdout, file1); err != nil {
   os.Exit(1)
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

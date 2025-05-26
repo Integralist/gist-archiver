@@ -10,77 +10,6 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="golang-custom-unmarshal-using-json-rawmessage-go-golang-json-unmarshal-raw">[Golang custom Unmarshal using json.RawMessage] #go #golang #json #unmarshal #raw</h1>
 
-<h2 id="golang-custom-unmarshal-using-json-rawmessage-go">Golang custom Unmarshal using json.RawMessage.go</h2>
-
-<pre><code class="language-go">package main
-
-import (
-	&quot;encoding/json&quot;
-	&quot;fmt&quot;
-)
-
-func main() {
-	var v Component
-
-	if err := json.Unmarshal(data, &amp;v); err != nil {
-		panic(err)
-	}
-
-	fmt.Printf(&quot;%#v\n&quot;, v)
-}
-
-var data = []byte(`{&quot;type&quot;: &quot;foo&quot;, &quot;config&quot;: {&quot;name&quot;: &quot;test&quot;}}`)
-// THE OTHER TYPE FOR COMPARISON &gt;&gt; var data = []byte(`{&quot;type&quot;: &quot;bar&quot;, &quot;config&quot;: {&quot;value&quot;: 123}}`)
-
-type Component struct {
-	Type   string      `json:&quot;type&quot;`
-	Config interface{} `json:&quot;config&quot;`
-}
-
-func (c *Component) UnmarshalJSON(data []byte) error {
-
-	var v struct {
-		Type string          `json:&quot;type&quot;`
-		Data json.RawMessage `json:&quot;config&quot;`
-	}
-
-	if err := json.Unmarshal(data, &amp;v); err != nil {
-		return err
-	}
-
-	c.Type = v.Type
-
-	switch v.Type {
-	case &quot;foo&quot;:
-		var f FooConfig
-
-		if err := json.Unmarshal(v.Data, &amp;f); err != nil {
-			return err
-		}
-
-		c.Config = f
-	case &quot;bar&quot;:
-		var b BarConfig
-
-		if err := json.Unmarshal(v.Data, &amp;b); err != nil {
-			return err
-		}
-
-		c.Config = b
-	}
-
-	return nil
-}
-
-type FooConfig struct {
-	Name string `json:&quot;name&quot;`
-}
-
-type BarConfig struct {
-	Value int `json:&quot;value&quot;`
-}
-</code></pre>
-
 <h2 id="api-example-go">API example.go</h2>
 
 <pre><code class="language-go">// https://play.golang.org/p/_lYDvs0Ukux
@@ -162,6 +91,77 @@ type DomainMetadata struct {
 	CreatedAt *time.Time `json:&quot;created_at&quot;`
 	UpdatedAt *time.Time `json:&quot;updated_at&quot;`
 	DeletedAt *time.Time `json:&quot;deleted_at&quot;`
+}
+</code></pre>
+
+<h2 id="golang-custom-unmarshal-using-json-rawmessage-go">Golang custom Unmarshal using json.RawMessage.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;encoding/json&quot;
+	&quot;fmt&quot;
+)
+
+func main() {
+	var v Component
+
+	if err := json.Unmarshal(data, &amp;v); err != nil {
+		panic(err)
+	}
+
+	fmt.Printf(&quot;%#v\n&quot;, v)
+}
+
+var data = []byte(`{&quot;type&quot;: &quot;foo&quot;, &quot;config&quot;: {&quot;name&quot;: &quot;test&quot;}}`)
+// THE OTHER TYPE FOR COMPARISON &gt;&gt; var data = []byte(`{&quot;type&quot;: &quot;bar&quot;, &quot;config&quot;: {&quot;value&quot;: 123}}`)
+
+type Component struct {
+	Type   string      `json:&quot;type&quot;`
+	Config interface{} `json:&quot;config&quot;`
+}
+
+func (c *Component) UnmarshalJSON(data []byte) error {
+
+	var v struct {
+		Type string          `json:&quot;type&quot;`
+		Data json.RawMessage `json:&quot;config&quot;`
+	}
+
+	if err := json.Unmarshal(data, &amp;v); err != nil {
+		return err
+	}
+
+	c.Type = v.Type
+
+	switch v.Type {
+	case &quot;foo&quot;:
+		var f FooConfig
+
+		if err := json.Unmarshal(v.Data, &amp;f); err != nil {
+			return err
+		}
+
+		c.Config = f
+	case &quot;bar&quot;:
+		var b BarConfig
+
+		if err := json.Unmarshal(v.Data, &amp;b); err != nil {
+			return err
+		}
+
+		c.Config = b
+	}
+
+	return nil
+}
+
+type FooConfig struct {
+	Name string `json:&quot;name&quot;`
+}
+
+type BarConfig struct {
+	Value int `json:&quot;value&quot;`
 }
 </code></pre>
 

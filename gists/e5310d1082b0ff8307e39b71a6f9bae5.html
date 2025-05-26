@@ -12,90 +12,75 @@
 
 <h2 id="python-comprehensions-md">Python Comprehensions.md</h2>
 
-<pre><code class="language-markdown">## Comprehensions
+<h2 id="comprehensions">Comprehensions</h2>
 
-A comprehension is a fancy way of saying: &quot;a more compact way of looping over, as well as filtering, a collection and generating a new collection from that process&quot;.
+<p>A comprehension is a fancy way of saying: &ldquo;a more compact way of looping over, as well as filtering, a collection and generating a new collection from that process&rdquo;.</p>
 
-There are three types of 'comprehensions' in Python to align with the various 'collection' types:
+<p>There are three types of &lsquo;comprehensions&rsquo; in Python to align with the various &lsquo;collection&rsquo; types:</p>
 
-1. List
-2. Dict
-3. Set
+<ol>
+<li>List</li>
+<li>Dict</li>
+<li>Set</li>
+</ol>
 
-They all work the same but differ in the type that is generated at the end.
+<p>They all work the same but differ in the type that is generated at the end.</p>
 
-The syntax structure for each type looks like this:
+<p>The syntax structure for each type looks like this:</p>
 
+<pre><code># List
+(values) = [ (expression) for (item) in (collection) if condition ]
+
+# Dict/Set
+(values) = { (expression) for (item) in (collection) if condition }
 </code></pre>
 
-<h1 id="list">List</h1>
+<blockquote>
+<p>Note: yes the Dict and Set syntax structure is the same but the output type will be different (as we&rsquo;ll see in the following examples) because the Dict will output key/value pairs, while the Set will output individual element values.</p>
+</blockquote>
 
-<p>(values) = [ (expression) for (item) in (collection) if condition ]</p>
+<p>Here are examples of each&hellip;</p>
 
-<h1 id="dict-set">Dict/Set</h1>
+<pre><code># List Output:
+# [0, 4, 16, 36, 64]
+[x * x for x in range(10) if x % 2 == 0]
 
-<p>(values) = { (expression) for (item) in (collection) if condition }</p>
+# Set Output
+# {0, 4, 16, 36, 64}
+{x * x for x in range(10) if x % 2 == 0}
 
-<pre><code>
-&gt; Note: yes the Dict and Set syntax structure is the same but the output type will be different (as we'll see in the following examples) because the Dict will output key/value pairs, while the Set will output individual element values.
-
-Here are examples of each...
-
+# Dict Output
+# {0: 0, 2: 4, 4: 16, 6: 36, 8: 64}
+{x: x * x for x in range(10) if x % 2 == 0}
 </code></pre>
 
-<h1 id="list-output">List Output:</h1>
+<blockquote>
+<p>Note: I&rsquo;ve used the full syntax structure, but you don&rsquo;t have to. You could just use <code>for (item) in (collection)</code> and not include the <code>if condition</code> part.</p>
+</blockquote>
 
-<h1 id="0-4-16-36-64">[0, 4, 16, 36, 64]</h1>
+<p>If we were to write this code without comprehensions, then it would look like the following (yes it is a lot more verbose, but ultimately just a multi-lined version):</p>
 
-<p>[x * x for x in range(10) if x % 2 == 0]</p>
+<pre><code># List
 
-<h1 id="set-output">Set Output</h1>
+output = []
+for x in range(10):
+    if x % 2 == 0:
+        output.append(x * x)
 
-<h1 id="0-4-16-36-64-1">{0, 4, 16, 36, 64}</h1>
+# Set 
 
-<p>{x * x for x in range(10) if x % 2 == 0}</p>
+output = set()
+for x in range(10):
+    if x % 2 == 0:
+        output.add(x * x)
 
-<h1 id="dict-output">Dict Output</h1>
+# Dict
 
-<h1 id="0-0-2-4-4-16-6-36-8-64">{0: 0, 2: 4, 4: 16, 6: 36, 8: 64}</h1>
-
-<p>{x: x * x for x in range(10) if x % 2 == 0}</p>
-
-<pre><code>
-&gt; Note: I've used the full syntax structure, but you don't have to. You could just use `for (item) in (collection)` and not include the `if condition` part.
-
-If we were to write this code without comprehensions, then it would look like the following (yes it is a lot more verbose, but ultimately just a multi-lined version):
-
+output = dict()
+for x in range(10):
+    if x % 2 == 0:
+        output.update({x: x * x})
 </code></pre>
-
-<h1 id="list-1">List</h1>
-
-<p>output = []
-for x in range(10):</p>
-
-<pre><code>if x % 2 == 0:
-    output.append(x * x)
-</code></pre>
-
-<h1 id="set">Set</h1>
-
-<p>output = set()
-for x in range(10):</p>
-
-<pre><code>if x % 2 == 0:
-    output.add(x * x)
-</code></pre>
-
-<h1 id="dict">Dict</h1>
-
-<p>output = dict()
-for x in range(10):</p>
-
-<pre><code>if x % 2 == 0:
-    output.update({x: x * x})
-</code></pre>
-
-<pre><code></code></pre>
 
 </div>
 </body>

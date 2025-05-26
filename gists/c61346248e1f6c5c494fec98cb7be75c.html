@@ -12,60 +12,59 @@
 
 <h2 id="file-permissions-with-octal-notation-explanation-md">File Permissions with Octal Notation Explanation.md</h2>
 
-<pre><code class="language-markdown">A file can be accessed by different user types:
+<p>A file can be accessed by different user types:</p>
 
-- Owner
-- Group
-- Other
+<ul>
+<li>Owner</li>
+<li>Group</li>
+<li>Other</li>
+</ul>
 
-Any one of these groups might be allowed to:
+<p>Any one of these groups might be allowed to:</p>
 
-- Read (`r`)
-- Write (`w`)
-- Execute (`x`)
+<ul>
+<li>Read (<code>r</code>)</li>
+<li>Write (<code>w</code>)</li>
+<li>Execute (<code>x</code>)</li>
+</ul>
 
-These typically are displayed with a hyphen followed by the permissions for the user type (e.g. `-rwx-rwx-rwx`):
+<p>These typically are displayed with a hyphen followed by the permissions for the user type (e.g. <code>-rwx-rwx-rwx</code>):</p>
 
+<pre><code>$ ls -l
+
+-rw-r--r--  1 integralist  staff      2  5 Feb 11:08 foo.txt
 </code></pre>
 
-<p>$ ls -l</p>
+<blockquote>
+<p>Note: in the above example the &lsquo;owner&rsquo; can read/write, while the &lsquo;group&rsquo; and &lsquo;other&rsquo; users can only read the file.</p>
+</blockquote>
 
-<p>-rw-r&ndash;r&ndash;  1 integralist  staff      2  5 Feb 11:08 foo.txt</p>
+<p>To set these permissions you can use <code>chmod</code> with a &lsquo;octal permission&rsquo; value:</p>
 
-<pre><code>
-&gt; Note: in the above example the 'owner' can read/write, while the 'group' and 'other' users can only read the file.
-
-To set these permissions you can use `chmod` with a 'octal permission' value:
-
+<pre><code>chmod 777 foo.txt
 </code></pre>
 
-<p>chmod 777 foo.txt</p>
+<blockquote>
+<p>Note: this would mean all user types (owner, group, other) can all read/write/execute the file.</p>
+</blockquote>
 
-<pre><code>
-&gt; Note: this would mean all user types (owner, group, other) can all read/write/execute the file.
+<p>So what do these octal numbers mean?</p>
 
-So what do these octal numbers mean?
-
-</code></pre>
-
-<p>x (execute) - 1
+<pre><code>x (execute) - 1
 w (write)   - 2
-r (read)    - 4</p>
-
-<pre><code>
-We need to combine these numbers for _each_ user type:
-
-To have read and write permissions would require a value of `6` (e.g. `2 (write) + 4 (read) = 6`).
-
-If we only wanted the owner to have both read and write, but the others can only read the file, then we'd use:
-
+r (read)    - 4 
 </code></pre>
 
-<p>chmod 644 foo.txt</p>
+<p>We need to combine these numbers for <em>each</em> user type:</p>
 
-<pre><code>
-Because `6` == read/write for owner, while `4` == read for group/other.
+<p>To have read and write permissions would require a value of <code>6</code> (e.g. <code>2 (write) + 4 (read) = 6</code>).</p>
+
+<p>If we only wanted the owner to have both read and write, but the others can only read the file, then we&rsquo;d use:</p>
+
+<pre><code>chmod 644 foo.txt
 </code></pre>
+
+<p>Because <code>6</code> == read/write for owner, while <code>4</code> == read for group/other.</p>
 
 </div>
 </body>

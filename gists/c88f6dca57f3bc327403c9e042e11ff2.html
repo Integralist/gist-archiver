@@ -12,99 +12,120 @@
 
 <h2 id="nsq-questions-md">NSQ Questions.md</h2>
 
-<pre><code class="language-markdown">Below is my response to a colleague who was new to NSQ and had some questions about an application he was building.
+<p>Below is my response to a colleague who was new to NSQ and had some questions about an application he was building.</p>
 
-&gt; Note: bf_nsq is an internal BuzzFeed abstraction on top of pynsq.
+<blockquote>
+<p>Note: bf_nsq is an internal BuzzFeed abstraction on top of pynsq.</p>
+</blockquote>
 
----
+<hr />
 
-Heya 👋🏻
+<p>Heya 👋🏻</p>
 
-&gt; Are there any limits I should be aware of when using BF NSQ? ie. queue size, message size, requeues/max tries, response times, etc.
+<blockquote>
+<p>Are there any limits I should be aware of when using BF NSQ? ie. queue size, message size, requeues/max tries, response times, etc.</p>
+</blockquote>
 
-The NSQ defaults are (these are IMHO the more important parameters to be aware of)
+<p>The NSQ defaults are (these are IMHO the more important parameters to be aware of)</p>
 
-- topic/channel names have a size restriction of &lt;= 64 characters (used to be 32, see [tcp spec here](https://nsq.io/clients/tcp_protocol_spec.html)).
-- message size 1mb (see `-max-msg-size` in [nsqd docs here](https://nsq.io/components/nsqd.html)).
-- message queue size 1000 (see `-mem-queue-size` in [nsqd docs here](https://nsq.io/components/nsqd.html)).
+<ul>
+<li>topic/channel names have a size restriction of &lt;= 64 characters (used to be 32, see <a href="https://nsq.io/clients/tcp_protocol_spec.html" target="_blank">tcp spec here</a>).</li>
+<li>message size 1mb (see <code>-max-msg-size</code> in <a href="https://nsq.io/components/nsqd.html" target="_blank">nsqd docs here</a>).</li>
+<li>message queue size 1000 (see <code>-mem-queue-size</code> in <a href="https://nsq.io/components/nsqd.html" target="_blank">nsqd docs here</a>).</li>
+</ul>
 
-The BuzzFeed defaults are effectively the same. You'll find this information in our Ansible configuration (i.e. `ansible/roles/nsqd/templates/nsqd_bootstrap.sh.j2` and the values: `ansible/roles/nsqd/defaults/main.yml`).
+<p>The BuzzFeed defaults are effectively the same. You&rsquo;ll find this information in our Ansible configuration (i.e. <code>ansible/roles/nsqd/templates/nsqd_bootstrap.sh.j2</code> and the values: <code>ansible/roles/nsqd/defaults/main.yml</code>).</p>
 
-As far as reading/writing of NSQ messages I would suggest reading through the [pynsq docs](https://pynsq.readthedocs.io/en/latest/) (specifically the Reader/Writer classes). I know that bf_nsq is an abstraction on top of pynsq but it's worth getting a bit familiar with what bf_nsq is using 'under the covers'. Hence knowing what you can configure within `nsq.Reader` will help you.
+<p>As far as reading/writing of NSQ messages I would suggest reading through the <a href="https://pynsq.readthedocs.io/en/latest/" target="_blank">pynsq docs</a> (specifically the Reader/Writer classes). I know that bf_nsq is an abstraction on top of pynsq but it&rsquo;s worth getting a bit familiar with what bf_nsq is using &lsquo;under the covers&rsquo;. Hence knowing what you can configure within <code>nsq.Reader</code> will help you.</p>
 
-**As an example**: bf_nsq provides `bf_nsq.MultiReader` which is an abstraction for pynsq's `nsq.Reader` class, and any additional keyword args you provide to `bf_nsq.MultiReader` will be passed into the constructor for `nsq.Reader`).Hence knowing what you can configure within `nsq.Reader` will help you.
+<p><strong>As an example</strong>: bf_nsq provides <code>bf_nsq.MultiReader</code> which is an abstraction for pynsq&rsquo;s <code>nsq.Reader</code> class, and any additional keyword args you provide to <code>bf_nsq.MultiReader</code> will be passed into the constructor for <code>nsq.Reader</code>).Hence knowing what you can configure within <code>nsq.Reader</code> will help you.</p>
 
-One important thing to be aware of is that bf_nsq uses `nsq.Reader` but not `nsq.Writer`. My understanding is that bf_nsq's `publish` method is designed to support batch publishing of messages (something `nsq.Writer` doesn't support). So although you can read the pynsq docs to understand the `nsq.Reader` and `nsq.Writer` classes, you'll only really be able to configure the _reading_ of messages when using bf_nsq.
+<p>One important thing to be aware of is that bf_nsq uses <code>nsq.Reader</code> but not <code>nsq.Writer</code>. My understanding is that bf_nsq&rsquo;s <code>publish</code> method is designed to support batch publishing of messages (something <code>nsq.Writer</code> doesn&rsquo;t support). So although you can read the pynsq docs to understand the <code>nsq.Reader</code> and <code>nsq.Writer</code> classes, you&rsquo;ll only really be able to configure the <em>reading</em> of messages when using bf_nsq.</p>
 
-Also, bf_nsq doesn't set any reader parameters when creating instances of `nsq.Reader`, so you'll need to check pynsq to see what those defaults are. Although in most cases the defaults are mentioned in the documentation itself, I typically will go directly to the pynsq GitHub code repository to see what the defaults are as I like to get familiar with the code I'm ultimately going to be using, and possibly debugging if things don't work how I expect them to (you'll find the [defaults set here](https://github.com/nsqio/pynsq/blob/master/nsq/reader.py#L138-L154)).
+<p>Also, bf_nsq doesn&rsquo;t set any reader parameters when creating instances of <code>nsq.Reader</code>, so you&rsquo;ll need to check pynsq to see what those defaults are. Although in most cases the defaults are mentioned in the documentation itself, I typically will go directly to the pynsq GitHub code repository to see what the defaults are as I like to get familiar with the code I&rsquo;m ultimately going to be using, and possibly debugging if things don&rsquo;t work how I expect them to (you&rsquo;ll find the <a href="https://github.com/nsqio/pynsq/blob/master/nsq/reader.py#L138-L154" target="_blank">defaults set here</a>).</p>
 
-Specifically you'll find:
+<p>Specifically you&rsquo;ll find:</p>
 
-- `max_tries`: 5 (the maximum number of attempts the reader will make to process a message after which messages will be automatically discarded)
-- `max_in_flight`: 1 (the maximum number of messages this reader will pipeline for processing.this value will be divided evenly amongst the configured/discovered nsqd producers)
-- `msg_timeout`: None (the amount of time (in seconds) that nsqd will wait before considering messages that have been delivered to this consumer timed out)
+<ul>
+<li><code>max_tries</code>: 5 (the maximum number of attempts the reader will make to process a message after which messages will be automatically discarded)</li>
+<li><code>max_in_flight</code>: 1 (the maximum number of messages this reader will pipeline for processing.this value will be divided evenly amongst the configured/discovered nsqd producers)</li>
+<li><code>msg_timeout</code>: None (the amount of time (in seconds) that nsqd will wait before considering messages that have been delivered to this consumer timed out)</li>
+</ul>
 
-&gt; **NOTE**: `msg_timeout` is slightly misleading. In nearly all examples of `nsq.Reader` you'll see `msg_timeout` being provided as a parameter but in fact it will be proxied down into `nsq.AsyncConn` which means you have to look at a different code file to find its default value (you'll find the [default set here](https://github.com/nsqio/pynsq/blob/master/nsq/conn.py#L141)).
+<blockquote>
+<p><strong>NOTE</strong>: <code>msg_timeout</code> is slightly misleading. In nearly all examples of <code>nsq.Reader</code> you&rsquo;ll see <code>msg_timeout</code> being provided as a parameter but in fact it will be proxied down into <code>nsq.AsyncConn</code> which means you have to look at a different code file to find its default value (you&rsquo;ll find the <a href="https://github.com/nsqio/pynsq/blob/master/nsq/conn.py#L141" target="_blank">default set here</a>).</p>
 
-&gt; Say a user uploads their Twitter history and a batch of NSQ messages are sent off to trigger tweet deletions. How can I tell when all messages have been processed successfully and ensure that none were dropped or failed?
+<p>Say a user uploads their Twitter history and a batch of NSQ messages are sent off to trigger tweet deletions. How can I tell when all messages have been processed successfully and ensure that none were dropped or failed?</p>
+</blockquote>
 
-So there's two things to consider here:
+<p>So there&rsquo;s two things to consider here:</p>
 
-1. instrumentation
-2. message contents
+<ol>
+<li>instrumentation</li>
+<li>message contents</li>
+</ol>
 
-As far as I'm aware there is no built-in callback mechanism with either `nsq.Writer` or `bf_nsq.publish` and so you'll want to utilize instrumentation (e.g. bf_metrics) in your application that's reading the messages from NSQ and processing them. That way you'll be able to report whether a message was processed completely or if it needed to be requeued (or maybe even dropped).
+<p>As far as I&rsquo;m aware there is no built-in callback mechanism with either <code>nsq.Writer</code> or <code>bf_nsq.publish</code> and so you&rsquo;ll want to utilize instrumentation (e.g. bf_metrics) in your application that&rsquo;s reading the messages from NSQ and processing them. That way you&rsquo;ll be able to report whether a message was processed completely or if it needed to be requeued (or maybe even dropped).</p>
 
-Now what I'm about to mention I don't think will affect you as your design is different to what I'm about to describe but I want to say it anyway as it could be a useful thought experiment. If you're using `bf_nsq.publish` to send batched messages to NSQ and some of those messages fail to publish, then you'll get back a list of failed messages. 
+<p>Now what I&rsquo;m about to mention I don&rsquo;t think will affect you as your design is different to what I&rsquo;m about to describe but I want to say it anyway as it could be a useful thought experiment. If you&rsquo;re using <code>bf_nsq.publish</code> to send batched messages to NSQ and some of those messages fail to publish, then you&rsquo;ll get back a list of failed messages.</p>
 
-You can then decide if you want to try sending those failed messages again, but you'll want to build in some logic that short-circuits the retries after a set threshold has been exceeded (e.g. you don't want to retry the failed messages for the rest of time!) especially if there's some kind of formatting error that would mean they would never succeed.
+<p>You can then decide if you want to try sending those failed messages again, but you&rsquo;ll want to build in some logic that short-circuits the retries after a set threshold has been exceeded (e.g. you don&rsquo;t want to retry the failed messages for the rest of time!) especially if there&rsquo;s some kind of formatting error that would mean they would never succeed.</p>
 
-I brought this up as I had a service (qr_plan_z) that would be given messages that contained log files. I would parse individual log lines from the message contents and then group each log line up into a list to be batch published to NSQ via the `bf_nsq.publish` method. 
+<p>I brought this up as I had a service (qr_plan_z) that would be given messages that contained log files. I would parse individual log lines from the message contents and then group each log line up into a list to be batch published to NSQ via the <code>bf_nsq.publish</code> method.</p>
 
-If any of those log lines failed and I wanted to requeue them I would be in an awkward situation because I ultimately would have to requeue the entire message and that would mean when my queue reader service (qr_plan_z) received the requeued message, then I'd have to parse the log lines again (even those that were already successfully published). 
+<p>If any of those log lines failed and I wanted to requeue them I would be in an awkward situation because I ultimately would have to requeue the entire message and that would mean when my queue reader service (qr_plan_z) received the requeued message, then I&rsquo;d have to parse the log lines again (even those that were already successfully published).</p>
 
-A queue reader service needs to be performant and so if I didn't just requeue the message (and I kept retrying the failing messages over and over) it would have resulted in my service not being able to context switch to another ioloop task (i.e. handling another incoming message). Not without writing extra logic for forcing a context switch, which would have been a non-trivial piece of work (especially considering the queue reader was using a tornado ioloop that was hidden away inside of pynsq so it's not like I had direct access to it because of how pynsq is designed to be used).
+<p>A queue reader service needs to be performant and so if I didn&rsquo;t just requeue the message (and I kept retrying the failing messages over and over) it would have resulted in my service not being able to context switch to another ioloop task (i.e. handling another incoming message). Not without writing extra logic for forcing a context switch, which would have been a non-trivial piece of work (especially considering the queue reader was using a tornado ioloop that was hidden away inside of pynsq so it&rsquo;s not like I had direct access to it because of how pynsq is designed to be used).</p>
 
-Ultimately it was better/easier for me to just requeue the message and suffer the consequence of re-publishing URLs that would have already been published successfully in the hope that the failed messages would go through successfully the second time around. 
+<p>Ultimately it was better/easier for me to just requeue the message and suffer the consequence of re-publishing URLs that would have already been published successfully in the hope that the failed messages would go through successfully the second time around.</p>
 
-This made it even more important for a service upstream of mine that would be consuming these messages to have some form of deduplication logic in place.
+<p>This made it even more important for a service upstream of mine that would be consuming these messages to have some form of deduplication logic in place.</p>
 
-&gt; What are some good strategies for handling duplicate requests and avoiding redundant API calls? I saw in your blog that you’ve used Redis to track duplicate requests and rate limit yourself. Can you talk more about this or do you have any examples that I can take a look at?
+<blockquote>
+<p>What are some good strategies for handling duplicate requests and avoiding redundant API calls? I saw in your blog that you’ve used Redis to track duplicate requests and rate limit yourself. Can you talk more about this or do you have any examples that I can take a look at?</p>
+</blockquote>
 
-You can see examples of using redis for deduplication in qr_plan_z (e.g. `qr_plan_z/app/handler.py#L160-L185`) and you can see examples of using redis for rate limiting in qr_static_fallback_s3 (e.g. `qr_static_fallback_s3/app/ratelimit.py`).
+<p>You can see examples of using redis for deduplication in qr_plan_z (e.g. <code>qr_plan_z/app/handler.py#L160-L185</code>) and you can see examples of using redis for rate limiting in qr_static_fallback_s3 (e.g. <code>qr_static_fallback_s3/app/ratelimit.py</code>).</p>
 
-It's good that you're thinking about deduplicating entries (as tolerance is useful when designing resilient systems) but I wouldn't necessarily worry about my specific implementation, as it's not only old (and not very good) but it's also not going to align with the design of your own service.
+<p>It&rsquo;s good that you&rsquo;re thinking about deduplicating entries (as tolerance is useful when designing resilient systems) but I wouldn&rsquo;t necessarily worry about my specific implementation, as it&rsquo;s not only old (and not very good) but it&rsquo;s also not going to align with the design of your own service.</p>
 
-You could (depending on the number of tweets that are expected to be purged) use a simple in-memory data structure to hold state about tweets that have already been seen. Maybe see how far that approach gets you first before spinning up a redis instance. 
+<p>You could (depending on the number of tweets that are expected to be purged) use a simple in-memory data structure to hold state about tweets that have already been seen. Maybe see how far that approach gets you first before spinning up a redis instance.</p>
 
-Additionally I used redis because there was an expectation (in my use case at least) for messages to 'eventually' need to be reprocessed. What I mean by that was my messages were log files and so those log files might have a URL such as `https://www.buzzfeed.com/videos` multiple times (because multiple users visited that page). I only want to handle the URL once as I was going to grab a static copy of that page and store it into S3 (no point in doing that multiple times right). BUT that page will be updated at some point and I want the latest version of it. So when storing a key into redis I would have a TTL set so that it would auto-expire at a point in future. So let's say the next day I'll get a new bunch of messages and they might include the same `https://www.buzzfeed.com/videos` URL, my queue reader will now check redis, find no key there and reprocess the URL.
+<p>Additionally I used redis because there was an expectation (in my use case at least) for messages to &lsquo;eventually&rsquo; need to be reprocessed. What I mean by that was my messages were log files and so those log files might have a URL such as <code>https://www.buzzfeed.com/videos</code> multiple times (because multiple users visited that page). I only want to handle the URL once as I was going to grab a static copy of that page and store it into S3 (no point in doing that multiple times right). BUT that page will be updated at some point and I want the latest version of it. So when storing a key into redis I would have a TTL set so that it would auto-expire at a point in future. So let&rsquo;s say the next day I&rsquo;ll get a new bunch of messages and they might include the same <code>https://www.buzzfeed.com/videos</code> URL, my queue reader will now check redis, find no key there and reprocess the URL.</p>
 
-Doesn't sound like you have to worry about that sort of set-up because a tweet is a unique entity and so once it has been deleted, you're unlikely to see it pop up again. Unless due to your UI you allow someone to upload a bunch of past tweets, then that way someone might upload the same set of tweets multiple times accidentally (admittedly it wouldn't be the end of the world though if that happened as your logic could account for that by checking the twitter API response so that if it came back with a message like &quot;tweet not found&quot; then you can happily just drop that message. Sure it would be an extra API call to twitter, and so that might be important enough to protect by using deduplication in your application).
+<p>Doesn&rsquo;t sound like you have to worry about that sort of set-up because a tweet is a unique entity and so once it has been deleted, you&rsquo;re unlikely to see it pop up again. Unless due to your UI you allow someone to upload a bunch of past tweets, then that way someone might upload the same set of tweets multiple times accidentally (admittedly it wouldn&rsquo;t be the end of the world though if that happened as your logic could account for that by checking the twitter API response so that if it came back with a message like &ldquo;tweet not found&rdquo; then you can happily just drop that message. Sure it would be an extra API call to twitter, and so that might be important enough to protect by using deduplication in your application).</p>
 
-&gt; If the QR hits a Twitter API rate limit, I think it would make the most sense to save the current user’s remaining deletion requests for later and move onto the next user’s deletion requests since deletion rate limits are per user rather than per app. Should I just keep requeueing that user's remaining requests until their rate limit window refreshes or is there a better way of handling this?
+<blockquote>
+<p>If the QR hits a Twitter API rate limit, I think it would make the most sense to save the current user’s remaining deletion requests for later and move onto the next user’s deletion requests since deletion rate limits are per user rather than per app. Should I just keep requeueing that user&rsquo;s remaining requests until their rate limit window refreshes or is there a better way of handling this?</p>
+</blockquote>
 
-If you know what the refresh window is, then I believe you could configure NSQ to use a pause duration to match. The `nsq.AsyncConn` class has a `requeue_delay` parameter which you can configure by passing it into the `nsq.Reader` class (as the parameter will be passed down into `nsq.AsyncConn` on your behalf). 
+<p>If you know what the refresh window is, then I believe you could configure NSQ to use a pause duration to match. The <code>nsq.AsyncConn</code> class has a <code>requeue_delay</code> parameter which you can configure by passing it into the <code>nsq.Reader</code> class (as the parameter will be passed down into <code>nsq.AsyncConn</code> on your behalf).</p>
 
-Looks like the default value for that is `90` (see [code here](https://github.com/nsqio/pynsq/blob/master/nsq/conn.py#L130)). But be aware the value you provide is not a time period (e.g. it's not 90 seconds). According to the code they describe this feature as...
+<p>Looks like the default value for that is <code>90</code> (see <a href="https://github.com/nsqio/pynsq/blob/master/nsq/conn.py#L130" target="_blank">code here</a>). But be aware the value you provide is not a time period (e.g. it&rsquo;s not 90 seconds). According to the code they describe this feature as&hellip;</p>
 
-&gt; When a message on this connection is requeued and the requeue delay has not been specified, it calculates the delay automatically by an increasing multiple of `requeue_delay`.
+<blockquote>
+<p>When a message on this connection is requeued and the requeue delay has not been specified, it calculates the delay automatically by an increasing multiple of <code>requeue_delay</code>.</p>
+</blockquote>
 
-If you [look at the code](https://github.com/nsqio/pynsq/blob/master/nsq/conn.py#L514) you can see the calculation it uses.
+<p>If you <a href="https://github.com/nsqio/pynsq/blob/master/nsq/conn.py#L514" target="_blank">look at the code</a> you can see the calculation it uses.</p>
 
-&gt; Is there a way to ensure that Twitter API requests can only be triggered by trusted sources (UI, job) via NSQ? For example, restricting which services are able to publish to a given topic?
+<blockquote>
+<p>Is there a way to ensure that Twitter API requests can only be triggered by trusted sources (UI, job) via NSQ? For example, restricting which services are able to publish to a given topic?</p>
+</blockquote>
 
-I don't believe there is a built-in mechanism for this, but I could be wrong. I don't know enough about our BuzzFeed 'pixie dust' implementation (which iirc is the abstraction platform layer we've built around NSQ here at BuzzFeed).
+<p>I don&rsquo;t believe there is a built-in mechanism for this, but I could be wrong. I don&rsquo;t know enough about our BuzzFeed &lsquo;pixie dust&rsquo; implementation (which iirc is the abstraction platform layer we&rsquo;ve built around NSQ here at BuzzFeed).</p>
 
-I would suggest adding some form of shared secret key, or just contextual data to your message contents such that the service processing the NSQ messages can check if the value is present and if it is you know the message was published from a trusted source.
+<p>I would suggest adding some form of shared secret key, or just contextual data to your message contents such that the service processing the NSQ messages can check if the value is present and if it is you know the message was published from a trusted source.</p>
 
-&gt; I don’t fully understand how to use the max in flight setting. Is there a good rule of thumb for figuring out what that should be for my service?
+<blockquote>
+<p>I don’t fully understand how to use the max in flight setting. Is there a good rule of thumb for figuring out what that should be for my service?</p>
+</blockquote>
 
-The answer will depend on your application throughput. I don't think there's an exact calculation. You'll need to start with a small number, let's say 10, and then monitor your application (message processing latency, observing memory and cpu consumption etc) and then if all looks well then maybe try increasing the value incrementally.
+<p>The answer will depend on your application throughput. I don&rsquo;t think there&rsquo;s an exact calculation. You&rsquo;ll need to start with a small number, let&rsquo;s say 10, and then monitor your application (message processing latency, observing memory and cpu consumption etc) and then if all looks well then maybe try increasing the value incrementally.</p>
 
-You should also look at the nsqadmin UI service (and subsequent metrics reported into Datadog) to gauge performance of NSQ such as message depth over time.
+<p>You should also look at the nsqadmin UI service (and subsequent metrics reported into Datadog) to gauge performance of NSQ such as message depth over time.</p>
 
-Ps, there's some &quot;Design and Theory&quot; + &quot;pynsq&quot; questions in the NSQ FAQ which might be of interest to you as someone new to NSQ (see [FAQ here](https://nsq.io/overview/faq.html#design-and-theory)).
-</code></pre>
+<p>Ps, there&rsquo;s some &ldquo;Design and Theory&rdquo; + &ldquo;pynsq&rdquo; questions in the NSQ FAQ which might be of interest to you as someone new to NSQ (see <a href="https://nsq.io/overview/faq.html#design-and-theory" target="_blank">FAQ here</a>).</p>
 
 </div>
 </body>

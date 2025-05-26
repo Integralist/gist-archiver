@@ -12,8 +12,7 @@
 
 <h2 id="debian-jessie-python-3xx-install-nginx-plus-md">Debian (Jessie) Python 3xx install NGINX Plus.md</h2>
 
-<pre><code class="language-markdown">```Dockerfile
-# https://www.nginx.com/resources/admin-guide/installing-nginx-plus/#install_debian_ubuntu
+<pre><code class="language-Dockerfile"># https://www.nginx.com/resources/admin-guide/installing-nginx-plus/#install_debian_ubuntu
 FROM python:3.6.1-slim
 
 # Set the debconf frontend to Noninteractive
@@ -43,8 +42,6 @@ ADD . /app
 
 CMD python3 /app/template.py nginx.conf.j2 /nginx.conf &amp;&amp; nginx -c /nginx.conf
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

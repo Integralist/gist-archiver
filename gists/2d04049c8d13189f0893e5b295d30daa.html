@@ -12,12 +12,11 @@
 
 <h2 id="rust-environment-md">rust environment.md</h2>
 
-<pre><code class="language-markdown">The default toolchain in rust is &quot;stable&quot;.
+<p>The default toolchain in rust is &ldquo;stable&rdquo;.</p>
 
-A user can execute `rustup override set &lt;toolchain&gt;` to change the default toolchain (e.g. to &quot;nightly&quot; or a specific toolchain version installed using `rustup toolchain install &lt;toolchain&gt;`), and this will be reflected when running either `rustup show active-toolchain` or `rustc --version` (i.e. either of those latter commands will show the version set to be the same as the specified override). The `rustup override set` command also takes priority over anything set within a `rust-toolchain` file:
+<p>A user can execute <code>rustup override set &lt;toolchain&gt;</code> to change the default toolchain (e.g. to &ldquo;nightly&rdquo; or a specific toolchain version installed using <code>rustup toolchain install &lt;toolchain&gt;</code>), and this will be reflected when running either <code>rustup show active-toolchain</code> or <code>rustc --version</code> (i.e. either of those latter commands will show the version set to be the same as the specified override). The <code>rustup override set</code> command also takes priority over anything set within a <code>rust-toolchain</code> file:</p>
 
-```toml
-[toolchain]
+<pre><code class="language-toml">[toolchain]
 channel = &quot;stable&quot; # &lt;&lt; this would be overridden by `rustup override set &lt;toolchain&gt;`
 targets = [ &quot;wasm32-wasi&quot; ]
 </code></pre>
@@ -47,8 +46,7 @@ targets = [ &quot;wasm32-wasi&quot; ]
 <p>† Which is different to any specific toolchain that has been manually installed (using <code>rustup toolchain install &lt;toolchain&gt;</code>) and then set to be the default using <code>rustup default &lt;toolchain&gt;</code>.</p>
 </blockquote>
 
-<p>Refer to <a href="https://rust-lang.github.io/rustup/concepts/toolchains.html" target="_blank">https://rust-lang.github.io/rustup/concepts/toolchains.html</a> for more information on the toolchain specification.
-&ldquo;`</p>
+<p>Refer to <a href="https://rust-lang.github.io/rustup/concepts/toolchains.html" target="_blank">https://rust-lang.github.io/rustup/concepts/toolchains.html</a> for more information on the toolchain specification.</p>
 
 </div>
 </body>

@@ -12,10 +12,9 @@
 
 <h2 id="easy-window-and-document-mocking-md">Easy window and document mocking.md</h2>
 
-<pre><code class="language-markdown">In `tabloid/webapp/php/sharedmodules/tabloid-shared/views/layout/base.spv` we run...
+<p>In <code>tabloid/webapp/php/sharedmodules/tabloid-shared/views/layout/base.spv</code> we run&hellip;</p>
 
-```js
-require(['module/base', 'domReady'], function (base, domReady) {
+<pre><code class="language-js">require(['module/base', 'domReady'], function (base, domReady) {
     domReady(function () {
         base.init();
         &lt;?php $this-&gt;newsPageJavaScript(); ?&gt;
@@ -142,8 +141,6 @@ function resizeWindow (width, height, fakeWindow) {
     // we can now use `window` and `document` and they'll either be our mock or the real thing
 });
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

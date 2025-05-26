@@ -12,29 +12,34 @@
 
 <h2 id="1-example-md">1. Example.md</h2>
 
-<pre><code class="language-markdown">- `git clone git@github.com:fastly/cli.git`
-- `cd cli`
-- `go install github.com/go-delve/delve/cmd/dlv@latest` (install the debugger)
-- `dlv debug ./cmd/fastly/main.go -- compute deploy` (start up the debugger)
-- `break ./pkg/commands/compute/deploy.go:89` (add break point within the 'deploy' code file)
-- `cond &lt;breakpoint_name_or_id&gt; &lt;boolean expression&gt;` (e.g. `cond 1 commandName == &quot;sso&quot;`)
-- `continue` (this would be typed into the debugger prompt and would cause the code to run until the breakpoint)
+<ul>
+<li><code>git clone git@github.com:fastly/cli.git</code></li>
+<li><code>cd cli</code></li>
+<li><code>go install github.com/go-delve/delve/cmd/dlv@latest</code> (install the debugger)</li>
+<li><code>dlv debug ./cmd/fastly/main.go -- compute deploy</code> (start up the debugger)</li>
+<li><code>break ./pkg/commands/compute/deploy.go:89</code> (add break point within the &lsquo;deploy&rsquo; code file)</li>
+<li><code>cond &lt;breakpoint_name_or_id&gt; &lt;boolean expression&gt;</code> (e.g. <code>cond 1 commandName == &quot;sso&quot;</code>)</li>
+<li><code>continue</code> (this would be typed into the debugger prompt and would cause the code to run until the breakpoint)</li>
+</ul>
 
-From there you can use `n` (next) to go from line-to-line or `s` (step-into) to jump into any function calls, along with `print` to see what the code is doing.
+<p>From there you can use <code>n</code> (next) to go from line-to-line or <code>s</code> (step-into) to jump into any function calls, along with <code>print</code> to see what the code is doing.</p>
 
-To exercise the test code:
+<p>To exercise the test code:</p>
 
-- `dlv test ./pkg/example/... -- -test.v -test.run TestExample/specific_test_case`
-- `break ./pkg/example/example_test.go:123`
+<ul>
+<li><code>dlv test ./pkg/example/... -- -test.v -test.run TestExample/specific_test_case</code></li>
+<li><code>break ./pkg/example/example_test.go:123</code></li>
+</ul>
 
-&gt; **NOTE**: If you see the error &quot;cannot use -c flag with multiple packages&quot; then `cd` into the package directory (e.g. `cd ./pkg/example &amp;&amp; dlv test`).
+<blockquote>
+<p><strong>NOTE</strong>: If you see the error &ldquo;cannot use -c flag with multiple packages&rdquo; then <code>cd</code> into the package directory (e.g. <code>cd ./pkg/example &amp;&amp; dlv test</code>).</p>
+</blockquote>
 
-## Examples
+<h2 id="examples">Examples</h2>
 
-Fastly Terraform Tests:
+<p>Fastly Terraform Tests:</p>
 
-```bash
-cd ./fastly
+<pre><code class="language-bash">cd ./fastly
 TF_ACC=true dlv test -- -test.v -test.run TestAccFastlyServiceVCL_syslog_useTLS
 break block_fastly_service_logging_syslog_test.go:253 // break inside the test code
 break block_fastly_service_logging_syslog.go:342      // break inside the execute terraform code (trigged by the test)
@@ -47,11 +52,9 @@ TEST_COMPUTE_BUILD=1 dlv test -- -test.v -test.run TestBuildAssemblyScript/succe
 break build_test.go:328
 </code></pre>
 
-<pre><code>
-## Golang Debugging with Delve.bash
+<h2 id="golang-debugging-with-delve-bash">Golang Debugging with Delve.bash</h2>
 
-```shell
-# https://blog.gopheracademy.com/advent-2015/debugging-with-delve/
+<pre><code class="language-shell"># https://blog.gopheracademy.com/advent-2015/debugging-with-delve/
 #
 # connect - connect to headless debug server.
 # debug - run in same directory as `go build`, builds binary with extra debug info (e.g. dlv debug .)

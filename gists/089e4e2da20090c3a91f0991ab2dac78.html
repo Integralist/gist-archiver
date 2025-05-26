@@ -12,8 +12,7 @@
 
 <h2 id="1-readme-md">1. README.md</h2>
 
-<pre><code class="language-markdown">```shell
-$ go run main.go
+<pre><code class="language-shell">$ go run main.go
 
 Querying root server 198.41.0.4 for TLD com...
 Selected TLD server: g.gtld-servers.net.
@@ -25,11 +24,9 @@ Querying authoritative server 208.84.5.9 for domain coca-cola.com...
 resolved A record: coca-cola.com.	3000	IN	A	52.14.144.171
 </code></pre>
 
-<pre><code>
-## main.go
+<h2 id="main-go">main.go</h2>
 
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;crypto/rand&quot;

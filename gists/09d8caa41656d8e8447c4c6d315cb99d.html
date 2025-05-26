@@ -12,12 +12,11 @@
 
 <h2 id="go-test-mocking-package-function-md">Go Test Mocking Package Function.md</h2>
 
-<pre><code class="language-markdown">## Build Tags
+<h2 id="build-tags">Build Tags</h2>
 
-File: `a/a.go`
+<p>File: <code>a/a.go</code></p>
 
-```go
-// +build !mock
+<pre><code class="language-go">// +build !mock
 
 package a
 func DoSomething() {
@@ -39,8 +38,6 @@ func DoSomething() {  // Insert fake implementation here
 
 <pre><code class="language-bash">$ go test -tags mock
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

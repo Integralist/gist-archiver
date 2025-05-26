@@ -12,12 +12,11 @@
 
 <h2 id="python-exception-handling-guidelines-md">Python Exception Handling Guidelines.md</h2>
 
-<pre><code class="language-markdown">It's best to raise your exceptions at the point in the code where errors are going to occur.
+<p>It&rsquo;s best to raise your exceptions at the point in the code where errors are going to occur.</p>
 
-When you have deeply nested code modules, then don't try to handle exceptions in-between, just raise the exception (instrument there too) and then let a _top level_ handler catch generalized exceptions to do its own instrumentation (if necessary).
+<p>When you have deeply nested code modules, then don&rsquo;t try to handle exceptions in-between, just raise the exception (instrument there too) and then let a <em>top level</em> handler catch generalized exceptions to do its own instrumentation (if necessary).</p>
 
-This means it's a good idea for the top level handler to catch a generalized parent exception class type, and have your internal code raise subclass exceptions from that parent class.
-</code></pre>
+<p>This means it&rsquo;s a good idea for the top level handler to catch a generalized parent exception class type, and have your internal code raise subclass exceptions from that parent class.</p>
 
 </div>
 </body>

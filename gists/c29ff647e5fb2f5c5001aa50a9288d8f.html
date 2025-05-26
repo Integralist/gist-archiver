@@ -10,6 +10,20 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="golang-remove-line-from-file-go-golang-file-write-remove">[Golang remove line from file] #go #golang #file #write #remove</h1>
 
+<h2 id="1-readme-md">1. README.md</h2>
+
+<p>We had a bug where a line <code>[manifest_version]</code> was being added by accident.</p>
+
+<h2 id="fastly-toml">fastly.toml</h2>
+
+<pre><code class="language-toml">authors = [&quot;integralist@fastly.com&quot;]
+description = &quot;testing&quot;
+language = &quot;rust&quot;
+[manifest_version]
+name = &quot;testing&quot;
+service_id = &quot;123&quot;
+</code></pre>
+
 <h2 id="main-go">main.go</h2>
 
 <pre><code class="language-go">package main
@@ -55,21 +69,6 @@ func main() {
 		log.Fatal(err)
 	}
 }
-</code></pre>
-
-<h2 id="1-readme-md">1. README.md</h2>
-
-<pre><code class="language-markdown">We had a bug where a line `[manifest_version]` was being added by accident.
-</code></pre>
-
-<h2 id="fastly-toml">fastly.toml</h2>
-
-<pre><code class="language-toml">authors = [&quot;integralist@fastly.com&quot;]
-description = &quot;testing&quot;
-language = &quot;rust&quot;
-[manifest_version]
-name = &quot;testing&quot;
-service_id = &quot;123&quot;
 </code></pre>
 
 </div>

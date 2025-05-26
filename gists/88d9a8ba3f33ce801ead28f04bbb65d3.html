@@ -12,20 +12,19 @@
 
 <h2 id="fakes-vs-stubs-vs-mocks-md">Fakes vs Stubs vs Mocks.md</h2>
 
-<pre><code class="language-markdown">## Fakes
+<h2 id="fakes">Fakes</h2>
 
-Fake objects actually have working implementations, but usually take some shortcut which makes them not suitable for production (e.g. a working version of a datastore that has a get and set method but writes to local disk rather than actually writing to a database).
+<p>Fake objects actually have working implementations, but usually take some shortcut which makes them not suitable for production (e.g. a working version of a datastore that has a get and set method but writes to local disk rather than actually writing to a database).</p>
 
-## Stubs
+<h2 id="stubs">Stubs</h2>
 
-Stubs provide canned answers to calls made during the test, usually not responding at all to anything outside what's programmed in for the test. Stubs may also record information about calls, such as an email gateway stub that remembers the messages it 'sent', or maybe only how many messages it 'sent'.
+<p>Stubs provide canned answers to calls made during the test, usually not responding at all to anything outside what&rsquo;s programmed in for the test. Stubs may also record information about calls, such as an email gateway stub that remembers the messages it &lsquo;sent&rsquo;, or maybe only how many messages it &lsquo;sent&rsquo;.</p>
 
-## Mocks
+<h2 id="mocks">Mocks</h2>
 
-Mocks are what we are talking about here: objects pre-programmed with expectations which form a specification of the calls they are expected to receive.
+<p>Mocks are what we are talking about here: objects pre-programmed with expectations which form a specification of the calls they are expected to receive.</p>
 
-Additionally, mocks are seen as a thing that we will assert validations against. They have the responsiblity of recording how it was, or wasn't, used (e.g. &quot;assert that an API were called with xyz values&quot;, &quot;assert that an endpoint was not called&quot;, etc).
-</code></pre>
+<p>Additionally, mocks are seen as a thing that we will assert validations against. They have the responsiblity of recording how it was, or wasn&rsquo;t, used (e.g. &ldquo;assert that an API were called with xyz values&rdquo;, &ldquo;assert that an endpoint was not called&rdquo;, etc).</p>
 
 </div>
 </body>

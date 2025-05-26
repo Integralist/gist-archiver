@@ -12,16 +12,15 @@
 
 <h2 id="0-readme-md">0. README.md</h2>
 
-<pre><code class="language-markdown">The `application/x-ndjson` MIME type refers to a type of data format called Newline delimited JSON (NDJSON). NDJSON is a way of storing structured data as a sequence of JSON (JavaScript Object Notation) objects, separated by newline characters. 
+<p>The <code>application/x-ndjson</code> MIME type refers to a type of data format called Newline delimited JSON (NDJSON). NDJSON is a way of storing structured data as a sequence of JSON (JavaScript Object Notation) objects, separated by newline characters.</p>
 
-Each line of an NDJSON file contains a complete JSON object, which means that a single NDJSON file can contain multiple JSON objects. This format is commonly used for streaming large datasets, as it allows data to be processed in a continuous and efficient manner.
+<p>Each line of an NDJSON file contains a complete JSON object, which means that a single NDJSON file can contain multiple JSON objects. This format is commonly used for streaming large datasets, as it allows data to be processed in a continuous and efficient manner.</p>
 
-The `application/x-ndjson` MIME type is used to indicate that a file or data stream contains NDJSON formatted data. The `x` in the MIME type indicates that it is an unregistered type, which means that it is not an official MIME type defined by the Internet Assigned Numbers Authority (IANA). However, it is widely used and supported by many applications and APIs that deal with structured data.
+<p>The <code>application/x-ndjson</code> MIME type is used to indicate that a file or data stream contains NDJSON formatted data. The <code>x</code> in the MIME type indicates that it is an unregistered type, which means that it is not an official MIME type defined by the Internet Assigned Numbers Authority (IANA). However, it is widely used and supported by many applications and APIs that deal with structured data.</p>
 
-Here's an example of how you could use Go to send an NDJSON-formatted payload to an API:
+<p>Here&rsquo;s an example of how you could use Go to send an NDJSON-formatted payload to an API:</p>
 
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;bytes&quot;
@@ -74,11 +73,9 @@ func main() {
 
 <p>Finally, we send the request using an <code>http.Client</code> and print the response status. Note that this example is simplified and doesn&rsquo;t include error handling for the sake of brevity. In a real-world application, you would want to handle errors appropriately.</p>
 
-<pre><code>
-## 1. Example.sh
+<h2 id="1-example-sh">1. Example.sh</h2>
 
-```shell
-./stream.sh 100000 | go run client.go
+<pre><code class="language-shell">./stream.sh 100000 | go run client.go
 </code></pre>
 
 <h2 id="2-stream-sh">2. stream.sh</h2>

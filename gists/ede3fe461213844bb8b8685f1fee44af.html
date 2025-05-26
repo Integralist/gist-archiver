@@ -10,21 +10,61 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="convert-synchronous-external-python-code-into-asynchronous-code-python-tornado-sync-async-requests-urllib">[Convert synchronous external Python code into asynchronous code] #python #tornado #sync #async #requests #urllib</h1>
 
+<h2 id="1-quicker-implementation-py">1. Quicker Implementation.py</h2>
+
+<pre><code class="language-python">import functools
+
+
+def force_async(fn):
+    '''
+    turns a sync function to async function using threads
+    '''
+    from concurrent.futures import ThreadPoolExecutor
+    import asyncio
+    pool = ThreadPoolExecutor()
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        future = pool.submit(fn, *args, **kwargs)
+        return asyncio.wrap_future(future)  # make it awaitable
+
+    return wrapper
+
+
+def force_sync(fn):
+    '''
+    turn an async function to sync function
+    '''
+    import asyncio
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        res = fn(*args, **kwargs)
+        if asyncio.iscoroutine(res):
+            return asyncio.get_event_loop().run_until_complete(res)
+        return res
+
+    return wrapper
+</code></pre>
+
 <h2 id="convert-sync-external-code-into-async-md">Convert Sync external code into Async.md</h2>
 
-<pre><code class="language-markdown">The below code snippets demonstrate how to make synchronous code _asynchronous_ using a threadpool (in this example it's specifically handled within a tornado application).
+<p>The below code snippets demonstrate how to make synchronous code <em>asynchronous</em> using a threadpool (in this example it&rsquo;s specifically handled within a tornado application).</p>
 
-If you're using the [requests](http://docs.python-requests.org/en/master/) http client, then this can be made asynchronous using the same threadpool technique, although it can be better to use use an external library (such as [requests-futures](https://github.com/ross/requests-futures/blob/master/README.rst)) if you need to do something a little more complex. For example, being able to utilise the requests library's `Session` feature would need extra work, and so an external library can help with that.
+<p>If you&rsquo;re using the <a href="http://docs.python-requests.org/en/master/" target="_blank">requests</a> http client, then this can be made asynchronous using the same threadpool technique, although it can be better to use use an external library (such as <a href="https://github.com/ross/requests-futures/blob/master/README.rst" target="_blank">requests-futures</a>) if you need to do something a little more complex. For example, being able to utilise the requests library&rsquo;s <code>Session</code> feature would need extra work, and so an external library can help with that.</p>
 
-There are other alternative libraries for working with the requests library too:
+<p>There are other alternative libraries for working with the requests library too:</p>
 
-- [requests-threads](https://github.com/requests/requests-threads) (uses the [Twisted Framework](https://twistedmatrix.com/trac/))
-- [grequests](https://github.com/kennethreitz/grequests) (uses the [Gevent Framework](http://www.gevent.org/))
+<ul>
+<li><a href="https://github.com/requests/requests-threads" target="_blank">requests-threads</a> (uses the <a href="https://twistedmatrix.com/trac/" target="_blank">Twisted Framework</a>)</li>
+<li><a href="https://github.com/kennethreitz/grequests" target="_blank">grequests</a> (uses the <a href="http://www.gevent.org/" target="_blank">Gevent Framework</a>)</li>
+</ul>
 
-&gt; Notes: Grequests appears to be much faster than requests-threads, but brings monkey patching and additional problems with dependencies. Using `ThreadPoolExecutor` appears to be on par with Grequests performance.
+<blockquote>
+<p>Notes: Grequests appears to be much faster than requests-threads, but brings monkey patching and additional problems with dependencies. Using <code>ThreadPoolExecutor</code> appears to be on par with Grequests performance.</p>
+</blockquote>
 
-But I feel `requests-futures` is the best option as it uses the Python native `concurrent.futures` for its implementation.
-</code></pre>
+<p>But I feel <code>requests-futures</code> is the best option as it uses the Python native <code>concurrent.futures</code> for its implementation.</p>
 
 <h2 id="s3-example-py">S3 Example.py</h2>
 
@@ -111,43 +151,6 @@ def run_on_executor(*args, **kwargs):
     &quot;&quot;&quot;
     result = yield THREAD_POOL.submit(*args, **kwargs)
     raise gen.Return(result)
-</code></pre>
-
-<h2 id="1-quicker-implementation-py">1. Quicker Implementation.py</h2>
-
-<pre><code class="language-python">import functools
-
-
-def force_async(fn):
-    '''
-    turns a sync function to async function using threads
-    '''
-    from concurrent.futures import ThreadPoolExecutor
-    import asyncio
-    pool = ThreadPoolExecutor()
-
-    @functools.wraps(fn)
-    def wrapper(*args, **kwargs):
-        future = pool.submit(fn, *args, **kwargs)
-        return asyncio.wrap_future(future)  # make it awaitable
-
-    return wrapper
-
-
-def force_sync(fn):
-    '''
-    turn an async function to sync function
-    '''
-    import asyncio
-
-    @functools.wraps(fn)
-    def wrapper(*args, **kwargs):
-        res = fn(*args, **kwargs)
-        if asyncio.iscoroutine(res):
-            return asyncio.get_event_loop().run_until_complete(res)
-        return res
-
-    return wrapper
 </code></pre>
 
 </div>

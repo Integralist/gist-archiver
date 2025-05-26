@@ -12,19 +12,20 @@
 
 <h2 id="0-readme-md">0. README.md</h2>
 
-<pre><code class="language-markdown">Two of my favour features in Go are:
+<p>Two of my favour features in Go are:</p>
 
-1. `io.TeeReader(r, w)`
-2. `pr, pw := io.Pipe()`
+<ol>
+<li><code>io.TeeReader(r, w)</code></li>
+<li><code>pr, pw := io.Pipe()</code></li>
+</ol>
 
-TeeReader will write to `w` every time there is a read from `r`.
+<p>TeeReader will write to <code>w</code> every time there is a read from <code>r</code>.</p>
 
-Pipe will read from `pr` every time there is a write to `pw`.
+<p>Pipe will read from <code>pr</code> every time there is a write to <code>pw</code>.</p>
 
-To consume from a single reader twice:
+<p>To consume from a single reader twice:</p>
 
-```go
-io.TeeReader(r, pw)
+<pre><code class="language-go">io.TeeReader(r, pw)
 </code></pre>
 
 <p>For example, when we pass the <code>io.TeeReader</code> to a function expecting an <code>io.Reader</code>, the function will read the data, and while it&rsquo;s reading the data it will simultaneously write the read data to <code>pw</code>, and when that happens the <code>pr</code> will read the data from <code>pw</code>.</p>
@@ -49,11 +50,9 @@ func newTeeReadCloser(rc io.ReadCloser, w io.Writer) io.ReadCloser {
 }
 </code></pre>
 
-<pre><code>
-## 1. io.Pipe and io.TeeReader combined.go
+<h2 id="1-io-pipe-and-io-teereader-combined-go">1. io.Pipe and io.TeeReader combined.go</h2>
 
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;fmt&quot;

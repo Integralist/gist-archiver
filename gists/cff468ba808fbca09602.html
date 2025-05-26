@@ -12,41 +12,43 @@
 
 <h2 id="networking-cidr-explained-md">Networking CIDR explained.md</h2>
 
-<pre><code class="language-markdown">The table at the bottom of this gist was copied from: http://software77.net/cidr-101.html
+<p>The table at the bottom of this gist was copied from: <a href="http://software77.net/cidr-101.html" target="_blank">http://software77.net/cidr-101.html</a></p>
 
-`10.0.0.0` is a 32 bit number split into four 8 bit groups (8, 16, 24, 32)
+<p><code>10.0.0.0</code> is a 32 bit number split into four 8 bit groups (8, 16, 24, 32)</p>
 
-&gt; Note: 1 byte == 8 bits (so `10` representing a single byte)
+<blockquote>
+<p>Note: 1 byte == 8 bits (so <code>10</code> representing a single byte)</p>
+</blockquote>
 
-Where `n` (below) is given the value 8, 16, 24, or 32
+<p>Where <code>n</code> (below) is given the value 8, 16, 24, or 32</p>
 
+<pre><code>10.0.0.0/n
 </code></pre>
 
-<p>10.0.0.0/n</p>
+<p><code>8</code> states the first 8 bits is accounted for (by the <code>10</code> we&rsquo;ve specified).<br />
+Meaning the rest can be added up to their max of 255 (<code>10.255.255.255</code>)</p>
 
-<pre><code>
-`8` states the first 8 bits is accounted for (by the `10` we've specified).  
-Meaning the rest can be added up to their max of 255 (`10.255.255.255`)
+<p><code>16</code> states the first 16 bits is accounted for (by the <code>10.0</code> we&rsquo;ve specified).<br />
+Meaning the rest can be added up to their max of 255 (<code>10.0.255.255</code>)</p>
 
-`16` states the first 16 bits is accounted for (by the `10.0` we've specified).  
-Meaning the rest can be added up to their max of 255 (`10.0.255.255`)
+<p><code>24</code> states the first 24 bits is accounted for (by the <code>10.0.0</code> we&rsquo;ve specified).<br />
+Meaning the rest can be added up to their max of 255 (<code>10.0.0.255</code>)</p>
 
-`24` states the first 24 bits is accounted for (by the `10.0.0` we've specified).  
-Meaning the rest can be added up to their max of 255 (`10.0.0.255`)
+<p><code>32</code> states the first 32 bits is accounted for (by the <code>10.0.0.0</code> we&rsquo;ve specified).<br />
+Meaning the rest can be added up to their max of 255 (<code>10.0.0.0</code>)</p>
 
-`32` states the first 32 bits is accounted for (by the `10.0.0.0` we've specified).  
-Meaning the rest can be added up to their max of 255 (`10.0.0.0`)
+<h2 id="example-10-0-0-1">Example: <code>10.0.0.1</code></h2>
 
-## Example: `10.0.0.1`
-
-&lt;table border=&quot;1&quot; id=&quot;table10&quot; bordercolor=&quot;#000080&quot; style=&quot;text-align: center; font-family: Verdana; font-size: 8pt; color: #000000&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;IP&lt;/b&gt;&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;10&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;0&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;0&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;8 Bit Blocks&lt;/b&gt;&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;8 bits [24-31]&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;8 bits [16-23]&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;8 bits [08-15]&lt;/td&gt;&lt;td colspan=&quot;8&quot;&gt;8 bits [00-07]&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;
-						&lt;td&gt;&lt;b&gt;Bit #&lt;/b&gt;&lt;/td&gt;
-						&lt;td&gt;31&lt;/td&gt;&lt;td&gt;30&lt;/td&gt;&lt;td&gt;29&lt;/td&gt;&lt;td&gt;28&lt;/td&gt;&lt;td&gt;27&lt;/td&gt;&lt;td&gt;26&lt;/td&gt;&lt;td&gt;25&lt;/td&gt;&lt;td&gt;24&lt;/td&gt;&lt;td&gt;23&lt;/td&gt;&lt;td&gt;22&lt;/td&gt;&lt;td&gt;21&lt;/td&gt;&lt;td&gt;20&lt;/td&gt;&lt;td&gt;19&lt;/td&gt;&lt;td&gt;18&lt;/td&gt;&lt;td&gt;17&lt;/td&gt;&lt;td&gt;16&lt;/td&gt;&lt;td&gt;15&lt;/td&gt;&lt;td&gt;14&lt;/td&gt;&lt;td&gt;13&lt;/td&gt;&lt;td&gt;12&lt;/td&gt;&lt;td&gt;11&lt;/td&gt;&lt;td&gt;10&lt;/td&gt;&lt;td&gt;09&lt;/td&gt;&lt;td&gt;08&lt;/td&gt;&lt;td&gt;07&lt;/td&gt;&lt;td&gt;06&lt;/td&gt;&lt;td&gt;05&lt;/td&gt;&lt;td&gt;04&lt;/td&gt;&lt;td&gt;03&lt;/td&gt;&lt;td&gt;02&lt;/td&gt;&lt;td&gt;01&lt;/td&gt;&lt;td&gt;00&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Decimal &lt;/b&gt;&lt;/td&gt;&lt;td&gt;128&lt;/td&gt;&lt;td&gt;64&lt;/td&gt;&lt;td&gt;32&lt;/td&gt;
-				&lt;td&gt;16&lt;/td&gt;&lt;td&gt;8&lt;/td&gt;&lt;td&gt;4&lt;/td&gt;&lt;td&gt;2&lt;/td&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;128&lt;/td&gt;&lt;td&gt;64&lt;/td&gt;&lt;td&gt;32&lt;/td&gt;&lt;td&gt;16&lt;/td&gt;&lt;td&gt;8&lt;/td&gt;&lt;td&gt;4&lt;/td&gt;&lt;td&gt;2&lt;/td&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;128&lt;/td&gt;&lt;td&gt;64&lt;/td&gt;&lt;td&gt;32&lt;/td&gt;&lt;td&gt;16&lt;/td&gt;&lt;td&gt;8&lt;/td&gt;&lt;td&gt;4&lt;/td&gt;&lt;td&gt;2&lt;/td&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;128&lt;/td&gt;&lt;td&gt;64&lt;/td&gt;&lt;td&gt;32&lt;/td&gt;&lt;td&gt;16&lt;/td&gt;&lt;td&gt;8&lt;/td&gt;&lt;td&gt;4&lt;/td&gt;&lt;td&gt;2&lt;/td&gt;&lt;td&gt;1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Binary&lt;/b&gt;&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;&lt;b&gt;&lt;font color=&quot;#DC143C&quot;&gt;1&lt;/font&gt;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;&lt;b&gt;&lt;font color=&quot;#DC143C&quot;&gt;1&lt;/font&gt;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;&lt;b&gt;&lt;font color=&quot;#DC143C&quot;&gt;1&lt;/font&gt;&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+<table border="1" id="table10" bordercolor="#000080" style="text-align: center; font-family: Verdana; font-size: 8pt; color: #000000"><tbody><tr><td><b>IP</b></td><td colspan="8">10</td><td colspan="8">0</td><td colspan="8">0</td><td colspan="8">1</td></tr><tr><td><b>8 Bit Blocks</b></td><td colspan="8">8 bits [24-31]</td><td colspan="8">8 bits [16-23]</td><td colspan="8">8 bits [08-15]</td><td colspan="8">8 bits [00-07]</td></tr><tr>
+						<td><b>Bit #</b></td>
+						<td>31</td><td>30</td><td>29</td><td>28</td><td>27</td><td>26</td><td>25</td><td>24</td><td>23</td><td>22</td><td>21</td><td>20</td><td>19</td><td>18</td><td>17</td><td>16</td><td>15</td><td>14</td><td>13</td><td>12</td><td>11</td><td>10</td><td>09</td><td>08</td><td>07</td><td>06</td><td>05</td><td>04</td><td>03</td><td>02</td><td>01</td><td>00</td></tr><tr><td><b>Decimal </b></td><td>128</td><td>64</td><td>32</td>
+				<td>16</td><td>8</td><td>4</td><td>2</td><td>1</td><td>128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td><td>128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td><td>128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td></tr><tr><td><b>Binary</b></td><td>0</td><td>0</td><td>0</td><td>0</td><td><b><font color="#DC143C">1</font></b></td><td>0</td><td><b><font color="#DC143C">1</font></b></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><b><font color="#DC143C">1</font></b></td></tr></tbody></table>
 					
-&gt; Notice the binary row marks `1` for the decimal numbers that add up to the specified byte  
-&gt; e.g. if you want `254` then you have `1` in all of the binary columns (under decimal) except the `1` at the end
-</code></pre>
+
+<blockquote>
+<p>Notice the binary row marks <code>1</code> for the decimal numbers that add up to the specified byte<br />
+e.g. if you want <code>254</code> then you have <code>1</code> in all of the binary columns (under decimal) except the <code>1</code> at the end</p>
+</blockquote>
 
 </div>
 </body>

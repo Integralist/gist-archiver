@@ -10,18 +10,151 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="s-o-l-i-d-principles-in-ruby">S.O.L.I.D principles in Ruby</h1>
 
+<h2 id="1-srp-md">1. SRP .md</h2>
+
+<h2 id="single-responsibility-principle">Single responsibility principle</h2>
+
+<p>Probably the most well known principle, and one that should try to adhere to most of the time.</p>
+
+<p>Let&rsquo;s say you have this code:</p>
+
+<pre><code class="language-ruby">class AuthenticatesUser
+  def authenticate(email, password)
+    if matches?(email, password)
+     do_some_authentication
+    else
+      raise NotAllowedError
+    end
+  end
+
+  private
+  def matches?(email, password)
+    user = find_from_db(:user, email)
+    user.encrypted_password == encrypt(password)
+  end
+end
+</code></pre>
+
+<p>The <code>AuthenticatesUser</code> class is responsible for authenticating the user as well as knowing if the email and password match the ones in the database. It has two responsibilities, and according to the principle it should only have one, let&rsquo;s extract one.</p>
+
+<pre><code class="language-ruby">class AuthenticatesUser
+  def authenticate(email, password)
+    if MatchesPasswords.new(email, password).matches?
+     do_some_authentication
+    else
+      raise NotAllowedError
+    end
+  end
+end
+
+class MatchesPasswords
+  def initialize(email, password)
+     @email = email
+     @password = password
+  end
+
+  def matches?
+     user = find_from_db(:user, @email)
+    user.encrypted_password == encrypt(@password)
+  end
+end
+</code></pre>
+
+<p>I&rsquo;ve used a refactoring technique called Extract Class and then use it on the class I already had, this is called sharing behaviour through composition.</p>
+
+<h2 id="2-ocp-md">2. OCP .md</h2>
+
+<h2 id="open-closed-principle">Open/closed principle</h2>
+
+<pre><code class="language-ruby">class Report
+  def body
+     generate_reporty_stuff
+  end
+
+  def print
+     body.to_json
+  end
+end
+</code></pre>
+
+<p>This code violates OCP, because if we want to change the format the report gets printed, you need to change the code of the class. Let&rsquo;s change it then.</p>
+
+<pre><code class="language-ruby">class Report
+  def body
+     generate_reporty_stuff
+  end
+
+  def print(formatter: JSONFormatter.new)
+     formatter.format body
+  end
+end
+</code></pre>
+
+<p>This way changing the formatter is as easy as:</p>
+
+<pre><code class="language-ruby">report = Report.new
+report.print(formatter: XMLFormatter.new)
+</code></pre>
+
+<p>Thus I have extended the functionality without modifying the code. In this example, I have used a technique called Dependency Injection, but many other can apply.</p>
+
+<h2 id="3-lsp-md">3. LSP .md</h2>
+
+<h2 id="liskov-substitution-principle">Liskov substitution principle</h2>
+
+<p>This principle applies only to inheritance, so let&rsquo;s see an example of inheritance that breaks it:</p>
+
+<pre><code class="language-ruby">class Animal
+  def walk
+     do_some_walkin
+  end
+end
+
+class Cat &lt; Animal
+  def run
+    run_like_a_cat
+  end
+end
+</code></pre>
+
+<p>In order to comply with the LSP, as Bob Martin puts it:</p>
+
+<blockquote>
+<p>Subtypes must be substitutable for their base types</p>
+</blockquote>
+
+<p>So, they must have the same interface. Since ruby does not have abstract methods, we can do it like so:</p>
+
+<pre><code class="language-ruby">class Animal
+  def walk
+     do_some_walkin
+  end
+
+  def run
+    raise NotImplementedError
+  end
+end
+
+class Cat &lt; Animal
+  def run
+    run_like_a_cat
+  end
+end
+</code></pre>
+
 <h2 id="4-isp-md">4. ISP .md</h2>
 
-<pre><code class="language-markdown">## Interface segregation principle
+<h2 id="interface-segregation-principle">Interface segregation principle</h2>
 
-Simply put, this principle states that:
+<p>Simply put, this principle states that:</p>
 
-&gt; when a client depends upon a class that contains interfaces that the client does not use, but that other clients do use, then that client will be affected by the changes that those other clients force upon the class
+<blockquote>
+<p>when a client depends upon a class that contains interfaces that the client does not use, but that other clients do use, then that client will be affected by the changes that those other clients force upon the class</p>
+</blockquote>
 
-This one is simpler to demonstrate, if you have a class that has two clients (objects using it):
+<p>This one is simpler to demonstrate, if you have a class that has two clients (objects using it):</p>
 
-```ruby
-class Car
+<pre><code class="language-ruby">class Car
   def open
   end
 
@@ -77,20 +210,19 @@ end
 
 <p>By splitting the interface into two, we can comply to the ISP.</p>
 
-<pre><code>
-## 5. DIP .md
+<h2 id="5-dip-md">5. DIP .md</h2>
 
-```markdown
-## Dependency inversion principle
+<h2 id="dependency-inversion-principle">Dependency inversion principle</h2>
 
-Directly from the Wikipedia page:
+<p>Directly from the Wikipedia page:</p>
 
-&gt; Abstractions should not depend upon details. Details should depend upon abstractions.
+<blockquote>
+<p>Abstractions should not depend upon details. Details should depend upon abstractions.</p>
+</blockquote>
 
-Let's go back to the first example on the OCP and change it a bit:
+<p>Let&rsquo;s go back to the first example on the OCP and change it a bit:</p>
 
-```ruby
-class Report
+<pre><code class="language-ruby">class Report
   def body
      generate_reporty_stuff
   end
@@ -125,149 +257,6 @@ end
 <p>This way the Report does not depend on the JSONFormatter and can use any type of formatter that has a method called format (this is known as duck typing).</p>
 
 <p>Another thing of note is that we&rsquo;ve used, once again, dependency injection to solve a problem. This technique is a very powerful one when our goal is decoupling objects, and even though it has the same initials as the dependency inversion principle (vs dependency injection pattern), they are completely different concepts.</p>
-
-<pre><code>
-## 1. SRP .md
-
-```markdown
-## Single responsibility principle
-
-Probably the most well known principle, and one that should try to adhere to most of the time.
-
-Let's say you have this code:
-
-```ruby
-class AuthenticatesUser
-  def authenticate(email, password)
-    if matches?(email, password)
-     do_some_authentication
-    else
-      raise NotAllowedError
-    end
-  end
-
-  private
-  def matches?(email, password)
-    user = find_from_db(:user, email)
-    user.encrypted_password == encrypt(password)
-  end
-end
-</code></pre>
-
-<p>The <code>AuthenticatesUser</code> class is responsible for authenticating the user as well as knowing if the email and password match the ones in the database. It has two responsibilities, and according to the principle it should only have one, let&rsquo;s extract one.</p>
-
-<pre><code class="language-ruby">class AuthenticatesUser
-  def authenticate(email, password)
-    if MatchesPasswords.new(email, password).matches?
-     do_some_authentication
-    else
-      raise NotAllowedError
-    end
-  end
-end
-
-class MatchesPasswords
-  def initialize(email, password)
-     @email = email
-     @password = password
-  end
-
-  def matches?
-     user = find_from_db(:user, @email)
-    user.encrypted_password == encrypt(@password)
-  end
-end
-</code></pre>
-
-<p>I&rsquo;ve used a refactoring technique called Extract Class and then use it on the class I already had, this is called sharing behaviour through composition.</p>
-
-<pre><code>
-## 2. OCP .md
-
-```markdown
-## Open/closed principle
-
-```ruby
-class Report
-  def body
-     generate_reporty_stuff
-  end
-
-  def print
-     body.to_json
-  end
-end
-</code></pre>
-
-<p>This code violates OCP, because if we want to change the format the report gets printed, you need to change the code of the class. Let&rsquo;s change it then.</p>
-
-<pre><code class="language-ruby">class Report
-  def body
-     generate_reporty_stuff
-  end
-
-  def print(formatter: JSONFormatter.new)
-     formatter.format body
-  end
-end
-</code></pre>
-
-<p>This way changing the formatter is as easy as:</p>
-
-<pre><code class="language-ruby">report = Report.new
-report.print(formatter: XMLFormatter.new)
-</code></pre>
-
-<p>Thus I have extended the functionality without modifying the code. In this example, I have used a technique called Dependency Injection, but many other can apply.</p>
-
-<pre><code>
-## 3. LSP .md
-
-```markdown
-## Liskov substitution principle
-
-This principle applies only to inheritance, so let's see an example of inheritance that breaks it:
-
-```ruby
-class Animal
-  def walk
-     do_some_walkin
-  end
-end
-
-class Cat &lt; Animal
-  def run
-    run_like_a_cat
-  end
-end
-</code></pre>
-
-<p>In order to comply with the LSP, as Bob Martin puts it:</p>
-
-<blockquote>
-<p>Subtypes must be substitutable for their base types</p>
-</blockquote>
-
-<p>So, they must have the same interface. Since ruby does not have abstract methods, we can do it like so:</p>
-
-<pre><code class="language-ruby">class Animal
-  def walk
-     do_some_walkin
-  end
-
-  def run
-    raise NotImplementedError
-  end
-end
-
-class Cat &lt; Animal
-  def run
-    run_like_a_cat
-  end
-end
-</code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

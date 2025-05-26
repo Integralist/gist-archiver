@@ -12,10 +12,9 @@
 
 <h2 id="docker-go-and-tinygo-application-md">Docker Go and TinyGo Application.md</h2>
 
-<pre><code class="language-markdown">The following build command is used...
+<p>The following build command is used&hellip;</p>
 
-```bash
-docker buildx build --platform linux/arm64 -t testing-tinygo . -f ./Dockerfile
+<pre><code class="language-bash">docker buildx build --platform linux/arm64 -t testing-tinygo . -f ./Dockerfile
 </code></pre>
 
 <p>&hellip;to avoid the following error:</p>
@@ -96,8 +95,6 @@ RUN go mod download
 RUN mkdir bin/
 RUN tinygo build -target=wasi -wasm-abi=generic -gc=conservative -scheduler=asyncify -o bin/main.wasm ./src
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

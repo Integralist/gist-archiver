@@ -12,38 +12,35 @@
 
 <h2 id="deleting-go-package-tagged-versions-from-pkg-go-dev-md">Deleting go package tagged versions from pkg.go.dev.md</h2>
 
-<pre><code class="language-markdown">There are various issues open about this:
+<p>There are various issues open about this:</p>
 
-- https://github.com/golang/go/issues/38848#issuecomment-669945306
-- https://github.com/golang/go/issues/37106#issuecomment-690419151
-- https://github.com/golang/go/issues/36811#issuecomment-579404726
+<ul>
+<li><a href="https://github.com/golang/go/issues/38848#issuecomment-669945306" target="_blank">https://github.com/golang/go/issues/38848#issuecomment-669945306</a></li>
+<li><a href="https://github.com/golang/go/issues/37106#issuecomment-690419151" target="_blank">https://github.com/golang/go/issues/37106#issuecomment-690419151</a></li>
+<li><a href="https://github.com/golang/go/issues/36811#issuecomment-579404726" target="_blank">https://github.com/golang/go/issues/36811#issuecomment-579404726</a></li>
+</ul>
 
-It seems the process is to get information about your package (e.g. go-fastly) from an endpoint like the following:
+<p>It seems the process is to get information about your package (e.g. go-fastly) from an endpoint like the following:</p>
 
-https://proxy.golang.org/github.com/fastly/go-fastly/@v/master.info
+<p><a href="https://proxy.golang.org/github.com/fastly/go-fastly/@v/master.info" target="_blank">https://proxy.golang.org/github.com/fastly/go-fastly/@v/master.info</a></p>
 
+<pre><code>{&quot;Version&quot;:&quot;v1.15.1-0.20200611145936-5f794c8e3c37&quot;,&quot;Time&quot;:&quot;2020-06-11T14:59:36Z&quot;}
 </code></pre>
 
-<p>{&ldquo;Version&rdquo;:&ldquo;v1.15.1-0.20200611145936-5f794c8e3c37&rdquo;,&ldquo;Time&rdquo;:&ldquo;2020-06-11T14:59:36Z&rdquo;}</p>
+<p>Then use the &lsquo;Version&rsquo; in the following endpoint:</p>
 
-<pre><code>
-Then use the 'Version' in the following endpoint:
+<p><a href="https://pkg.go.dev/github.com/fastly/go-fastly/master@v1.15.1-0.20200611145936-5f794c8e3c37" target="_blank">https://pkg.go.dev/github.com/fastly/go-fastly/master@v1.15.1-0.20200611145936-5f794c8e3c37</a></p>
 
-https://pkg.go.dev/github.com/fastly/go-fastly/master@v1.15.1-0.20200611145936-5f794c8e3c37
+<p>But that didn&rsquo;t work for me. I then noticed they suggest visiting:</p>
 
-But that didn't work for me. I then noticed they suggest visiting:
-
+<pre><code>pkg.go.dev/&lt;import-path&gt;@&lt;semantic-version&gt;
 </code></pre>
 
-<p>pkg.go.dev/<import-path>@<semantic-version></p>
+<p>So something like:</p>
 
-<pre><code>
-So something like:
+<p><a href="https://pkg.go.dev/github.com/fastly/go-fastly/v2@v2.1.0" target="_blank">https://pkg.go.dev/github.com/fastly/go-fastly/v2@v2.1.0</a></p>
 
-https://pkg.go.dev/github.com/fastly/go-fastly/v2@v2.1.0
-
-But that just shows me the existing tagged version, where as we're trying to remove deleted tagged versions from pkg.go.dev.
-</code></pre>
+<p>But that just shows me the existing tagged version, where as we&rsquo;re trying to remove deleted tagged versions from pkg.go.dev.</p>
 
 </div>
 </body>

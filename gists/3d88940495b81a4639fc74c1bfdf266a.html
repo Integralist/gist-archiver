@@ -12,61 +12,58 @@
 
 <h2 id="1-readme-md">1. README.md</h2>
 
-<pre><code class="language-markdown"># Bitwise Operations in Go
+<h1 id="bitwise-operations-in-go">Bitwise Operations in Go</h1>
 
-In the below Go file we use bitwise operators to manipulate individual flags (on/off switches) in a single integer, where each bit position represents a different status.
+<p>In the below Go file we use bitwise operators to manipulate individual flags (on/off switches) in a single integer, where each bit position represents a different status.</p>
 
-## Visualising Bits
+<h2 id="visualising-bits">Visualising Bits</h2>
 
-In case you need a reminder of a what bit alignment and shifting look like:
+<p>In case you need a reminder of a what bit alignment and shifting look like:</p>
 
-![example of bits in a byte](https://www.integralist.co.uk/images/bits-visualised.png)
+<p><img src="https://www.integralist.co.uk/images/bits-visualised.png" alt="example of bits in a byte" /></p>
 
-## Defining Bit Flags
+<h2 id="defining-bit-flags">Defining Bit Flags</h2>
 
-Each status is assigned a unique power of 2 using bit shifting (`1 &lt;&lt; iota`). 
+<p>Each status is assigned a unique power of 2 using bit shifting (<code>1 &lt;&lt; iota</code>).</p>
 
-This ensures each flag only affects a single bit:
+<p>This ensures each flag only affects a single bit:</p>
 
-- `StatusActive` has the binary value `0001` (`1 &lt;&lt; 0` == 1 in decimal).
-- `StatusAdmin` has the binary value `0010` (`1 &lt;&lt; 1` == 2 in decimal).
-- `StatusBanned` has the binary value `0100` (`1 &lt;&lt; 2` == 4 in decimal).
-- `StatusVerified` has the binary value `1000` (`1 &lt;&lt; 3` == 8 in decimal).
+<ul>
+<li><code>StatusActive</code> has the binary value <code>0001</code> (<code>1 &lt;&lt; 0</code> == 1 in decimal).</li>
+<li><code>StatusAdmin</code> has the binary value <code>0010</code> (<code>1 &lt;&lt; 1</code> == 2 in decimal).</li>
+<li><code>StatusBanned</code> has the binary value <code>0100</code> (<code>1 &lt;&lt; 2</code> == 4 in decimal).</li>
+<li><code>StatusVerified</code> has the binary value <code>1000</code> (<code>1 &lt;&lt; 3</code> == 8 in decimal).</li>
+</ul>
 
-## Setting Statuses
+<h2 id="setting-statuses">Setting Statuses</h2>
 
-The following example combines two separate status flags:
+<p>The following example combines two separate status flags:</p>
 
+<pre><code>userStatus |= StatusActive | StatusVerified
 </code></pre>
 
-<p>userStatus |= StatusActive | StatusVerified</p>
+<p>In binary, this results in <code>1001</code> (or 9 in decimal), which means both the &ldquo;active&rdquo; and &ldquo;verified&rdquo; flags are set.</p>
 
-<pre><code>
-In binary, this results in `1001` (or 9 in decimal), which means both the &quot;active&quot; and &quot;verified&quot; flags are set.
+<h2 id="adding-and-removing-flags">Adding and Removing Flags</h2>
 
-## Adding and Removing Flags
+<p>The following example sets the &ldquo;admin&rdquo; bit without affecting the other bits, resulting in <code>1011</code> (11 in decimal):</p>
 
-The following example sets the &quot;admin&quot; bit without affecting the other bits, resulting in `1011` (11 in decimal):
-
+<pre><code>userStatus |= StatusAdmin
 </code></pre>
 
-<p>userStatus |= StatusAdmin</p>
+<h2 id="comparing-statuses">Comparing Statuses</h2>
 
-<pre><code>
-## Comparing Statuses
+<p>Once <code>userStatus</code> has combined flags we can use the <code>&amp;</code> operator to perform a bitwise <code>AND</code> operation, which means it compares each bit of two integers. For each bit position, if both bits are 1, the result at that position will be 1; otherwise, it will be 0.</p>
 
-Once `userStatus` has combined flags we can use the `&amp;` operator to perform a bitwise `AND` operation, which means it compares each bit of two integers. For each bit position, if both bits are 1, the result at that position will be 1; otherwise, it will be 0.
+<p>So what happens when we compare <code>userStatus&amp;StatusAdmin != 0</code>?</p>
 
-So what happens when we compare `userStatus&amp;StatusAdmin != 0`?
+<p>Well, <code>StatusAdmin</code> is a bit flag defined as <code>1 &lt;&lt; 1</code>, which results in <code>0010</code> in binary. This means that <code>StatusAdmin</code> occupies the second bit position in the binary representation of an integer. When we do <code>userStatus&amp;StatusAdmin</code>, we&rsquo;re effectively &ldquo;masking&rdquo; all bits except for the one represented by StatusAdmin (this is known as <strong>bit masking</strong>).</p>
 
-Well, `StatusAdmin` is a bit flag defined as `1 &lt;&lt; 1`, which results in `0010` in binary. This means that `StatusAdmin` occupies the second bit position in the binary representation of an integer. When we do `userStatus&amp;StatusAdmin`, we're effectively &quot;masking&quot; all bits except for the one represented by StatusAdmin (this is known as **bit masking**).
+<p>When we perform <code>userStatus&amp;StatusAdmin</code>, we get a result where only the bit corresponding to <code>StatusAdmin</code> remains (and is set to <code>1</code> if that bit was already set in <code>userStatus</code>). If this result is non-zero (<code>!= 0</code>), it means the <code>StatusAdmin</code> bit is set in <code>userStatus</code>. If it&rsquo;s zero, then <code>StatusAdmin</code> is not set in <code>userStatus</code>.</p>
 
-When we perform `userStatus&amp;StatusAdmin`, we get a result where only the bit corresponding to `StatusAdmin` remains (and is set to `1` if that bit was already set in `userStatus`). If this result is non-zero (`!= 0`), it means the `StatusAdmin` bit is set in `userStatus`. If it's zero, then `StatusAdmin` is not set in `userStatus`.
+<p>If we look at the code in <code>bitwise.go</code> we&rsquo;ll see <code>userStatus</code> is initially set to include <code>StatusActive</code> and <code>StatusVerified</code>, so <code>userStatus</code> is <code>1001</code> in binary (which is <code>9</code> in decimal). Remember <code>StatusActive</code> occupied the first bit position (<code>0001</code>), while <code>StatusVerified</code> occupied the fourth bit position (<code>1000</code>) so if setting both flags we get the combined <code>1001</code>.</p>
 
-If we look at the code in `bitwise.go` we'll see `userStatus` is initially set to include `StatusActive` and `StatusVerified`, so `userStatus` is `1001` in binary (which is `9` in decimal). Remember `StatusActive` occupied the first bit position (`0001`), while `StatusVerified` occupied the fourth bit position (`1000`) so if setting both flags we get the combined `1001`.
-
-Next, we add the `StatusAdmin` flag with `userStatus |= StatusAdmin`, making `userStatus` now `1011` in binary (which is 11 in decimal). When we check if `StatusAdmin` is set using `userStatus&amp;StatusAdmin != 0` we get back `2` from `userStatus&amp;StatusAdmin` (which is `0010` in binary) because we've bit masked the other bits that might have been turned on (if you recall, using `&amp;` turns each bit to zero except for those bits that were 1 in both numbers being compared), in order to _reveal_ whether the `StatusAdmin` bit was set on or not (i.e. `0` != `2` so we know this person is an admin).
-</code></pre>
+<p>Next, we add the <code>StatusAdmin</code> flag with <code>userStatus |= StatusAdmin</code>, making <code>userStatus</code> now <code>1011</code> in binary (which is 11 in decimal). When we check if <code>StatusAdmin</code> is set using <code>userStatus&amp;StatusAdmin != 0</code> we get back <code>2</code> from <code>userStatus&amp;StatusAdmin</code> (which is <code>0010</code> in binary) because we&rsquo;ve bit masked the other bits that might have been turned on (if you recall, using <code>&amp;</code> turns each bit to zero except for those bits that were 1 in both numbers being compared), in order to <em>reveal</em> whether the <code>StatusAdmin</code> bit was set on or not (i.e. <code>0</code> != <code>2</code> so we know this person is an admin).</p>
 
 <h2 id="bitwise-go">bitwise.go</h2>
 

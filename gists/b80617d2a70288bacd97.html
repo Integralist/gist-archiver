@@ -12,31 +12,36 @@
 
 <h2 id="db-migrations-md">DB migrations.md</h2>
 
-<pre><code class="language-markdown">## Renaming or changing the type of a column
+<h2 id="renaming-or-changing-the-type-of-a-column">Renaming or changing the type of a column</h2>
 
-- Create a new column
-- Write to both columns
-- Backfill data from the old column to the new column
-- Move reads from the old column to the new column
-- Stop writing to the old column
-- Drop the old column
+<ul>
+<li>Create a new column</li>
+<li>Write to both columns</li>
+<li>Backfill data from the old column to the new column</li>
+<li>Move reads from the old column to the new column</li>
+<li>Stop writing to the old column</li>
+<li>Drop the old column</li>
+</ul>
 
-## Renaming a table
+<h2 id="renaming-a-table">Renaming a table</h2>
 
-- Create a new table
-- Write to both tables
-- Backfill data from the old table to new table
-- Move reads from the old table to the new table
-- Stop writing to the old table
-- Drop the old table
+<ul>
+<li>Create a new table</li>
+<li>Write to both tables</li>
+<li>Backfill data from the old table to new table</li>
+<li>Move reads from the old table to the new table</li>
+<li>Stop writing to the old table</li>
+<li>Drop the old table</li>
+</ul>
 
-## Adding a column with a default value
+<h2 id="adding-a-column-with-a-default-value">Adding a column with a default value</h2>
 
-- Add the column without a default value
-- Commit the transaction
-- Backfill the column
-- Add the default value
-</code></pre>
+<ul>
+<li>Add the column without a default value</li>
+<li>Commit the transaction</li>
+<li>Backfill the column</li>
+<li>Add the default value</li>
+</ul>
 
 </div>
 </body>

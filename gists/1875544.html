@@ -12,55 +12,65 @@
 
 <h2 id="remote-git-md">remote-git.md</h2>
 
-<pre><code class="language-markdown">Set-up remote git repository on a standard server
-===
+<h1 id="set-up-remote-git-repository-on-a-standard-server">Set-up remote git repository on a standard server</h1>
 
-The first thing to do is to install Git on the remote server.
+<p>The first thing to do is to install Git on the remote server.</p>
 
-Once you do that the rest of the process is split into three sections:
+<p>Once you do that the rest of the process is split into three sections:</p>
 
-1. Server set-up
-2. Local set-up (push commits)
-3. Server (pull commits)
+<ol>
+<li>Server set-up</li>
+<li>Local set-up (push commits)</li>
+<li>Server (pull commits)</li>
+</ol>
 
-Server set-up
----
-* `ssh -pxxxx username@xxx.xxx.xxx.xxx` (this is you connecting to your remote server)
-* `cd ../` (this gets you to the 'absolute root' of the server)
-* `cd www/..../` (navigate to the directory one level above your website directory - e.g. your website directory being where you would upload your `HTML` files etc)
+<h2 id="server-set-up">Server set-up</h2>
 
-*Note*: if (for example) your web directory is `httpdocs` then move up one level from there.
+<ul>
+<li><code>ssh -pxxxx username@xxx.xxx.xxx.xxx</code> (this is you connecting to your remote server)</li>
+<li><code>cd ../</code> (this gets you to the &lsquo;absolute root&rsquo; of the server)</li>
+<li><code>cd www/..../</code> (navigate to the directory one level above your website directory - e.g. your website directory being where you would upload your <code>HTML</code> files etc)</li>
+</ul>
 
-The following example assumes `httpdocs` is your web directory...
+<p><em>Note</em>: if (for example) your web directory is <code>httpdocs</code> then move up one level from there.</p>
 
-* `rm -rf httpdocs` (remove the web directory - you'll recreate it again in a minute)
-* `mkdir httpdocs &amp;&amp; cd httpdocs` (create new web directory folder and move inside it)
-* `git init` (initiate new git repo)
-* `cd ../` (jump back up a directory level)
+<p>The following example assumes <code>httpdocs</code> is your web directory&hellip;</p>
 
-The following three commands are the *black magic* for getting a remote git repo setup:
+<ul>
+<li><code>rm -rf httpdocs</code> (remove the web directory - you&rsquo;ll recreate it again in a minute)</li>
+<li><code>mkdir httpdocs &amp;&amp; cd httpdocs</code> (create new web directory folder and move inside it)</li>
+<li><code>git init</code> (initiate new git repo)</li>
+<li><code>cd ../</code> (jump back up a directory level)</li>
+</ul>
 
-* `git clone --bare httpdocs httpdocs.git`
-* `mv httpdocs httpdocs.backup`
-* `git clone httpdocs.git`
+<p>The following three commands are the <em>black magic</em> for getting a remote git repo setup:</p>
 
-Local set-up (push commits)
----
-* `cd ~/Desktop/Sites/myWebsite`
-* `git init`
-* `git add *`
-* `git commit -m 'Start of new project'`
-* `git remote add origin ssh://username@xxx.xxx.xxx.xxx:xxxx/www/.../httpdocs.git`
-* `git push origin master`
+<ul>
+<li><code>git clone --bare httpdocs httpdocs.git</code></li>
+<li><code>mv httpdocs httpdocs.backup</code></li>
+<li><code>git clone httpdocs.git</code></li>
+</ul>
 
-Server (pull commits)
----
-* `cd ../`
-* `cd www/..../httpdocs/`
-* `git fetch`
-* `git diff origin/master`
-* `git merge origin/master`
-</code></pre>
+<h2 id="local-set-up-push-commits">Local set-up (push commits)</h2>
+
+<ul>
+<li><code>cd ~/Desktop/Sites/myWebsite</code></li>
+<li><code>git init</code></li>
+<li><code>git add *</code></li>
+<li><code>git commit -m 'Start of new project'</code></li>
+<li><code>git remote add origin ssh://username@xxx.xxx.xxx.xxx:xxxx/www/.../httpdocs.git</code></li>
+<li><code>git push origin master</code></li>
+</ul>
+
+<h2 id="server-pull-commits">Server (pull commits)</h2>
+
+<ul>
+<li><code>cd ../</code></li>
+<li><code>cd www/..../httpdocs/</code></li>
+<li><code>git fetch</code></li>
+<li><code>git diff origin/master</code></li>
+<li><code>git merge origin/master</code></li>
+</ul>
 
 </div>
 </body>

@@ -12,10 +12,9 @@
 
 <h2 id="pass-block-with-zero-arity-md">Pass block with zero arity.md</h2>
 
-<pre><code class="language-markdown">I saw this in some code written by BBC principle developer @kenoir and later located the following useful post: http://mudge.name/2011/01/26/passing-blocks-in-ruby-without-block.html
+<p>I saw this in some code written by BBC principle developer @kenoir and later located the following useful post: <a href="http://mudge.name/2011/01/26/passing-blocks-in-ruby-without-block.html" target="_blank">http://mudge.name/2011/01/26/passing-blocks-in-ruby-without-block.html</a></p>
 
-```ruby
-class Foo
+<pre><code class="language-ruby">class Foo
   def initialize
     bar &amp;Proc.new # voodoo
   end
@@ -33,8 +32,7 @@ Foo.new { puts &quot;hai&quot; }
 <p>If <code>Proc.new</code> is called from inside a method without any arguments of its own, it will return a new Proc containing the block given to its surrounding method.</p>
 </blockquote>
 
-<p>Very nice!
-&ldquo;`</p>
+<p>Very nice!</p>
 
 </div>
 </body>

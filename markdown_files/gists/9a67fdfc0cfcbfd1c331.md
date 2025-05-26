@@ -79,7 +79,7 @@ get_csv.dbg.find(&dbg { |row| row[id_column] == row_id }).dbg
 
 ## ss.png
 
-```text
+```png
 iVBORw0KGgoAAAANSUhEUgAAAfUAAAGVCAIAAABo3v8cAAAYSWlDQ1BJQ0Mg
 UHJvZmlsZQAAWAmtWXVYVE/3n7sFLMvS3V3SDdLd3Qgs3bE0qKRIqAgCioAK
 KggqWISIhSCiiKACBiJhUCqooAjIbxbj+33e533/+9197tzPPXPm3BMzc+85

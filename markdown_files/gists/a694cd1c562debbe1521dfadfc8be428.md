@@ -2,7 +2,6 @@
 
 ## Deleting go package tagged versions from pkg.go.dev.md
 
-```markdown
 There are various issues open about this:
 
 - https://github.com/golang/go/issues/38848#issuecomment-669945306
@@ -32,5 +31,4 @@ So something like:
 https://pkg.go.dev/github.com/fastly/go-fastly/v2@v2.1.0
 
 But that just shows me the existing tagged version, where as we're trying to remove deleted tagged versions from pkg.go.dev.
-```
 

@@ -12,46 +12,49 @@
 
 <h2 id="local-memcache-and-elasticache-md">Local Memcache and ElastiCache.md</h2>
 
-<pre><code class="language-markdown">## Single Node
+<h2 id="single-node">Single Node</h2>
 
-- `brew install memcached` (or `docker run -d -p 11211:11211 memcached`)
-- `memcached` (optional `-d` to background &amp; `-p` to change port)
-- `telnet localhost 11211`
-- `stats`
-- `quit`
+<ul>
+<li><code>brew install memcached</code> (or <code>docker run -d -p 11211:11211 memcached</code>)</li>
+<li><code>memcached</code> (optional <code>-d</code> to background &amp; <code>-p</code> to change port)</li>
+<li><code>telnet localhost 11211</code></li>
+<li><code>stats</code></li>
+<li><code>quit</code></li>
+</ul>
 
-&gt; http://blog.elijaa.org/2010/05/21/memcached-telnet-command-summary
+<blockquote>
+<p><a href="http://blog.elijaa.org/2010/05/21/memcached-telnet-command-summary" target="_blank">http://blog.elijaa.org/2010/05/21/memcached-telnet-command-summary</a></p>
+</blockquote>
 
-Notice the line break for the value (when using `set` or `add` etc) is required...
+<p>Notice the line break for the value (when using <code>set</code> or <code>add</code> etc) is required&hellip;</p>
 
-</code></pre>
-
-<p>set foo 0 60 3
+<pre><code>set foo 0 60 3
 bar
-STORED</p>
+STORED
 
-<p>get foo
+get foo
 VALUE foo 0 3
 bar
-END</p>
+END
+</code></pre>
 
-<pre><code>
-## AWS ElastiCache Cluster Endpoint
+<h2 id="aws-elasticache-cluster-endpoint">AWS ElastiCache Cluster Endpoint</h2>
 
-- `gem install fake_elasticache`
-- `fake_elasticache` (run in a separate shell as it's run in the foreground)
-- `telnet localhost 11212` (fyi that's a non-standard port)
-- `config get cluster`
-- `quit`
+<ul>
+<li><code>gem install fake_elasticache</code></li>
+<li><code>fake_elasticache</code> (run in a separate shell as it&rsquo;s run in the foreground)</li>
+<li><code>telnet localhost 11212</code> (fyi that&rsquo;s a non-standard port)</li>
+<li><code>config get cluster</code></li>
+<li><code>quit</code></li>
+</ul>
 
-## Go Client
+<h2 id="go-client">Go Client</h2>
 
-Here's a Go client that interacts with the AWS ElastiCache endpoint and parses out the data.
+<p>Here&rsquo;s a Go client that interacts with the AWS ElastiCache endpoint and parses out the data.</p>
 
-To run this script you'll need `memcached` running locally along with `fake_elasticache` which looks up the locally running memcache at the default location of `localhost` and port `11211`.
+<p>To run this script you&rsquo;ll need <code>memcached</code> running locally along with <code>fake_elasticache</code> which looks up the locally running memcache at the default location of <code>localhost</code> and port <code>11211</code>.</p>
 
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;bufio&quot;
@@ -139,8 +142,6 @@ func main() {
 	fmt.Printf(&quot;%+v&quot;, it)
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

@@ -12,12 +12,11 @@
 
 <h2 id="sass-avoiding-if-conditionals-md">Sass avoiding @if conditionals.md</h2>
 
-<pre><code class="language-markdown">#Ugly Conditionals
+<p>#Ugly Conditionals</p>
 
-Instead of this...
+<p>Instead of this&hellip;</p>
 
-```sass
-$core: true;
+<pre><code class="language-sass">$core: true;
 $gutter: 8px;
 
 .block {
@@ -90,8 +89,7 @@ $gutter: 8px;
 
 <p>The &lsquo;issue&rsquo; would be when you miss an argument (as per the <code>border</code> example above) then having us set <code>inherit</code> on a property might break your CSS if you&rsquo;ve already set a value on that property somewhere else in your code base.</p>
 
-<p>The &lsquo;concern&rsquo; is setting a value of <code>inherit</code> is an extra line of CSS code. But that&rsquo;s the trade-off between slightly larger compiled code compared to the easier maintenance.
-&ldquo;`</p>
+<p>The &lsquo;concern&rsquo; is setting a value of <code>inherit</code> is an extra line of CSS code. But that&rsquo;s the trade-off between slightly larger compiled code compared to the easier maintenance.</p>
 
 </div>
 </body>

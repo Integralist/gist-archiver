@@ -12,12 +12,11 @@
 
 <h2 id="git-request-pull-md">Git Request Pull.md</h2>
 
-<pre><code class="language-markdown">In order to do a single commit pull request (without a GitHub Pull Request interface) - i.e. you'll communicate the diff with another collaborator - then first commit the change to a fork of the repository. 
+<p>In order to do a single commit pull request (without a GitHub Pull Request interface) - i.e. you&rsquo;ll communicate the diff with another collaborator - then first commit the change to a fork of the repository.</p>
 
-Then run this command:
+<p>Then run this command:</p>
 
-```git
-git request-pull -p &lt;commit-to-start-from&gt; git@github.com:&lt;org&gt;/&lt;repo&gt;.git
+<pre><code class="language-git">git request-pull -p &lt;commit-to-start-from&gt; git@github.com:&lt;org&gt;/&lt;repo&gt;.git
 </code></pre>
 
 <p>This will generate something like the following:</p>
@@ -49,8 +48,6 @@ index d6022e0..8663373 100644
 -&lt;h1 align=&quot;center&quot;&gt;Original&lt;/h1&gt;
 +&lt;h1 align=&quot;center&quot;&gt;New Title&lt;/h1&gt;
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

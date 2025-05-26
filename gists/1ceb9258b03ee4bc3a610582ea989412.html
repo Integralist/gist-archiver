@@ -12,27 +12,28 @@
 
 <h2 id="bgp-ip-hijack-md">BGP IP Hijack.md</h2>
 
-<pre><code class="language-markdown">&gt; Reference:  
-&gt; https://www.wired.com/2008/08/revealed-the-in/
+<blockquote>
+<p>Reference:<br />
+<a href="https://www.wired.com/2008/08/revealed-the-in/" target="_blank">https://www.wired.com/2008/08/revealed-the-in/</a></p>
+</blockquote>
 
-There is an issue with BGP (Border Gateway Protocol). The issue exists because BGP's architecture is based on trust. 
+<p>There is an issue with BGP (Border Gateway Protocol). The issue exists because BGP&rsquo;s architecture is based on trust.</p>
 
-As an example, for e-mail from Sprint customers in California to reach Telefonica customers in Spain, networks for these companies and others communicate through BGP routers to indicate when they're the quickest, most efficient route for the data to reach its destination. But BGP assumes that when a router says it's the best path, it's telling the truth. That gullibility makes it easy for eavesdroppers to fool routers into sending them traffic.
+<p>As an example, for e-mail from Sprint customers in California to reach Telefonica customers in Spain, networks for these companies and others communicate through BGP routers to indicate when they&rsquo;re the quickest, most efficient route for the data to reach its destination. But BGP assumes that when a router says it&rsquo;s the best path, it&rsquo;s telling the truth. That gullibility makes it easy for eavesdroppers to fool routers into sending them traffic.</p>
 
-Here's how it works. When a user types a website name into his browser or clicks &quot;send&quot; to launch an e-mail, a Domain Name System server produces an IP address for the destination. A router belonging to the user's ISP then consults a BGP table for the best route. That table is built from announcements, or &quot;advertisements,&quot; issued by ISPs and other networks – also known as Autonomous Systems, or ASes – declaring the range of IP addresses, or IP prefixes, to which they'll deliver traffic.
+<p>Here&rsquo;s how it works. When a user types a website name into his browser or clicks &ldquo;send&rdquo; to launch an e-mail, a Domain Name System server produces an IP address for the destination. A router belonging to the user&rsquo;s ISP then consults a BGP table for the best route. That table is built from announcements, or &ldquo;advertisements,&rdquo; issued by ISPs and other networks – also known as Autonomous Systems, or ASes – declaring the range of IP addresses, or IP prefixes, to which they&rsquo;ll deliver traffic.</p>
 
-The routing table searches for the destination IP address among those prefixes. If two ASes deliver to the address, the one with the more specific prefix &quot;wins&quot; the traffic. For example, one AS may advertise that it delivers to a group of 90,000 IP addresses, while another delivers to a subset of 24,000 of those addresses. If the destination IP address falls within both announcements, BGP will send data to the narrower, more specific one.
+<p>The routing table searches for the destination IP address among those prefixes. If two ASes deliver to the address, the one with the more specific prefix &ldquo;wins&rdquo; the traffic. For example, one AS may advertise that it delivers to a group of 90,000 IP addresses, while another delivers to a subset of 24,000 of those addresses. If the destination IP address falls within both announcements, BGP will send data to the narrower, more specific one.</p>
 
-To intercept data, an eavesdropper would advertise a range of IP addresses he wished to target that was narrower than the chunk advertised by other networks. The advertisement would take just minutes to propagate worldwide, before data headed to those addresses would begin arriving to his network.
+<p>To intercept data, an eavesdropper would advertise a range of IP addresses he wished to target that was narrower than the chunk advertised by other networks. The advertisement would take just minutes to propagate worldwide, before data headed to those addresses would begin arriving to his network.</p>
 
-The attack is called an IP hijack and, on its face, isn't new.
+<p>The attack is called an IP hijack and, on its face, isn&rsquo;t new.</p>
 
-But in the past, known IP hijacks have created outages, which, because they were so obvious, were quickly noticed and fixed. That's what occurred earlier this year when Pakistan Telecom inadvertently hijacked YouTube traffic from around the world. The traffic hit a dead-end in Pakistan, so it was apparent to everyone trying to visit YouTube that something was amiss.
+<p>But in the past, known IP hijacks have created outages, which, because they were so obvious, were quickly noticed and fixed. That&rsquo;s what occurred earlier this year when Pakistan Telecom inadvertently hijacked YouTube traffic from around the world. The traffic hit a dead-end in Pakistan, so it was apparent to everyone trying to visit YouTube that something was amiss.</p>
 
-Pilosov's innovation is to forward the intercepted data silently to the actual destination, so that no outage occurs.
+<p>Pilosov&rsquo;s innovation is to forward the intercepted data silently to the actual destination, so that no outage occurs.</p>
 
-Ordinarily, this shouldn't work – the data would boomerang back to the eavesdropper. But Pilosov and Kapela use a method called AS path prepending that causes a select number of BGP routers to reject their deceptive advertisement. They then use these ASes to forward the stolen data to its rightful recipients.
-</code></pre>
+<p>Ordinarily, this shouldn&rsquo;t work – the data would boomerang back to the eavesdropper. But Pilosov and Kapela use a method called AS path prepending that causes a select number of BGP routers to reject their deceptive advertisement. They then use these ASes to forward the stolen data to its rightful recipients.</p>
 
 </div>
 </body>

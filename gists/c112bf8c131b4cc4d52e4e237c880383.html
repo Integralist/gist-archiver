@@ -12,39 +12,42 @@
 
 <h2 id="0-terminals-for-windows-md">0. Terminals for Windows.md</h2>
 
-<pre><code class="language-markdown">The following notes are based around a CLI tool I had built in [Go](https://go.dev/) that would read a configuration file containing a 'build script' and would open a subshell to run the script. 
+<p>The following notes are based around a CLI tool I had built in <a href="https://go.dev/" target="_blank">Go</a> that would read a configuration file containing a &lsquo;build script&rsquo; and would open a subshell to run the script.</p>
 
-I had reports from Windows users that it wasn't working. I was using `cmd.exe` as the Terminal (as it's the default for Windows, so we know it's always available), but it doesn't support the POSIX command substitution syntax (e.g. `$()`). 
+<p>I had reports from Windows users that it wasn&rsquo;t working. I was using <code>cmd.exe</code> as the Terminal (as it&rsquo;s the default for Windows, so we know it&rsquo;s always available), but it doesn&rsquo;t support the POSIX command substitution syntax (e.g. <code>$()</code>).</p>
 
-The simplest solution ended up being to avoid command substitution (which in my case was possible as the build script was doing `$(npm bin)/webpack` and that could be changed to `npm exec webpack`), but at the time of this investigation I was not aware of `npm exec` (or `npx` for that matter) and so I was looking at different terminals for Windows to understand which of them supported 'command substitution'. 
+<p>The simplest solution ended up being to avoid command substitution (which in my case was possible as the build script was doing <code>$(npm bin)/webpack</code> and that could be changed to <code>npm exec webpack</code>), but at the time of this investigation I was not aware of <code>npm exec</code> (or <code>npx</code> for that matter) and so I was looking at different terminals for Windows to understand which of them supported &lsquo;command substitution&rsquo;.</p>
 
-I inevitably stumbled into a nightmare.
+<p>I inevitably stumbled into a nightmare.</p>
 
-Here are few terminals available (non-exhaustive list)...
+<p>Here are few terminals available (non-exhaustive list)&hellip;</p>
 
-1. [Command Prompt](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cmd) (Cmd.exe)
-2. [Cygwin](https://www.cygwin.com)
-3. [Git for Windows](https://gitforwindows.org) (e.g. provides a BASH emulation used to run Git from the command line)
-4. [PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/overview?view=powershell-7.2)
-5. [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) (WSL)
-6. [Windows Terminal](https://learn.microsoft.com/en-us/windows/terminal/)
+<ol>
+<li><a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cmd" target="_blank">Command Prompt</a> (Cmd.exe)</li>
+<li><a href="https://www.cygwin.com" target="_blank">Cygwin</a></li>
+<li><a href="https://gitforwindows.org" target="_blank">Git for Windows</a> (e.g. provides a BASH emulation used to run Git from the command line)</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/scripting/overview?view=powershell-7.2" target="_blank">PowerShell</a></li>
+<li><a href="https://learn.microsoft.com/en-us/windows/wsl/install" target="_blank">Windows Subsystem for Linux</a> (WSL)</li>
+<li><a href="https://learn.microsoft.com/en-us/windows/terminal/" target="_blank">Windows Terminal</a></li>
+</ol>
 
-&gt; **NOTE**: Windows Terminal looks to be a nice terminal interface, but the shell itself appears to just be PowerShell. So it might not be worth testing against if you already test your code against PowerShell.
+<blockquote>
+<p><strong>NOTE</strong>: Windows Terminal looks to be a nice terminal interface, but the shell itself appears to just be PowerShell. So it might not be worth testing against if you already test your code against PowerShell.</p>
+</blockquote>
 
-## PowerShell
+<h2 id="powershell">PowerShell</h2>
 
-I tried to switch to using `powershell.exe` (which although not installed by default, is the next simplest shell to get installed for Windows) and I discovered it doesn't support the 'logical AND' operator `&amp;&amp;`. This means you have to use a more arcane `-and` syntax, but this would make my build script incompatible with other shells that _are_ POSIX compatible. 
+<p>I tried to switch to using <code>powershell.exe</code> (which although not installed by default, is the next simplest shell to get installed for Windows) and I discovered it doesn&rsquo;t support the &lsquo;logical AND&rsquo; operator <code>&amp;&amp;</code>. This means you have to use a more arcane <code>-and</code> syntax, but this would make my build script incompatible with other shells that <em>are</em> POSIX compatible.</p>
 
-In an example project we _could_ have configured our CLI code to pattern match `&amp;&amp;` and then, when on a Windows OS, replaced it with `-and` but I then discovered PowerShell fails to execute a binary using the syntax `$(npm bin)/webpack` (I would hit this issue again later when testing the new Windows Terminal). 
+<p>In an example project we <em>could</em> have configured our CLI code to pattern match <code>&amp;&amp;</code> and then, when on a Windows OS, replaced it with <code>-and</code> but I then discovered PowerShell fails to execute a binary using the syntax <code>$(npm bin)/webpack</code> (I would hit this issue again later when testing the new Windows Terminal).</p>
 
-To avoid `&amp;&amp;` we an do the following in Bash `bin=$(npm bin); $bin/webpack` but in PowerShell you can't assign the result of a command substitution to a variable.
+<p>To avoid <code>&amp;&amp;</code> we an do the following in Bash <code>bin=$(npm bin); $bin/webpack</code> but in PowerShell you can&rsquo;t assign the result of a command substitution to a variable.</p>
 
-## Cmd.exe
+<h2 id="cmd-exe">Cmd.exe</h2>
 
-Interestingly, `cmd.exe` _does_ support `&amp;&amp;` but as we know, it fails to support `$()`. There is an alternative syntax but I couldn't get it to work (even with a simple example), let alone something more complex like: 
+<p>Interestingly, <code>cmd.exe</code> <em>does</em> support <code>&amp;&amp;</code> but as we know, it fails to support <code>$()</code>. There is an alternative syntax but I couldn&rsquo;t get it to work (even with a simple example), let alone something more complex like:</p>
 
-```shell
-for /F &quot;tokens=*&quot; %n IN ('npm bin') DO @(%n\webpack)
+<pre><code class="language-shell">for /F &quot;tokens=*&quot; %n IN ('npm bin') DO @(%n\webpack)
 </code></pre>
 
 <p>But this is a very confusing syntax. Also, I&rsquo;m not sure how to &lsquo;chain&rsquo; the command.</p>
@@ -96,12 +99,9 @@ endif
 
 <p>This means the above Makefile change would break our CI as some of the POSIX shell code was working fine in PowerShell, and then we suddenly changed things to be <code>cmd.exe</code> (e.g. I had a variable that worked with PowerShell but failed in <code>cmd.exe</code>: <code>./{cmd,pkg}/...</code> and so I had to change it to <code>./...</code> to avoid issues).</p>
 
-<pre><code>
-## 1. Command Prompt.md
+<h2 id="1-command-prompt-md">1. Command Prompt.md</h2>
 
-```markdown
-```shell
-C:\Users\markm&gt; cmd.exe /C &quot;echo 123 &amp;&amp; echo 456&quot;
+<pre><code class="language-shell">C:\Users\markm&gt; cmd.exe /C &quot;echo 123 &amp;&amp; echo 456&quot;
 123
 456	
 
@@ -111,24 +111,20 @@ C:\Users\markm&gt; dir
 C:\Users\markm&gt; Xcopy &lt;src&gt; &lt;dest&gt; /E/H/C/I
 </code></pre>
 
-<pre><code>
-## 2. Set PATH.md
+<h2 id="2-set-path-md">2. Set PATH.md</h2>
 
-```markdown
-```shell
-set PATH &quot;%PATH%;C:\NewDirectory&quot;
+<pre><code class="language-shell">set PATH &quot;%PATH%;C:\NewDirectory&quot;
 </code></pre>
 
-<pre><code>
-## 3. Neovim.md
+<h2 id="3-neovim-md">3. Neovim.md</h2>
 
-```markdown
-- `command+r` to open &quot;Run&quot; UI.
-- type `%appdata%` to open folder to that directory.
-- Go to `C:\Users\Administrator\AppData\Local` and `mkdir nvim`.
-- `git clone https://github.com/integralist/nvim.git` inside of the `nvim` directory
-- Move all the files into the `nvim` directory and start up `nvim`
-</code></pre>
+<ul>
+<li><code>command+r</code> to open &ldquo;Run&rdquo; UI.</li>
+<li>type <code>%appdata%</code> to open folder to that directory.</li>
+<li>Go to <code>C:\Users\Administrator\AppData\Local</code> and <code>mkdir nvim</code>.</li>
+<li><code>git clone https://github.com/integralist/nvim.git</code> inside of the <code>nvim</code> directory</li>
+<li>Move all the files into the <code>nvim</code> directory and start up <code>nvim</code></li>
+</ul>
 
 </div>
 </body>

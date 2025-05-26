@@ -12,53 +12,56 @@
 
 <h2 id="vim-increment-numbers-across-blocks-md">Vim increment numbers across blocks.md</h2>
 
-<pre><code class="language-markdown">So I had an interesting problem where I had a block of code like... 
+<p>So I had an interesting problem where I had a block of code like&hellip;</p>
 
-</code></pre>
-
-<p>&ldquo;testing0.testing-performance-domain.com&rdquo; = {
-  val1 = &ldquo;value_1&rdquo;
-  &hellip;
-}</p>
-
-<pre><code>
-The ... is lots of key/value lines, so it ends up being a large 'block'.
-
-I needed to duplicate the block multiple times (200 in fact) but the first line needed an incremented number, so...
-
-</code></pre>
-
-<p>&ldquo;testing1.testing-performance-domain.com&rdquo; = {
-  val1 = &ldquo;value_1&rdquo;
-  &hellip;
+<pre><code>&quot;testing0.testing-performance-domain.com&quot; = {
+  val1 = &quot;value_1&quot;
+  ...
 }
-&ldquo;testing2.testing-performance-domain.com&rdquo; = {
-  val1 = &ldquo;value_1&rdquo;
-  &hellip;
-}
-&ldquo;testing3.testing-performance-domain.com&rdquo; = {
-  val1 = &ldquo;value_1&rdquo;
-  &hellip;
-}</p>
-
-<pre><code>
-The way I solved this was to:
-
-- make sure the `&quot;a` register contained `0`.
-- `V%y` (copy the block).
-- `199P` (duplicate it, as we need two hundred blocks).
-- `qq` (on the first line of the first block I record the following macro `0f0v&quot;ap^AvTg&quot;ay`).
-  - `0` go to start of the line.
-  - `f0` find the first zero (e.g. the zero in `testing0`).
-  - `v&quot;ap` select the zero and replace it with the contents of the `&quot;a` register (the first time round this would be the same number: `0`).
-  - `^A` press Ctrl-a to increment the number pasted from the register.
-    - The cursor is always placed at the end of the number.
-    - So if number is 123 then the cursor would be on 3.
-  - `vTg` select back to just before the `g` in the preceding word &quot;testing&quot; (i.e. select the new number).
-  - `&quot;ay` and yank the new number into the same `&quot;a` register.
-- I then reset the first block to zero (so `&quot;testing0.testing-performance-domain.com&quot; = {`)
-- `:g/\v^\s\s\s\s&quot;testing\d/norm @q` find all relevant blocks and run the macro.
 </code></pre>
+
+<p>The &hellip; is lots of key/value lines, so it ends up being a large &lsquo;block&rsquo;.</p>
+
+<p>I needed to duplicate the block multiple times (200 in fact) but the first line needed an incremented number, so&hellip;</p>
+
+<pre><code>&quot;testing1.testing-performance-domain.com&quot; = {
+  val1 = &quot;value_1&quot;
+  ...
+}
+&quot;testing2.testing-performance-domain.com&quot; = {
+  val1 = &quot;value_1&quot;
+  ...
+}
+&quot;testing3.testing-performance-domain.com&quot; = {
+  val1 = &quot;value_1&quot;
+  ...
+}
+</code></pre>
+
+<p>The way I solved this was to:</p>
+
+<ul>
+<li>make sure the <code>&quot;a</code> register contained <code>0</code>.</li>
+<li><code>V%y</code> (copy the block).</li>
+<li><code>199P</code> (duplicate it, as we need two hundred blocks).</li>
+<li><code>qq</code> (on the first line of the first block I record the following macro <code>0f0v&quot;ap^AvTg&quot;ay</code>).
+
+<ul>
+<li><code>0</code> go to start of the line.</li>
+<li><code>f0</code> find the first zero (e.g. the zero in <code>testing0</code>).</li>
+<li><code>v&quot;ap</code> select the zero and replace it with the contents of the <code>&quot;a</code> register (the first time round this would be the same number: <code>0</code>).</li>
+<li><code>^A</code> press Ctrl-a to increment the number pasted from the register.
+
+<ul>
+<li>The cursor is always placed at the end of the number.</li>
+<li>So if number is 123 then the cursor would be on 3.</li>
+</ul></li>
+<li><code>vTg</code> select back to just before the <code>g</code> in the preceding word &ldquo;testing&rdquo; (i.e. select the new number).</li>
+<li><code>&quot;ay</code> and yank the new number into the same <code>&quot;a</code> register.</li>
+</ul></li>
+<li>I then reset the first block to zero (so <code>&quot;testing0.testing-performance-domain.com&quot; = {</code>)</li>
+<li><code>:g/\v^\s\s\s\s&quot;testing\d/norm @q</code> find all relevant blocks and run the macro.</li>
+</ul>
 
 </div>
 </body>

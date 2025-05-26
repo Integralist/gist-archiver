@@ -2,7 +2,6 @@
 
 ## Semantic Versioning Explanation.md
 
-```markdown
 ```
 1.2.3-beta.1+meta
 ```
@@ -32,5 +31,4 @@ A pre-release is a . separated list of identifiers following a `-`. For example,
 ## Metadata
 
 The final section of information is build metadata. This is a . separated list of identifiers following a +. This is different from pre-release information and should be ignored when determining precedence.
-```
 

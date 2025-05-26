@@ -12,69 +12,96 @@
 
 <h2 id="go-style-guide-md">Go Style Guide.md</h2>
 
-<pre><code class="language-markdown"># Table of Contents
+<h1 id="table-of-contents">Table of Contents</h1>
 
-- [Reference Materials](#reference-materials)
-- [Naming Summary](#naming-summary)
-- [Whitespace](#whitespace)
-- [Quick note on Code Design](#quick-note-on-code-design)
-- [Quick guide to Error wrapping](#quick-guide-to-error-wrapping)
-- [Quick guide to `panic`](#quick-guide-to-panic)
-- [Quick guide to slice 'gotchas'](#quick-guide-to-slice-gotchas)
-- [Quick guide to pass-by-value vs pass-by-pointer](#quick-guide-to-pass-by-value-vs-pass-by-pointer)
-- [Quick guide to functions with large signature](#quick-guide-to-functions-with-large-signature)
+<ul>
+<li><a href="#reference-materials">Reference Materials</a></li>
+<li><a href="#naming-summary">Naming Summary</a></li>
+<li><a href="#whitespace">Whitespace</a></li>
+<li><a href="#quick-note-on-code-design">Quick note on Code Design</a></li>
+<li><a href="#quick-guide-to-error-wrapping">Quick guide to Error wrapping</a></li>
+<li><a href="#quick-guide-to-panic">Quick guide to <code>panic</code></a></li>
+<li><a href="#quick-guide-to-slice-gotchas">Quick guide to slice &lsquo;gotchas&rsquo;</a></li>
+<li><a href="#quick-guide-to-pass-by-value-vs-pass-by-pointer">Quick guide to pass-by-value vs pass-by-pointer</a></li>
+<li><a href="#quick-guide-to-functions-with-large-signature">Quick guide to functions with large signature</a></li>
+</ul>
 
-## Reference Materials
+<h2 id="reference-materials">Reference Materials</h2>
 
-- [Effective Go](https://golang.org/doc/effective_go)
-- [Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
-- [What's in a name?](https://talks.golang.org/2014/names.slide)
-- [Commit messages](https://github.com/golang/go/wiki/CommitMessage)
-- [Comments](https://github.com/golang/go/wiki/Comments)
-- [Slice Gotchas](https://blogtitle.github.io/go-slices-gotchas/)
-- [Thinking about interfaces](https://www.integralist.co.uk/posts/go-interfaces/)
-- [Understanding memory allocation](https://gist.github.com/Integralist/22ced4b4700df1e6cbec88c1074c8b2d)
+<ul>
+<li><a href="https://golang.org/doc/effective_go" target="_blank">Effective Go</a></li>
+<li><a href="https://github.com/golang/go/wiki/CodeReviewComments" target="_blank">Code Review Comments</a></li>
+<li><a href="https://talks.golang.org/2014/names.slide" target="_blank">What&rsquo;s in a name?</a></li>
+<li><a href="https://github.com/golang/go/wiki/CommitMessage" target="_blank">Commit messages</a></li>
+<li><a href="https://github.com/golang/go/wiki/Comments" target="_blank">Comments</a></li>
+<li><a href="https://blogtitle.github.io/go-slices-gotchas/" target="_blank">Slice Gotchas</a></li>
+<li><a href="https://www.integralist.co.uk/posts/go-interfaces/" target="_blank">Thinking about interfaces</a></li>
+<li><a href="https://gist.github.com/Integralist/22ced4b4700df1e6cbec88c1074c8b2d" target="_blank">Understanding memory allocation</a></li>
+</ul>
 
-&gt; **NOTE**: Refer to the [specification](https://golang.org/ref/spec) if ever confused about what the expected behaviour is. 
+<blockquote>
+<p><strong>NOTE</strong>: Refer to the <a href="https://golang.org/ref/spec" target="_blank">specification</a> if ever confused about what the expected behaviour is.</p>
+</blockquote>
 
-## Naming Summary
+<h2 id="naming-summary">Naming Summary</h2>
 
-- Choose package names that lend meaning to the names they export.
-- Where types are descriptive, name should be short (1 or 2 char name).
-- If longer name required, consider refactoring into smaller functions.
-- Commonly used names:
-  - Prefer `i` to `index`.
-  - Prefer `r` to `reader`.
-  - Prefer `buf` to `buffer`.
-  - Prefer `cfg` to `config`.
-  - Prefer `dst, src` to `destination, source`.
-  - Prefer `in, out` when referring to stdin/stdout.
-  - Prefer `rx, tx` when dealing with channels (i.e. receiver, transmitter).
-  - Prefer `data` when referring to file content (whether a `string` or `[]byte`).
-  - Use `ok` instead of longer alternatives.
-- Errors:
-  - Types: `&lt;T&gt;Error` (example: `type ExitError struct {...}`).
-  - Values: `Err&lt;T&gt;` (example: `var ErrFormat = errors.New(&quot;image: unknown format&quot;)`).
-- Interfaces:
-  - When an interface includes multiple methods, choose a name that accurately describes its purpose.
-  - Interfaces that specify just one method are usually just that function name with 'er' appended to it.
-    - Sometimes the result isn't correct English, but we do it anyway.
-    - Sometimes we use English to make it nicer.
-- Return values on exported functions should only be named for documentation purposes.
-  - Side effect is that the variable is initialised at start of function with zero value.
-  - This can, in _rare_ cases, lead to a nice code design.
-- `Set&lt;T&gt;` vs `Register&lt;T&gt;`
-  - Set: use when flipping a bit (example: setting int, string etc).
-  - Register: use when operation is going _into_ something (example: registering a CLI _flag_ into a command).
+<ul>
+<li>Choose package names that lend meaning to the names they export.</li>
+<li>Where types are descriptive, name should be short (1 or 2 char name).</li>
+<li>If longer name required, consider refactoring into smaller functions.</li>
+<li>Commonly used names:
 
-&gt; **NOTE**: Refer also to https://github.com/kettanaito/naming-cheatsheet
+<ul>
+<li>Prefer <code>i</code> to <code>index</code>.</li>
+<li>Prefer <code>r</code> to <code>reader</code>.</li>
+<li>Prefer <code>buf</code> to <code>buffer</code>.</li>
+<li>Prefer <code>cfg</code> to <code>config</code>.</li>
+<li>Prefer <code>dst, src</code> to <code>destination, source</code>.</li>
+<li>Prefer <code>in, out</code> when referring to stdin/stdout.</li>
+<li>Prefer <code>rx, tx</code> when dealing with channels (i.e. receiver, transmitter).</li>
+<li>Prefer <code>data</code> when referring to file content (whether a <code>string</code> or <code>[]byte</code>).</li>
+<li>Use <code>ok</code> instead of longer alternatives.</li>
+</ul></li>
+<li>Errors:
 
-## Whitespace
+<ul>
+<li>Types: <code>&lt;T&gt;Error</code> (example: <code>type ExitError struct {...}</code>).</li>
+<li>Values: <code>Err&lt;T&gt;</code> (example: <code>var ErrFormat = errors.New(&quot;image: unknown format&quot;)</code>).</li>
+</ul></li>
+<li>Interfaces:
 
-The go standard library has no strong conventions or idioms for how to handle whitespace. So try and be concise without leaving the user with a wall of text to digest. Additionally, you can use block syntax `{...}` to help group related logic:
+<ul>
+<li>When an interface includes multiple methods, choose a name that accurately describes its purpose.</li>
+<li>Interfaces that specify just one method are usually just that function name with &lsquo;er&rsquo; appended to it.
 
-```go
-// Simple code is fine to condense the whitespace.
+<ul>
+<li>Sometimes the result isn&rsquo;t correct English, but we do it anyway.</li>
+<li>Sometimes we use English to make it nicer.</li>
+</ul></li>
+</ul></li>
+<li>Return values on exported functions should only be named for documentation purposes.
+
+<ul>
+<li>Side effect is that the variable is initialised at start of function with zero value.</li>
+<li>This can, in <em>rare</em> cases, lead to a nice code design.</li>
+</ul></li>
+<li><code>Set&lt;T&gt;</code> vs <code>Register&lt;T&gt;</code>
+
+<ul>
+<li>Set: use when flipping a bit (example: setting int, string etc).</li>
+<li>Register: use when operation is going <em>into</em> something (example: registering a CLI <em>flag</em> into a command).</li>
+</ul></li>
+</ul>
+
+<blockquote>
+<p><strong>NOTE</strong>: Refer also to <a href="https://github.com/kettanaito/naming-cheatsheet" target="_blank">https://github.com/kettanaito/naming-cheatsheet</a></p>
+</blockquote>
+
+<h2 id="whitespace">Whitespace</h2>
+
+<p>The go standard library has no strong conventions or idioms for how to handle whitespace. So try and be concise without leaving the user with a wall of text to digest. Additionally, you can use block syntax <code>{...}</code> to help group related logic:</p>
+
+<pre><code class="language-go">// Simple code is fine to condense the whitespace.
 if ... {
   foo
   for x := range y {
@@ -278,8 +305,6 @@ func NewClient(host string, options ...Option) *Client {
   return c
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

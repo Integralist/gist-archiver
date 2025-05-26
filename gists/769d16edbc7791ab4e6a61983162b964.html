@@ -12,11 +12,9 @@
 
 <h2 id="example-md">Example.md</h2>
 
-<pre><code class="language-markdown">Create a new user (using an API token that has 'superuser' permissions):
+<p>Create a new user (using an API token that has &lsquo;superuser&rsquo; permissions):</p>
 
-
-```bash
-curl -v -H &quot;Fastly-Key: $FASTLY_API_TOKEN_SUPERUSER&quot; -X POST -d &quot;name=Foo Bar&amp;login=foo.bar%40example.com&quot; https://api.fastly.com/user
+<pre><code class="language-bash">curl -v -H &quot;Fastly-Key: $FASTLY_API_TOKEN_SUPERUSER&quot; -X POST -d &quot;name=Foo Bar&amp;login=foo.bar%40example.com&quot; https://api.fastly.com/user
 </code></pre>
 
 <p>Response (notice no 2FA, no password, no force password reset etc):</p>
@@ -97,45 +95,36 @@ curl -v -H &quot;Fastly-Key: $FASTLY_API_TOKEN_SUPERUSER&quot; -H &quot;Fastly-O
 
 <blockquote>
 <p>Note: this token is generated for the superuser, and unfortunately not the specified username in the post formdata (which is what we wanted). Doesn&rsquo;t matter what creds you provide at this point. As you used the superuser account for <code>/sudo</code> it means the token will be setup for that user. This means as don&rsquo;t <em>know</em> anything about our user&rsquo;s or their creds (or OTP codes), we won&rsquo;t be able to create API tokens on their behalf.</p>
+</blockquote>
 
-<pre><code>
-## Fastly Create Users + API tokens for Auditing purposes.md
+<h2 id="fastly-create-users-api-tokens-for-auditing-purposes-md">Fastly Create Users + API tokens for Auditing purposes.md</h2>
 
-```markdown
-&gt; Note: the following was a brief 'step-by-step' provided by Fastly.
+<blockquote>
+<p>Note: the following was a brief &lsquo;step-by-step&rsquo; provided by Fastly.</p>
+</blockquote>
 
-First, we create the user: 
+<p>First, we create the user:</p>
 
+<pre><code>https://docs.fastly.com/api/account#user_00b606002596bac1c652614de98bd260
 </code></pre>
 
-<p><a href="https://docs.fastly.com/api/account#user_00b606002596bac1c652614de98bd260" target="_blank">https://docs.fastly.com/api/account#user_00b606002596bac1c652614de98bd260</a></p>
+<p>Because we can’t create the user with an specific password, we manually update the recently created user’s password with this API call:</p>
 
-<pre><code>
-Because we can’t create the user with an specific password, we manually update the recently created user’s password with this API call:
-
-</code></pre>
-
-<p>POST /user/<user-id>/password
+<pre><code>POST /user/&lt;user-id&gt;/password
 Authentication: Using the API key of a superuser. Send that API key using the Fastly-Key header.
 Content-Type: application/x-www-form-urlencoded
-Payload: The new password should be sent as formdata within the field new_password</p>
-
-<pre><code>
-Then, knowing the user and password, we can create a personal token: 
-
+Payload: The new password should be sent as formdata within the field new_password
 </code></pre>
 
-<p><a href="https://docs.fastly.com/api/auth#tokens_db4655a45a0107448eb0676577446e40" target="_blank">https://docs.fastly.com/api/auth#tokens_db4655a45a0107448eb0676577446e40</a></p>
+<p>Then, knowing the user and password, we can create a personal token:</p>
 
-<pre><code>
-I’d also finish by requesting a password reset for the user, so they can set whatever they want: 
-
+<pre><code>https://docs.fastly.com/api/auth#tokens_db4655a45a0107448eb0676577446e40
 </code></pre>
 
-<p><a href="https://docs.fastly.com/api/account#user_cee4dbb44c07d9ed078424cbbd353e1a" target="_blank">https://docs.fastly.com/api/account#user_cee4dbb44c07d9ed078424cbbd353e1a</a></p>
+<p>I’d also finish by requesting a password reset for the user, so they can set whatever they want:</p>
 
-<pre><code></code></pre>
-</blockquote>
+<pre><code>https://docs.fastly.com/api/account#user_cee4dbb44c07d9ed078424cbbd353e1a
+</code></pre>
 
 </div>
 </body>

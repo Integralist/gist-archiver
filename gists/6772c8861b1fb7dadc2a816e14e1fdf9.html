@@ -12,14 +12,15 @@
 
 <h2 id="go-api-json-issues-md">Go API JSON Issues.md</h2>
 
-<pre><code class="language-markdown">&gt; Reference: https://willnorris.com/2014/05/go-rest-apis-and-pointers/
+<blockquote>
+<p>Reference: <a href="https://willnorris.com/2014/05/go-rest-apis-and-pointers/" target="_blank">https://willnorris.com/2014/05/go-rest-apis-and-pointers/</a></p>
+</blockquote>
 
-If a struct field isn't populated, and is marshalled to JSON, then the field's zero value will be used (e.g. type string zero value == &quot;&quot;, type int zero value == 0).
+<p>If a struct field isn&rsquo;t populated, and is marshalled to JSON, then the field&rsquo;s zero value will be used (e.g. type string zero value == &ldquo;&rdquo;, type int zero value == 0).</p>
 
-You can use `omitempty` to prevent the field from being marshalled, but then you won't know if the zero value was intentional or not (e.g. a user might _want_ to set an type int field to zero or a type string field to an empty string).
+<p>You can use <code>omitempty</code> to prevent the field from being marshalled, but then you won&rsquo;t know if the zero value was intentional or not (e.g. a user might <em>want</em> to set an type int field to zero or a type string field to an empty string).</p>
 
-To avoid that situation you need to have the field be set to a _pointer_ of the type. This is because the zero value for a pointer is `nil`. This means if the field is `nil` then the field was never set but if it looks like a zero value for the type being pointed to, then you know it was set to the zero value intentionally.
-</code></pre>
+<p>To avoid that situation you need to have the field be set to a <em>pointer</em> of the type. This is because the zero value for a pointer is <code>nil</code>. This means if the field is <code>nil</code> then the field was never set but if it looks like a zero value for the type being pointed to, then you know it was set to the zero value intentionally.</p>
 
 <h2 id="set-null-when-marshalling-go">Set null when Marshalling.go</h2>
 

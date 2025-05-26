@@ -10,40 +10,6 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="python-warrant-cognito-python-cognito">[Python Warrant Cognito] #python #cognito</h1>
 
-<h2 id="python-warrant-cognito-py">Python Warrant Cognito.py</h2>
-
-<pre><code class="language-python">user_pool_id = settings.get('cognito_user_pool_id')
-client_id = settings.get('cognito_user_pool_app_client_id')
-
-#####################################
-
-# note: we need actual access keys, so I created a new IAM user
-# the client application's secret key wasn't used
-
-u = Cognito(user_pool_id, client_id,
-            access_key=settings.get('aws_application_access_key'),
-            secret_key=settings.get('aws_application_secret_key'))
-            users = u.get_users(attr_map={&quot;name&quot;: &quot;full_name&quot;})
-
-if settings.get(&quot;debug&quot;):
-    for user in users:
-        logging.info(user.__dict__)
-        
-#####################################
-        
-u = Cognito(user_pool_id, client_id,
-            client_secret=settings.get('cognito_user_pool_app_secret_key'),
-            access_key=settings.get('aws_application_access_key'),
-            secret_key=settings.get('aws_application_secret_key'),
-            username='...',
-            id_token='...',
-            access_token='...',
-            refresh_token='...')
-
-response = u.check_token(renew=False)  # leave off `renew` if you want Warrant to attempt to refresh expired tokens
-
-</code></pre>
-
 <h2 id="admin-create-user-and-auto-confirm-change-password-py">Admin create user and auto-confirm + change password.py</h2>
 
 <pre><code class="language-python">from warrant import Cognito, dict_to_cognito
@@ -111,6 +77,40 @@ u.verify_token(tokens['AuthenticationResult']['IdToken'], 'id_token','id')
 u.refresh_token = tokens['AuthenticationResult']['RefreshToken']
 u.verify_token(tokens['AuthenticationResult']['AccessToken'], 'access_token','access')
 u.token_type = tokens['AuthenticationResult']['TokenType']
+</code></pre>
+
+<h2 id="python-warrant-cognito-py">Python Warrant Cognito.py</h2>
+
+<pre><code class="language-python">user_pool_id = settings.get('cognito_user_pool_id')
+client_id = settings.get('cognito_user_pool_app_client_id')
+
+#####################################
+
+# note: we need actual access keys, so I created a new IAM user
+# the client application's secret key wasn't used
+
+u = Cognito(user_pool_id, client_id,
+            access_key=settings.get('aws_application_access_key'),
+            secret_key=settings.get('aws_application_secret_key'))
+            users = u.get_users(attr_map={&quot;name&quot;: &quot;full_name&quot;})
+
+if settings.get(&quot;debug&quot;):
+    for user in users:
+        logging.info(user.__dict__)
+        
+#####################################
+        
+u = Cognito(user_pool_id, client_id,
+            client_secret=settings.get('cognito_user_pool_app_secret_key'),
+            access_key=settings.get('aws_application_access_key'),
+            secret_key=settings.get('aws_application_secret_key'),
+            username='...',
+            id_token='...',
+            access_token='...',
+            refresh_token='...')
+
+response = u.check_token(renew=False)  # leave off `renew` if you want Warrant to attempt to refresh expired tokens
+
 </code></pre>
 
 </div>

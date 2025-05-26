@@ -12,19 +12,17 @@
 
 <h2 id="vagrant-ssh-md">Vagrant SSH.md</h2>
 
-<pre><code class="language-markdown">Reference: http://thediscoblog.com/blog/2013/10/16/ssh-and-vagrant/
+<p>Reference: <a href="http://thediscoblog.com/blog/2013/10/16/ssh-and-vagrant/" target="_blank">http://thediscoblog.com/blog/2013/10/16/ssh-and-vagrant/</a></p>
 
+<pre><code>ssh -i $(vagrant ssh-config | grep IdentityFile  | awk '{print $2}') -l vagrant -p 2222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 127.0.0.1
 </code></pre>
 
-<p>ssh -i <span class="math inline">\((vagrant ssh-config | grep IdentityFile  | awk '{print \)</span>2}&lsquo;) -l vagrant -p 2222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 127.0.0.1</p>
+<blockquote>
+<p>Note: <code>vagrant</code> can be changed for any other user<br />
+e.g. you can add a user when logged in as <code>root</code> (see following section)</p>
+</blockquote>
 
-<pre><code>
-&gt; Note: `vagrant` can be changed for any other user  
-e.g. you can add a user when logged in as `root` (see following section)
-
-</code></pre>
-
-<p>vagrant ssh
+<pre><code>vagrant ssh
 su # password: vagrant
 adduser foo
 adduser bar
@@ -33,9 +31,8 @@ mkdir /var/baz # folder to hold tmux session data
 chgrp baz /var/baz # give group access to tmux session folder
 chmod g+ws /var/baz # ensure new files are accessible to the group
 usermod -aG baz foo # add foo user to the baz group
-usermod -aG baz bar # add bar user to the baz group</p>
-
-<pre><code></code></pre>
+usermod -aG baz bar # add bar user to the baz group
+</code></pre>
 
 </div>
 </body>

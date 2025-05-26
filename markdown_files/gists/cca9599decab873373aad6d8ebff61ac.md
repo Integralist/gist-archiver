@@ -2,7 +2,6 @@
 
 ## Vim arg list and Search Replacement.md
 
-```markdown
 Imagine we have a file containing...
 
 ```python
@@ -29,6 +28,5 @@ Examples...
 :argdo %s/\v(from foo import Bar)/\L\1/e | update
 :argdo %s/\vfrom foo import (B)ar/\l\1/e | update
 :argdo %s/\vfrom foo import (*+)/\l\1/e | update
-```
 ```
 

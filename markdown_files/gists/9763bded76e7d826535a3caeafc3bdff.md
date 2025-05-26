@@ -1,5 +1,73 @@
 # Algorithms in Python (modified from the excellent: Grokking Algorithms) - see also http://www.integralist.co.uk/posts/bigo.html for details on understanding Big O notation
 
+## 0. Algorithms in Python.md
+
+- [Binary Search](#file-1-binary-search-py)
+- [Selection Sort](#file-2-selection-sort-py)
+- [Quick Sort (first index)](#file-3-quick-sort-first-index-py)
+- [Quick Sort (middle index)](#file-4-quick-sort-middle-index-py)
+- [Quick Sort (random index)](#file-5-quick-sort-random-index-py)
+- [Breadth First Search](#file-6-breadth-first-search-py)
+- [Dijkstra's Algorithm](#file-7-dijkstra-s-algorithm-py)
+
+## 1. binary search.py
+
+```python
+'''
+Binary Search algorithm
+
+Description:
+    Locate an item within a collection by using a 
+    divide and conquer approach.
+
+    In essence, pick the middle of the collection
+    then verify if the value is too high or low
+    and then reduce the sliding window, now pick 
+    the middle again - rinse/repeat
+
+Performance:
+    O(Log₂ n)
+    Logarithmic time
+
+Meaning:
+    12 item collection will take (worst case) ~4 steps
+    to locate the specified index using binary search
+
+Note: collection must be sorted
+'''
+
+collection = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 20, 21]  # 12 items
+
+
+def binary_search(collection, item):
+    print("we're looking for:", item, "\n")
+    print("collection:", collection, "\n")
+
+    start = 0
+    stop = len(collection) - 1
+
+    while start <= stop:
+        middle = round((start + stop) / 2)
+        guess = collection[middle]
+
+        print("start: {}\nstop: {}\nmiddle: {}\nguess: {}\n".format(start,
+                                                                    stop,
+                                                                    middle,
+                                                                    guess))
+
+        if guess == item:
+            return middle
+        if guess > item:
+            stop = middle - 1
+        else:
+            start = middle + 1
+
+    return None
+
+
+print(binary_search(collection, 9))  # found at index: 4
+```
+
 ## 2. selection sort.py
 
 ```python
@@ -441,75 +509,5 @@ def display_route(node=None):
 
 find_fastest_path()  # mutates global 'costs' & 'parents' arrays
 display_route()  # Fastest Route: start -> b -> a -> end
-```
-
-## 0. Algorithms in Python.md
-
-```markdown
-- [Binary Search](#file-1-binary-search-py)
-- [Selection Sort](#file-2-selection-sort-py)
-- [Quick Sort (first index)](#file-3-quick-sort-first-index-py)
-- [Quick Sort (middle index)](#file-4-quick-sort-middle-index-py)
-- [Quick Sort (random index)](#file-5-quick-sort-random-index-py)
-- [Breadth First Search](#file-6-breadth-first-search-py)
-- [Dijkstra's Algorithm](#file-7-dijkstra-s-algorithm-py)
-```
-
-## 1. binary search.py
-
-```python
-'''
-Binary Search algorithm
-
-Description:
-    Locate an item within a collection by using a 
-    divide and conquer approach.
-
-    In essence, pick the middle of the collection
-    then verify if the value is too high or low
-    and then reduce the sliding window, now pick 
-    the middle again - rinse/repeat
-
-Performance:
-    O(Log₂ n)
-    Logarithmic time
-
-Meaning:
-    12 item collection will take (worst case) ~4 steps
-    to locate the specified index using binary search
-
-Note: collection must be sorted
-'''
-
-collection = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 20, 21]  # 12 items
-
-
-def binary_search(collection, item):
-    print("we're looking for:", item, "\n")
-    print("collection:", collection, "\n")
-
-    start = 0
-    stop = len(collection) - 1
-
-    while start <= stop:
-        middle = round((start + stop) / 2)
-        guess = collection[middle]
-
-        print("start: {}\nstop: {}\nmiddle: {}\nguess: {}\n".format(start,
-                                                                    stop,
-                                                                    middle,
-                                                                    guess))
-
-        if guess == item:
-            return middle
-        if guess > item:
-            stop = middle - 1
-        else:
-            start = middle + 1
-
-    return None
-
-
-print(binary_search(collection, 9))  # found at index: 4
 ```
 

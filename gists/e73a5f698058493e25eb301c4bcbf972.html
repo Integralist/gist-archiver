@@ -12,12 +12,13 @@
 
 <h2 id="aws-athena-sql-md">AWS Athena SQL.md</h2>
 
-<pre><code class="language-markdown">&gt; Note: [reference article](https://medium.com/@samparkinson_/query-fastly-logs-using-amazon-athena-f262bc58d27c)
+<blockquote>
+<p>Note: <a href="https://medium.com/@samparkinson_/query-fastly-logs-using-amazon-athena-f262bc58d27c" target="_blank">reference article</a></p>
+</blockquote>
 
-Basic query example:
+<p>Basic query example:</p>
 
-```sql
-SELECT status_code,
+<pre><code class="language-sql">SELECT status_code,
          COUNT(status_code) AS requests
 FROM fastly_logs.example_com
 GROUP BY  requests
@@ -159,8 +160,7 @@ TBLPROPERTIES (
 
 <h2 id="caution">Caution!</h2>
 
-<p>If you set a field to have a field of type <code>int</code> and it&rsquo;s sent as an empty string &ldquo;&rdquo; by default by the provider of the data, then expect Hive DB to complain loudly when trying to search for data.
-&ldquo;`</p>
+<p>If you set a field to have a field of type <code>int</code> and it&rsquo;s sent as an empty string &ldquo;&rdquo; by default by the provider of the data, then expect Hive DB to complain loudly when trying to search for data.</p>
 
 </div>
 </body>

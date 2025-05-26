@@ -12,17 +12,13 @@
 
 <h2 id="git-commit-frequency-md">Git Commit Frequency.md</h2>
 
-<pre><code class="language-markdown"></code></pre>
-
-<p>git log &ndash;author=&ldquo;Integralist&rdquo; &ndash;date=iso | perl -nalE &lsquo;if (/^Date:\s+[\d-]{10}\s(\d{2})/) { say <span class="math inline">\(1+0 }' | sort | uniq -c|perl -MList::Util=max -nalE '\)</span>h{<span class="math inline">\(F[1]} = \)</span>F[0]; }{ <span class="math inline">\(m = max values %h; foreach (0..23) { \)</span>h{<span class="math inline">\(_} = 0 if not exist
-s \)</span>h{<span class="math inline">\(_} } foreach (sort {\)</span>a &lt;=&gt; <span class="math inline">\(b } keys %h) { say sprintf &quot;%02d - %4d %s&quot;, \)</span><em>, <span class="math inline">\(h{\)</span></em>}, &ldquo;*&ldquo;x (<span class="math inline">\(h{\)</span>_} / $m * 50); }&rsquo;</p>
-
-<pre><code>
-On the BuzzFeed mono repo...
-
+<pre><code>git log --author=&quot;Integralist&quot; --date=iso | perl -nalE 'if (/^Date:\s+[\d-]{10}\s(\d{2})/) { say $1+0 }' | sort | uniq -c|perl -MList::Util=max -nalE '$h{$F[1]} = $F[0]; }{ $m = max values %h; foreach (0..23) { $h{$_} = 0 if not exist
+s $h{$_} } foreach (sort {$a &lt;=&gt; $b } keys %h) { say sprintf &quot;%02d - %4d %s&quot;, $_, $h{$_}, &quot;*&quot;x ($h{$_} / $m * 50); }'
 </code></pre>
 
-<p>00 -    0
+<p>On the BuzzFeed mono repo&hellip;</p>
+
+<pre><code>00 -    0
 01 -    0
 02 -    0
 03 -    0
@@ -45,9 +41,8 @@ On the BuzzFeed mono repo...
 20 -    2
 21 -    4 *
 22 -    4 *
-23 -    0</p>
-
-<pre><code></code></pre>
+23 -    0
+</code></pre>
 
 </div>
 </body>

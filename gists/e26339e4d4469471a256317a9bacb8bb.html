@@ -12,54 +12,63 @@
 
 <h2 id="grpc-beginners-guide-md">gRPC beginners guide.md</h2>
 
-<pre><code class="language-markdown">## Compiler
+<h2 id="compiler">Compiler</h2>
 
-The `protoc` compiler is written in C++ and needs to be built from source:
+<p>The <code>protoc</code> compiler is written in C++ and needs to be built from source:</p>
 
-&gt; Note: [here](https://github.com/google/protobuf/tree/master/src) details shell dependencies required
+<blockquote>
+<p>Note: <a href="https://github.com/google/protobuf/tree/master/src" target="_blank">here</a> details shell dependencies required</p>
+</blockquote>
 
-- `git clone git@github.com:google/protobuf.git`
-- `./autogen.sh`
-- `./configure`
-- `make # this can take quite a while ~10 mins for me`
-- `make check # this can take quite a while ~10 mins for me`
-- `sudo make install`
+<ul>
+<li><code>git clone git@github.com:google/protobuf.git</code></li>
+<li><code>./autogen.sh</code></li>
+<li><code>./configure</code></li>
+<li><code>make # this can take quite a while ~10 mins for me</code></li>
+<li><code>make check # this can take quite a while ~10 mins for me</code></li>
+<li><code>sudo make install</code></li>
+</ul>
 
-## Go Example
+<h2 id="go-example">Go Example</h2>
 
-- `go get -a github.com/golang/protobuf/protoc-gen-go` (Go plugin for protoc compiler)
-- `git clone https://github.com/grpc/grpc.git`
-- `cd grpc/examples`
-- `mkdir testing-helloworld`
-- `protoc -I ./protos ./protos/helloworld.proto --go_out=plugins=grpc:testing-helloworld`
+<ul>
+<li><code>go get -a github.com/golang/protobuf/protoc-gen-go</code> (Go plugin for protoc compiler)</li>
+<li><code>git clone https://github.com/grpc/grpc.git</code></li>
+<li><code>cd grpc/examples</code></li>
+<li><code>mkdir testing-helloworld</code></li>
+<li><code>protoc -I ./protos ./protos/helloworld.proto --go_out=plugins=grpc:testing-helloworld</code></li>
+</ul>
 
-This generates:
+<p>This generates:</p>
 
+<pre><code>testing-helloworld/
+└── helloworld.pb.go
+
+0 directories, 1 file
 </code></pre>
 
-<p>testing-helloworld/
-└── helloworld.pb.go</p>
+<ul>
+<li><code>go get -u google.golang.org/grpc/examples/helloworld/greeter_client</code></li>
+<li><code>go get -u google.golang.org/grpc/examples/helloworld/greeter_server</code></li>
+<li><code>cd $GOPATH/src/google.golang.org/grpc/examples/helloworld</code></li>
+<li><code>cd greeter_server &amp; go run main.go</code></li>
+<li><code>cd greeter_client &amp; go run main.go</code></li>
+</ul>
 
-<p>0 directories, 1 file</p>
+<blockquote>
+<p>Note: the client/server you downloaded reference their own pb.go<br />
+/src/google.golang.org/grpc/examples/helloworld/helloworld/helloworld.pb.go<br />
+If you want, you can create your own client/server code to be sure&hellip;</p>
+</blockquote>
 
-<pre><code>
-- `go get -u google.golang.org/grpc/examples/helloworld/greeter_client`
-- `go get -u google.golang.org/grpc/examples/helloworld/greeter_server`
-- `cd $GOPATH/src/google.golang.org/grpc/examples/helloworld`
-- `cd greeter_server &amp; go run main.go`
-- `cd greeter_client &amp; go run main.go`
+<ul>
+<li><code>cd grpc/examples</code> (wherever you originally git cloned the grpc repo)</li>
+<li><code>cp greeter_server.go ./testing-server.go</code></li>
+</ul>
 
-&gt; Note: the client/server you downloaded reference their own pb.go  
-&gt; /src/google.golang.org/grpc/examples/helloworld/helloworld/helloworld.pb.go  
-&gt; If you want, you can create your own client/server code to be sure...  
+<p>Replace the line:</p>
 
-- `cd grpc/examples` (wherever you originally git cloned the grpc repo)
-- `cp greeter_server.go ./testing-server.go`
-
-Replace the line:
-
-```go
-pb &quot;google.golang.org/grpc/examples/helloworld/helloworld&quot;
+<pre><code class="language-go">pb &quot;google.golang.org/grpc/examples/helloworld/helloworld&quot;
 </code></pre>
 
 <p>With:</p>
@@ -101,8 +110,6 @@ pb &quot;google.golang.org/grpc/examples/helloworld/helloworld&quot;
 <li><code>make</code></li>
 <li><code>make install</code></li>
 </ul>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

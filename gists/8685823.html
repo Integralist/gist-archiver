@@ -12,15 +12,12 @@
 
 <h2 id="example-md">Example.md</h2>
 
-<pre><code class="language-markdown">`.npmrc`
+<p><code>.npmrc</code></p>
 
+<pre><code>registry = &quot;http://npm.some-domain.com/&quot;
 </code></pre>
 
-<p>registry = &ldquo;<a href="http://npm.some-domain.com/&quot;" target="_blank">http://npm.some-domain.com/&rdquo;</a></p>
-
-<pre><code>
-```nginx
-proxy_cache_path /app/npm/data levels=1:2 keys_zone=npm:20m max_size=1000m inactive=3d;
+<pre><code class="language-nginx">proxy_cache_path /app/npm/data levels=1:2 keys_zone=npm:20m max_size=1000m inactive=3d;
 proxy_temp_path /app/npm/tmp;
 
 server {
@@ -37,8 +34,6 @@ server {
    }
  }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

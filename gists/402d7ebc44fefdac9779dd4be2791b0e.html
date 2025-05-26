@@ -12,12 +12,11 @@
 
 <h2 id="python-tornado-request-performance-md">Python Tornado Request Performance.md</h2>
 
-<pre><code class="language-markdown">Imagine a tornado server that makes three asynchronous HTTP requests using `AsyncHTTPClient`.
+<p>Imagine a tornado server that makes three asynchronous HTTP requests using <code>AsyncHTTPClient</code>.</p>
 
-The `AsyncHTTPClient` is configured using `max_client=10`...
+<p>The <code>AsyncHTTPClient</code> is configured using <code>max_client=10</code>&hellip;</p>
 
-```py
-AsyncHTTPClient.configure(None, max_clients=10)
+<pre><code class="language-py">AsyncHTTPClient.configure(None, max_clients=10)
 </code></pre>
 
 <p>Meaning tornado will be able to handle a maximum of 10 simultaneous <code>fetch()</code> operations in parallel on each IOLoop.</p>
@@ -40,8 +39,7 @@ AsyncHTTPClient.configure(None, max_clients=10)
 
 <p>According to our metrics it looks like the internal API request takes ~250ms, so it would only take a backlog of 4 to reach the tornado application&rsquo;s configured 1s timeout.</p>
 
-<p>Where we&rsquo;ve tested using aiohttp and found better performance &lsquo;out-of-the-box&rsquo;, what&rsquo;s most likely happening is that aiohttp provides no mechanism to <em>control concurrency</em>, which appears useful in this specific case, but is ultimately not what we want, because we don&rsquo;t want the application to be able to DoS downstream dependencies. Granted, aiohttp might be actually be more performant. But it doesn&rsquo;t appear as though we&rsquo;re resource starved and so further configuration tweaking should be investigated before switching.
-&ldquo;`</p>
+<p>Where we&rsquo;ve tested using aiohttp and found better performance &lsquo;out-of-the-box&rsquo;, what&rsquo;s most likely happening is that aiohttp provides no mechanism to <em>control concurrency</em>, which appears useful in this specific case, but is ultimately not what we want, because we don&rsquo;t want the application to be able to DoS downstream dependencies. Granted, aiohttp might be actually be more performant. But it doesn&rsquo;t appear as though we&rsquo;re resource starved and so further configuration tweaking should be investigated before switching.</p>
 
 </div>
 </body>

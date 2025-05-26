@@ -1,5 +1,279 @@
 # [Golang GitHub API Client] #go #golang #github #api
 
+## 1. Golang GitHub API Client (simple inlined proof-of-concept).go
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+	"sort"
+	"strings"
+
+	"github.com/fatih/color"
+	"github.com/google/go-github/v42/github"
+	"golang.org/x/oauth2"
+)
+
+func main() {
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN_TERMINAL_TOOL")},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+
+	client := github.NewClient(tc)
+
+	// orgs, _, err := client.Organizations.List(context.Background(), "integralist", nil)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Printf("orgs: %+v\n", orgs)
+
+	// opt := &github.RepositoryListByOrgOptions{Type: "private"}
+	// repos, _, err := client.Repositories.ListByOrg(context.Background(), "fastly", opt)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Printf("private repos: %d\n", len(repos))
+
+	bold := color.New(color.FgHiYellow).Add(color.Bold).SprintFunc()
+	title := color.New(color.FgHiRed).Add(color.Underline).Add(color.Bold)
+	title.Print("Repos with no description...\n\n")
+
+	// repos, _, err := client.Repositories.ListByOrg(context.Background(), "fastly", nil)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// for _, repo := range repos {
+	// 	if repo.GetDescription() == "" {
+	// 		fmt.Printf("%s: %s\n%s %t\n\n", bold("URL"), repo.GetHTMLURL(), bold("Private?"), repo.GetPrivate())
+	// 	}
+	// }
+
+	org := "fastly"
+	opts := &github.RepositoryListByOrgOptions{
+		ListOptions: github.ListOptions{
+			PerPage: 100,
+		},
+	}
+	count := 0
+
+	for {
+		repos, resp, err := client.Repositories.ListByOrg(context.Background(), org, opts)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, r := range repos {
+			if r.GetDescription() == "" {
+				count += 1
+				fmt.Printf("%s: %s\n%s %t\n\n", bold("URL"), r.GetHTMLURL(), bold("Private?"), r.GetPrivate())
+			}
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
+	}
+	fmt.Printf("Total repos without a description: %d\n\n", count)
+
+	title.Print("Repos that are domain squatting...\n\n")
+
+	opts = &github.RepositoryListByOrgOptions{
+		ListOptions: github.ListOptions{
+			PerPage: 100,
+		},
+	}
+	count = 0
+
+	for {
+		repos, resp, err := client.Repositories.ListByOrg(context.Background(), org, opts)
+		if err != nil {
+			log.Fatal(err)
+		}
+		sort.Slice(repos, func(i, j int) bool {
+			return repos[i].GetName() < repos[j].GetName()
+		})
+		for _, r := range repos {
+			_, directoryContent, _, err := client.Repositories.GetContents(context.Background(), org, r.GetName(), "/", nil)
+			if err != nil {
+				if !strings.Contains(err.Error(), "This repository is empty") {
+					log.Fatal(err)
+				}
+			}
+			if len(directoryContent) == 1 && strings.ToLower(directoryContent[0].GetName()) == "readme.md" {
+				count += 1
+				fmt.Printf("%s: %s\n%s %t\n\n", bold("URL"), r.GetHTMLURL(), bold("Private?"), r.GetPrivate())
+			}
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
+	}
+	fmt.Printf("Total repos that are domain squatting: %d", count)
+}
+```
+
+## 2. Golang GitHub API Client (improved with refactor + simple concurrency).go
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+	"sort"
+	"strings"
+	"sync"
+
+	"github.com/fatih/color"
+	"github.com/google/go-github/v42/github"
+	"golang.org/x/oauth2"
+)
+
+var (
+	bold  = color.New(color.FgHiYellow).Add(color.Bold).SprintFunc()
+	title = color.New(color.FgHiRed).Add(color.Underline).Add(color.Bold).SprintFunc()
+)
+
+func main() {
+	client := NewGitHubClient()
+	org := "fastly"
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go DisplayReposMissingDescription(client, org, &wg)
+	go DisplayDomainSquatters(client, org, &wg)
+
+	wg.Wait()
+}
+
+// NewGitHubClient returns a client for making API requests to GitHub.
+//
+// NOTE:
+// Ensure you have an API token exposed via the environment variable:
+// GITHUB_TOKEN_TERMINAL_TOOL
+func NewGitHubClient() *github.Client {
+	sts := oauth2.StaticTokenSource(
+		&oauth2.Token{
+			AccessToken: os.Getenv("GITHUB_TOKEN_TERMINAL_TOOL"),
+		},
+	)
+	c := oauth2.NewClient(context.Background(), sts)
+
+	return github.NewClient(c)
+}
+
+// NewOptions configures the ListByOrg API endpoint.
+func NewOptions() *github.RepositoryListByOrgOptions {
+	return &github.RepositoryListByOrgOptions{
+		ListOptions: github.ListOptions{
+			PerPage: 100,
+		},
+	}
+}
+
+// DisplayReposMissingDescription prints all the repos that have no
+// description, including whether the repo is private or public.
+//
+// NOTE:
+// This function is run concurrently with DisplayDomainSquatters.
+// To prevent interweaving of printed output we write data to a buffer which is
+// then flushed once the search operation is finished.
+func DisplayReposMissingDescription(client *github.Client, org string, wg *sync.WaitGroup) {
+	var b strings.Builder
+
+	fmt.Fprintf(&b, "%s\n\n", title("Repos with no description..."))
+
+	opts := NewOptions()
+	count := 0
+
+	for {
+		repos, resp, err := client.Repositories.ListByOrg(context.Background(), org, opts)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, r := range repos {
+			if r.GetDescription() == "" {
+				count += 1
+				fmt.Fprintf(&b, "%s: %s\n%s %t\n\n", bold("URL"), r.GetHTMLURL(), bold("Private?"), r.GetPrivate())
+			}
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
+	}
+
+	fmt.Fprintf(&b, "Total repos without a description: %d\n\n", count)
+	fmt.Println(b.String())
+
+	wg.Done()
+}
+
+// DisplayDomainSquatters prints all the repos that contain only a single
+// README.md file, including whether the repo is private or public.
+//
+// NOTE:
+// This function is run concurrently with DisplayReposMissingDescription.
+// To prevent interweaving of printed output we write data to a buffer which is
+// then flushed once the search operation is finished.
+//
+// TODO:
+// Some repos have content in non-default branches. This suggests the repo
+// might be WIP (Work in Progress). We should update the script to inspect the
+// last modified date for the branch. If modified recently (e.g. within the
+// last month), then it's probably safe to keep the repo. Otherwise we should
+// reach out to the team/person responsible for the repo about removing it.
+func DisplayDomainSquatters(client *github.Client, org string, wg *sync.WaitGroup) {
+	var b strings.Builder
+
+	fmt.Fprintf(&b, "%s\n\n", title("Repos that are domain squatting..."))
+
+	opts := NewOptions()
+	count := 0
+
+	for {
+		repos, resp, err := client.Repositories.ListByOrg(context.Background(), "fastly", opts)
+		if err != nil {
+			log.Fatal(err)
+		}
+		sort.Slice(repos, func(i, j int) bool {
+			return repos[i].GetName() < repos[j].GetName()
+		})
+		for _, r := range repos {
+			_, directoryContent, _, err := client.Repositories.GetContents(context.Background(), org, r.GetName(), "/", nil)
+			if err != nil {
+				if !strings.Contains(err.Error(), "This repository is empty") {
+					log.Fatal(err)
+				}
+			}
+			if len(directoryContent) == 1 && strings.ToLower(directoryContent[0].GetName()) == "readme.md" {
+				count += 1
+				fmt.Fprintf(&b, "%s: %s\n%s %t\n\n", bold("URL"), r.GetHTMLURL(), bold("Private?"), r.GetPrivate())
+			}
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
+	}
+
+	fmt.Fprintf(&b, "Total repos that are domain squatting: %d", count)
+	fmt.Println(b.String())
+
+	wg.Done()
+}
+```
+
 ## 3. Golang GitHub API Client (added flags).go
 
 ```go
@@ -384,280 +658,6 @@ func DisplayDomainSquatters(repos []*github.Repository, client *github.Client, o
 	}
 	wg2.Wait()
 	close(semaphore)
-
-	fmt.Fprintf(&b, "Total repos that are domain squatting: %d", count)
-	fmt.Println(b.String())
-
-	wg.Done()
-}
-```
-
-## 1. Golang GitHub API Client (simple inlined proof-of-concept).go
-
-```go
-package main
-
-import (
-	"context"
-	"fmt"
-	"log"
-	"os"
-	"sort"
-	"strings"
-
-	"github.com/fatih/color"
-	"github.com/google/go-github/v42/github"
-	"golang.org/x/oauth2"
-)
-
-func main() {
-	ctx := context.Background()
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN_TERMINAL_TOOL")},
-	)
-	tc := oauth2.NewClient(ctx, ts)
-
-	client := github.NewClient(tc)
-
-	// orgs, _, err := client.Organizations.List(context.Background(), "integralist", nil)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Printf("orgs: %+v\n", orgs)
-
-	// opt := &github.RepositoryListByOrgOptions{Type: "private"}
-	// repos, _, err := client.Repositories.ListByOrg(context.Background(), "fastly", opt)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Printf("private repos: %d\n", len(repos))
-
-	bold := color.New(color.FgHiYellow).Add(color.Bold).SprintFunc()
-	title := color.New(color.FgHiRed).Add(color.Underline).Add(color.Bold)
-	title.Print("Repos with no description...\n\n")
-
-	// repos, _, err := client.Repositories.ListByOrg(context.Background(), "fastly", nil)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// for _, repo := range repos {
-	// 	if repo.GetDescription() == "" {
-	// 		fmt.Printf("%s: %s\n%s %t\n\n", bold("URL"), repo.GetHTMLURL(), bold("Private?"), repo.GetPrivate())
-	// 	}
-	// }
-
-	org := "fastly"
-	opts := &github.RepositoryListByOrgOptions{
-		ListOptions: github.ListOptions{
-			PerPage: 100,
-		},
-	}
-	count := 0
-
-	for {
-		repos, resp, err := client.Repositories.ListByOrg(context.Background(), org, opts)
-		if err != nil {
-			log.Fatal(err)
-		}
-		for _, r := range repos {
-			if r.GetDescription() == "" {
-				count += 1
-				fmt.Printf("%s: %s\n%s %t\n\n", bold("URL"), r.GetHTMLURL(), bold("Private?"), r.GetPrivate())
-			}
-		}
-		if resp.NextPage == 0 {
-			break
-		}
-		opts.Page = resp.NextPage
-	}
-	fmt.Printf("Total repos without a description: %d\n\n", count)
-
-	title.Print("Repos that are domain squatting...\n\n")
-
-	opts = &github.RepositoryListByOrgOptions{
-		ListOptions: github.ListOptions{
-			PerPage: 100,
-		},
-	}
-	count = 0
-
-	for {
-		repos, resp, err := client.Repositories.ListByOrg(context.Background(), org, opts)
-		if err != nil {
-			log.Fatal(err)
-		}
-		sort.Slice(repos, func(i, j int) bool {
-			return repos[i].GetName() < repos[j].GetName()
-		})
-		for _, r := range repos {
-			_, directoryContent, _, err := client.Repositories.GetContents(context.Background(), org, r.GetName(), "/", nil)
-			if err != nil {
-				if !strings.Contains(err.Error(), "This repository is empty") {
-					log.Fatal(err)
-				}
-			}
-			if len(directoryContent) == 1 && strings.ToLower(directoryContent[0].GetName()) == "readme.md" {
-				count += 1
-				fmt.Printf("%s: %s\n%s %t\n\n", bold("URL"), r.GetHTMLURL(), bold("Private?"), r.GetPrivate())
-			}
-		}
-		if resp.NextPage == 0 {
-			break
-		}
-		opts.Page = resp.NextPage
-	}
-	fmt.Printf("Total repos that are domain squatting: %d", count)
-}
-```
-
-## 2. Golang GitHub API Client (improved with refactor + simple concurrency).go
-
-```go
-package main
-
-import (
-	"context"
-	"fmt"
-	"log"
-	"os"
-	"sort"
-	"strings"
-	"sync"
-
-	"github.com/fatih/color"
-	"github.com/google/go-github/v42/github"
-	"golang.org/x/oauth2"
-)
-
-var (
-	bold  = color.New(color.FgHiYellow).Add(color.Bold).SprintFunc()
-	title = color.New(color.FgHiRed).Add(color.Underline).Add(color.Bold).SprintFunc()
-)
-
-func main() {
-	client := NewGitHubClient()
-	org := "fastly"
-
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	go DisplayReposMissingDescription(client, org, &wg)
-	go DisplayDomainSquatters(client, org, &wg)
-
-	wg.Wait()
-}
-
-// NewGitHubClient returns a client for making API requests to GitHub.
-//
-// NOTE:
-// Ensure you have an API token exposed via the environment variable:
-// GITHUB_TOKEN_TERMINAL_TOOL
-func NewGitHubClient() *github.Client {
-	sts := oauth2.StaticTokenSource(
-		&oauth2.Token{
-			AccessToken: os.Getenv("GITHUB_TOKEN_TERMINAL_TOOL"),
-		},
-	)
-	c := oauth2.NewClient(context.Background(), sts)
-
-	return github.NewClient(c)
-}
-
-// NewOptions configures the ListByOrg API endpoint.
-func NewOptions() *github.RepositoryListByOrgOptions {
-	return &github.RepositoryListByOrgOptions{
-		ListOptions: github.ListOptions{
-			PerPage: 100,
-		},
-	}
-}
-
-// DisplayReposMissingDescription prints all the repos that have no
-// description, including whether the repo is private or public.
-//
-// NOTE:
-// This function is run concurrently with DisplayDomainSquatters.
-// To prevent interweaving of printed output we write data to a buffer which is
-// then flushed once the search operation is finished.
-func DisplayReposMissingDescription(client *github.Client, org string, wg *sync.WaitGroup) {
-	var b strings.Builder
-
-	fmt.Fprintf(&b, "%s\n\n", title("Repos with no description..."))
-
-	opts := NewOptions()
-	count := 0
-
-	for {
-		repos, resp, err := client.Repositories.ListByOrg(context.Background(), org, opts)
-		if err != nil {
-			log.Fatal(err)
-		}
-		for _, r := range repos {
-			if r.GetDescription() == "" {
-				count += 1
-				fmt.Fprintf(&b, "%s: %s\n%s %t\n\n", bold("URL"), r.GetHTMLURL(), bold("Private?"), r.GetPrivate())
-			}
-		}
-		if resp.NextPage == 0 {
-			break
-		}
-		opts.Page = resp.NextPage
-	}
-
-	fmt.Fprintf(&b, "Total repos without a description: %d\n\n", count)
-	fmt.Println(b.String())
-
-	wg.Done()
-}
-
-// DisplayDomainSquatters prints all the repos that contain only a single
-// README.md file, including whether the repo is private or public.
-//
-// NOTE:
-// This function is run concurrently with DisplayReposMissingDescription.
-// To prevent interweaving of printed output we write data to a buffer which is
-// then flushed once the search operation is finished.
-//
-// TODO:
-// Some repos have content in non-default branches. This suggests the repo
-// might be WIP (Work in Progress). We should update the script to inspect the
-// last modified date for the branch. If modified recently (e.g. within the
-// last month), then it's probably safe to keep the repo. Otherwise we should
-// reach out to the team/person responsible for the repo about removing it.
-func DisplayDomainSquatters(client *github.Client, org string, wg *sync.WaitGroup) {
-	var b strings.Builder
-
-	fmt.Fprintf(&b, "%s\n\n", title("Repos that are domain squatting..."))
-
-	opts := NewOptions()
-	count := 0
-
-	for {
-		repos, resp, err := client.Repositories.ListByOrg(context.Background(), "fastly", opts)
-		if err != nil {
-			log.Fatal(err)
-		}
-		sort.Slice(repos, func(i, j int) bool {
-			return repos[i].GetName() < repos[j].GetName()
-		})
-		for _, r := range repos {
-			_, directoryContent, _, err := client.Repositories.GetContents(context.Background(), org, r.GetName(), "/", nil)
-			if err != nil {
-				if !strings.Contains(err.Error(), "This repository is empty") {
-					log.Fatal(err)
-				}
-			}
-			if len(directoryContent) == 1 && strings.ToLower(directoryContent[0].GetName()) == "readme.md" {
-				count += 1
-				fmt.Fprintf(&b, "%s: %s\n%s %t\n\n", bold("URL"), r.GetHTMLURL(), bold("Private?"), r.GetPrivate())
-			}
-		}
-		if resp.NextPage == 0 {
-			break
-		}
-		opts.Page = resp.NextPage
-	}
 
 	fmt.Fprintf(&b, "Total repos that are domain squatting: %d", count)
 	fmt.Println(b.String())

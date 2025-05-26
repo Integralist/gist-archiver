@@ -12,61 +12,68 @@
 
 <h2 id="coding-best-practices-high-level-principles-md">Coding Best Practices: High Level Principles.md</h2>
 
-<pre><code class="language-markdown"># High Level Principles
+<h1 id="high-level-principles">High Level Principles</h1>
 
-The following principles are very 'high-level' and meant to be used as a quick reference guide, as apposed to the other standards/guideline documents which will focus on specific language idioms and design patterns.
+<p>The following principles are very &lsquo;high-level&rsquo; and meant to be used as a quick reference guide, as apposed to the other standards/guideline documents which will focus on specific language idioms and design patterns.</p>
 
-- [Iceberg Classes](#iceberg-classes)
-- [Law of Demeter](#law-of-demeter)
-- [Don't Repeat Yourself](#dont-repeat-yourself)
-- [Design Patterns](#design-patterns)
-- [S.O.L.I.D](#solid)
+<ul>
+<li><a href="#iceberg-classes">Iceberg Classes</a></li>
+<li><a href="#law-of-demeter">Law of Demeter</a></li>
+<li><a href="#dont-repeat-yourself">Don&rsquo;t Repeat Yourself</a></li>
+<li><a href="#design-patterns">Design Patterns</a></li>
+<li><a href="#solid">S.O.L.I.D</a></li>
+</ul>
 
-## Iceberg Classes
+<h2 id="iceberg-classes">Iceberg Classes</h2>
 
-An 'iceberg' class is one that has more private methods than public. Typically what happens is the developer builds the class and exposes only the methods that they feel should be public, whilst all implementation details are hidden away in the private methods.
+<p>An &lsquo;iceberg&rsquo; class is one that has more private methods than public. Typically what happens is the developer builds the class and exposes only the methods that they feel should be public, whilst all implementation details are hidden away in the private methods.</p>
 
-### Problem
+<h3 id="problem">Problem</h3>
 
-This is fine until it comes to testing (this is especially prevalent when *not* doing test-driven development; i.e. writing tests *after* the class has been created) where by you want to verify specific behaviour works as expected but you're unable to because your behaviour is locked away in private methods.
+<p>This is fine until it comes to testing (this is especially prevalent when <em>not</em> doing test-driven development; i.e. writing tests <em>after</em> the class has been created) where by you want to verify specific behaviour works as expected but you&rsquo;re unable to because your behaviour is locked away in private methods.</p>
 
-Developers will typically try to either hack around the problem or inject additional context into the class, which makes sense in the test environment but not when the code is run in production.
+<p>Developers will typically try to either hack around the problem or inject additional context into the class, which makes sense in the test environment but not when the code is run in production.</p>
 
-### Solution
+<h3 id="solution">Solution</h3>
 
-The solution to this problem is to group together related private behaviour and extract it into a separate class. Naming this new class can be tricky though, as the new class is no longer a noun/object, it is instead very much behavioural (verb/action). If this is proving to be a problem or a concern, then maybe consider instead of creating a class you create a reusable module and include it as runtime instance methods.
+<p>The solution to this problem is to group together related private behaviour and extract it into a separate class. Naming this new class can be tricky though, as the new class is no longer a noun/object, it is instead very much behavioural (verb/action). If this is proving to be a problem or a concern, then maybe consider instead of creating a class you create a reusable module and include it as runtime instance methods.</p>
 
-&gt; e.g. Ruby offers the ability to mixin behaviour via an `include` statement
+<blockquote>
+<p>e.g. Ruby offers the ability to mixin behaviour via an <code>include</code> statement</p>
+</blockquote>
 
-## Law of Demeter
+<h2 id="law-of-demeter">Law of Demeter</h2>
 
-The 'Law of Demeter' simply states that you should reduce the coupling between objects by identifying when you have a thread of context between them. This particular principle has the following rules:
+<p>The &lsquo;Law of Demeter&rsquo; simply states that you should reduce the coupling between objects by identifying when you have a thread of context between them. This particular principle has the following rules:</p>
 
-- Your method can call other methods in its class directly
-- Your method can call methods on its own fields directly (but not on the fields’ fields)
-- When your method takes parameters, your method can call methods on those parameters directly
-- When your method creates local objects, that method can call methods on the local objects
+<ul>
+<li>Your method can call other methods in its class directly</li>
+<li>Your method can call methods on its own fields directly (but not on the fields’ fields)</li>
+<li>When your method takes parameters, your method can call methods on those parameters directly</li>
+<li>When your method creates local objects, that method can call methods on the local objects</li>
+</ul>
 
-### Problem
+<h3 id="problem-1">Problem</h3>
 
-Imagine you have an object `User` and this has two public methods:
+<p>Imagine you have an object <code>User</code> and this has two public methods:</p>
 
-1. name
-2. department
+<ol>
+<li>name</li>
+<li>department</li>
+</ol>
 
-You might have a class that calls `User` and tries to extract their name as well as their department details.
+<p>You might have a class that calls <code>User</code> and tries to extract their name as well as their department details.</p>
 
-This could potentially (depending on implementation) be a violation of the law of demeter:
+<p>This could potentially (depending on implementation) be a violation of the law of demeter:</p>
 
-```rb
-def user_info(user)
+<pre><code class="language-rb">def user_info(user)
   &quot;Name: #{user.name}. Dept: #{user.department.name}&quot;
 end
 </code></pre>
 
 <p>In the above example we&rsquo;re violating the law of demeter because we&rsquo;re accessing a field&rsquo;s field (e.g. we send a message to <code>user.department</code> and then act on its result by trying to access the nested field <code>name</code>).</p>
 
-<h3 id="solution">Solution</h3>
+<h3 id="solution-1">Solution</h3>
 
 <p>The <code>User</code> class should be modified to expose the department name rather than having an external class/object try to nest inside a data structure to extract that data. In other words, <code>User</code> class should have a <code>department_name</code> method that knows the context of its own data and exposes it to any consumers of the <code>User</code> class.</p>
 
@@ -76,11 +83,11 @@ end
 
 <p>In essence it applies to all forms of design, not just code (e.g. architecture, databases, documentation etc), but we&rsquo;ll consider the principle from the point of view of a programmer for now.</p>
 
-<h3 id="problem">Problem</h3>
+<h3 id="problem-2">Problem</h3>
 
 <p>You&rsquo;ve written some behaviour, or business logic, and you realise that implementation could be used within one or more unrelated areas of your codebase.</p>
 
-<h3 id="solution-1">Solution</h3>
+<h3 id="solution-2">Solution</h3>
 
 <p>Move the behaviour/logic into a function, class or module (whatever makes sense for the programming style you write) and make it a reusable entity by injecting its dependencies (e.g. any external references).</p>
 
@@ -146,8 +153,6 @@ end
 <li><a href="https://gist.github.com/Integralist/9482527" target="_blank">Ruby code examples</a></li>
 <li><a href="https://en.wikipedia.org/wiki/SOLID_(object-oriented_design)" target="_blank">Wikipedia</a></li>
 </ul>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

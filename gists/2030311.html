@@ -10,30 +10,6 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="unit-testing-with-busterjs">Unit Testing with BusterJS</h1>
 
-<h2 id="example-js">example.js</h2>
-
-<pre><code class="language-javascript">function canDrink(age) {
-	if (typeof age != 'number') {
-		age = parseInt(age);
-	}
-	return (age &gt;= 18) ? true : false;
-}
-</code></pre>
-
-<h2 id="index-html">index.html</h2>
-
-<pre><code class="language-html">&lt;!doctype html&gt;
-&lt;html&gt;
-	&lt;head&gt;
-		&lt;meta charset=&quot;utf-8&quot;&gt;
-		&lt;title&gt;Buster.js Unit-Testing&lt;/title&gt;
-	&lt;/head&gt;
-	&lt;body&gt;
-		Buster is run via Terminal (see &lt;code&gt;test/buster.js&lt;/code&gt; for details)
-	&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
 <h2 id="buster-js">buster.js</h2>
 
 <pre><code class="language-javascript">var config = module.exports;
@@ -53,19 +29,22 @@ config['My tests'] = {
 
 <h2 id="description-md">description.md</h2>
 
-<pre><code class="language-markdown">Folder structure:  
+<p>Folder structure:</p>
 
-* example.js
-* index.html
-* /test/
-  * buster.js
-  * example-test.js
+<ul>
+<li>example.js</li>
+<li>index.html</li>
+<li>/test/
 
-When in the terminal application I move to the `/test/` folder and after running `buster server` and opening port 1111 in my browsers of choice (or in this case just one browser FF 10.0.2) I then open a new terminal tab and execute `buster test --reporter specification` but the terminal just hangs there doing nothing (where originally it would run the `example-test.js` test case and show what failed/succeeded).
+<ul>
+<li>buster.js</li>
+<li>example-test.js</li>
+</ul></li>
+</ul>
 
-Can you advise if I've missed something really obvious? I'm using the latest busterjs version (uninstalled and re-installed via NPM)
+<p>When in the terminal application I move to the <code>/test/</code> folder and after running <code>buster server</code> and opening port 1111 in my browsers of choice (or in this case just one browser FF 10.0.2) I then open a new terminal tab and execute <code>buster test --reporter specification</code> but the terminal just hangs there doing nothing (where originally it would run the <code>example-test.js</code> test case and show what failed/succeeded).</p>
 
-</code></pre>
+<p>Can you advise if I&rsquo;ve missed something really obvious? I&rsquo;m using the latest busterjs version (uninstalled and re-installed via NPM)</p>
 
 <h2 id="example-test-js">example-test.js</h2>
 
@@ -225,6 +204,30 @@ buster.testCase('My test module', {
     }
     
 });
+</code></pre>
+
+<h2 id="example-js">example.js</h2>
+
+<pre><code class="language-javascript">function canDrink(age) {
+	if (typeof age != 'number') {
+		age = parseInt(age);
+	}
+	return (age &gt;= 18) ? true : false;
+}
+</code></pre>
+
+<h2 id="index-html">index.html</h2>
+
+<pre><code class="language-html">&lt;!doctype html&gt;
+&lt;html&gt;
+	&lt;head&gt;
+		&lt;meta charset=&quot;utf-8&quot;&gt;
+		&lt;title&gt;Buster.js Unit-Testing&lt;/title&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+		Buster is run via Terminal (see &lt;code&gt;test/buster.js&lt;/code&gt; for details)
+	&lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
 
 </div>

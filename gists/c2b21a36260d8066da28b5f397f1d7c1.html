@@ -12,13 +12,14 @@
 
 <h2 id="readme-md">README.md</h2>
 
-<pre><code class="language-markdown">&gt; [!NOTE]
-&gt; The whole reason I bothered doing this is because I hate it when macOS notifies me that my mouse is &quot;critically&quot; low on charge, as it forces me to have to stop work for charging my mouse. I'd prefer to know at around 50% charge so I can continue working but stick my mouse on charge when I go for lunch or finish my day.
+<blockquote>
+<p>[!NOTE]
+The whole reason I bothered doing this is because I hate it when macOS notifies me that my mouse is &ldquo;critically&rdquo; low on charge, as it forces me to have to stop work for charging my mouse. I&rsquo;d prefer to know at around 50% charge so I can continue working but stick my mouse on charge when I go for lunch or finish my day.</p>
+</blockquote>
 
-Start by writing an AppleScript file that is essentially just a wrapper around a bash script...
+<p>Start by writing an AppleScript file that is essentially just a wrapper around a bash script&hellip;</p>
 
-```applescript
-do shell script &quot;
+<pre><code class="language-applescript">do shell script &quot;
 # Get the battery percentage for the Magic Mouse
 mouseBattery=$(ioreg -c AppleDeviceManagementHIDEventService -r | grep -i '\&quot;Product\&quot; = \&quot;Magic Mouse\&quot;' -A 20 | grep '\&quot;BatteryPercent\&quot; =' | awk '{print $NF}')
 
@@ -75,8 +76,6 @@ log show --predicate 'eventMessage contains &quot;com.integralist.batteryalert&q
 &lt;/dict&gt;
 &lt;/plist&gt;
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

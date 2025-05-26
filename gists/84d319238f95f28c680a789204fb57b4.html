@@ -12,30 +12,33 @@
 
 <h2 id="explain-how-vary-http-header-works-md">Explain How Vary HTTP header works.md</h2>
 
-<pre><code class="language-markdown">## Vary Behaviour
+<h2 id="vary-behaviour">Vary Behaviour</h2>
 
-To understand HTTP's [Vary](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary) behaviour we first must understand how the CDN works in the traditional sense of caching and looking up resources.
+<p>To understand HTTP&rsquo;s <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary" target="_blank">Vary</a> behaviour we first must understand how the CDN works in the traditional sense of caching and looking up resources.</p>
 
-&gt; Note: at the bottom of this page is a sequence diagram which visually illustrates how Vary works (if you prefer a more visual aid).
+<blockquote>
+<p>Note: at the bottom of this page is a sequence diagram which visually illustrates how Vary works (if you prefer a more visual aid).</p>
+</blockquote>
 
-The CDN caches requests based on a given pair of Host and Path values. So when the CDN accepts a request, as an example, for the resource `https://www.buzzfeed.com/videos` the CDN will take the Host (e.g. `www.buzzfeed.com`) and the Path (e.g. `/videos`) and generate a hash of those values which will become the 'cache key'. Later when the CDN receives the same request from a different client it'll generate the same hash and lookup the resource in its cache using the hash as the key.
+<p>The CDN caches requests based on a given pair of Host and Path values. So when the CDN accepts a request, as an example, for the resource <code>https://www.buzzfeed.com/videos</code> the CDN will take the Host (e.g. <code>www.buzzfeed.com</code>) and the Path (e.g. <code>/videos</code>) and generate a hash of those values which will become the &lsquo;cache key&rsquo;. Later when the CDN receives the same request from a different client it&rsquo;ll generate the same hash and lookup the resource in its cache using the hash as the key.</p>
 
-Depending on the client, the origin server that generates response content (which will be cached in the CDN) may well want to serve _different_ content for different clients (e.g. serve a German language version of the page for German users vs an English language version for users from the UK or US).
+<p>Depending on the client, the origin server that generates response content (which will be cached in the CDN) may well want to serve <em>different</em> content for different clients (e.g. serve a German language version of the page for German users vs an English language version for users from the UK or US).</p>
 
-The problem with serving different content for the same resource (e.g. imagine `www.example.com/foo` is able to return German _or_ English depending on the client) is that whoever makes the request _first_ will have that version of the content cached by the CDN.
+<p>The problem with serving different content for the same resource (e.g. imagine <code>www.example.com/foo</code> is able to return German <em>or</em> English depending on the client) is that whoever makes the request <em>first</em> will have that version of the content cached by the CDN.</p>
 
-For example if `www.example.com/foo` is able to return German _or_ English based on my web browser's built-in value for the HTTP request header [`Accept-Language`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language) (which for me would be set to `en-uk`), then imagine someone from Germany making a request for that uncached resource _first_ (whose browser users the value `de-de`).
+<p>For example if <code>www.example.com/foo</code> is able to return German <em>or</em> English based on my web browser&rsquo;s built-in value for the HTTP request header <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language" target="_blank"><code>Accept-Language</code></a> (which for me would be set to <code>en-uk</code>), then imagine someone from Germany making a request for that uncached resource <em>first</em> (whose browser users the value <code>de-de</code>).</p>
 
-What will happen in that instance is that the German language version of the response content will be cached using `hash(Host + Path) = cache_key` and so when I make my request for the same resource, I'll end up getting the cached German version of the page (which I won't be able to read).
+<p>What will happen in that instance is that the German language version of the response content will be cached using <code>hash(Host + Path) = cache_key</code> and so when I make my request for the same resource, I&rsquo;ll end up getting the cached German version of the page (which I won&rsquo;t be able to read).</p>
 
-This is where the HTTP Vary response header comes in to help solve the problem. The origin server generating the content should be setup to send a Vary header with the value `Accept-Language`. The CDN will look at the Vary header's value and will subsequently cache the content using the same `hash(Host + Path) = cache_key` approach, but it'll add another 'key' (known as the 'vary key') to the object which will indicate the value that the browser provided.
+<p>This is where the HTTP Vary response header comes in to help solve the problem. The origin server generating the content should be setup to send a Vary header with the value <code>Accept-Language</code>. The CDN will look at the Vary header&rsquo;s value and will subsequently cache the content using the same <code>hash(Host + Path) = cache_key</code> approach, but it&rsquo;ll add another &lsquo;key&rsquo; (known as the &lsquo;vary key&rsquo;) to the object which will indicate the value that the browser provided.</p>
 
-So if we go back to the example of a German user making a request for the same resource as myself (and they make the request first), then the vary key assigned to the cached German version of the page will be `de-de`, and so although when I make my request the cache lookup key will be the same, I'll get a cache MISS (and the CDN will make a fresh request to the origin) because the value my browser is providing for `Accept-Language` is `en-uk` and that doesn't match the cached object's vary key value of `de-de`.
+<p>So if we go back to the example of a German user making a request for the same resource as myself (and they make the request first), then the vary key assigned to the cached German version of the page will be <code>de-de</code>, and so although when I make my request the cache lookup key will be the same, I&rsquo;ll get a cache MISS (and the CDN will make a fresh request to the origin) because the value my browser is providing for <code>Accept-Language</code> is <code>en-uk</code> and that doesn&rsquo;t match the cached object&rsquo;s vary key value of <code>de-de</code>.</p>
 
-Now when the origin sends back the English version of the page, the CDN will cache the content again using `hash(Host + Path) = cache_key` as the cache lookup key, but will set a _different_ 'vary key' value of `en-en`. So we now have _two_ objects in the cache for the same resource: one German and one English.
+<p>Now when the origin sends back the English version of the page, the CDN will cache the content again using <code>hash(Host + Path) = cache_key</code> as the cache lookup key, but will set a <em>different</em> &lsquo;vary key&rsquo; value of <code>en-en</code>. So we now have <em>two</em> objects in the cache for the same resource: one German and one English.</p>
 
-&gt; Note: read [this article](https://www.fastly.com/blog/getting-most-out-vary-fastly) to understand how to make the most of the Vary response header.
-</code></pre>
+<blockquote>
+<p>Note: read <a href="https://www.fastly.com/blog/getting-most-out-vary-fastly" target="_blank">this article</a> to understand how to make the most of the Vary response header.</p>
+</blockquote>
 
 <h2 id="how-vary-http-header-works-editorconfig">How Vary HTTP header works.EditorConfig</h2>
 

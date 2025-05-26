@@ -12,18 +12,19 @@
 
 <h2 id="redis-vs-memcache-md">Redis vs Memcache.md</h2>
 
-<pre><code class="language-markdown">When deciding between Memcached and Redis, here are a few questions to consider:
+<p>When deciding between Memcached and Redis, here are a few questions to consider:</p>
 
-- Is object caching your primary goal, for example to offload your database? If so, use &lt;b style=&quot;color:#298D84&quot;&gt;Memcached&lt;/b&gt;.
-- Are you interested in as simple a caching model as possible? If so, use &lt;b style=&quot;color:#298D84&quot;&gt;Memcached&lt;/b&gt;.
-- Are you planning on running large cache nodes, and require multithreaded performance with utilization of multiple cores? If so, use **Memcached**.
-- Do you want the ability to scale your cache horizontally as you grow? If so, use &lt;b style=&quot;color:#298D84&quot;&gt;Memcached&lt;/b&gt;.
-- Does your app need to atomically increment or decrement counters? If so, use either &lt;b style=&quot;color:#C00&quot;&gt;Redis&lt;/b&gt; or &lt;b style=&quot;color:#298D84&quot;&gt;Memcached&lt;/b&gt;.
-- Are you looking for more advanced data types, such as lists, hashes, and sets? If so, use &lt;b style=&quot;color:#C00&quot;&gt;Redis&lt;/b&gt;.
-- Does sorting and ranking datasets in memory help you, such as with leaderboards? If so, use &lt;b style=&quot;color:#C00&quot;&gt;Redis&lt;/b&gt;.
-- Are publish and subscribe (pub/sub) capabilities of use to your application? If so, use &lt;b style=&quot;color:#C00&quot;&gt;Redis&lt;/b&gt;.
-- Is persistence of your key store important? If so, use &lt;b style=&quot;color:#C00&quot;&gt;Redis&lt;/b&gt;.
-</code></pre>
+<ul>
+<li>Is object caching your primary goal, for example to offload your database? If so, use <b style="color:#298D84">Memcached</b>.</li>
+<li>Are you interested in as simple a caching model as possible? If so, use <b style="color:#298D84">Memcached</b>.</li>
+<li>Are you planning on running large cache nodes, and require multithreaded performance with utilization of multiple cores? If so, use <strong>Memcached</strong>.</li>
+<li>Do you want the ability to scale your cache horizontally as you grow? If so, use <b style="color:#298D84">Memcached</b>.</li>
+<li>Does your app need to atomically increment or decrement counters? If so, use either <b style="color:#C00">Redis</b> or <b style="color:#298D84">Memcached</b>.</li>
+<li>Are you looking for more advanced data types, such as lists, hashes, and sets? If so, use <b style="color:#C00">Redis</b>.</li>
+<li>Does sorting and ranking datasets in memory help you, such as with leaderboards? If so, use <b style="color:#C00">Redis</b>.</li>
+<li>Are publish and subscribe (pub/sub) capabilities of use to your application? If so, use <b style="color:#C00">Redis</b>.</li>
+<li>Is persistence of your key store important? If so, use <b style="color:#C00">Redis</b>.</li>
+</ul>
 
 </div>
 </body>

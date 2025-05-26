@@ -12,29 +12,24 @@
 
 <h2 id="golang-version-embed-data-md">Golang Version Embed Data.md</h2>
 
-<pre><code class="language-markdown">Go version `1.16` introduced an `embed` package which made embedding static data very easy.
+<p>Go version <code>1.16</code> introduced an <code>embed</code> package which made embedding static data very easy.</p>
 
-In prior versions you would need to run `go generate` with a script that searched for files based on a given pattern, read the file into memory and to generate a new `.go` file with the file data assigned to package level constants.
+<p>In prior versions you would need to run <code>go generate</code> with a script that searched for files based on a given pattern, read the file into memory and to generate a new <code>.go</code> file with the file data assigned to package level constants.</p>
 
-The below demonstrates this process.
+<p>The below demonstrates this process.</p>
 
-</code></pre>
-
-<p>.
+<pre><code>.
 ├── README.md
 ├── golang.svg
 ├── images.go
 ├── main.go
-└── scripts</p>
-
-<pre><code>└── embed.go
+└── scripts
+    └── embed.go
 </code></pre>
 
-<pre><code>
-## Embed
+<h2 id="embed">Embed</h2>
 
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;io&quot;
@@ -143,8 +138,6 @@ func main() {
 &lt;/g&gt;
 &lt;/svg&gt;
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

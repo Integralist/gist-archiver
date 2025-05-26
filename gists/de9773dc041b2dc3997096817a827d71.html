@@ -10,6 +10,22 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="golang-struct-and-interface-embedding-examples-go-golang-struct-embedding-embed">[Golang Struct and Interface Embedding Examples] #go #golang #struct #embedding #embed</h1>
 
+<h2 id="1-examples-md">1. Examples.md</h2>
+
+<h2 id="1-simplified-reduced-examples">1. simplified &lsquo;reduced&rsquo; examples</h2>
+
+<p>This shows struct and interface embedding with basic custom objects to hopefully more easily explain how things work.</p>
+
+<p>See <a href="https://gist.github.com/Integralist/b2e87acad7fdf354ade3250dcb31c168#file-1-md" target="_blank">https://gist.github.com/Integralist/b2e87acad7fdf354ade3250dcb31c168#file-1-md</a> for an explanation.</p>
+
+<h2 id="2-real-example-with-gzip-newwriter">2. real example with gzip.NewWriter</h2>
+
+<p>This shows struct and interface embedding with real golang stdlib object.</p>
+
+<h2 id="3-we-want-to-return-two-different-objects-with-different-methods">3. we want to return two different objects (with different methods)</h2>
+
+<p>This is so in a &lsquo;dev&rsquo; environment we can return an object that calls a &lsquo;mock&rsquo; method, while in production the returned object will be different and so it won&rsquo;t call that method.</p>
+
 <h2 id="golang-struct-and-interface-embedding-example-1-go">Golang Struct and Interface Embedding Example 1.go</h2>
 
 <pre><code class="language-go">package main
@@ -173,23 +189,6 @@ func main() {
 
 	fmt.Printf(&quot;%+v\n&quot;, b)
 }
-</code></pre>
-
-<h2 id="1-examples-md">1. Examples.md</h2>
-
-<pre><code class="language-markdown">## 1. simplified 'reduced' examples
-
-This shows struct and interface embedding with basic custom objects to hopefully more easily explain how things work.
-
-See https://gist.github.com/Integralist/b2e87acad7fdf354ade3250dcb31c168#file-1-md for an explanation.
-
-## 2. real example with gzip.NewWriter
-
-This shows struct and interface embedding with real golang stdlib object.
-
-## 3. we want to return two different objects (with different methods)
-
-This is so in a 'dev' environment we can return an object that calls a 'mock' method, while in production the returned object will be different and so it won't call that method.
 </code></pre>
 
 </div>

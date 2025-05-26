@@ -12,18 +12,19 @@
 
 <h2 id="python-interfaces-via-protocols-and-abstract-base-classes-with-metaclasses-md">Python Interfaces via Protocols and Abstract Base Classes (with Metaclasses).md</h2>
 
-<pre><code class="language-markdown">Python is a strongly typed dynamic language, and so it has no support for the `interface` keyword.
+<p>Python is a strongly typed dynamic language, and so it has no support for the <code>interface</code> keyword.</p>
 
-&gt; Note: some languages are weakly typed (JavaScript), some are strongly typed (Python) and some are statically typed (Go, Rust). Being strongly typed means you can't perform operations inappropriate to the type, so for example: in Python you can't add a number typed variable with a string typed variable.
+<blockquote>
+<p>Note: some languages are weakly typed (JavaScript), some are strongly typed (Python) and some are statically typed (Go, Rust). Being strongly typed means you can&rsquo;t perform operations inappropriate to the type, so for example: in Python you can&rsquo;t add a number typed variable with a string typed variable.</p>
+</blockquote>
 
-Instead, Python provides 'protocols' which are a bit like the interface support in Go. They're not strictly enforced, but if you implement specific magic methods you'll find a selection of builtin Python functions become available to use on objects they otherwise wouldn't necessarily support.
+<p>Instead, Python provides &lsquo;protocols&rsquo; which are a bit like the interface support in Go. They&rsquo;re not strictly enforced, but if you implement specific magic methods you&rsquo;ll find a selection of builtin Python functions become available to use on objects they otherwise wouldn&rsquo;t necessarily support.</p>
 
-## Example
+<h2 id="example">Example</h2>
 
-This code doesn't work:
+<p>This code doesn&rsquo;t work:</p>
 
-```py
-class Team:
+<pre><code class="language-py">class Team:
      def __init__(self, members):
          self.members = members
 
@@ -218,8 +219,6 @@ Z.attr  # 100
 <li><a href="http://masnun.rocks/2017/04/15/interfaces-in-python-protocols-and-abcs/" target="_blank">Masnun Blog Post</a></li>
 <li><a href="https://realpython.com/python-metaclasses/" target="_blank">Metaclasses</a></li>
 </ul>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

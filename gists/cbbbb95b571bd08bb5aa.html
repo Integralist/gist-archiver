@@ -12,10 +12,9 @@
 
 <h2 id="1-current-brew-switch-md">1. [CURRENT] Brew switch.md</h2>
 
-<pre><code class="language-markdown">If you wish to switch your `python` command to use a different Python interpreter (and it's a Python version you previously had installed using Homebrew):
+<p>If you wish to switch your <code>python</code> command to use a different Python interpreter (and it&rsquo;s a Python version you previously had installed using Homebrew):</p>
 
-```bash
-brew info python           # To see what you have previously installed
+<pre><code class="language-bash">brew info python           # To see what you have previously installed
 brew switch python 3.x.x_x # Ex. 3.6.5_1
 </code></pre>
 
@@ -67,20 +66,21 @@ c24d6bcd47 python: update 3.7.3 bottle.
 brew install --ignore-dependencies https://raw.githubusercontent.com/Homebrew/homebrew-core/2efdfe5519/Formula/python.rb
 </code></pre>
 
-<pre><code>
-## 2. [OLD] Brew switch.md
+<h2 id="2-old-brew-switch-md">2. [OLD] Brew switch.md</h2>
 
-```markdown
-- `brew versions {package}`
-- `brew switch {package} {version}`
+<ul>
+<li><code>brew versions {package}</code></li>
+<li><code>brew switch {package} {version}</code></li>
+</ul>
 
-OR
+<p>OR</p>
 
-- `brew uninstall {package}`
-- `brew versions {package}`
-- `git checkout {commit} Library/Formula/{package}.rb`
-- `brew install {package}`
-</code></pre>
+<ul>
+<li><code>brew uninstall {package}</code></li>
+<li><code>brew versions {package}</code></li>
+<li><code>git checkout {commit} Library/Formula/{package}.rb</code></li>
+<li><code>brew install {package}</code></li>
+</ul>
 
 </div>
 </body>

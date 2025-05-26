@@ -12,17 +12,17 @@
 
 <h2 id="1-summary-md">1. Summary.md</h2>
 
-<pre><code class="language-markdown">- Things tried and explanation of the problem/solution.
-- OLD CODE TESTING SCRATCH PAD -- Python Tornado Graceful Shutdown.py
-- Working Example -- Python 3.7 Tornado 5+ Example with tests.md
-</code></pre>
+<ul>
+<li>Things tried and explanation of the problem/solution.</li>
+<li>OLD CODE TESTING SCRATCH PAD &ndash; Python Tornado Graceful Shutdown.py</li>
+<li>Working Example &ndash; Python 3.7 Tornado 5+ Example with tests.md</li>
+</ul>
 
 <h2 id="2-things-tried-md">2. things tried.md</h2>
 
-<pre><code class="language-markdown">Working code (Python 3.7+)...
+<p>Working code (Python 3.7+)&hellip;</p>
 
-```py
-def sig_handler(server, sig, frame):
+<pre><code class="language-py">def sig_handler(server, sig, frame):
     io_loop = IOLoop.current()
     
     def stop_loop(deadline):
@@ -81,11 +81,9 @@ the <code>io_loop</code> variable we pass to the constructor is a tornado event 
 this lets asyncio use <code>get_running_loop</code> to acquire the event loop</p></li>
 </ul>
 
-<pre><code>
-## 3. OLD CODE TESTING SCRATCH PAD -- Python Tornado Graceful Shutdown.py
+<h2 id="3-old-code-testing-scratch-pad-python-tornado-graceful-shutdown-py">3. OLD CODE TESTING SCRATCH PAD &ndash; Python Tornado Graceful Shutdown.py</h2>
 
-```python
-#!/usr/bin/env python
+<pre><code class="language-python">#!/usr/bin/env python
 
 &quot;&quot;&quot;
 How to use it:
@@ -231,12 +229,13 @@ if __name__ == &quot;__main__&quot;:
 
 <h2 id="4-working-example-python-3-7-tornado-5-example-with-tests-md">4. Working Example &ndash; Python 3.7 Tornado 5+ Example with tests.md</h2>
 
-<pre><code class="language-markdown">## Code
+<h2 id="code">Code</h2>
 
-&gt; `bf_tornado.signals` module
+<blockquote>
+<p><code>bf_tornado.signals</code> module</p>
+</blockquote>
 
-```python
-&quot;&quot;&quot;signals module provides helper functions for tornado graceful shutdown.&quot;&quot;&quot;
+<pre><code class="language-python">&quot;&quot;&quot;signals module provides helper functions for tornado graceful shutdown.&quot;&quot;&quot;
 
 import asyncio
 import functools
@@ -472,8 +471,6 @@ class TestGracefulShutdown(tornado.testing.AsyncHTTPTestCase):
         # request has completed.
         mock_stop_loop.assert_called()
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

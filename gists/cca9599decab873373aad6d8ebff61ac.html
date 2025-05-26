@@ -12,10 +12,9 @@
 
 <h2 id="vim-arg-list-and-search-replacement-md">Vim arg list and Search Replacement.md</h2>
 
-<pre><code class="language-markdown">Imagine we have a file containing...
+<p>Imagine we have a file containing&hellip;</p>
 
-```python
-from foo import Bar
+<pre><code class="language-python">from foo import Bar
 </code></pre>
 
 <p>We want <code>Bar</code> to be <code>bar</code>.</p>
@@ -39,8 +38,6 @@ from foo import Bar
 :argdo %s/\vfrom foo import (B)ar/\l\1/e | update
 :argdo %s/\vfrom foo import (*+)/\l\1/e | update
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

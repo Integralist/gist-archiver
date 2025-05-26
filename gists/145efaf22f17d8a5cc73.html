@@ -12,12 +12,13 @@
 
 <h2 id="ec2-roles-applied-by-instanceprofiles-md-1">EC2 Roles applied by InstanceProfiles.md</h2>
 
-<pre><code class="language-markdown">&gt; If an application runs on an Amazon EC2 instance and needs to make requests for AWS resources such as Amazon S3 buckets or an DynamoDB table, it must have security credentials. It isn't a good practice to embed or pass IAM user credentials to each instance; distributing long-term credentials to each instance is challenging to manage and a potential security risk. A better strategy is to create a role that is used when the Amazon EC2 instance is launched. An application can then get temporary security credentials from the Amazon EC2 instance
+<blockquote>
+<p>If an application runs on an Amazon EC2 instance and needs to make requests for AWS resources such as Amazon S3 buckets or an DynamoDB table, it must have security credentials. It isn&rsquo;t a good practice to embed or pass IAM user credentials to each instance; distributing long-term credentials to each instance is challenging to manage and a potential security risk. A better strategy is to create a role that is used when the Amazon EC2 instance is launched. An application can then get temporary security credentials from the Amazon EC2 instance</p>
+</blockquote>
 
-## CloudFormation example
+<h2 id="cloudformation-example">CloudFormation example</h2>
 
-```yaml
-Resources:
+<pre><code class="language-yaml">Resources:
   Instance:
     Type: &quot;AWS::EC2::Instance&quot;
 
@@ -73,8 +74,7 @@ Resources:
 <h2 id="instanceprofile">InstanceProfile</h2>
 
 <blockquote>
-<p>An instance profile is a container for an IAM role. Instance profiles are used to pass role information to an Amazon EC2 instance when the instance starts. An instance profile can contain only one role. However, a role can be included in multiple instance profiles.
-&ldquo;`</p>
+<p>An instance profile is a container for an IAM role. Instance profiles are used to pass role information to an Amazon EC2 instance when the instance starts. An instance profile can contain only one role. However, a role can be included in multiple instance profiles.</p>
 </blockquote>
 
 </div>

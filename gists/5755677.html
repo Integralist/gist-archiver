@@ -12,55 +12,80 @@
 
 <h2 id="sass-md">sass.md</h2>
 
-<pre><code class="language-markdown">## Directory structure
+<h2 id="directory-structure">Directory structure</h2>
 
-- Sass
-  - x
-      - module.scss
-      - module.scss
-  - y
-      - module.scss
-      - module.scss
-  - z
-      - module.scss
-      - module.scss
-  - services
-      - language a
-          - module.scss
-          - module.scss
-      - language b
-          - module.scss
-          - module.scss
-      - language c 
-          - module.scss
-          - module.scss
+<ul>
+<li>Sass
 
-## The problem
+<ul>
+<li>x
 
-There is a team for each language service. They don't want to do a standard &quot;watch/compile all the sass files&quot; because there are so many, it takes about a minute to compile them all (that's for every little change they make).
+<ul>
+<li>module.scss</li>
+<li>module.scss</li>
+</ul></li>
+<li>y
 
-So we want to allow them to watch for changes to just their specific language files and watch any files that are imported into those language files.
+<ul>
+<li>module.scss</li>
+<li>module.scss</li>
+</ul></li>
+<li>z
 
-The first part is easy enough, we can set-up a watch for each language service, but the Sass watch only picks up changes to those language files, not any of the changes made to other Sass files that are imported into the language files.
+<ul>
+<li>module.scss</li>
+<li>module.scss</li>
+</ul></li>
+<li>services
 
-## The solution I have currently...
+<ul>
+<li>language a
 
-Based on the above issue, I have set-up some Grunt watch sub tasks that say &quot;watch all directories, but ignore these other specifically named directories&quot; (you can see this in my Gruntfile example below). So when any Sass files are changed, we then call the appropriate sass sub task. 
+<ul>
+<li>module.scss</li>
+<li>module.scss</li>
+</ul></li>
+<li>language b
 
-So for example if we run `grunt watch:arabic` then any changes to any Sass files (excluding any Sass files from inside a language directory which isn't arabic) will cause the `sass:arabic` sub task to run.
+<ul>
+<li>module.scss</li>
+<li>module.scss</li>
+</ul></li>
+<li>language c
 
-The problem with this solution is it isn't scalable. Every new language requires a developer to remember to edit/update the Gruntfile and then to re-update each of the Watch sub tasks so they include the new language directory be ignored (for the other languages already present).
+<ul>
+<li>module.scss</li>
+<li>module.scss</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
 
-## Summary of things we want to achieve
+<h2 id="the-problem">The problem</h2>
 
-I want to find a solution to my problem (one that is scalable and automated)
+<p>There is a team for each language service. They don&rsquo;t want to do a standard &ldquo;watch/compile all the sass files&rdquo; because there are so many, it takes about a minute to compile them all (that&rsquo;s for every little change they make).</p>
 
-Personally I was thinking something along the lines of finding a way to dynamically generate Grunt sub tasks based on the folders within our /services/ directory -&gt; but this means that the Gruntfile.js would need to have a task that is run on a regular basis to refresh that I'm guessing? But this just sounds like the totally wrong way of solving the problem.
+<p>So we want to allow them to watch for changes to just their specific language files and watch any files that are imported into those language files.</p>
 
-## My current Grunt file (that I would like to refactor)
+<p>The first part is easy enough, we can set-up a watch for each language service, but the Sass watch only picks up changes to those language files, not any of the changes made to other Sass files that are imported into the language files.</p>
 
-```js
-module.exports = function (grunt) {
+<h2 id="the-solution-i-have-currently">The solution I have currently&hellip;</h2>
+
+<p>Based on the above issue, I have set-up some Grunt watch sub tasks that say &ldquo;watch all directories, but ignore these other specifically named directories&rdquo; (you can see this in my Gruntfile example below). So when any Sass files are changed, we then call the appropriate sass sub task.</p>
+
+<p>So for example if we run <code>grunt watch:arabic</code> then any changes to any Sass files (excluding any Sass files from inside a language directory which isn&rsquo;t arabic) will cause the <code>sass:arabic</code> sub task to run.</p>
+
+<p>The problem with this solution is it isn&rsquo;t scalable. Every new language requires a developer to remember to edit/update the Gruntfile and then to re-update each of the Watch sub tasks so they include the new language directory be ignored (for the other languages already present).</p>
+
+<h2 id="summary-of-things-we-want-to-achieve">Summary of things we want to achieve</h2>
+
+<p>I want to find a solution to my problem (one that is scalable and automated)</p>
+
+<p>Personally I was thinking something along the lines of finding a way to dynamically generate Grunt sub tasks based on the folders within our /services/ directory -&gt; but this means that the Gruntfile.js would need to have a task that is run on a regular basis to refresh that I&rsquo;m guessing? But this just sounds like the totally wrong way of solving the problem.</p>
+
+<h2 id="my-current-grunt-file-that-i-would-like-to-refactor">My current Grunt file (that I would like to refactor)</h2>
+
+<pre><code class="language-js">module.exports = function (grunt) {
 
     grunt.initConfig({
 
@@ -242,8 +267,6 @@ module.exports = function (grunt) {
 
 };
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

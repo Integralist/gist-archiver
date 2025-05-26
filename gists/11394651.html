@@ -12,19 +12,22 @@
 
 <h2 id="macros-md">Macros.md</h2>
 
-<pre><code class="language-markdown">In Clojure macros are executed *before* code is evaluated. Macros allow us to manipulate the program being compiled. There are two macros in particular that I like to demonstrate why this is useful:
+<p>In Clojure macros are executed <em>before</em> code is evaluated. Macros allow us to manipulate the program being compiled. There are two macros in particular that I like to demonstrate why this is useful:</p>
 
-- Thread First `-&gt;`
-- Thread Last `-&gt;&gt;`
+<ul>
+<li>Thread First <code>-&gt;</code></li>
+<li>Thread Last <code>-&gt;&gt;</code></li>
+</ul>
 
-&gt; Note: in Clojure sequence data structures (lists &amp; vectors) are usually the last item in an argument list; where as map data structures are usually the first argument in an argument list
+<blockquote>
+<p>Note: in Clojure sequence data structures (lists &amp; vectors) are usually the last item in an argument list; where as map data structures are usually the first argument in an argument list</p>
+</blockquote>
 
-## Thread First
+<h2 id="thread-first">Thread First</h2>
 
-Our original program requires us to effectively read it &quot;inside out&quot;:
+<p>Our original program requires us to effectively read it &ldquo;inside out&rdquo;:</p>
 
-```clj
-(dissoc
+<pre><code class="language-clj">(dissoc
   (assoc 
     {:name &quot;Jonathan&quot; :password &quot;secret&quot;} 
     :nickname &quot;Jon&quot;) 
@@ -71,8 +74,6 @@ Our original program requires us to effectively read it &quot;inside out&quot;:
 
 ; =&gt; 25
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

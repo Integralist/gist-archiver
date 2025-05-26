@@ -12,20 +12,19 @@
 
 <h2 id="readme-md">README.md</h2>
 
-<pre><code class="language-markdown">https://www.linkedin.com/pulse/proxying-web-traffic-via-ssh-mark-el-khoury
+<p><a href="https://www.linkedin.com/pulse/proxying-web-traffic-via-ssh-mark-el-khoury" target="_blank">https://www.linkedin.com/pulse/proxying-web-traffic-via-ssh-mark-el-khoury</a></p>
 
-Essentially your local machines creates a SOCK5 proxy which connects to a remote server via SSH (using either username/password or SSH PKI Cert/Key combination).
+<p>Essentially your local machines creates a SOCK5 proxy which connects to a remote server via SSH (using either username/password or SSH PKI Cert/Key combination).</p>
 
-The SOCK5 proxy handles sending the HTTP request via the SSH tunnel.
+<p>The SOCK5 proxy handles sending the HTTP request via the SSH tunnel.</p>
 
-The remote server will automatically process the HTTP request and handle sending it to its intended destination.
+<p>The remote server will automatically process the HTTP request and handle sending it to its intended destination.</p>
 
-The upstream (i.e. the endpoint being requested) will see the request coming from the SSH server and presume that's where it originated.
+<p>The upstream (i.e. the endpoint being requested) will see the request coming from the SSH server and presume that&rsquo;s where it originated.</p>
 
-## Go Example
+<h2 id="go-example">Go Example</h2>
 
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;golang.org/x/crypto/ssh&quot;
@@ -131,8 +130,6 @@ func (d *sshDialer) Dial(network, addr string) (net.Conn, error) {
 	return d.client.Dial(network, addr)
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

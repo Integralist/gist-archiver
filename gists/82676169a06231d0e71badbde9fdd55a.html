@@ -12,10 +12,9 @@
 
 <h2 id="a-new-laptop-software-installation-md">A New Laptop Software Installation.md</h2>
 
-<pre><code class="language-markdown">## Backup
+<h2 id="backup">Backup</h2>
 
-```bash
-cd ~/
+<pre><code class="language-bash">cd ~/
 mkdir /tmp/keys
 gpg --export-secret-keys --armor &lt;NAME&gt; &gt; /tmp/keys/&lt;NAME&gt;.asc
 gpg --symmetric /tmp/keys/&lt;NAME&gt;.asc
@@ -151,11 +150,9 @@ Tab Sessions
 &rdquo;`</li>
 </ol>
 
-<pre><code>
-## Brewfile
+<h2 id="brewfile">Brewfile</h2>
 
-```ruby
-tap &quot;homebrew/bundle&quot;
+<pre><code class="language-ruby">tap &quot;homebrew/bundle&quot;
 tap &quot;homebrew/cask&quot;
 tap &quot;homebrew/cask-fonts&quot;
 tap &quot;homebrew/cask-versions&quot;

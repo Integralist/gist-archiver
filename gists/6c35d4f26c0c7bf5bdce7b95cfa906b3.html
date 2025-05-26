@@ -12,42 +12,45 @@
 
 <h2 id="c-concepts-md">C Concepts.md</h2>
 
-<pre><code class="language-markdown">- [Introduction](#introduction)
-- [Compilers](#compilers)
-- [Hello World](#hello-world)
-- [Constants vs Directives](#constants-vs-directives)
-- [Quotations](#quotations)
-- [Char Type](#char-type)
-- [Null Terminator](#null-terminator)
-- [Pointers](#pointers)
-- [Arrays](#arrays)
-- [Enumerators](#enumerators)
-- [Memory Allocation with different Types](#memory-allocation-with-different-types)
-- [Reallocating Memory](#reallocating-memory)
-- [Function Prototypes](#function-prototypes)
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#compilers">Compilers</a></li>
+<li><a href="#hello-world">Hello World</a></li>
+<li><a href="#constants-vs-directives">Constants vs Directives</a></li>
+<li><a href="#quotations">Quotations</a></li>
+<li><a href="#char-type">Char Type</a></li>
+<li><a href="#null-terminator">Null Terminator</a></li>
+<li><a href="#pointers">Pointers</a></li>
+<li><a href="#arrays">Arrays</a></li>
+<li><a href="#enumerators">Enumerators</a></li>
+<li><a href="#memory-allocation-with-different-types">Memory Allocation with different Types</a></li>
+<li><a href="#reallocating-memory">Reallocating Memory</a></li>
+<li><a href="#function-prototypes">Function Prototypes</a></li>
+</ul>
 
-## Introduction
+<h2 id="introduction">Introduction</h2>
 
-This isn't a 'How to program in C' tutorial, this is just a grouping of topics/concepts from the C language that I found interesting while learning the language (from the perspective of an already establed developer). Some of the things I make mention of I have used in other languages but I feel are worth covering still as they might not be immediately obvious to everyone.
+<p>This isn&rsquo;t a &lsquo;How to program in C&rsquo; tutorial, this is just a grouping of topics/concepts from the C language that I found interesting while learning the language (from the perspective of an already establed developer). Some of the things I make mention of I have used in other languages but I feel are worth covering still as they might not be immediately obvious to everyone.</p>
 
-When writing a program in a language like [C](https://en.wikipedia.org/wiki/C_(programming_language)), that by itself is not executable (i.e. you can't run a C file). So you need to convert the C source code into [machine code](https://en.wikipedia.org/wiki/Machine_code) (i.e. something the computer's CPU can understand).
+<p>When writing a program in a language like <a href="https://en.wikipedia.org/wiki/C_(programming_language)" target="_blank">C</a>, that by itself is not executable (i.e. you can&rsquo;t run a C file). So you need to convert the C source code into <a href="https://en.wikipedia.org/wiki/Machine_code" target="_blank">machine code</a> (i.e. something the computer&rsquo;s CPU can understand).</p>
 
-Machine code is as low-level as you can get when interacting with a computer. So the C language is considered a 'higher-level' abstraction to save us from having to write machine code ourselves. A language like [Python](https://www.python.org/) is an even 'higher-level' abstraction to save us from having to write C (i.e. the Python language is actually written in C).
+<p>Machine code is as low-level as you can get when interacting with a computer. So the C language is considered a &lsquo;higher-level&rsquo; abstraction to save us from having to write machine code ourselves. A language like <a href="https://www.python.org/" target="_blank">Python</a> is an even &lsquo;higher-level&rsquo; abstraction to save us from having to write C (i.e. the Python language is actually written in C).</p>
 
-In order to convert C code into machine code, we need a compiler.
+<p>In order to convert C code into machine code, we need a compiler.</p>
 
-&gt; Strictly speaking you also need a [linker](https://en.wikipedia.org/wiki/Linker_(computing)) which takes multiple compiled objects and places them into a single executable file. Generally speaking, when we say &quot;compile a C file&quot;, we're really combining two separate processes (compiling and linking) into the single generic term &quot;compile&quot;
+<blockquote>
+<p>Strictly speaking you also need a <a href="https://en.wikipedia.org/wiki/Linker_(computing)" target="_blank">linker</a> which takes multiple compiled objects and places them into a single executable file. Generally speaking, when we say &ldquo;compile a C file&rdquo;, we&rsquo;re really combining two separate processes (compiling and linking) into the single generic term &ldquo;compile&rdquo;</p>
+</blockquote>
 
-## Compilers
+<h2 id="compilers">Compilers</h2>
 
-To compile C source code into an executable you need a compiler, of which there are many options. The two most popular being LLVM's `clang` and GNU's `gcc`.
+<p>To compile C source code into an executable you need a compiler, of which there are many options. The two most popular being LLVM&rsquo;s <code>clang</code> and GNU&rsquo;s <code>gcc</code>.</p>
 
-You might find there is a `cc` available, but typically this is aliased to an existing compiler.
+<p>You might find there is a <code>cc</code> available, but typically this is aliased to an existing compiler.</p>
 
-Also, Mac doesn't provide a compiler by default. But if you install X-Code you'll get the LLVM's suite of compilers. Below we see that we get quite a few alias' and all of them point to the same embeded LLVM compiler:
+<p>Also, Mac doesn&rsquo;t provide a compiler by default. But if you install X-Code you&rsquo;ll get the LLVM&rsquo;s suite of compilers. Below we see that we get quite a few alias&rsquo; and all of them point to the same embeded LLVM compiler:</p>
 
-```sh
-$ gcc --version
+<pre><code class="language-sh">$ gcc --version
 Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/usr/include/c++/4.2.1
 Apple LLVM version 8.0.0 (clang-800.0.38)
 Target: x86_64-apple-darwin15.6.0
@@ -674,8 +677,6 @@ int main(void) {
 
 // Definitions for Foo() and Bar()
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

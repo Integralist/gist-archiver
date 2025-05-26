@@ -12,21 +12,16 @@
 
 <h2 id="gpg-agent-connection-refused-md">gpg agent connection refused.md</h2>
 
-<pre><code class="language-markdown">Error:
+<p>Error:</p>
 
+<pre><code>can't connect to `/root/.gnupg/S.gpg-agent': Connection refused
+gpg: can't connect to `/root/.gnupg/S.gpg-agent': connect failed
 </code></pre>
 
-<p>can&rsquo;t connect to <code>/root/.gnupg/S.gpg-agent': Connection refused
-gpg: can't connect to</code>/root/.gnupg/S.gpg-agent&rsquo;: connect failed</p>
+<p>Try running:</p>
 
-<pre><code>
-Try running:
-
-```bash
-$ gpg-connect-agent /bye
+<pre><code class="language-bash">$ gpg-connect-agent /bye
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
+	"runtime" // Added for sorting filenames
 	"sort"
 	"strings"
 	"sync"
@@ -21,18 +21,19 @@ import (
 	"github.com/gomarkdown/markdown/parser"
 )
 
+// Constants (apiBaseURL, gistsPerPage, githubUsername, etc.)
+// (Remain the same as your last provided version)
 const (
 	apiBaseURL     = "https://api.github.com"
 	gistsPerPage   = 100
 	githubUsername = "integralist" // Replace if needed
 
-	// Output structure constants
-	webDeployDir    = "." // MODIFIED: Root for deployable web content is current directory
+	webDeployDir    = "."
 	assetsSubDir    = "assets"
 	cssSubDir       = "css"
 	gistsHtmlSubDir = "gists"
 
-	markdownOutputDir = "markdown_files" // Separate directory for generated markdown (e.g., ./markdown_files/)
+	markdownOutputDir = "markdown_files"
 	gistsMdSubDir     = "gists"
 
 	cssFileName          = "styles.css"
@@ -67,17 +68,22 @@ h1, h2 {
     margin-bottom: 16px;
 }
 
-h1:first-child, h2:first-child {
+/* Specific styling for H2 when used as a file section header */
+.gist-file-header {
+    margin-top: 30px; /* More space before a new file section */
+    font-size: 1.3em; /* Slightly smaller than primary H2 if needed */
+    color: #1f2328;
+}
+
+
+h1:first-child, h2.gist-file-header:first-child { /* Adjust if .gist-file-header is the first */
     margin-top: 0;
 }
 
-h1 {
+h1 { /* Page title / Gist title */
     font-size: 2em;
 }
 
-h2 { /* For filenames */
-    font-size: 1.5em;
-}
 
 /* Links */
 a {
@@ -127,6 +133,7 @@ pre {
     border-radius: 6px;
     border: 1px solid #ddd;
     margin-bottom: 16px;
+    margin-top: 8px; /* Add some space above pre if it follows a heading */
 }
 
 code {
@@ -141,6 +148,22 @@ code {
   background-color: rgba(27,31,35,0.07);
   border-radius: 3px;
 }
+
+/* Styles for rendered Markdown content within a gist page */
+.markdown-content {
+    margin-top: 8px; /* Space between file header and rendered markdown */
+}
+.markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4, .markdown-content h5, .markdown-content h6 {
+    /* Reset gist-file-header specific margins if needed or add specific styling */
+    /* For example, make them less prominent than the file header */
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    border-bottom: none; /* Remove double border if h2 is used in MD */
+}
+.markdown-content h1 { font-size: 1.6em; }
+.markdown-content h2 { font-size: 1.4em; }
+.markdown-content h3 { font-size: 1.2em; }
+
 `
 
 var (
@@ -148,7 +171,8 @@ var (
 	linkRegex  = regexp.MustCompile(`<([^>]+)>;\s*rel="next"`)
 )
 
-// --- Struct definitions ---
+// Struct definitions (GistListEntry, GistListFile, GistDetail, GistFile, GistOwner, IndexEntry)
+// (Remain unchanged from the previous version with date support)
 type GistListEntry struct {
 	ID          string                  `json:"id"`
 	Description string                  `json:"description"`
@@ -173,6 +197,7 @@ type GistDetail struct {
 
 type GistFile struct {
 	Filename  string `json:"filename"`
+	Type      string `json:"type"` // The API often provides a MIME type here
 	Language  string `json:"language"`
 	Content   string `json:"content"`
 	RawURL    string `json:"raw_url"`
@@ -191,13 +216,14 @@ type IndexEntry struct {
 	Date         time.Time
 }
 
-// --- API fetching functions ---
+// API fetching functions (makeAPIRequest, makeAPIRequestForGistList, fetchAndProcessGistDetails, convertListFilesToDetailFiles)
+// (Remain unchanged)
 func makeAPIRequest(url string, target any) error {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
-	req.Header.Set("User-Agent", "go-gist-archiver/1.5") // Version bump
+	req.Header.Set("User-Agent", "go-gist-archiver/1.6") // Version bump
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 
 	token := os.Getenv("GITHUB_TOKEN")
@@ -234,7 +260,7 @@ func makeAPIRequestForGistList(url string, target any) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}
-	req.Header.Set("User-Agent", "go-gist-archiver/1.5")
+	req.Header.Set("User-Agent", "go-gist-archiver/1.6")
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 
 	token := os.Getenv("GITHUB_TOKEN")
@@ -329,6 +355,18 @@ func convertListFilesToDetailFiles(listFiles map[string]GistListFile) map[string
 }
 
 // --- Utility and Markdown/HTML generation functions ---
+
+// isMarkdownFile checks if a Gist file should be treated as Markdown.
+func isMarkdownFile(file GistFile) bool {
+	// Prioritize the Language field from the API
+	if strings.ToLower(file.Language) == "markdown" {
+		return true
+	}
+	// Fallback to checking file extension
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+	return ext == ".md" || ext == ".markdown"
+}
+
 func getGistTitle(gist GistDetail) string {
 	if gist.Description != "" {
 		return gist.Description
@@ -340,78 +378,115 @@ func getGistTitle(gist GistDetail) string {
 }
 
 func generateGistMarkdownFile(gist GistDetail) (string, error) {
-	var mdContent strings.Builder
-	title := getGistTitle(gist)
-	mdContent.WriteString(fmt.Sprintf("# %s\n\n", title))
+	var mdPageContent strings.Builder // This will be the content for the *entire Gist page*
+	pageTitle := getGistTitle(gist)
+	mdPageContent.WriteString(fmt.Sprintf("# %s\n\n", pageTitle)) // Main title for the Gist (becomes <h1>)
 
 	if len(gist.Files) == 0 {
-		mdContent.WriteString("This gist has no files.\n")
+		mdPageContent.WriteString("This gist has no files.\n\n")
+	} else {
+		var filenames []string
+		for fname := range gist.Files {
+			filenames = append(filenames, fname)
+		}
+		sort.Strings(filenames) // Alphabetical sort for consistent file order
+
+		for _, filename := range filenames {
+			file := gist.Files[filename]
+			isMD := isMarkdownFile(file)
+			// You can uncomment this log for debugging file identification:
+			// log.Printf("File: '%s', Language: '%s', Type: '%s', IsMD: %t", filename, file.Language, file.Type, isMD)
+
+			fileContent := file.Content
+			if file.Truncated && fileContent == "" {
+				// Make the truncated message stand out a bit more if it's raw Markdown
+				if isMD {
+					fileContent = fmt.Sprintf("\n\n> **Note:** Content of this file is truncated. Full content available at %s\n\n", file.RawURL)
+				} else {
+					fileContent = fmt.Sprintf("*Content of this file is truncated. Full content available at %s*", file.RawURL)
+				}
+			}
+
+			// Add filename as a Markdown H2 heading
+			mdPageContent.WriteString(fmt.Sprintf("## %s\n\n", filename)) // Becomes <h2>
+
+			if isMD {
+				// For Markdown files, append their content directly.
+				// This content is already Markdown and will be parsed as such.
+				mdPageContent.WriteString(fileContent)
+				mdPageContent.WriteString("\n\n") // Ensure separation
+			} else {
+				// For other files (code, text, etc.), wrap in a Markdown code block
+				lang := file.Language
+				if lang == "" { // Default language for code block if not specified
+					ext := strings.TrimPrefix(filepath.Ext(filename), ".")
+					if ext != "" {
+						lang = ext // Guess from extension
+					} else {
+						lang = "text" // Ultimate fallback
+					}
+				}
+				mdPageContent.WriteString(fmt.Sprintf("```%s\n", strings.ToLower(lang)))
+				mdPageContent.WriteString(fileContent)
+				mdPageContent.WriteString("\n```\n\n")
+			}
+		}
 	}
 
-	for filename, file := range gist.Files {
-		lang := file.Language
-		if lang == "" {
-			lang = "text"
-		}
-		fileContent := file.Content
-		if file.Truncated && fileContent == "" {
-			fileContent = fmt.Sprintf("File content truncated. View original at %s", file.RawURL)
-		}
-		mdContent.WriteString(fmt.Sprintf("## %s\n\n```%s\n%s\n```\n\n", filename, strings.ToLower(lang), fileContent))
-	}
-
-	mdFilename := fmt.Sprintf("%s.md", gist.ID)
-	filePath := filepath.Join(markdownOutputDir, gistsMdSubDir, mdFilename) // e.g. ./markdown_files/gists/id.md
+	// This mdPageContent is now a "pure" Markdown string representing the whole Gist page.
+	// It will be saved to a temporary .md file, and then processSingleGist will convert this .md to HTML.
+	mdFilenameForTempStore := fmt.Sprintf("%s.md", gist.ID)
+	filePath := filepath.Join(markdownOutputDir, gistsMdSubDir, mdFilenameForTempStore)
 
 	if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
 		return "", fmt.Errorf("failed to create directory %s: %w", filepath.Dir(filePath), err)
 	}
-	if err := os.WriteFile(filePath, []byte(mdContent.String()), 0644); err != nil {
-		return "", fmt.Errorf("failed to write markdown file %s: %w", filePath, err)
+	if err := os.WriteFile(filePath, []byte(mdPageContent.String()), 0644); err != nil {
+		return "", fmt.Errorf("failed to write composite markdown file %s: %w", filePath, err)
 	}
-	return filepath.Join(gistsMdSubDir, mdFilename), nil // Returns "gists/id.md"
+	// Return the relative path of this composite markdown file (relative to markdownOutputDir)
+	return filepath.Join(gistsMdSubDir, mdFilenameForTempStore), nil
 }
 
+// processSingleGist - Ensure parser settings are as you had them (without the non-existent flags)
 func processSingleGist(gist GistDetail, indexEntryChan chan<- IndexEntry) {
 	title := getGistTitle(gist)
-	// relativeMdPath is "gists/gist_id.md" (relative to markdownOutputDir)
-	relativeMdPath, err := generateGistMarkdownFile(gist)
+	relativeMdPath, err := generateGistMarkdownFile(gist) // This now generates a composite MD for the whole page
 	if err != nil {
-		log.Printf("Error generating markdown for gist %s (%s): %v. Skipping.", gist.ID, title, err)
+		log.Printf("Error generating composite markdown for gist %s (%s): %v. Skipping.", gist.ID, title, err)
 		return
 	}
 
 	htmlFilenameInGistsDir := strings.Replace(filepath.Base(relativeMdPath), ".md", ".html", 1)
-	// relativeHtmlPath is "gists/gist_id.html" (relative to webDeployDir which is ".")
 	relativeHtmlPath := filepath.Join(gistsHtmlSubDir, htmlFilenameInGistsDir)
-	// fullGistHtmlPath is "./gists/gist_id.html"
 	fullGistHtmlPath := filepath.Join(webDeployDir, relativeHtmlPath)
 
-	fullGistMdPath := filepath.Join(markdownOutputDir, relativeMdPath)
-	mdInput, err := os.ReadFile(fullGistMdPath)
+	// Read the composite Markdown file we just created
+	fullGistCompositeMdPath := filepath.Join(markdownOutputDir, relativeMdPath)
+	mdInput, err := os.ReadFile(fullGistCompositeMdPath)
 	if err != nil {
-		log.Printf("Error reading gist markdown for HTML conversion %s: %v", fullGistMdPath, err)
+		log.Printf("Error reading composite gist markdown for HTML conversion %s: %v", fullGistCompositeMdPath, err)
 		return
 	}
 
 	var gistHtmlBuffer bytes.Buffer
 	gistHtmlBuffer.WriteString("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n")
 	gistHtmlBuffer.WriteString(fmt.Sprintf("<title>%s</title>\n", title))
-	// CSS link relative from ./gists/file.html to ./assets/css/styles.css is "../assets/css/styles.css"
 	gistHtmlBuffer.WriteString(fmt.Sprintf("<link rel=\"stylesheet\" type=\"text/css\" href=\"../%s/%s/%s\">\n",
 		assetsSubDir, cssSubDir, cssFileName))
 	gistHtmlBuffer.WriteString("</head>\n<body>\n<div class=\"container\">\n")
-	// Back link relative from ./gists/file.html to ./index.html is "../index.html"
 	gistHtmlBuffer.WriteString("<a href=\"../index.html\" class=\"back-link\">&laquo; Back to Index</a>\n")
 
+	// Parse the entire composite Markdown.
+	// The parser settings from your code (without the non-existent flags) are correct here.
 	p := parser.NewWithExtensions(parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock | parser.FencedCode)
-	doc := p.Parse(mdInput)
-	htmlFlags := html.CommonFlags | html.HrefTargetBlank | html.UseXHTML
+	htmlFlags := html.CommonFlags | html.HrefTargetBlank | html.UseXHTML | html.Smartypants
 	opts := html.RendererOptions{Flags: htmlFlags, Title: title}
 	renderer := html.NewRenderer(opts)
-	renderedMarkdown := md.Render(doc, renderer)
 
-	gistHtmlBuffer.Write(renderedMarkdown)
+	renderedMarkdown := md.Render(p.Parse(mdInput), renderer) // mdInput is the composite Markdown
+
+	gistHtmlBuffer.Write(renderedMarkdown) // This now contains rendered HTML from all files
 	gistHtmlBuffer.WriteString("\n</div>\n</body>\n</html>")
 
 	if err := os.MkdirAll(filepath.Dir(fullGistHtmlPath), 0755); err != nil {
@@ -443,14 +518,13 @@ func processSingleGist(gist GistDetail, indexEntryChan chan<- IndexEntry) {
 }
 
 func generateIndexFiles(entries []IndexEntry) {
-	// Generate Index Markdown (in ./markdown_files/index.md)
+	// Generate Index Markdown
 	var mdContent strings.Builder
-	mdContent.WriteString("# Integralist's Gists Archive\n\n")
+	mdContent.WriteString("# My Gists Archive\n\n")
 	if len(entries) == 0 {
 		mdContent.WriteString("No gists found or processed.\n")
 	} else {
 		for _, entry := range entries {
-			// entry.MarkdownPath is "gists/id.md", link should be "./gists/id.md" from markdown_files/index.md
 			mdContent.WriteString(fmt.Sprintf("- [%s](./%s)\n", entry.Title, entry.MarkdownPath))
 		}
 	}
@@ -463,15 +537,14 @@ func generateIndexFiles(entries []IndexEntry) {
 	}
 	log.Printf("Generated Markdown Index: %s", indexMdFilePath)
 
-	// Generate Index HTML (in ./index.html)
+	// Generate Index HTML
 	var htmlIndexContent strings.Builder
 	htmlIndexContent.WriteString("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n")
-	htmlIndexContent.WriteString("<title>Integralist's Gists Archive</title>\n")
-	// CSS link relative from ./index.html to ./assets/css/styles.css is "assets/css/styles.css"
+	htmlIndexContent.WriteString("<title>My Gists Archive</title>\n")
 	htmlIndexContent.WriteString(fmt.Sprintf("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s/%s/%s\">\n",
 		assetsSubDir, cssSubDir, cssFileName))
 	htmlIndexContent.WriteString("</head>\n<body>\n<div class=\"container\">\n")
-	htmlIndexContent.WriteString("<h1>Integralist's Gists Archive</h1>\n<ul>\n")
+	htmlIndexContent.WriteString("<h1>My Gists Archive</h1>\n<ul>\n")
 
 	if len(entries) == 0 {
 		htmlIndexContent.WriteString("<li>No gists found or processed.</li>\n")
@@ -481,15 +554,13 @@ func generateIndexFiles(entries []IndexEntry) {
 			if !entry.Date.IsZero() {
 				dateStr = fmt.Sprintf("<br><small class=\"date\">Created: %s</small>", entry.Date.Format("January 2, 2006"))
 			}
-			// entry.HTMLPath is "gists/file.html", correct for link from ./index.html
 			htmlIndexContent.WriteString(fmt.Sprintf("<li><a href=\"%s\">%s</a>%s</li>\n", entry.HTMLPath, entry.Title, dateStr))
 		}
 	}
 	htmlIndexContent.WriteString("</ul>\n</div>\n</body>\n</html>")
 
-	indexHtmlFilePath := filepath.Join(webDeployDir, "index.html") // Results in "./index.html"
+	indexHtmlFilePath := filepath.Join(webDeployDir, "index.html")
 	if err := os.MkdirAll(filepath.Dir(indexHtmlFilePath), 0755); err != nil {
-		// For webDeployDir = ".", filepath.Dir will be ".", MkdirAll for "." is a no-op and safe.
 		log.Fatalf("Failed to create directory for HTML index: %v", err)
 	}
 	if err := os.WriteFile(indexHtmlFilePath, []byte(htmlIndexContent.String()), 0644); err != nil {
@@ -502,17 +573,13 @@ func main() {
 	startTime := time.Now()
 	log.Printf("Starting gist archival for user: %s", githubUsername)
 
-	// Create base output directories
-	// Markdown files go into a subdirectory
 	if err := os.MkdirAll(filepath.Join(markdownOutputDir, gistsMdSubDir), 0755); err != nil {
 		log.Fatalf("Failed to create markdown gists directory: %v", err)
 	}
-	// HTML gists go into a subdirectory of the current dir
 	if err := os.MkdirAll(filepath.Join(webDeployDir, gistsHtmlSubDir), 0755); err != nil {
 		log.Fatalf("Failed to create HTML gists directory: %v", err)
 	}
 
-	// Assets directory (./assets/css/)
 	cssDirPath := filepath.Join(webDeployDir, assetsSubDir, cssSubDir)
 	if err := os.MkdirAll(cssDirPath, 0755); err != nil {
 		log.Fatalf("Failed to create CSS assets directory %s: %v", cssDirPath, err)
@@ -585,7 +652,7 @@ func main() {
 	log.Printf("  - Index: ./index.html")
 	log.Printf("  - Gists: ./%s/", gistsHtmlSubDir)
 	log.Printf("  - Assets: ./%s/", assetsSubDir)
-	log.Printf("Markdown files in:             ./%s", markdownOutputDir)
+	log.Printf("Markdown files (source for HTML) in: ./%s", markdownOutputDir) // Clarified this line
 	log.Printf("Open ./index.html in your browser to view the archive.")
 	log.Println("-----------------------------------------------------")
 }

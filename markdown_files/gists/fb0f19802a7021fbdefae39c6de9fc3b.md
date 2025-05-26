@@ -2,7 +2,6 @@
 
 ## Calculating BigO.md
 
-```markdown
 > This is condensed information gleened from the excellent [interactivepython.org](http://interactivepython.org/runestone/static/pythonds/AlgorithmAnalysis/BigONotation.html)
 
 ## Algorithm
@@ -116,5 +115,4 @@ The `2n` is because there are two constant assignments (`w` and `v`) and they ha
 With this in mind we can say the code is `O(n2)` because when we look at the exponents of each segment of the time analysis (i.e. the condensed version: `3n2 + 2n + 4`) we can see that as `n` grows, the `n2` portion is the most significant.
 
 > Remember: although we write 'Big O' as `O(...)` the underlying principle is `O(f(...))`, where `f(...)` is the dominant part of `T(...)` and when focusing in on the dominant part of the time complexity we drop the constants -- also known as the _coefficient_ -- (e.g. `3n2` thus becomes `n2`). This is because the constants become _insignificant_ as `n` grows.
-```
 

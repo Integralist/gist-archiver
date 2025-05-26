@@ -12,14 +12,13 @@
 
 <h2 id="currying-vs-partial-application-md">Currying vs Partial Application.md</h2>
 
-<pre><code class="language-markdown">When we use Partial Application we always execute our function twice (regardless of the number of arguments). 
+<p>When we use Partial Application we always execute our function twice (regardless of the number of arguments).</p>
 
-When we use Currying we execute our function once for each argument.
+<p>When we use Currying we execute our function once for each argument.</p>
 
-## Examples of Partial Application
+<h2 id="examples-of-partial-application">Examples of Partial Application</h2>
 
-```js
-// `partial` is a made up function
+<pre><code class="language-js">// `partial` is a made up function
 fn  = function (a, b, c) { return a + b + c }
 foo = partial(fn, 'x', 'y')
 foo('z') // =&gt; 'xyz'
@@ -62,8 +61,6 @@ bar('y')('z') // =&gt; 'xyz'
 <li><a href="http://eliperelman.com/fn.js/" target="_blank">fn.js</a></li>
 <li><a href="https://github.com/osteele/functional-javascript" target="_blank">functional js</a></li>
 </ul>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

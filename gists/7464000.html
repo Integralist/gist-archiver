@@ -10,30 +10,6 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="example-of-how-to-structure-your-grunt-files">Example of how to structure your Grunt files</h1>
 
-<h2 id="3-custom-grunt-tasks-scripts-grunt-index-js">3. Custom Grunt Tasks - scripts grunt index.js</h2>
-
-<pre><code class="language-javascript">&quot;use strict&quot;;
-
-module.exports = function (grunt) {
-    return {
-        noop: require('./noop.js')(grunt) // result of scripts/grunt/noop.js is stored on the 'noop' property
-    };
-};
-</code></pre>
-
-<h2 id="4-custom-grunt-tasks-scripts-grunt-noop-js">4. Custom Grunt Tasks - scripts grunt noop.js</h2>
-
-<pre><code class="language-javascript">&quot;use strict&quot;;
-
-module.exports = function (grunt) {
-    return {
-        runTask: function runNoopTask () {
-            grunt.log.writeln(&quot;noop run&quot;);
-        }
-    };
-};
-</code></pre>
-
 <h2 id="1-custom-grunt-tasks-gruntfile-js">1. Custom Grunt Tasks - Gruntfile.js</h2>
 
 <pre><code class="language-javascript">module.exports = function (grunt) {
@@ -65,6 +41,30 @@ module.exports = function (grunt) {
     var tasks = require('./scripts/grunt')(grunt); // this points to a directory and not a file (there should be an index.js inside the directory for this to work)
 
     grunt.registerTask('noop', 'A no-operation task -&gt; useful in testing situations', tasks.noop.runTask);
+};
+</code></pre>
+
+<h2 id="3-custom-grunt-tasks-scripts-grunt-index-js">3. Custom Grunt Tasks - scripts grunt index.js</h2>
+
+<pre><code class="language-javascript">&quot;use strict&quot;;
+
+module.exports = function (grunt) {
+    return {
+        noop: require('./noop.js')(grunt) // result of scripts/grunt/noop.js is stored on the 'noop' property
+    };
+};
+</code></pre>
+
+<h2 id="4-custom-grunt-tasks-scripts-grunt-noop-js">4. Custom Grunt Tasks - scripts grunt noop.js</h2>
+
+<pre><code class="language-javascript">&quot;use strict&quot;;
+
+module.exports = function (grunt) {
+    return {
+        runTask: function runNoopTask () {
+            grunt.log.writeln(&quot;noop run&quot;);
+        }
+    };
 };
 </code></pre>
 

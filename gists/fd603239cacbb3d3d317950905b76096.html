@@ -12,17 +12,20 @@
 
 <h2 id="readme-md">README.md</h2>
 
-<pre><code class="language-markdown">Set-up the environment:
+<p>Set-up the environment:</p>
 
-&gt; See [this gist](https://gist.github.com/9e0c5ee9c2cc2568dd1961bf370716c9) for more information on Pipenv.
+<blockquote>
+<p>See <a href="https://gist.github.com/9e0c5ee9c2cc2568dd1961bf370716c9" target="_blank">this gist</a> for more information on Pipenv.</p>
+</blockquote>
 
-- `pipenv --python 3.7`
-- `pipenv shell`
-- `pipenv install tornado==5.0.2`
-- `pipenv install --dev mypy tox flake8`
+<ul>
+<li><code>pipenv --python 3.7</code></li>
+<li><code>pipenv shell</code></li>
+<li><code>pipenv install tornado==5.0.2</code></li>
+<li><code>pipenv install --dev mypy tox flake8</code></li>
+</ul>
 
-```bash
-$ cat Pipfile
+<pre><code class="language-bash">$ cat Pipfile
 
 [[source]]
 url = &quot;https://pypi.org/simple&quot;
@@ -41,11 +44,9 @@ tornado = &quot;==5.0.2&quot;
 python_version = &quot;3.7&quot;
 </code></pre>
 
-<pre><code>
-## service 1.py
+<h2 id="service-1-py">service 1.py</h2>
 
-```python
-&quot;&quot;&quot;
+<pre><code class="language-python">&quot;&quot;&quot;
 simplest implementation
 &quot;&quot;&quot;
 

@@ -12,48 +12,68 @@
 
 <h2 id="path-traversal-md">Path Traversal.md</h2>
 
-<pre><code class="language-markdown"># Path-Traversal
-Path Traversal Tips
+<h1 id="path-traversal">Path-Traversal</h1>
 
+<p>Path Traversal Tips</p>
 
-&gt;   Always try path traversal sequences using both forward slashes and backslashes.
-    Many input filters check for only one of these, when the filesystem
-    may support both.
-&gt; 2. Try simple URL-encoded representations of traversal sequences using the
-   following encodings. Be sure to encode every single slash and dot within
-   your input:
-   * Dot — %2e
-   * Forward slash — %2f
-   * Backslash — %5c
-&gt; 3. Try using 16-bit Unicode encoding:
-  * Dot — %u002e
-  * Forward slash — %u2215
-  * Backslash — %u2216
-&gt; 4. Try double URL encoding:
-  * Dot — %252e
-  * Forward slash — %252f
-  * Backslash — %255c
-&gt; 5. Try overlong UTF-8 Unicode encoding:
-  * Dot — %c0%2e, %e0%40%ae, %c0ae, and so on
-  * Forward slash — %c0%af, %e0%80%af, %c0%2f, and so on
-  * Backslash — %c0%5c, %c0%80%5c, and so on
+<blockquote>
+<p>Always try path traversal sequences using both forward slashes and backslashes.</p>
+
+<pre><code>Many input filters check for only one of these, when the filesystem
+may support both.
+</code></pre>
+
+<ol>
+<li>Try simple URL-encoded representations of traversal sequences using the
+following encodings. Be sure to encode every single slash and dot within
+your input:
+
+<ul>
+<li>Dot — %2e</li>
+<li>Forward slash — %2f</li>
+<li>Backslash — %5c</li>
+</ul></li>
+<li>Try using 16-bit Unicode encoding:
+
+<ul>
+<li>Dot — %u002e</li>
+<li>Forward slash — %u2215</li>
+<li>Backslash — %u2216</li>
+</ul></li>
+<li>Try double URL encoding:
+
+<ul>
+<li>Dot — %252e</li>
+<li>Forward slash — %252f</li>
+<li>Backslash — %255c</li>
+</ul></li>
+<li>Try overlong UTF-8 Unicode encoding:
+
+<ul>
+<li>Dot — %c0%2e, %e0%40%ae, %c0ae, and so on</li>
+<li>Forward slash — %c0%af, %e0%80%af, %c0%2f, and so on</li>
+<li>Backslash — %c0%5c, %c0%80%5c, and so on
 You can use the illegal Unicode payload type within Burp Intruder to
 generate a huge number of alternate representations of any given character
 and submit this at the relevant place within your target parameter.
 These representations strictly violate the rules for Unicode representation
 but nevertheless are accepted by many implementations of Unicode
-decoders, particularly on the Windows platform.
-&gt; 6. If the application is attempting to sanitize user input by removing traversal
+decoders, particularly on the Windows platform.</li>
+</ul></li>
+<li>If the application is attempting to sanitize user input by removing traversal
 sequences and does not apply this filter recursively, it may be
-possible to bypass the filter by placing one sequence within another.
+possible to bypass the filter by placing one sequence within another.</li>
+</ol>
+</blockquote>
 
-For example:
-  * `....//`
-  * `....\/`
-  * `..../\`
-  * `....\\`
+<p>For example:</p>
 
-</code></pre>
+<ul>
+<li><code>....//</code></li>
+<li><code>....\/</code></li>
+<li><code>..../\</code></li>
+<li><code>....\\</code></li>
+</ul>
 
 <h2 id="prevention-go">Prevention.go</h2>
 

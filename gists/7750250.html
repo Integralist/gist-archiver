@@ -10,6 +10,36 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="cucumber-gherkin-template-feature-file-gherkin-cucumber-userstory-story-feature-scenario">[Cucumber Gherkin Template Feature File] #gherkin #cucumber #userstory #story #feature #scenario</h1>
 
+<h2 id="1-template-feature">1. Template.feature</h2>
+
+<pre><code class="language-gherkin">Feature: &lt;title&gt;
+  
+  In order to &lt;do something&gt;
+  As a &lt;user&gt;
+  I want to &lt;achieve some goal&gt;
+
+  Scenario: &lt;title&gt;
+  
+    &lt;additional description&gt;
+  
+    Given &lt;some state&gt;
+    When &lt;some action&gt;
+    Then &lt;some expectation&gt; with &lt;some_name&gt; # where &lt;some_name&gt; is actual Gherkin syntax for a table lookup!
+
+    Examples:
+      | some_name |
+      | A         |
+      | B         |
+      | C         |
+      | ...etc    |
+
+  Tasks: # non-standard syntax, but useful for most 'project planning' purposes
+
+    - What: ...
+      Why: ...
+      Impact: ...
+</code></pre>
+
 <h2 id="2-example-feature">2. Example.feature</h2>
 
 <pre><code class="language-gherkin">Feature: Resilience
@@ -53,36 +83,6 @@
       | start | eat | left |
       |    12 |   5 |    7 |
       |    20 |   5 |   15 |
-</code></pre>
-
-<h2 id="1-template-feature">1. Template.feature</h2>
-
-<pre><code class="language-gherkin">Feature: &lt;title&gt;
-  
-  In order to &lt;do something&gt;
-  As a &lt;user&gt;
-  I want to &lt;achieve some goal&gt;
-
-  Scenario: &lt;title&gt;
-  
-    &lt;additional description&gt;
-  
-    Given &lt;some state&gt;
-    When &lt;some action&gt;
-    Then &lt;some expectation&gt; with &lt;some_name&gt; # where &lt;some_name&gt; is actual Gherkin syntax for a table lookup!
-
-    Examples:
-      | some_name |
-      | A         |
-      | B         |
-      | C         |
-      | ...etc    |
-
-  Tasks: # non-standard syntax, but useful for most 'project planning' purposes
-
-    - What: ...
-      Why: ...
-      Impact: ...
 </code></pre>
 
 </div>

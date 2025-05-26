@@ -12,31 +12,32 @@
 
 <h2 id="go-manage-external-tools-via-go-modules-md">Go manage external tools via go modules.md</h2>
 
-<pre><code class="language-markdown">&gt; [!IMPORTANT]
-&gt; Read https://gist.github.com/Integralist/e19c9faee86e797125e6d95fe1188912 instead.
+<blockquote>
+<p>[!IMPORTANT]
+Read <a href="https://gist.github.com/Integralist/e19c9faee86e797125e6d95fe1188912" target="_blank">https://gist.github.com/Integralist/e19c9faee86e797125e6d95fe1188912</a> instead.</p>
+</blockquote>
 
-## Go 1.16
+<h2 id="go-1-16">Go 1.16</h2>
 
-As of Go version `1.16` the `go` command changed behaviour for `get` and `install`:
+<p>As of Go version <code>1.16</code> the <code>go</code> command changed behaviour for <code>get</code> and <code>install</code>:</p>
 
-- `install`: the recommended way to install packages (ignoring 
-- `get`: adds dependencies to your project's go modules file (i.e. `go.mod`).
+<ul>
+<li><code>install</code>: the recommended way to install packages (ignoring</li>
+<li><code>get</code>: adds dependencies to your project&rsquo;s go modules file (i.e. <code>go.mod</code>).</li>
+</ul>
 
-The `go install` command now accepts a version suffix:
+<p>The <code>go install</code> command now accepts a version suffix:</p>
 
+<pre><code>go install example.com/cmd@v1.0.0
 </code></pre>
 
-<p>go install example.com/cmd@v1.0.0</p>
+<h2 id="pre-go-1-16">Pre Go 1.16</h2>
 
-<pre><code>
-## Pre Go 1.16
+<p>Before Go version <code>1.16</code> we needed to resort to other ways of getting a resource.</p>
 
-Before Go version `1.16` we needed to resort to other ways of getting a resource.
+<p>Have the following package <code>tools/tools.go</code>:</p>
 
-Have the following package `tools/tools.go`:
-
-```go
-// +build tools
+<pre><code class="language-go">// +build tools
 
 package tools
 
@@ -75,8 +76,6 @@ validate-docs: $(BIN)/tfplugindocs
 
 -rwxr-xr-x   1 integralist  staff  22965276  2 Feb 13:52 tfplugindocs*
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

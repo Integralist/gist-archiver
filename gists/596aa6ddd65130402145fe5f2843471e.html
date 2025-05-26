@@ -10,6 +10,38 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="golang-sorting-go-golang-sort-sorting">[Golang Sorting] #go #golang #sort #sorting</h1>
 
+<h2 id="same-as-sort-ints-go">same as sort.Ints.go</h2>
+
+<pre><code class="language-go">// We already have sort.Ints() so this is a redundant implementation.
+
+package main
+
+import (
+	&quot;fmt&quot;
+	&quot;sort&quot;
+)
+
+type items []int
+
+func (i items) Len() int {
+	return len(i)
+}
+
+func (i items) Less(a, b int) bool {
+	return i[a] &lt; i[b]
+}
+
+func (i items) Swap(a, b int) {
+	i[a], i[b] = i[b], i[a]
+}
+
+func main() {
+	i := []int{25, 1, 10, 5, 4, 7}
+	sort.Sort(items(i))
+	fmt.Println(i)
+}
+</code></pre>
+
 <h2 id="sort-slice-of-strings-by-length-of-each-string-go">sort slice of strings by length of each string.go</h2>
 
 <pre><code class="language-go">package main
@@ -82,38 +114,6 @@ func main() {
 		return bitSetA &gt; bitSetB
 	})
 	fmt.Println(kits)
-}
-</code></pre>
-
-<h2 id="same-as-sort-ints-go">same as sort.Ints.go</h2>
-
-<pre><code class="language-go">// We already have sort.Ints() so this is a redundant implementation.
-
-package main
-
-import (
-	&quot;fmt&quot;
-	&quot;sort&quot;
-)
-
-type items []int
-
-func (i items) Len() int {
-	return len(i)
-}
-
-func (i items) Less(a, b int) bool {
-	return i[a] &lt; i[b]
-}
-
-func (i items) Swap(a, b int) {
-	i[a], i[b] = i[b], i[a]
-}
-
-func main() {
-	i := []int{25, 1, 10, 5, 4, 7}
-	sort.Sort(items(i))
-	fmt.Println(i)
 }
 </code></pre>
 

@@ -12,30 +12,29 @@
 
 <h2 id="description-md">Description.md</h2>
 
-<pre><code class="language-markdown">If you set the `&lt;body&gt;` element to have `font-size: 100%` then you are effectively setting the pixel size base line to be `16px`.
+<p>If you set the <code>&lt;body&gt;</code> element to have <code>font-size: 100%</code> then you are effectively setting the pixel size base line to be <code>16px</code>.</p>
 
-So now `1em` equals `16px`.
+<p>So now <code>1em</code> equals <code>16px</code>.</p>
 
-To size either our text or our layouts to match what the designer has specified in pixels we use the following calculation:
+<p>To size either our text or our layouts to match what the designer has specified in pixels we use the following calculation:</p>
 
-`target / context = result`
+<p><code>target / context = result</code></p>
 
-This means if your target font size for a `&lt;h1&gt;` is 24px and your 'context' (the container) is 16px then you calculate this as:
+<p>This means if your target font size for a <code>&lt;h1&gt;</code> is 24px and your &lsquo;context&rsquo; (the container) is 16px then you calculate this as:</p>
 
-`24 / 16 = 1.5`
+<p><code>24 / 16 = 1.5</code></p>
 
-So you set your font size to `1.5em`.
+<p>So you set your font size to <code>1.5em</code>.</p>
 
-Same for a layout. If the designer has made the website `960px` wide and has an element within it that is `900px` wide. 
+<p>Same for a layout. If the designer has made the website <code>960px</code> wide and has an element within it that is <code>900px</code> wide.</p>
 
-First thing to do is to set the `960px` width to be a percentage. Well we have to just take a guess on this I'm afraid so we'll choose 90%.
+<p>First thing to do is to set the <code>960px</code> width to be a percentage. Well we have to just take a guess on this I&rsquo;m afraid so we&rsquo;ll choose 90%.</p>
 
-But thankfully to turn `900px` into a percentage we can use the previous calculation of `target / context = result` again:
+<p>But thankfully to turn <code>900px</code> into a percentage we can use the previous calculation of <code>target / context = result</code> again:</p>
 
-`900 / 960 = .9375`
+<p><code>900 / 960 = .9375</code></p>
 
-But now (as you're using percentages for your layout) you move the decimal over two places: `93.75%`
-</code></pre>
+<p>But now (as you&rsquo;re using percentages for your layout) you move the decimal over two places: <code>93.75%</code></p>
 
 </div>
 </body>

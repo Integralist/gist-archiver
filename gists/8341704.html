@@ -10,16 +10,6 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="rack-server-example">Rack Server Example</h1>
 
-<h2 id="4-class-based-rack-server-config-ru">4. Class based Rack server - config.ru</h2>
-
-<pre><code class="language-ruby">$: &lt;&lt; File.dirname(__FILE__)
-
-require 'app/app'
-
-run TestComponent::Application.new
-
-</code></pre>
-
 <h2 id="1-simplest-rack-server-rb">1. Simplest Rack server.rb</h2>
 
 <pre><code class="language-ruby">run lambda { |env| [200, {&quot;Content-Type&quot;=&gt;&quot;text/html&quot;}, [&quot;Hello World&quot;]] }
@@ -56,6 +46,16 @@ module TestComponent
     end
   end
 end
+
+</code></pre>
+
+<h2 id="4-class-based-rack-server-config-ru">4. Class based Rack server - config.ru</h2>
+
+<pre><code class="language-ruby">$: &lt;&lt; File.dirname(__FILE__)
+
+require 'app/app'
+
+run TestComponent::Application.new
 
 </code></pre>
 

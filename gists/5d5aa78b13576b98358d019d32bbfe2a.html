@@ -12,21 +12,18 @@
 
 <h2 id="process-substitution-md">Process Substitution.md</h2>
 
-<pre><code class="language-markdown">## Process Substitution.
+<h2 id="process-substitution">Process Substitution.</h2>
 
-The `&lt;(list)` syntax is supported by both, bash and zsh. 
+<p>The <code>&lt;(list)</code> syntax is supported by both, bash and zsh.</p>
 
-It provides a way to pass the output of a command (`list`) to another command when using a pipe (`|`) is not possible. 
+<p>It provides a way to pass the output of a command (<code>list</code>) to another command when using a pipe (<code>|</code>) is not possible.</p>
 
-For example, when a command just does not support input from STDIN or you need the output of multiple commands:
+<p>For example, when a command just does not support input from STDIN or you need the output of multiple commands:</p>
 
+<pre><code>diff &lt;(ls dirA) &lt;(ls dirB)
 </code></pre>
 
-<p>diff &lt;(ls dirA) &lt;(ls dirB)</p>
-
-<pre><code>
-`&lt;(list)` connects the output of list with a file in `/dev/fd`, if supported by the system, otherwise a named pipe (FIFO) is used (which also depends on support by the system; neither manual says what happens if both mechanisms are not supported, presumably it aborts with an error). The name of the file is then passed as argument on the command line.
-</code></pre>
+<p><code>&lt;(list)</code> connects the output of list with a file in <code>/dev/fd</code>, if supported by the system, otherwise a named pipe (FIFO) is used (which also depends on support by the system; neither manual says what happens if both mechanisms are not supported, presumably it aborts with an error). The name of the file is then passed as argument on the command line.</p>
 
 </div>
 </body>

@@ -12,48 +12,51 @@
 
 <h2 id="comments-md">Comments.md</h2>
 
-<pre><code class="language-markdown">The original source code is shown at the bottom of this page.
+<p>The original source code is shown at the bottom of this page.</p>
 
-My comments were as follows...
-
-- The `sendEvents` method stores `this.events`, then resets `this.events` to an empty Array but would it not be less confusing to just wait until after sending the data to the server (via XHR) before clearing the Array. For example...   
-  ```js
-    var xmlhttp = null;
-
-    if(typeof XDomainRequest != &quot;undefined&quot;)
-    {
-        xmlhttp = new XDomainRequest();
-        xmlhttp.open(&quot;POST&quot;,this.s);
-    }
-    else
-    {
-        xmlhttp = new XMLHttpRequest();     
-        xmlhttp.open(&quot;POST&quot;,this.s, true);
-        xmlhttp.setRequestHeader(&quot;Content-type&quot;, 'application/json');
-    }
-
-    xmlhttp.onreadystatechange = function()
-    {
-        if(xmlhttp.readyState == 4)
-        {
-            if(callback)
-            {
-                callback(xmlhttp.status);
-            }
-        }
-    }
-        
-    try
-    {
-        xmlhttp.send(JSON.stringify({events:this.events}));
-        this.events = [];
-    }catch(e)
-    {
-        console.log(&quot;caught:&quot;+e);
-    }
-</code></pre>
+<p>My comments were as follows&hellip;</p>
 
 <ul>
+<li><p>The <code>sendEvents</code> method stores <code>this.events</code>, then resets <code>this.events</code> to an empty Array but would it not be less confusing to just wait until after sending the data to the server (via XHR) before clearing the Array. For example&hellip;</p>
+
+<pre><code class="language-js">var xmlhttp = null;
+
+
+if(typeof XDomainRequest != &quot;undefined&quot;)
+{
+    xmlhttp = new XDomainRequest();
+    xmlhttp.open(&quot;POST&quot;,this.s);
+}
+else
+{
+    xmlhttp = new XMLHttpRequest();     
+    xmlhttp.open(&quot;POST&quot;,this.s, true);
+    xmlhttp.setRequestHeader(&quot;Content-type&quot;, 'application/json');
+}
+
+
+xmlhttp.onreadystatechange = function()
+{
+    if(xmlhttp.readyState == 4)
+    {
+        if(callback)
+        {
+            callback(xmlhttp.status);
+        }
+    }
+}
+
+
+try
+{
+    xmlhttp.send(JSON.stringify({events:this.events}));
+    this.events = [];
+}catch(e)
+{
+    console.log(&quot;caught:&quot;+e);
+}
+</code></pre></li>
+
 <li><p>Make the properties on the event object clearer:<br />
 <code>this.s = config.server</code> should be <code>this.server = config.server</code></p></li>
 
@@ -257,8 +260,6 @@ AC.prototype.load = function()
 //-----------------------------------------------------------------------------
 return {AC:AC};}); //END AMD
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

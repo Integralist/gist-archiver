@@ -12,20 +12,91 @@
 
 <h2 id="0-ruby-meta-programming-spells-covered-md">0. Ruby Meta Programming - spells covered.md</h2>
 
-<pre><code class="language-markdown">- Dynamic Dispatch
-- Dynamic Method
-- Ghost Methods
-- Dynamic Proxies
-- Blank Slate
-- Kernel Method
-- Flattening the Scope (aka Nested Lexical Scopes)
-- Context Probe
-- Class Eval *(not really a 'spell' more just a demonstration of its usage)*
-- Class Macros
-- Around Alias
-- Hook Methods
-- Class Extension Mixin
-- Module Namespace Interpolation
+<ul>
+<li>Dynamic Dispatch</li>
+<li>Dynamic Method</li>
+<li>Ghost Methods</li>
+<li>Dynamic Proxies</li>
+<li>Blank Slate</li>
+<li>Kernel Method</li>
+<li>Flattening the Scope (aka Nested Lexical Scopes)</li>
+<li>Context Probe</li>
+<li>Class Eval <em>(not really a &lsquo;spell&rsquo; more just a demonstration of its usage)</em></li>
+<li>Class Macros</li>
+<li>Around Alias</li>
+<li>Hook Methods</li>
+<li>Class Extension Mixin</li>
+<li>Module Namespace Interpolation</li>
+</ul>
+
+<h2 id="01-dynamic-dispatch-rb">01. Dynamic Dispatch.rb</h2>
+
+<pre><code class="language-ruby"># Dynamic Dispatch
+# Allows us to send messages to even private methods
+# object.send(message, *arguments)
+1.send(:+, 2) # =&gt; 3
+</code></pre>
+
+<h2 id="02-dynamic-method-rb">02. Dynamic Method.rb</h2>
+
+<pre><code class="language-ruby"># Dynamic Method
+# Allows us to dynamically create methods
+# define_method :method_name { block that becomes method body }
+class Foo
+  define_method :bar do
+    puts &quot;This is a dynamic method&quot;
+  end
+end
+Foo.new.bar # =&gt; &quot;This is a dynamic method&quot;
+
+# Dynamic Method
+# Alternative example
+class Bar
+  # we have to define this method on `self` (see below comment)
+  def self.create_method(method)
+    define_method &quot;my_#{method}&quot; do
+      puts &quot;Dynamic method called 'my_#{method}'&quot;
+    end
+  end
+
+  # these methods are executed within the definition of the Bar class
+  create_method :foo
+  create_method :bar
+  create_method :baz
+end
+Bar.new.my_foo # =&gt; &quot;Dynamic method called 'my_foo'&quot;
+Bar.new.my_bar # =&gt; &quot;Dynamic method called 'my_bar'&quot;
+Bar.new.my_baz # =&gt; &quot;Dynamic method called 'my_baz'&quot;
+
+# Dynamic Method
+# Parse another class for data
+class AnotherClass
+  def get_foo_stuff; end
+  def get_bar_stuff; end
+  def get_baz_stuff; end
+end
+class Baz
+  def initialize(a_class)
+    a_class.methods.grep(/^get_(.*)_stuff$/) { Baz.create_method $1 }
+  end
+  def self.create_method(method)
+    define_method &quot;my_#{method}&quot; do
+      puts &quot;Dynamic method called 'my_#{method}'&quot;
+    end
+  end
+end
+another_class = AnotherClass.new
+Baz.new(another_class).my_foo # =&gt; &quot;Dynamic method called 'my_foo'&quot;
+Baz.new(another_class).my_bar # =&gt; &quot;Dynamic method called 'my_bar'&quot;
+Baz.new(another_class).my_baz # =&gt; &quot;Dynamic method called 'my_baz'&quot;
+
+class Foo
+  def initialize(bar)
+    self.class.send(:define_method, bar) { p &quot;hello #{bar}!&quot; }
+  end  
+end
+foo = Foo.new(&quot;world&quot;)
+foo.world # =&gt; &quot;hello world!&quot;
 </code></pre>
 
 <h2 id="03-ghost-methods-rb">03. Ghost Methods.rb</h2>
@@ -42,6 +113,26 @@ Hai.new.yolo # =&gt; You called: yolo()
 Hai.new.yolo &quot;a&quot;, 123, :c # =&gt; You called: yolo(a, 123, c)
 Hai.new.yolo(:a, :b, :c) { puts &quot;a block&quot; } # =&gt; You called: yolo(a, b, c)
                                             # =&gt; You also passed a block
+</code></pre>
+
+<h2 id="04-dynamic-proxies-rb">04. Dynamic Proxies.rb</h2>
+
+<pre><code class="language-ruby"># Dynamic Proxies
+# Catching &quot;Ghost Methods&quot; and forwarding them onto another method
+# Whilst possibly adding logic around the call.
+#
+# For example,
+# You can provide imaginary methods by utilising `method_missing` to parse
+# the incoming message (e.g. `get_name`, `get_age`) and to delegate off to 
+# another method such as `get(:data_type)` where `:data_type` is `:name` or `:age`.
+def method_missing(message, *args, &amp;block)
+  return get($1.to_sym, *args, &amp;block) if message.to_s =~ /^get_(.*)/
+  super # if we don't find a match then we'll call the top level `BasicObject#method_missing`
+end
+
+# If (after analysis) you discover a performance issue with using `method_missing`
+# you can utilise the &quot;Dynamic Method&quot; technique to create a real method after 
+# the message has been received by `method_missing` the first time.
 </code></pre>
 
 <h2 id="05-blank-slate-rb">05. Blank Slate.rb</h2>
@@ -128,112 +219,6 @@ end # =&gt; Here is 'my_var' inside my class definition: abc
 MyClass.new.my_method # =&gt; Here is 'my_var' inside my class instance method: abc
 </code></pre>
 
-<h2 id="09-class-eval-rb">09. Class Eval.rb</h2>
-
-<pre><code class="language-ruby"># Evaluate a block in the context of a class
-# Similar to re-opening a class but more flexible in that it
-# works on any variable that references a class, where as re-opening
-# a class requires defining a constant.
-
-# Classic class re-opening style
-class String
-  def m; puts &quot;hello!&quot; end
-end
-
-# Class eval style 
-# The extra code is used to make the example a bit more re-usable/abstracted
-def add_method_to_class(the_class)
-  the_class.class_eval do
-    def m; puts &quot;hello!&quot; end
-  end
-end
-
-add_method_to_class String
-&quot;abc&quot;.m # =&gt; hello!
-</code></pre>
-
-<h2 id="02-dynamic-method-rb">02. Dynamic Method.rb</h2>
-
-<pre><code class="language-ruby"># Dynamic Method
-# Allows us to dynamically create methods
-# define_method :method_name { block that becomes method body }
-class Foo
-  define_method :bar do
-    puts &quot;This is a dynamic method&quot;
-  end
-end
-Foo.new.bar # =&gt; &quot;This is a dynamic method&quot;
-
-# Dynamic Method
-# Alternative example
-class Bar
-  # we have to define this method on `self` (see below comment)
-  def self.create_method(method)
-    define_method &quot;my_#{method}&quot; do
-      puts &quot;Dynamic method called 'my_#{method}'&quot;
-    end
-  end
-
-  # these methods are executed within the definition of the Bar class
-  create_method :foo
-  create_method :bar
-  create_method :baz
-end
-Bar.new.my_foo # =&gt; &quot;Dynamic method called 'my_foo'&quot;
-Bar.new.my_bar # =&gt; &quot;Dynamic method called 'my_bar'&quot;
-Bar.new.my_baz # =&gt; &quot;Dynamic method called 'my_baz'&quot;
-
-# Dynamic Method
-# Parse another class for data
-class AnotherClass
-  def get_foo_stuff; end
-  def get_bar_stuff; end
-  def get_baz_stuff; end
-end
-class Baz
-  def initialize(a_class)
-    a_class.methods.grep(/^get_(.*)_stuff$/) { Baz.create_method $1 }
-  end
-  def self.create_method(method)
-    define_method &quot;my_#{method}&quot; do
-      puts &quot;Dynamic method called 'my_#{method}'&quot;
-    end
-  end
-end
-another_class = AnotherClass.new
-Baz.new(another_class).my_foo # =&gt; &quot;Dynamic method called 'my_foo'&quot;
-Baz.new(another_class).my_bar # =&gt; &quot;Dynamic method called 'my_bar'&quot;
-Baz.new(another_class).my_baz # =&gt; &quot;Dynamic method called 'my_baz'&quot;
-
-class Foo
-  def initialize(bar)
-    self.class.send(:define_method, bar) { p &quot;hello #{bar}!&quot; }
-  end  
-end
-foo = Foo.new(&quot;world&quot;)
-foo.world # =&gt; &quot;hello world!&quot;
-</code></pre>
-
-<h2 id="04-dynamic-proxies-rb">04. Dynamic Proxies.rb</h2>
-
-<pre><code class="language-ruby"># Dynamic Proxies
-# Catching &quot;Ghost Methods&quot; and forwarding them onto another method
-# Whilst possibly adding logic around the call.
-#
-# For example,
-# You can provide imaginary methods by utilising `method_missing` to parse
-# the incoming message (e.g. `get_name`, `get_age`) and to delegate off to 
-# another method such as `get(:data_type)` where `:data_type` is `:name` or `:age`.
-def method_missing(message, *args, &amp;block)
-  return get($1.to_sym, *args, &amp;block) if message.to_s =~ /^get_(.*)/
-  super # if we don't find a match then we'll call the top level `BasicObject#method_missing`
-end
-
-# If (after analysis) you discover a performance issue with using `method_missing`
-# you can utilise the &quot;Dynamic Method&quot; technique to create a real method after 
-# the message has been received by `method_missing` the first time.
-</code></pre>
-
 <h2 id="08-context-probe-rb">08. Context Probe.rb</h2>
 
 <pre><code class="language-ruby"># Context Probe
@@ -261,6 +246,61 @@ end
 Foo.new.instance_exec(3) { |arg| (@x + @y) * arg } # =&gt; 9
 </code></pre>
 
+<h2 id="09-class-eval-rb">09. Class Eval.rb</h2>
+
+<pre><code class="language-ruby"># Evaluate a block in the context of a class
+# Similar to re-opening a class but more flexible in that it
+# works on any variable that references a class, where as re-opening
+# a class requires defining a constant.
+
+# Classic class re-opening style
+class String
+  def m; puts &quot;hello!&quot; end
+end
+
+# Class eval style 
+# The extra code is used to make the example a bit more re-usable/abstracted
+def add_method_to_class(the_class)
+  the_class.class_eval do
+    def m; puts &quot;hello!&quot; end
+  end
+end
+
+add_method_to_class String
+&quot;abc&quot;.m # =&gt; hello!
+</code></pre>
+
+<h2 id="10-class-macros-rb">10. Class Macros.rb</h2>
+
+<pre><code class="language-ruby"># Class Macros are just regular class methods that are only used in a class definition 
+# e.g. not used from a new instance of the class (only at the time the class is defined)
+#
+# Below is an example of a Class Macro that alerts users of a publically available class
+# that the methods they've been using are now deprecated and they should use the renamed version.
+#
+# It uses &quot;Dynamic Method&quot; to help performance by creating the old methods again and delegating off
+# to the new methods (rather than using `method_missing` which can be quite slow as it has to spend
+# time looking up the inheritance chain)
+class Foo
+  def get_a; puts &quot;I'm an A&quot; end
+  def get_b; puts &quot;I'm an B&quot; end
+  def get_c; puts &quot;I'm an C&quot; end
+
+  # Defining our Class Macro
+  def self.deprecate(old_method, new_method)
+    define_method(old_method) do |*args, &amp;block|
+      puts &quot;Warning: #{old_method} is deprecated! Use #{new_method} instead&quot;
+      send(new_method, *args, &amp;block) # `self` is assumed when calling `send`
+    end
+  end
+
+  # Using our Class Macro
+  deprecate :a, :get_a
+  deprecate :b, :get_b
+  deprecate :c, :get_c
+end
+</code></pre>
+
 <h2 id="11-around-alias-rb">11. Around Alias.rb</h2>
 
 <pre><code class="language-ruby"># Around Alias uses the `alias` keyword to store a copy of the original method under a new name,
@@ -280,8 +320,7 @@ end
 
 <h2 id="12-hook-methods-md">12. Hook Methods.md</h2>
 
-<pre><code class="language-markdown">```rb
-# Hook Methods are provided by the Ruby language and let you know about certain events
+<pre><code class="language-rb"># Hook Methods are provided by the Ruby language and let you know about certain events
 # such as when a class inherits from another class or when a method has been added to an object.
 class String
   def self.inherited(subclass)
@@ -328,11 +367,9 @@ induced_from
 to_xxx
 </code></pre>
 
-<pre><code>
-## 13. Class Extension Mixin.rb
+<h2 id="13-class-extension-mixin-rb">13. Class Extension Mixin.rb</h2>
 
-```ruby
-# Class Extension Mixin allows you to both `include` and `extend` a class
+<pre><code class="language-ruby"># Class Extension Mixin allows you to both `include` and `extend` a class
 module MyMixin
   def self.included(base) # Hook Method
     base.extend(ClassMethods)
@@ -357,49 +394,10 @@ Foo.x # =&gt; I'm X (a class method)
 Foo.new.a # =&gt; I'm A (an instance method)
 </code></pre>
 
-<h2 id="01-dynamic-dispatch-rb">01. Dynamic Dispatch.rb</h2>
-
-<pre><code class="language-ruby"># Dynamic Dispatch
-# Allows us to send messages to even private methods
-# object.send(message, *arguments)
-1.send(:+, 2) # =&gt; 3
-</code></pre>
-
 <h2 id="14-module-namespace-interpolation-rb">14. Module Namespace Interpolation.rb</h2>
 
 <pre><code class="language-ruby">type = &quot;baz&quot;
 Foo::Bar.const_get(type.capitalize).new # =&gt; new instance of Foo::Bar::Baz
-</code></pre>
-
-<h2 id="10-class-macros-rb">10. Class Macros.rb</h2>
-
-<pre><code class="language-ruby"># Class Macros are just regular class methods that are only used in a class definition 
-# e.g. not used from a new instance of the class (only at the time the class is defined)
-#
-# Below is an example of a Class Macro that alerts users of a publically available class
-# that the methods they've been using are now deprecated and they should use the renamed version.
-#
-# It uses &quot;Dynamic Method&quot; to help performance by creating the old methods again and delegating off
-# to the new methods (rather than using `method_missing` which can be quite slow as it has to spend
-# time looking up the inheritance chain)
-class Foo
-  def get_a; puts &quot;I'm an A&quot; end
-  def get_b; puts &quot;I'm an B&quot; end
-  def get_c; puts &quot;I'm an C&quot; end
-
-  # Defining our Class Macro
-  def self.deprecate(old_method, new_method)
-    define_method(old_method) do |*args, &amp;block|
-      puts &quot;Warning: #{old_method} is deprecated! Use #{new_method} instead&quot;
-      send(new_method, *args, &amp;block) # `self` is assumed when calling `send`
-    end
-  end
-
-  # Using our Class Macro
-  deprecate :a, :get_a
-  deprecate :b, :get_b
-  deprecate :c, :get_c
-end
 </code></pre>
 
 </div>

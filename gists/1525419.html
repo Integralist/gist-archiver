@@ -12,58 +12,56 @@
 
 <h2 id="javascript-execution-md">JavaScript Execution.md</h2>
 
-<pre><code class="language-markdown">Reference: 
-http://perfectionkills.com/understanding-delete/
+<p>Reference:
+<a href="http://perfectionkills.com/understanding-delete/" target="_blank">http://perfectionkills.com/understanding-delete/</a></p>
 
-There are 3 types of executable code in ECMAScript: 
+<p>There are 3 types of executable code in ECMAScript:</p>
 
-* Global code
-* Function code
-* Eval code
+<ul>
+<li>Global code</li>
+<li>Function code</li>
+<li>Eval code</li>
+</ul>
 
-When ECMAScript code executes, it always happens within a certain execution context.
+<p>When ECMAScript code executes, it always happens within a certain execution context.</p>
 
-Execution contexts can logically form a stack. First there might be Global code with its own execution context; that code might call a function, with its own execution context; that function could call another function, and so on and so forth. Even if function is calling itself recursively, a new execution context is being entered with every invocation.
+<p>Execution contexts can logically form a stack. First there might be Global code with its own execution context; that code might call a function, with its own execution context; that function could call another function, and so on and so forth. Even if function is calling itself recursively, a new execution context is being entered with every invocation.</p>
 
-Global code (and the Variable Object)
-=====================================
+<h1 id="global-code-and-the-variable-object">Global code (and the Variable Object)</h1>
 
-Every execution context has a so-called Variable Object associated with it.
+<p>Every execution context has a so-called Variable Object associated with it.</p>
 
-When control enters execution context for Global code, a Global object is used as a Variable object. This is precisely why variables or functions declared globally become properties of a Global object.
+<p>When control enters execution context for Global code, a Global object is used as a Variable object. This is precisely why variables or functions declared globally become properties of a Global object.</p>
 
-Function code
-=============
+<h1 id="function-code">Function code</h1>
 
-Ok, so global variables become properties of Global object, but what happens with local variables — those declared in Function code? The behavior is actually very similar: they become properties of a Variable object. The only difference is that when in Function code, a Variable object is not a Global object, but a so-called Activation object. An Activation object is created every time execution context for Function code is entered.
+<p>Ok, so global variables become properties of Global object, but what happens with local variables — those declared in Function code? The behavior is actually very similar: they become properties of a Variable object. The only difference is that when in Function code, a Variable object is not a Global object, but a so-called Activation object. An Activation object is created every time execution context for Function code is entered.</p>
 
-Not only do variables and functions declared within Function code become properties of Activation object; this also happens with each of function arguments (under names corresponding to formal parameters) and a special Arguments object (under arguments name). Note that Activation object is an internal mechanism and is never really accessible by program code.
+<p>Not only do variables and functions declared within Function code become properties of Activation object; this also happens with each of function arguments (under names corresponding to formal parameters) and a special Arguments object (under arguments name). Note that Activation object is an internal mechanism and is never really accessible by program code.</p>
 
-Eval code
-=========
+<h1 id="eval-code">Eval code</h1>
 
-Variables declared within Eval code are created as properties of calling context’s Variable object. Eval code simply uses Variable object of the execution context that it’s being called within.
+<p>Variables declared within Eval code are created as properties of calling context’s Variable object. Eval code simply uses Variable object of the execution context that it’s being called within.</p>
 
-Property Attributes
-===================
+<h1 id="property-attributes">Property Attributes</h1>
 
-Every property can have zero or more attributes from the following set — ReadOnly, DontEnum, DontDelete and Internal. You can think of them as flags — an attribute can either exist on a property or not. For the purposes of today’s discussion, we are only interested in DontDelete.
+<p>Every property can have zero or more attributes from the following set — ReadOnly, DontEnum, DontDelete and Internal. You can think of them as flags — an attribute can either exist on a property or not. For the purposes of today’s discussion, we are only interested in DontDelete.</p>
 
-When declared variables and functions become properties of a Variable object — either Activation object (for Function code), or Global object (for Global code), these properties are created with DontDelete attribute. However, any explicit (or implicit) property assignment creates property without DontDelete attribute. And this is essentialy why we can delete some properties, but not others.
+<p>When declared variables and functions become properties of a Variable object — either Activation object (for Function code), or Global object (for Global code), these properties are created with DontDelete attribute. However, any explicit (or implicit) property assignment creates property without DontDelete attribute. And this is essentialy why we can delete some properties, but not others.</p>
 
-Summary
-=======
+<h1 id="summary">Summary</h1>
 
-Here’s a short summary of how deletion works in Javascript:
+<p>Here’s a short summary of how deletion works in Javascript:</p>
 
-* Variables and function declarations are properties of either Activation or Global objects.
-* Properties have attributes, one of which — DontDelete — is responsible for whether a property can be deleted.
-* Variable and function declarations in Global and Function code always create properties with DontDelete.
-* Function arguments are also properties of Activation object and are created with DontDelete.
-* Variable and function declarations in Eval code always create properties without DontDelete.
-* New properties are always created with empty attributes (and so without DontDelete).
-* Host objects are allowed to react to deletion however they want.
-</code></pre>
+<ul>
+<li>Variables and function declarations are properties of either Activation or Global objects.</li>
+<li>Properties have attributes, one of which — DontDelete — is responsible for whether a property can be deleted.</li>
+<li>Variable and function declarations in Global and Function code always create properties with DontDelete.</li>
+<li>Function arguments are also properties of Activation object and are created with DontDelete.</li>
+<li>Variable and function declarations in Eval code always create properties without DontDelete.</li>
+<li>New properties are always created with empty attributes (and so without DontDelete).</li>
+<li>Host objects are allowed to react to deletion however they want.</li>
+</ul>
 
 </div>
 </body>

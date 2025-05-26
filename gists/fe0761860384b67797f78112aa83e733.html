@@ -12,35 +12,30 @@
 
 <h2 id="r-host-vs-r-url-host-md">r.Host vs r.URL.Host.md</h2>
 
-<pre><code class="language-markdown">For clarity on `r.Host` vs `r.URL.Host` see:  
-https://stackoverflow.com/a/42926149/14849316
+<p>For clarity on <code>r.Host</code> vs <code>r.URL.Host</code> see:<br />
+<a href="https://stackoverflow.com/a/42926149/14849316" target="_blank">https://stackoverflow.com/a/42926149/14849316</a></p>
 
-But in summary:
+<p>But in summary:</p>
 
+<pre><code>GET https://www.google.com/?q=xxx HTTP/1.1
+Host: [gg.proxy.com](http://gg.proxy.com/)
 </code></pre>
 
-<p>GET <a href="https://www.google.com/?q=xxx" target="_blank">https://www.google.com/?q=xxx</a> HTTP/1.1
-Host: <a href="http://gg.proxy.com/" target="_blank">gg.proxy.com</a></p>
+<p>Will set <code>r.URL.Host</code> to <a href="http://www.google.com/" target="_blank"><code>www.google.com</code></a> and <code>Host</code> to <a href="http://gg.proxy.com/" target="_blank"><code>gg.proxy.com</code></a>.</p>
 
-<pre><code>
-Will set `r.URL.Host` to [`www.google.com`](http://www.google.com/) and `Host` to [`gg.proxy.com`](http://gg.proxy.com/).  
+<p>While for <code>GET /?q=xxx HTTP/1.1</code> the <code>r.URL.Host</code> will be empty.</p>
 
-While for `GET /?q=xxx HTTP/1.1` the `r.URL.Host` will be empty.
+<h2 id="update-go-1-17">UPDATE go 1.17</h2>
 
-## UPDATE go 1.17
-
-</code></pre>
-
-<p>// RFC 7230, section 5.3: Must treat
+<pre><code>// RFC 7230, section 5.3: Must treat
 //      GET /index.html HTTP/1.1
 //      Host: www.google.com
 // and
-//      GET <a href="http://www.google.com/index.html" target="_blank">http://www.google.com/index.html</a> HTTP/1.1
+//      GET http://www.google.com/index.html HTTP/1.1
 //      Host: doesntmatter
 // the same. In the second case, any Host line is ignored.
-req.Host = req.URL.Host</p>
-
-<pre><code></code></pre>
+req.Host = req.URL.Host
+</code></pre>
 
 </div>
 </body>

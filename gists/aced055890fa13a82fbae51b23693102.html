@@ -12,501 +12,534 @@
 
 <h2 id="bits-explained-md">Bits Explained.md</h2>
 
-<pre><code class="language-markdown">## Bit
+<h2 id="bit">Bit</h2>
 
-The word _bit_ is short for _binary digit_.
+<p>The word <em>bit</em> is short for <em>binary digit</em>.</p>
 
-A bit is either a `1` (true) or a `0` (false).
+<p>A bit is either a <code>1</code> (true) or a <code>0</code> (false).</p>
 
-Computers only understand the binary format (i.e. base-2)
+<p>Computers only understand the binary format (i.e. base-2)</p>
 
-&gt; We discuss 'base' numbers [below](#base-numbers)
+<blockquote>
+<p>We discuss &lsquo;base&rsquo; numbers <a href="#base-numbers">below</a></p>
+</blockquote>
 
-## Byte
+<h2 id="byte">Byte</h2>
 
-A grouping of eight _bits_ is called a _byte_.
+<p>A grouping of eight <em>bits</em> is called a <em>byte</em>.</p>
 
-## RAM
+<h2 id="ram">RAM</h2>
 
-The word _ram_ is an acronym for _random access memory_.
+<p>The word <em>ram</em> is an acronym for <em>random access memory</em>.</p>
 
-It's non-persistent memory.
+<p>It&rsquo;s non-persistent memory.</p>
 
-Meaning it is lost when your machine is restarted, and persists only for the lifetime of the program using it.
+<p>Meaning it is lost when your machine is restarted, and persists only for the lifetime of the program using it.</p>
 
-RAM consists of bits, but each _segment_ of memory is actually a grouping of eight bits (which we already know is called a _byte_).
+<p>RAM consists of bits, but each <em>segment</em> of memory is actually a grouping of eight bits (which we already know is called a <em>byte</em>).</p>
 
-So in short we would say RAM is made up of bytes.
+<p>So in short we would say RAM is made up of bytes.</p>
 
-Bytes are uniquely numbered to allow easy lookup of their contents.
+<p>Bytes are uniquely numbered to allow easy lookup of their contents.</p>
 
-A byte's unique number is also referred to as its _address_.
+<p>A byte&rsquo;s unique number is also referred to as its <em>address</em>.</p>
 
-## Visualisation
+<h2 id="visualisation">Visualisation</h2>
 
-![Image of what RAM looks like](https://cloud.githubusercontent.com/assets/180050/20210197/19d55bee-a7f0-11e6-95a0-4e1d60b0898a.png)
+<p><img src="https://cloud.githubusercontent.com/assets/180050/20210197/19d55bee-a7f0-11e6-95a0-4e1d60b0898a.png" alt="Image of what RAM looks like" /></p>
 
-&gt; if unclear 128 is made by calculating 2 to the power of 7  
-&gt; e.g. `2*2*2*2*2*2*2` = `128`
+<blockquote>
+<p>if unclear 128 is made by calculating 2 to the power of 7<br />
+e.g. <code>2*2*2*2*2*2*2</code> = <code>128</code></p>
+</blockquote>
 
-## Numbers
+<h2 id="numbers">Numbers</h2>
 
-1 kilobyte (or 1KB) is 1,024 bytes.
+<p>1 kilobyte (or 1KB) is 1,024 bytes.</p>
 
-1,024 bytes is 8192 bits (`8192/8` = `1024`, so `8*1024` = `8192`)
+<p>1,024 bytes is 8192 bits (<code>8192/8</code> = <code>1024</code>, so <code>8*1024</code> = <code>8192</code>)</p>
 
-The following explanation is taken from &quot;Beginning C&quot; by Apress Publishing...
+<p>The following explanation is taken from &ldquo;Beginning C&rdquo; by Apress Publishing&hellip;</p>
 
-&gt; You might be wondering why we don’t work with simpler, more rounded numbers, such as a thousand, or a million, or a billion. The reason is this: there are 1,024 numbers from 0 to 1,023, and 1,023 happens to be 10 bits that are all 1 in binary: 11 1111 1111, which is a very convenient binary value. So while 1,000 is a very convenient decimal value, it’s actually rather inconvenient in a binary machine—it’s 11 1110 1000, which is not exactly neat and tidy. The kilobyte (1,024 bytes) is therefore defined in a manner that’s convenient for your computer, rather than for you.
+<blockquote>
+<p>You might be wondering why we don’t work with simpler, more rounded numbers, such as a thousand, or a million, or a billion. The reason is this: there are 1,024 numbers from 0 to 1,023, and 1,023 happens to be 10 bits that are all 1 in binary: 11 1111 1111, which is a very convenient binary value. So while 1,000 is a very convenient decimal value, it’s actually rather inconvenient in a binary machine—it’s 11 1110 1000, which is not exactly neat and tidy. The kilobyte (1,024 bytes) is therefore defined in a manner that’s convenient for your computer, rather than for you.</p>
+</blockquote>
 
-So if we add up `512+256+128+64+32+16+8+4+2+1` (notice this takes the existing 8 bit calculation from the above image and continues it for another two bits) we get `1023`.
+<p>So if we add up <code>512+256+128+64+32+16+8+4+2+1</code> (notice this takes the existing 8 bit calculation from the above image and continues it for another two bits) we get <code>1023</code>.</p>
 
-## IPs
+<h2 id="ips">IPs</h2>
 
-Here is an example IPv4 IP:
+<p>Here is an example IPv4 IP:</p>
 
+<pre><code>216.27.61.137
 </code></pre>
 
-<p>216.27.61.137</p>
+<p>IPv4 IPs are expressed in decimal format (with dotted decimal number).</p>
 
-<pre><code>
-IPv4 IPs are expressed in decimal format (with dotted decimal number). 
+<blockquote>
+<p>Note: IPv6 IPs are eight 4-character hexadecimal numbers,<br />
+which represent 16 bits each (for a total of 128 bits)</p>
+</blockquote>
 
-&gt; Note: IPv6 IPs are eight 4-character hexadecimal numbers,  
-&gt; which represent 16 bits each (for a total of 128 bits)
+<p>To translate the above IP into binary form (for the sake of a computer to process it), we need to use the above visualisation to help us. The end result of which would look like this:</p>
 
-To translate the above IP into binary form (for the sake of a computer to process it), we need to use the above visualisation to help us. The end result of which would look like this:
-
+<pre><code>11011000.00011011.00111101.10001001
 </code></pre>
 
-<p>11011000.00011011.00111101.10001001</p>
+<p>So to clarify:</p>
 
-<pre><code>
-So to clarify:
+<ul>
+<li><code>11011000</code>: 128 + 64 + 16 + 8 = 216</li>
+<li><code>00011011</code>: 16 + 8 + 2 + 1 = 27</li>
+<li><code>00111101</code>: 32 + 16 + 8 + 4 + 1 = 61</li>
+<li><code>10001001</code>: 128 + 8 + 1 = 137</li>
+</ul>
 
-- `11011000`: 128 + 64 + 16 + 8 = 216
-- `00011011`: 16 + 8 + 2 + 1 = 27
-- `00111101`: 32 + 16 + 8 + 4 + 1 = 61
-- `10001001`: 128 + 8 + 1 = 137
+<p>This explains why each of the four numbers within the decimal formatted version (i.e. <code>216.27.61.137</code>) are called octets, as they represent eight bits (or a &lsquo;byte&rsquo; as we learned earlier) when viewed in binary form.</p>
 
-This explains why each of the four numbers within the decimal formatted version (i.e. `216.27.61.137`) are called octets, as they represent eight bits (or a 'byte' as we learned earlier) when viewed in binary form.
+<p>This also explains why IPv4 IPs are considered 32-bit numbers, because if you add each of the bits together (i.e. the number of total bits, not the value assigned to each bit) you&rsquo;ll find there are a total of 32 bits that make up the IP.</p>
 
-This also explains why IPv4 IPs are considered 32-bit numbers, because if you add each of the bits together (i.e. the number of total bits, not the value assigned to each bit) you'll find there are a total of 32 bits that make up the IP.
+<p>Each bit can have two different states (1 or zero), meaning the total number of potential combinations per octet can be either 28 or 256. Meaning each octet can contain a potential value between zero and 255. Meaning if we were to combine the four octets, we could potentially have 4,294,967,296 variations.</p>
 
-Each bit can have two different states (1 or zero), meaning the total number of potential combinations per octet can be either 28 or 256. Meaning each octet can contain a potential value between zero and 255. Meaning if we were to combine the four octets, we could potentially have 4,294,967,296 variations.
+<p>We can see the decimal represenation of an IPv4 IP is made up of four base-10 numbers (216, 27, 61, 137). Where each of those four numbers represent the binary equivalent (216=11011000, 27=00011011, 61=00111101, 137=10001001), which is a base-2 representation of a byte (or octet).</p>
 
-We can see the decimal represenation of an IPv4 IP is made up of four base-10 numbers (216, 27, 61, 137). Where each of those four numbers represent the binary equivalent (216=11011000, 27=00011011, 61=00111101, 137=10001001), which is a base-2 representation of a byte (or octet).
+<blockquote>
+<p>If you&rsquo;re unsure of what base numbers are and how they work, then read on&hellip;</p>
+</blockquote>
 
-&gt; If you're unsure of what base numbers are and how they work, then read on...
+<h2 id="base-numbers">Base Numbers</h2>
 
-## Base Numbers
+<p>It&rsquo;s worth quickly covering what base numbers are as they help us understand the other different protocols we use on a regular basis, such as binary and things like IPs.</p>
 
-It's worth quickly covering what base numbers are as they help us understand the other different protocols we use on a regular basis, such as binary and things like IPs.
+<p>Any number can be represented in multiple ways using a different base numbering system.</p>
 
-Any number can be represented in multiple ways using a different base numbering system.
+<p>There are many numbering systems, but the typical ones we&rsquo;re used to are:</p>
 
-There are many numbering systems, but the typical ones we're used to are:
+<ul>
+<li>Base 10 (Decimal)</li>
+<li>Base 2 (Binary)</li>
+<li>Base 8 (Octal)</li>
+<li>Base 16 (Hexadecimal)</li>
+</ul>
 
-- Base 10 (Decimal)
-- Base 2 (Binary)
-- Base 8 (Octal)
-- Base 16 (Hexadecimal)
+<p>The standard number system we (as humans) are most familiar with is called base-10 and is consists of the following numbers:</p>
 
-The standard number system we (as humans) are most familiar with is called base-10 and is consists of the following numbers: 
-
+<pre><code>0,1,2,3,4,5,6,7,8,9
 </code></pre>
 
-<p>0,1,2,3,4,5,6,7,8,9</p>
+<blockquote>
+<p>Notice there are ten numbers, hence it is called the base-10 system</p>
+</blockquote>
 
-<pre><code>
-&gt; Notice there are ten numbers, hence it is called the base-10 system
+<p>If we were to look at a number like <code>66</code>, then this would tell us the number is made up of 6 tens and six units.</p>
 
-If we were to look at a number like `66`, then this would tell us the number is made up of 6 tens and six units.
+<p>These numbers (0-9) represent &lsquo;whole numbers&rsquo;, while in the base-10 system we can also use a decimal point to represent decimal fractions of a number (e.g. <code>1.2</code>).</p>
 
-These numbers (0-9) represent 'whole numbers', while in the base-10 system we can also use a decimal point to represent decimal fractions of a number (e.g. `1.2`). 
+<p>Below is an image, credit to Jenny Eather, that helps us visualise this model:</p>
 
-Below is an image, credit to Jenny Eather, that helps us visualise this model:
+<p><img src="https://cloud.githubusercontent.com/assets/180050/20260105/12b4f740-aa50-11e6-98c9-94083f29732f.png" alt="base-10 number system" /></p>
 
-![base-10 number system](https://cloud.githubusercontent.com/assets/180050/20260105/12b4f740-aa50-11e6-98c9-94083f29732f.png)
+<p>The &lsquo;base number&rsquo; is the number of numbers within the system. So base-10 has 10 numbers (0,1,2,3,4,5,6,7,8,9) where as binary is base-2 because it uses two numbers only (0, 1).</p>
 
-The 'base number' is the number of numbers within the system. So base-10 has 10 numbers (0,1,2,3,4,5,6,7,8,9) where as binary is base-2 because it uses two numbers only (0, 1).
+<p>If you want to know the unit each number in a system represents (we&rsquo;ll use base-10 as the example, thanks to the following visualisation credited to Jenny Eather), then you calculate this with the n power of the base number.</p>
 
-If you want to know the unit each number in a system represents (we'll use base-10 as the example, thanks to the following visualisation credited to Jenny Eather), then you calculate this with the n power of the base number.
+<p><img src="https://cloud.githubusercontent.com/assets/180050/20260227/99d38f16-aa50-11e6-9ddd-d52900a794ea.png" alt="base-10 example" /></p>
 
-![base-10 example](https://cloud.githubusercontent.com/assets/180050/20260227/99d38f16-aa50-11e6-9ddd-d52900a794ea.png)
+<p>So, as per the above visualisation, we can see:</p>
 
-So, as per the above visualisation, we can see:
+<ul>
+<li>10<sup>3</sup>: <code>10*10*10</code>: 1000 (thousands)</li>
+<li>10<sup>2</sup>: <code>10*10</code>: 100 (hundreds)</li>
+<li>10<sup>1</sup>: <code>10</code>: 10 (tens)</li>
+<li>10<sup>0</sup>: <code>1</code>: 1 (unit)</li>
+</ul>
 
-- 10&lt;sup&gt;3&lt;/sup&gt;: `10*10*10`: 1000 (thousands)
-- 10&lt;sup&gt;2&lt;/sup&gt;: `10*10`: 100 (hundreds)
-- 10&lt;sup&gt;1&lt;/sup&gt;: `10`: 10 (tens)
-- 10&lt;sup&gt;0&lt;/sup&gt;: `1`: 1 (unit)
+<p>So in practical terms, if you have a number like <code>75</code> and want to represent it as base-10:</p>
 
-So in practical terms, if you have a number like `75` and want to represent it as base-10:
+<ul>
+<li>5 (10<sup>0</sup>: 5 units)</li>
+<li>7 (10<sup>1</sup>: 7 tens)</li>
+</ul>
 
-- 5 (10&lt;sup&gt;0&lt;/sup&gt;: 5 units)
-- 7 (10&lt;sup&gt;1&lt;/sup&gt;: 7 tens)
+<p>You can indicate what base you wish to represent a number like so:</p>
 
-You can indicate what base you wish to represent a number like so:
+<p>n<sub>b</sub></p>
 
-n&lt;sub&gt;b&lt;/sub&gt;
+<p>Where <code>n</code> is the number and <code>b</code> is the base you wish to state it is in.</p>
 
-Where `n` is the number and `b` is the base you wish to state it is in.
+<p>For example:</p>
 
-For example:
+<p>75<sub>10</sub></p>
 
-75&lt;sub&gt;10&lt;/sub&gt;
+<p>This is the number <code>75</code> and we&rsquo;re stating the base it represents is <code>10</code>.</p>
 
-This is the number `75` and we're stating the base it represents is `10`. 
+<p>But if we wanted the number to be <em>interpreted</em> as a base-8 number (e.g. &ldquo;hey bob, here&rsquo;s the number 75 can you convert it into base-8 for me please&rdquo;) we&rsquo;d display it as 75<sub>8</sub>.</p>
 
-But if we wanted the number to be _interpreted_ as a base-8 number (e.g. &quot;hey bob, here's the number 75 can you convert it into base-8 for me please&quot;) we'd display it as 75&lt;sub&gt;8&lt;/sub&gt;.
+<p>### Convert Base-10 into Base-<sup>2</sup>&frasl;<sub>8</sub></p>
 
-### Convert Base-10 into Base-2/8
+<p>Now let&rsquo;s consider how to convert the number <code>75</code> into another base, like base-8. To do so, follow these steps</p>
 
-Now let's consider how to convert the number `75` into another base, like base-8. To do so, follow these steps
+<ol>
+<li>divide the number (75) by the desired base (8) (take note of the remainder: 3)</li>
+<li>divide the result (<sup>75</sup>&frasl;<sub>8</sub> = 9) and do the same (i.e. divide by the base and take note of the remainder)</li>
+<li>keep doing this until the result of dividing the previous answer by the base is zero</li>
+<li>now write out the remainders bottom to top, and that&rsquo;s the number in base 8</li>
+</ol>
 
-1. divide the number (75) by the desired base (8) (take note of the remainder: 3)
-2. divide the result (75/8 = 9) and do the same (i.e. divide by the base and take note of the remainder)
-3. keep doing this until the result of dividing the previous answer by the base is zero
-4. now write out the remainders bottom to top, and that's the number in base 8
+<p>In long form this looks like this:</p>
 
-In long form this looks like this:
+<ul>
+<li>75 (number) / 8 (base) = 9 (rounded) with a remainder of 3</li>
+<li>9 (previous answer) / 8 (base) = 1 (rounded) with a remainder of 1</li>
+<li>1 (previous answer) / 8 (base) = 0 (rounded) with a remainder of 1</li>
+</ul>
 
-- 75 (number) / 8 (base) = 9 (rounded) with a remainder of 3
-- 9 (previous answer) / 8 (base) = 1 (rounded) with a remainder of 1
-- 1 (previous answer) / 8 (base) = 0 (rounded) with a remainder of 1
+<p>Meaning 75 evaluated in base-8 would be <code>113</code> (all the remainders concatenated together, &lsquo;bottom up&rsquo;)</p>
 
-Meaning 75 evaluated in base-8 would be `113` (all the remainders concatenated together, 'bottom up')
+<p>### Convert Base-10 into Base-16</p>
 
-### Convert Base-10 into Base-16
+<p>The algorithm for converting from base-10 into base-2 and base-8 works basically the same for converting into base-16. But there is one caveat whereby a remainder can be in the double digits, and apparently (for reasons I don&rsquo;t completely understand) we don&rsquo;t want that, and so the number system was designed to replace the six instances where this can occur (the remainders being: 10, 11, 12, 13, 14, 15) with a alpha-numeric equivalent:</p>
 
-The algorithm for converting from base-10 into base-2 and base-8 works basically the same for converting into base-16. But there is one caveat whereby a remainder can be in the double digits, and apparently (for reasons I don't completely understand) we don't want that, and so the number system was designed to replace the six instances where this can occur (the remainders being: 10, 11, 12, 13, 14, 15) with a alpha-numeric equivalent:
+<ul>
+<li>10-A</li>
+<li>11-B</li>
+<li>12-C</li>
+<li>13-D</li>
+<li>14-E</li>
+<li>15-F</li>
+</ul>
 
-- 10-A
-- 11-B
-- 12-C
-- 13-D
-- 14-E
-- 15-F
+<p>So if we want to convert 110<sub>10</sub> into a hexadecimal the outcome of the algorithm would be:</p>
 
-So if we want to convert 110&lt;sub&gt;10&lt;/sub&gt; into a hexadecimal the outcome of the algorithm would be:
+<ul>
+<li>110 (number) / 16 (base) = 6 (rounded) with a remainder of 14</li>
+<li>6 (previous answer) / 16 (base) = 0 (rounded) with a remainder of 6</li>
+</ul>
 
-- 110 (number) / 16 (base) = 6 (rounded) with a remainder of 14
-- 6 (previous answer) / 16 (base) = 0 (rounded) with a remainder of 6
+<p>We know that we need to replace <code>14</code> (a double digit remainder) with the letter <code>E</code> (see above mapping).</p>
 
-We know that we need to replace `14` (a double digit remainder) with the letter `E` (see above mapping).
+<p>Meaning 110 evaluated in base-16 would be <code>6E</code></p>
 
-Meaning 110 evaluated in base-16 would be `6E`
+<p>Let&rsquo;s try it again, but with the number 411<sub>10</sub>:</p>
 
-Let's try it again, but with the number 411&lt;sub&gt;10&lt;/sub&gt;:
+<ul>
+<li>411 (number) / 16 (base) = 25 (rounded) with a remainder of 11</li>
+<li>25 (previous answer) / 16 (base) = 1 (rounded) with a remainder of 9</li>
+<li>1 (previous answer) / 16 (base) = 0 (rounded) with a remainder of 1</li>
+</ul>
 
-- 411 (number) / 16 (base) = 25 (rounded) with a remainder of 11
-- 25 (previous answer) / 16 (base) = 1 (rounded) with a remainder of 9
-- 1 (previous answer) / 16 (base) = 0 (rounded) with a remainder of 1
+<p>We know that we need to replace <code>11</code> with the letter <code>B</code>.</p>
 
-We know that we need to replace `11` with the letter `B`.
+<p>Meaning 411 evaluated in base-16 would be <code>19B</code></p>
 
-Meaning 411 evaluated in base-16 would be `19B`
+<p>### Convert Any Base to Base-10</p>
 
-### Convert Any Base to Base-10
+<p>What if you want to convert a base-8 number (let&rsquo;s say <code>113</code>, why not) into base-10? The algorithm is to multiple the individual numbers by their associated power of the base and then add the numbers together.</p>
 
-What if you want to convert a base-8 number (let's say `113`, why not) into base-10? The algorithm is to multiple the individual numbers by their associated power of the base and then add the numbers together.
+<p>So here are the base-8 powers:</p>
 
-So here are the base-8 powers:
+<ul>
+<li>3: 8<sup>0</sup></li>
+<li>1: 8<sup>1</sup></li>
+<li>1: 8<sup>2</sup></li>
+</ul>
 
-- 3: 8&lt;sup&gt;0&lt;/sup&gt;
-- 1: 8&lt;sup&gt;1&lt;/sup&gt;
-- 1: 8&lt;sup&gt;2&lt;/sup&gt;
+<p>And here is the algorithm:</p>
 
-And here is the algorithm:
+<ul>
+<li>3 x 8<sup>0</sup> = 3</li>
+<li>1 x 8<sup>1</sup> = 8 (i.e. <code>1*8</code>)</li>
+<li>1 x 8<sup>2</sup> = 64 (i.e. <code>1*(8 * 8)</code>)</li>
+<li>3 + 8 + 64 = 75</li>
+</ul>
 
-- 3 x 8&lt;sup&gt;0&lt;/sup&gt; = 3
-- 1 x 8&lt;sup&gt;1&lt;/sup&gt; = 8 (i.e. `1*8`)
-- 1 x 8&lt;sup&gt;2&lt;/sup&gt; = 64 (i.e. `1*(8 * 8)`)
-- 3 + 8 + 64 = 75
+<p>If you&rsquo;re dealing with base-16, then again it&rsquo;s the same but the difference is you&rsquo;re translating the letter back into the corresponding number.</p>
 
-If you're dealing with base-16, then again it's the same but the difference is you're translating the letter back into the corresponding number.
+<p>Let&rsquo;s convert <code>19B</code> from base-16 back into base-10:</p>
 
-Let's convert `19B` from base-16 back into base-10:
+<ul>
+<li>B x 16<sup>0</sup> (11 x 16<sup>0</sup>) = 11</li>
+<li>9 x 16<sup>1</sup> = 144</li>
+<li>1 x 16<sup>2</sup> = 256</li>
+<li>11 + 144 + 256 = 411</li>
+</ul>
 
-- B x 16&lt;sup&gt;0&lt;/sup&gt; (11 x 16&lt;sup&gt;0&lt;/sup&gt;) = 11
-- 9 x 16&lt;sup&gt;1&lt;/sup&gt; = 144
-- 1 x 16&lt;sup&gt;2&lt;/sup&gt; = 256
-- 11 + 144 + 256 = 411
+<p>Let&rsquo;s try one more conversion between base-16 to base-10. The number is <code>1A4</code>:</p>
 
-Let's try one more conversion between base-16 to base-10. The number is `1A4`:
+<ul>
+<li>4 x 16<sup>0</sup> = 4</li>
+<li>A x 16<sup>1</sup> (10 x 16<sup>1</sup>) = 160</li>
+<li>1 x 16<sup>2</sup> = 256</li>
+<li>4 + 160 + 256 = 420</li>
+</ul>
 
-- 4 x 16&lt;sup&gt;0&lt;/sup&gt; = 4
-- A x 16&lt;sup&gt;1&lt;/sup&gt; (10 x 16&lt;sup&gt;1&lt;/sup&gt;) = 160
-- 1 x 16&lt;sup&gt;2&lt;/sup&gt; = 256
-- 4 + 160 + 256 = 420
+<h2 id="cidr">CIDR</h2>
 
-## CIDR
+<p>A CIDR is a range of IP addresses. We can use our understanding of bits, bytes and octets to understand the format of a CIDR.</p>
 
-A CIDR is a range of IP addresses. We can use our understanding of bits, bytes and octets to understand the format of a CIDR.
+<p>A CIDR typically resembles something like:</p>
 
-A CIDR typically resembles something like:
-
+<pre><code>10.0.0.0/n
 </code></pre>
 
-<p>10.0.0.0/n</p>
+<p>Where <code>n</code> is given the value 8, 16, 24, or 32 and these represent each of the 8-bit blocks that make up the IP.</p>
 
-<pre><code>
-Where `n` is given the value 8, 16, 24, or 32 and these represent each of the 8-bit blocks that make up the IP.
+<p>If we want an IP range between <code>10.0.0.0</code> and <code>10.255.255.255</code>, we&rsquo;d specify the CIDR as <code>10.0.0.0/8</code>.</p>
 
-If we want an IP range between `10.0.0.0` and `10.255.255.255`, we'd specify the CIDR as `10.0.0.0/8`.
+<p>What <code>8</code> states is that the last 8 bits of the 32-bit number is accounted for (this being the <code>10</code> we&rsquo;ve specified in our example). Meaning the rest of the 8-bit segments can be added up to their max of 255 (meaning the last IP in this CIDR range would be <code>10.255.255.255</code>).</p>
 
-What `8` states is that the last 8 bits of the 32-bit number is accounted for (this being the `10` we've specified in our example). Meaning the rest of the 8-bit segments can be added up to their max of 255 (meaning the last IP in this CIDR range would be `10.255.255.255`).
+<p>Similarly if we want an IP range between <code>10.0.0.0</code> and <code>10.0.255.255</code>, we&rsquo;d specify the CIDR as <code>10.0.0.0/16</code>.</p>
 
-Similarly if we want an IP range between `10.0.0.0` and `10.0.255.255`, we'd specify the CIDR as `10.0.0.0/16`.
+<p>Again, <code>16</code> states that the next 8-bits segment of the 32-bit number is now accounted for (this being the <code>0</code> we&rsquo;ve specified in our example <code>10.0</code>). Meaning the rest of the 8-bit segments can be added up to their max of 255 (meaning the last IP in this CIDR range would be <code>10.0.255.255</code>).</p>
 
-Again, `16` states that the next 8-bits segment of the 32-bit number is now accounted for (this being the `0` we've specified in our example `10.0`). Meaning the rest of the 8-bit segments can be added up to their max of 255 (meaning the last IP in this CIDR range would be `10.0.255.255`).
+<p>And so on&hellip;</p>
 
-And so on...
+<p>So <code>10.0.0.0/24</code> gives us an ip range of <code>10.0.0.0</code> to <code>10.0.0.255</code> (256 IPs).</p>
 
-So `10.0.0.0/24` gives us an ip range of `10.0.0.0` to `10.0.0.255` (256 IPs). 
+<p>Where as <code>10.0.0.0/32</code> gives us an ip range of 1 ip (<code>10.0.0.0</code> to <code>10.0.0.0</code>).</p>
 
-Where as `10.0.0.0/32` gives us an ip range of 1 ip (`10.0.0.0` to `10.0.0.0`).
+<blockquote>
+<p>Note: you can use a tool such as <a href="http://www.ipaddressguide.com/cidr" target="_blank">http://www.ipaddressguide.com/cidr</a> to help you generate CIDRs</p>
+</blockquote>
 
-&gt; Note: you can use a tool such as http://www.ipaddressguide.com/cidr to help you generate CIDRs
+<p>We can use the earlier <a href="#visualisation">byte visualisation</a> table matrix to help us manually calculate a CIDR range.</p>
 
-We can use the earlier [byte visualisation](#visualisation) table matrix to help us manually calculate a CIDR range.
+<p>I&rsquo;ve reproduced it below with a HTML table:</p>
 
-I've reproduced it below with a HTML table:
+<blockquote>
+<p>Note: you&rsquo;ll likely need to scroll to the right to see the start of the 32-bit</p>
+</blockquote>
 
-&gt; Note: you'll likely need to scroll to the right to see the start of the 32-bit
+<table border="1" id="table10" bordercolor="#000080" style="text-align: center; font-family: Verdana; font-size: 8pt; color: #000000">
+    <tbody>
+    <tr>
+        <th>IP</th>
 
-&lt;table border=&quot;1&quot; id=&quot;table10&quot; bordercolor=&quot;#000080&quot; style=&quot;text-align: center; font-family: Verdana; font-size: 8pt; color: #000000&quot;&gt;
-    &lt;tbody&gt;
-    &lt;tr&gt;
-        &lt;th&gt;IP&lt;/th&gt;
+        <td colspan="8">10</td>
 
-        &lt;td colspan=&quot;8&quot;&gt;10&lt;/td&gt;
+        <td colspan="8">0</td>
 
-        &lt;td colspan=&quot;8&quot;&gt;0&lt;/td&gt;
+        <td colspan="8">0</td>
 
-        &lt;td colspan=&quot;8&quot;&gt;0&lt;/td&gt;
+        <td colspan="8">1</td>
+      </tr>
+      <tr>
+        <th>8 Bit Blocks</th>
 
-        &lt;td colspan=&quot;8&quot;&gt;1&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-        &lt;th&gt;8 Bit Blocks&lt;/th&gt;
+        <td colspan="8">8 bits [24-31]</td>
 
-        &lt;td colspan=&quot;8&quot;&gt;8 bits [24-31]&lt;/td&gt;
+        <td colspan="8">8 bits [16-23]</td>
 
-        &lt;td colspan=&quot;8&quot;&gt;8 bits [16-23]&lt;/td&gt;
+        <td colspan="8">8 bits [08-15]</td>
 
-        &lt;td colspan=&quot;8&quot;&gt;8 bits [08-15]&lt;/td&gt;
+        <td colspan="8">8 bits [00-07]</td>
+      </tr>
 
-        &lt;td colspan=&quot;8&quot;&gt;8 bits [00-07]&lt;/td&gt;
-      &lt;/tr&gt;
+      <tr>
+        <th>32 Bit #</th>
 
-      &lt;tr&gt;
-        &lt;th&gt;32 Bit #&lt;/th&gt;
+        <td>31</td>
 
-        &lt;td&gt;31&lt;/td&gt;
+        <td>30</td>
 
-        &lt;td&gt;30&lt;/td&gt;
+        <td>29</td>
 
-        &lt;td&gt;29&lt;/td&gt;
+        <td>28</td>
 
-        &lt;td&gt;28&lt;/td&gt;
+        <td>27</td>
 
-        &lt;td&gt;27&lt;/td&gt;
+        <td>26</td>
 
-        &lt;td&gt;26&lt;/td&gt;
+        <td>25</td>
 
-        &lt;td&gt;25&lt;/td&gt;
+        <td>24</td>
 
-        &lt;td&gt;24&lt;/td&gt;
+        <td>23</td>
 
-        &lt;td&gt;23&lt;/td&gt;
+        <td>22</td>
 
-        &lt;td&gt;22&lt;/td&gt;
+        <td>21</td>
 
-        &lt;td&gt;21&lt;/td&gt;
+        <td>20</td>
 
-        &lt;td&gt;20&lt;/td&gt;
+        <td>19</td>
 
-        &lt;td&gt;19&lt;/td&gt;
+        <td>18</td>
 
-        &lt;td&gt;18&lt;/td&gt;
+        <td>17</td>
 
-        &lt;td&gt;17&lt;/td&gt;
+        <td>16</td>
 
-        &lt;td&gt;16&lt;/td&gt;
+        <td>15</td>
 
-        &lt;td&gt;15&lt;/td&gt;
+        <td>14</td>
 
-        &lt;td&gt;14&lt;/td&gt;
+        <td>13</td>
 
-        &lt;td&gt;13&lt;/td&gt;
+        <td>12</td>
 
-        &lt;td&gt;12&lt;/td&gt;
+        <td>11</td>
 
-        &lt;td&gt;11&lt;/td&gt;
+        <td>10</td>
 
-        &lt;td&gt;10&lt;/td&gt;
+        <td>09</td>
 
-        &lt;td&gt;09&lt;/td&gt;
+        <td>08</td>
 
-        &lt;td&gt;08&lt;/td&gt;
+        <td>07</td>
 
-        &lt;td&gt;07&lt;/td&gt;
+        <td>06</td>
 
-        &lt;td&gt;06&lt;/td&gt;
+        <td>05</td>
 
-        &lt;td&gt;05&lt;/td&gt;
+        <td>04</td>
 
-        &lt;td&gt;04&lt;/td&gt;
+        <td>03</td>
 
-        &lt;td&gt;03&lt;/td&gt;
+        <td>02</td>
 
-        &lt;td&gt;02&lt;/td&gt;
+        <td>01</td>
 
-        &lt;td&gt;01&lt;/td&gt;
+        <td>00</td>
+      </tr>
 
-        &lt;td&gt;00&lt;/td&gt;
-      &lt;/tr&gt;
+      <tr>
+        <th>Decimal</th>
 
-      &lt;tr&gt;
-        &lt;th&gt;Decimal&lt;/th&gt;
+        <td>128</td>
 
-        &lt;td&gt;128&lt;/td&gt;
+        <td>64</td>
 
-        &lt;td&gt;64&lt;/td&gt;
+        <td>32</td>
 
-        &lt;td&gt;32&lt;/td&gt;
+        <td>16</td>
 
-        &lt;td&gt;16&lt;/td&gt;
+        <td>8</td>
 
-        &lt;td&gt;8&lt;/td&gt;
+        <td>4</td>
 
-        &lt;td&gt;4&lt;/td&gt;
+        <td>2</td>
 
-        &lt;td&gt;2&lt;/td&gt;
+        <td>1</td>
 
-        &lt;td&gt;1&lt;/td&gt;
+        <td>128</td>
 
-        &lt;td&gt;128&lt;/td&gt;
+        <td>64</td>
 
-        &lt;td&gt;64&lt;/td&gt;
+        <td>32</td>
 
-        &lt;td&gt;32&lt;/td&gt;
+        <td>16</td>
 
-        &lt;td&gt;16&lt;/td&gt;
+        <td>8</td>
 
-        &lt;td&gt;8&lt;/td&gt;
+        <td>4</td>
 
-        &lt;td&gt;4&lt;/td&gt;
+        <td>2</td>
 
-        &lt;td&gt;2&lt;/td&gt;
+        <td>1</td>
 
-        &lt;td&gt;1&lt;/td&gt;
+        <td>128</td>
 
-        &lt;td&gt;128&lt;/td&gt;
+        <td>64</td>
 
-        &lt;td&gt;64&lt;/td&gt;
+        <td>32</td>
 
-        &lt;td&gt;32&lt;/td&gt;
+        <td>16</td>
 
-        &lt;td&gt;16&lt;/td&gt;
+        <td>8</td>
 
-        &lt;td&gt;8&lt;/td&gt;
+        <td>4</td>
 
-        &lt;td&gt;4&lt;/td&gt;
+        <td>2</td>
 
-        &lt;td&gt;2&lt;/td&gt;
+        <td>1</td>
 
-        &lt;td&gt;1&lt;/td&gt;
+        <td>128</td>
 
-        &lt;td&gt;128&lt;/td&gt;
+        <td>64</td>
 
-        &lt;td&gt;64&lt;/td&gt;
+        <td>32</td>
 
-        &lt;td&gt;32&lt;/td&gt;
+        <td>16</td>
 
-        &lt;td&gt;16&lt;/td&gt;
+        <td>8</td>
 
-        &lt;td&gt;8&lt;/td&gt;
+        <td>4</td>
 
-        &lt;td&gt;4&lt;/td&gt;
+        <td>2</td>
 
-        &lt;td&gt;2&lt;/td&gt;
+        <td>1</td>
+      </tr>
 
-        &lt;td&gt;1&lt;/td&gt;
-      &lt;/tr&gt;
+      <tr>
+        <th>Binary</th>
 
-      &lt;tr&gt;
-        &lt;th&gt;Binary&lt;/th&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td><font color="#DC143C">1</font></td>
 
-        &lt;td&gt;&lt;font color=&quot;#DC143C&quot;&gt;1&lt;/font&gt;&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td><font color="#DC143C">1</font></td>
 
-        &lt;td&gt;&lt;font color=&quot;#DC143C&quot;&gt;1&lt;/font&gt;&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
+        <td>0</td>
 
-        &lt;td&gt;0&lt;/td&gt;
-
-        &lt;td&gt;&lt;font color=&quot;#DC143C&quot;&gt;1&lt;/font&gt;&lt;/td&gt;
-      &lt;/tr&gt;
-    &lt;/tbody&gt;
-  &lt;/table&gt;
-</code></pre>
+        <td><font color="#DC143C">1</font></td>
+      </tr>
+    </tbody>
+  </table>
 
 </div>
 </body>

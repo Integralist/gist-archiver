@@ -12,62 +12,67 @@
 
 <h2 id="rules-for-good-testing-md">rules for good testing.md</h2>
 
-<pre><code class="language-markdown"># Rules for good testing
+<h1 id="rules-for-good-testing">Rules for good testing</h1>
 
-Look at the following image...
+<p>Look at the following image&hellip;</p>
 
-![](https://speakerd.s3.amazonaws.com/presentations/ac751bc0918e01300e0b6698bdce82b7/slide_29.jpg?1367359730)
+<p><img src="https://speakerd.s3.amazonaws.com/presentations/ac751bc0918e01300e0b6698bdce82b7/slide_29.jpg?1367359730" alt="" /></p>
 
-...it shows an object being tested. 
+<p>&hellip;it shows an object being tested.</p>
 
-You can't see inside the object. All you can do is send it messages. This is an important point to make because we should be &quot;testing the interface, and NOT the implementation&quot; - doing so will allow us to change the implementation without causing our tests to break.
+<p>You can&rsquo;t see inside the object. All you can do is send it messages. This is an important point to make because we should be &ldquo;testing the interface, and NOT the implementation&rdquo; - doing so will allow us to change the implementation without causing our tests to break.</p>
 
-Messages can go 'into' an object and can be sent 'out' from an object (as you can see from the image above, there are messages going in as well as messages going out). That's fine, that's how objects communicate.
+<p>Messages can go &lsquo;into&rsquo; an object and can be sent &lsquo;out&rsquo; from an object (as you can see from the image above, there are messages going in as well as messages going out). That&rsquo;s fine, that&rsquo;s how objects communicate.</p>
 
-Now there are two types of messages: 'query' and 'command'...
+<p>Now there are two types of messages: &lsquo;query&rsquo; and &lsquo;command&rsquo;&hellip;</p>
 
-## Queries
+<h2 id="queries">Queries</h2>
 
-Queries are messages that &quot;return something&quot; and &quot;change nothing&quot;. 
+<p>Queries are messages that &ldquo;return something&rdquo; and &ldquo;change nothing&rdquo;.</p>
 
-In programming terms they are &quot;getters&quot; and not &quot;setters&quot;.
+<p>In programming terms they are &ldquo;getters&rdquo; and not &ldquo;setters&rdquo;.</p>
 
-## Commands
+<h2 id="commands">Commands</h2>
 
-Commands are messages that &quot;return nothing&quot; and &quot;change something&quot;.
+<p>Commands are messages that &ldquo;return nothing&rdquo; and &ldquo;change something&rdquo;.</p>
 
-In programming terms they are &quot;setters&quot; and not &quot;getters&quot;.
+<p>In programming terms they are &ldquo;setters&rdquo; and not &ldquo;getters&rdquo;.</p>
 
-## What to test?
+<h2 id="what-to-test">What to test?</h2>
 
-- Test incoming query messages by making assertions about what they send back
-- Test incoming command messages by making assertions about direct public side effects
+<ul>
+<li>Test incoming query messages by making assertions about what they send back</li>
+<li>Test incoming command messages by making assertions about direct public side effects</li>
+</ul>
 
-## What NOT to test?
+<h2 id="what-not-to-test">What NOT to test?</h2>
 
-- Messages that are sent from within the object itself (e.g. private methods).
-- Outgoing query messages (as they have no public side effects)
-- Outgoing command messages (use mocks and set expectations on behaviour to ensure rest of your code pass without error)
-- Incoming messages that have no dependants (just remove those tests)
+<ul>
+<li>Messages that are sent from within the object itself (e.g. private methods).</li>
+<li>Outgoing query messages (as they have no public side effects)</li>
+<li>Outgoing command messages (use mocks and set expectations on behaviour to ensure rest of your code pass without error)</li>
+<li>Incoming messages that have no dependants (just remove those tests)</li>
+</ul>
 
-Note: there is no point in testing outgoing messages because they should be tested as incoming messages on another object
+<p>Note: there is no point in testing outgoing messages because they should be tested as incoming messages on another object</p>
 
-## What to Mock/Stub
+<h2 id="what-to-mock-stub">What to Mock/Stub</h2>
 
-Command messages should be mocked, while query messages should be stubbed
+<p>Command messages should be mocked, while query messages should be stubbed</p>
 
-## Contract Tests
+<h2 id="contract-tests">Contract Tests</h2>
 
-Contract tests exist to ensure a specific 'role' (or 'interface' by another - stricter - name) actually presents an API that we expect.
+<p>Contract tests exist to ensure a specific &lsquo;role&rsquo; (or &lsquo;interface&rsquo; by another - stricter - name) actually presents an API that we expect.</p>
 
-These types of tests can be useful to ensure third party APIs do (or don't) cause our code to break when we update the version of the software.
+<p>These types of tests can be useful to ensure third party APIs do (or don&rsquo;t) cause our code to break when we update the version of the software.</p>
 
-&gt; Note: if the libraries we use follow [Semantic Versioning](http://semver.org/) then this should only happen when we do a major version upgrade. But it's still good to have contract/role/interface tests in place to catch any problems.
+<blockquote>
+<p>Note: if the libraries we use follow <a href="http://semver.org/" target="_blank">Semantic Versioning</a> then this should only happen when we do a major version upgrade. But it&rsquo;s still good to have contract/role/interface tests in place to catch any problems.</p>
+</blockquote>
 
-The following is a modified example (written in Ruby) borrowed from the book &quot;Practical Object-Oriented Design in Ruby&quot;:
+<p>The following is a modified example (written in Ruby) borrowed from the book &ldquo;Practical Object-Oriented Design in Ruby&rdquo;:</p>
 
-```ruby
-# Following test asserts that SomeObject (@some_object) 
+<pre><code class="language-ruby"># Following test asserts that SomeObject (@some_object) 
 # implements the method `some_x_interface_method`
 module SomeObjectInterfaceTest
   def test_object_implements_the_x_interface
@@ -87,8 +92,6 @@ class FoobarTest &lt; MiniTest::Unit::TestCase
   # ...other tests...
 end
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

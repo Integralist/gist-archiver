@@ -12,31 +12,43 @@
 
 <h2 id="description-md">Description.md</h2>
 
-<pre><code class="language-markdown">The BBC has a server-side image service which provides developers with multiple sized versions of any image they request. It works in a similar fashion to [http://placehold.it/](http://placehold.it/) but it also handles the image ratios returned (where as placehold.it doesn't).
+<p>The BBC has a server-side image service which provides developers with multiple sized versions of any image they request. It works in a similar fashion to <a href="http://placehold.it/" target="_blank">http://placehold.it/</a> but it also handles the image ratios returned (where as placehold.it doesn&rsquo;t).</p>
 
-The original BBC News process (and my re-working of the script) follows roughly these steps...
+<p>The original BBC News process (and my re-working of the script) follows roughly these steps&hellip;</p>
 
-- Create new instance of ImageEnhancer
-- Change any `div`s within the page (which have a class of `delayed-image-load`) into a transparent GIF using a Base64 encoded string.
-  - We set the `width` &amp; `height` HTML attributes of the image to the required size
-  - We know what size the image needs to be because each `div` has custom `data-attr` set server-side to the size of the image
-  - We then set a class of `image-replace` onto each newly created transparent image
-- We use a 250ms `setTimeout` to unblock the UI thread and which calls a function `resizeImages` which enhances the `image-replace` images so their source is now set to a URL where the returned image matches the requested dimensions in the URL path (in my example below I use `requestAnimationFrame` instead)
-    - We also create an event listener for the resize event which fires a pubsub event of `imageEnhancer:resize` 
-- We call `resizeImages` initially and then every time the pubsub event fires. 
-  - This function loops each `image-replace` image and changes the `src` attribute to the new URL with the best possible match dimensions specified within the URL path (based on the dimensions required for the image). 
-  - If the resize event fires then we check the dimensions of the page and determine if we need a new URL to be used.
+<ul>
+<li>Create new instance of ImageEnhancer</li>
+<li>Change any <code>div</code>s within the page (which have a class of <code>delayed-image-load</code>) into a transparent GIF using a Base64 encoded string.
 
-The example code that follows is not production ready, you can't just drop it into your code base and expect it to work. It is a rough prototype I built in about 30 minutes to help demonstrate in a roundabout way how the BBC News responsive team were handling the enhancement of images. The code uses features only available to more modern browsers (e.g. I've tested it in Chrome 28 and nothing else so your mile may vary if you're using a different browser to look at the example).
+<ul>
+<li>We set the <code>width</code> &amp; <code>height</code> HTML attributes of the image to the required size</li>
+<li>We know what size the image needs to be because each <code>div</code> has custom <code>data-attr</code> set server-side to the size of the image</li>
+<li>We then set a class of <code>image-replace</code> onto each newly created transparent image</li>
+</ul></li>
+<li>We use a 250ms <code>setTimeout</code> to unblock the UI thread and which calls a function <code>resizeImages</code> which enhances the <code>image-replace</code> images so their source is now set to a URL where the returned image matches the requested dimensions in the URL path (in my example below I use <code>requestAnimationFrame</code> instead)
 
-I've also used the [http://placehold.it/](http://placehold.it/) service in place of the actual BBC News image provider. They don't work in quite the same way, but if you open the following HTML code in a modern browser (e.g. Chrome) and resize the browser window downwards you'll see the images change based on the current window dimensions. So rather than load a large image for smaller screens we swap out our images with images that are optimised for that screen size.
+<ul>
+<li>We also create an event listener for the resize event which fires a pubsub event of <code>imageEnhancer:resize</code></li>
+</ul></li>
+<li>We call <code>resizeImages</code> initially and then every time the pubsub event fires.
 
-Notes about the rewritten example:
+<ul>
+<li>This function loops each <code>image-replace</code> image and changes the <code>src</code> attribute to the new URL with the best possible match dimensions specified within the URL path (based on the dimensions required for the image).</li>
+<li>If the resize event fires then we check the dimensions of the page and determine if we need a new URL to be used.</li>
+</ul></li>
+</ul>
 
-- ~~I should use live `nodeList` otherwise we'll miss any images added to the DOM after ImageEnhancer is initialised.~~
-- I might be able to work-around the use of the base64 image
-- Look at caching of image loads
-</code></pre>
+<p>The example code that follows is not production ready, you can&rsquo;t just drop it into your code base and expect it to work. It is a rough prototype I built in about 30 minutes to help demonstrate in a roundabout way how the BBC News responsive team were handling the enhancement of images. The code uses features only available to more modern browsers (e.g. I&rsquo;ve tested it in Chrome 28 and nothing else so your mile may vary if you&rsquo;re using a different browser to look at the example).</p>
+
+<p>I&rsquo;ve also used the <a href="http://placehold.it/" target="_blank">http://placehold.it/</a> service in place of the actual BBC News image provider. They don&rsquo;t work in quite the same way, but if you open the following HTML code in a modern browser (e.g. Chrome) and resize the browser window downwards you&rsquo;ll see the images change based on the current window dimensions. So rather than load a large image for smaller screens we swap out our images with images that are optimised for that screen size.</p>
+
+<p>Notes about the rewritten example:</p>
+
+<ul>
+<li><del>I should use live <code>nodeList</code> otherwise we&rsquo;ll miss any images added to the DOM after ImageEnhancer is initialised.</del></li>
+<li>I might be able to work-around the use of the base64 image</li>
+<li>Look at caching of image loads</li>
+</ul>
 
 <h2 id="imageenhancer-example-html">ImageEnhancer-Example.html</h2>
 

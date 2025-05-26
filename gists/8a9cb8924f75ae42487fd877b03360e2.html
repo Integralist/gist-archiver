@@ -12,24 +12,23 @@
 
 <h2 id="readme-md">README.md</h2>
 
-<pre><code class="language-markdown">![Go Network Timeouts](https://user-images.githubusercontent.com/180050/120481192-c6f79080-c3a7-11eb-87de-a93b5de81ec8.png)
+<p><img src="https://user-images.githubusercontent.com/180050/120481192-c6f79080-c3a7-11eb-87de-a93b5de81ec8.png" alt="Go Network Timeouts" /></p>
 
-&gt; **NOTE:** [Guide to `net/http` timeouts](https://blog.cloudflare.com/the-complete-guide-to-golang-net-http-timeouts/)\
-&gt; Also, [here](https://github.com/hashicorp/go-cleanhttp/blob/master/cleanhttp.go#L22-L42) are some Transport settings you might want.
+<blockquote>
+<p><strong>NOTE:</strong> <a href="https://blog.cloudflare.com/the-complete-guide-to-golang-net-http-timeouts/" target="_blank">Guide to <code>net/http</code> timeouts</a><br />
+Also, <a href="https://github.com/hashicorp/go-cleanhttp/blob/master/cleanhttp.go#L22-L42" target="_blank">here</a> are some Transport settings you might want.</p>
+</blockquote>
 
-Although not explicitly stated, DNS resolution appears to be taken into consideration as part of the overall `http.Client.Timeout` setting. If you need to set your own DNS timeout, then it seems https://github.com/miekg/dns is a popular solution.
+<p>Although not explicitly stated, DNS resolution appears to be taken into consideration as part of the overall <code>http.Client.Timeout</code> setting. If you need to set your own DNS timeout, then it seems <a href="https://github.com/miekg/dns" target="_blank">https://github.com/miekg/dns</a> is a popular solution.</p>
 
-Additionally, it's important to realise how golang resolves hostnames to IPs (i.e. DNS resolution):  
-https://golang.org/pkg/net/#hdr-Name_Resolution
+<p>Additionally, it&rsquo;s important to realise how golang resolves hostnames to IPs (i.e. DNS resolution):<br />
+<a href="https://golang.org/pkg/net/#hdr-Name_Resolution" target="_blank">https://golang.org/pkg/net/#hdr-Name_Resolution</a></p>
 
-When cross-compiling binaries you'll find that CGO is typically disabled in favour of the native Go resolver. You can enforce CGO or native like so:
+<p>When cross-compiling binaries you&rsquo;ll find that CGO is typically disabled in favour of the native Go resolver. You can enforce CGO or native like so:</p>
 
+<pre><code>env GODEBUG=netdns=cgo+2 go run main.go
+env GODEBUG=netdns=go+2 go run main.go
 </code></pre>
-
-<p>env GODEBUG=netdns=cgo+2 go run main.go
-env GODEBUG=netdns=go+2 go run main.go</p>
-
-<pre><code></code></pre>
 
 <h2 id="basic-go-http-client-configuration-go">basic go http client configuration.go</h2>
 

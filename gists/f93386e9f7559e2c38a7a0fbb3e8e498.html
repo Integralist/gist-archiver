@@ -12,63 +12,76 @@
 
 <h2 id="c-vs-system-calls-md">C vs System Calls.md</h2>
 
-<pre><code class="language-markdown">## What's the issue?
+<h2 id="what-s-the-issue">What&rsquo;s the issue?</h2>
 
-It can be confusing sometimes knowing where to look for documentation when dealing with C †
+<p>It can be confusing sometimes knowing where to look for documentation when dealing with C †</p>
 
-&gt; † that is if you're not a systems engineer, and have no CS degree, nor learnt C
+<blockquote>
+<p>† that is if you&rsquo;re not a systems engineer, and have no CS degree, nor learnt C</p>
+</blockquote>
 
-As an example, you might learn about the `strace` command and start investigating what your Ruby application is up to. In doing so you'll see lots of calls to different functions and you might decide you want to look up the documentation for those functions.
+<p>As an example, you might learn about the <code>strace</code> command and start investigating what your Ruby application is up to. In doing so you&rsquo;ll see lots of calls to different functions and you might decide you want to look up the documentation for those functions.</p>
 
-This could be where your first problem arises. You might think &quot;Ruby is written in C, so I'll look at the C documentation&quot; and then come up with nothing. 
+<p>This could be where your first problem arises. You might think &ldquo;Ruby is written in C, so I&rsquo;ll look at the C documentation&rdquo; and then come up with nothing.</p>
 
-## So what's going on?
+<h2 id="so-what-s-going-on">So what&rsquo;s going on?</h2>
 
-The key is to remember that the Linux operating system (which your code is very likely running on) is itself written in C. But Linux provides its own set of functions written in C that aren't part of the C language.
+<p>The key is to remember that the Linux operating system (which your code is very likely running on) is itself written in C. But Linux provides its own set of functions written in C that aren&rsquo;t part of the C language.</p>
 
-So you might see a function used and wonder why it's not showing up within the C language documentation. That's because it's not part of the C language. The Linux engineers would've created the function within Linux so you need to look at the Linux documentation to find out what it does.
+<p>So you might see a function used and wonder why it&rsquo;s not showing up within the C language documentation. That&rsquo;s because it&rsquo;s not part of the C language. The Linux engineers would&rsquo;ve created the function within Linux so you need to look at the Linux documentation to find out what it does.</p>
 
-&gt; e.g https://linux.die.net/man/ 
+<blockquote>
+<p>e.g <a href="https://linux.die.net/man/" target="_blank">https://linux.die.net/man/</a></p>
+</blockquote>
 
-Some of these Linux provided functions are known as 'system calls'. If you visit [the above link](https://linux.die.net/man/) you'll see there in 'section 2' a list of all system calls.
+<p>Some of these Linux provided functions are known as &lsquo;system calls&rsquo;. If you visit <a href="https://linux.die.net/man/" target="_blank">the above link</a> you&rsquo;ll see there in &lsquo;section 2&rsquo; a list of all system calls.</p>
 
-An alternative (searchable) list of syscalls can be found here: https://filippo.io/linux-syscall-table/
+<p>An alternative (searchable) list of syscalls can be found here: <a href="https://filippo.io/linux-syscall-table/" target="_blank">https://filippo.io/linux-syscall-table/</a></p>
 
-## Wrapper functions?
+<p>## Wrapper functions?</p>
 
-Now what makes this a little more confusing is that the system calls aren't usually directly accessible. So 'section 2' of the Linux documentation may list all the 'system call' documentation, but 'section 3' lists all library functions including what are referred to as 'thin wrapper' functions for the system calls. 
+<p>Now what makes this a little more confusing is that the system calls aren&rsquo;t usually directly accessible. So &lsquo;section 2&rsquo; of the Linux documentation may list all the &lsquo;system call&rsquo; documentation, but &lsquo;section 3&rsquo; lists all library functions including what are referred to as &lsquo;thin wrapper&rsquo; functions for the system calls.</p>
 
-For example, Linux uses a separate library that provides a `fork` function which is a wrapper around the actual system call `fork` equivalent provided by Linux itself. The wrapper function is then also something other applications written in C can utilise.
+<p>For example, Linux uses a separate library that provides a <code>fork</code> function which is a wrapper around the actual system call <code>fork</code> equivalent provided by Linux itself. The wrapper function is then also something other applications written in C can utilise.</p>
 
-This is noted here https://linux.die.net/man/2/intro in the documentation:
+<p>This is noted here <a href="https://linux.die.net/man/2/intro" target="_blank">https://linux.die.net/man/2/intro</a> in the documentation:</p>
 
-&gt; A system call is an entry point into the Linux kernel. Usually, system calls are not invoked directly: instead, most system calls have corresponding C library wrapper functions which perform the steps required in order to invoke the system call. Thus, making a system call look the same as invoking a normal library function.
+<blockquote>
+<p>A system call is an entry point into the Linux kernel. Usually, system calls are not invoked directly: instead, most system calls have corresponding C library wrapper functions which perform the steps required in order to invoke the system call. Thus, making a system call look the same as invoking a normal library function.</p>
+</blockquote>
 
-So what do these thin wrapper functions do? Well the docs tell us...
+<p>So what do these thin wrapper functions do? Well the docs tell us&hellip;</p>
 
-&gt; Often the glibc wrapper function is quite thin, doing little work other than copying arguments to the right registers before invoking the system call, and then setting errno appropriately after the system call has returned. Note: system calls indicate a failure by returning a negative error number to the caller; when this happens, the wrapper function negates the returned error number (to make it positive), copies it to errno, and returns -1 to the caller of the wrapper. Sometimes, however, the wrapper function does some extra work _before_ invoking the system call. For example, nowadays there are two related system calls, `truncate` and `truncate64`, and the glibc `truncate()` wrapper function checks which of those system calls are provided by the kernel and determines which should be employed.
+<blockquote>
+<p>Often the glibc wrapper function is quite thin, doing little work other than copying arguments to the right registers before invoking the system call, and then setting errno appropriately after the system call has returned. Note: system calls indicate a failure by returning a negative error number to the caller; when this happens, the wrapper function negates the returned error number (to make it positive), copies it to errno, and returns -1 to the caller of the wrapper. Sometimes, however, the wrapper function does some extra work <em>before</em> invoking the system call. For example, nowadays there are two related system calls, <code>truncate</code> and <code>truncate64</code>, and the glibc <code>truncate()</code> wrapper function checks which of those system calls are provided by the kernel and determines which should be employed.</p>
+</blockquote>
 
-Using `fork` as an example:
+<p>Using <code>fork</code> as an example:</p>
 
-- Here is the system call docs: https://linux.die.net/man/2/fork
-- Here is the wrapper docs: https://linux.die.net/man/3/fork
+<ul>
+<li>Here is the system call docs: <a href="https://linux.die.net/man/2/fork" target="_blank">https://linux.die.net/man/2/fork</a></li>
+<li>Here is the wrapper docs: <a href="https://linux.die.net/man/3/fork" target="_blank">https://linux.die.net/man/3/fork</a></li>
+</ul>
 
-But where do some of the wrapper equivalents come from? Well, one such provider is glibc; which is [GNU's standard C library](https://en.wikipedia.org/wiki/GNU_C_Library). Which states:
+<p>But where do some of the wrapper equivalents come from? Well, one such provider is glibc; which is <a href="https://en.wikipedia.org/wiki/GNU_C_Library" target="_blank">GNU&rsquo;s standard C library</a>. Which states:</p>
 
-&gt; The C language provides no built-in facilities for performing such common operations as input/output, memory management, string manipulation, and the like. Instead, these facilities are defined in a standard library, which you compile and link with your programs. The GNU C Library, described in this document, defines all of the library functions that are specified by the ISO C standard, as well as additional features specific to POSIX and other derivatives of the Unix operating system, and extensions specific to GNU systems.
+<blockquote>
+<p>The C language provides no built-in facilities for performing such common operations as input/output, memory management, string manipulation, and the like. Instead, these facilities are defined in a standard library, which you compile and link with your programs. The GNU C Library, described in this document, defines all of the library functions that are specified by the ISO C standard, as well as additional features specific to POSIX and other derivatives of the Unix operating system, and extensions specific to GNU systems.</p>
+</blockquote>
 
-[Here's a link also to the standard C library](https://en.wikipedia.org/wiki/C_standard_library) libc if you're interested.
+<p><a href="https://en.wikipedia.org/wiki/C_standard_library" target="_blank">Here&rsquo;s a link also to the standard C library</a> libc if you&rsquo;re interested.</p>
 
-## Direct system call?
+<h2 id="direct-system-call">Direct system call?</h2>
 
-What if one of the additional C libraries (libc, glibc etc) don't provide a wrapper?
+<p>What if one of the additional C libraries (libc, glibc etc) don&rsquo;t provide a wrapper?</p>
 
-Well in these situations you can make a direct system call!
+<p>Well in these situations you can make a direct system call!</p>
 
-See https://linux.die.net/man/2/syscall which states:
+<p>See <a href="https://linux.die.net/man/2/syscall" target="_blank">https://linux.die.net/man/2/syscall</a> which states:</p>
 
-&gt; `syscall()` is a small library function that invokes the system call whose assembly language interface has the specified number with the specified arguments. Employing `syscall()` is useful, for example, when invoking a system call that has no wrapper function in the C library.
-</code></pre>
+<blockquote>
+<p><code>syscall()</code> is a small library function that invokes the system call whose assembly language interface has the specified number with the specified arguments. Employing <code>syscall()</code> is useful, for example, when invoking a system call that has no wrapper function in the C library.</p>
+</blockquote>
 
 </div>
 </body>

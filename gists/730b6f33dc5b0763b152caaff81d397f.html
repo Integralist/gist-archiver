@@ -12,32 +12,31 @@
 
 <h2 id="upstream-vs-downstream-md">Upstream vs Downstream.md</h2>
 
-<pre><code class="language-markdown">## Upstream
+<h2 id="upstream">Upstream</h2>
 
-Upstream components are other parts of the system that your component depends on to do its job. 
+<p>Upstream components are other parts of the system that your component depends on to do its job.</p>
 
-If the design of an upstream component changes, the ability of your component to function may be affected. 
+<p>If the design of an upstream component changes, the ability of your component to function may be affected.</p>
 
-If an upstream component has a bug, this bug may be manifested in your component.
+<p>If an upstream component has a bug, this bug may be manifested in your component.</p>
 
-## Downstream
+<h2 id="downstream">Downstream</h2>
 
-Downstream components are parts of the system that your component can affect. 
+<p>Downstream components are parts of the system that your component can affect.</p>
 
-Changes in your component can ripple to components that are downstream from your component.
+<p>Changes in your component can ripple to components that are downstream from your component.</p>
 
-## Example
+<h2 id="example">Example</h2>
 
-Consider an application that consists of a database tier and an application tier. 
+<p>Consider an application that consists of a database tier and an application tier.</p>
 
-The database tier would be considered to be upstream of the application tier.
+<p>The database tier would be considered to be upstream of the application tier.</p>
 
-## Rationale
+<h2 id="rationale">Rationale</h2>
 
-The reason behind why I use the flow 'direction' I do (e.g. downstream services are those my service can affect, and upstream services are those services I rely upon and who can affect me) is related to the flow of water.
+<p>The reason behind why I use the flow &lsquo;direction&rsquo; I do (e.g. downstream services are those my service can affect, and upstream services are those services I rely upon and who can affect me) is related to the flow of water.</p>
 
-If you look at a mountain stream, the water flows from the top of the mountain ...'downstream'. If a large rock falls upon the path halfway up the mountain, then that will of course prevent the water from flowing further (the water flow has been restricted). Any people at the bottom (i.e. downstream) of the mountain will be affected by this rock falling on the stream from above (i.e. upstream) their own position.
-</code></pre>
+<p>If you look at a mountain stream, the water flows from the top of the mountain &hellip;&lsquo;downstream&rsquo;. If a large rock falls upon the path halfway up the mountain, then that will of course prevent the water from flowing further (the water flow has been restricted). Any people at the bottom (i.e. downstream) of the mountain will be affected by this rock falling on the stream from above (i.e. upstream) their own position.</p>
 
 </div>
 </body>

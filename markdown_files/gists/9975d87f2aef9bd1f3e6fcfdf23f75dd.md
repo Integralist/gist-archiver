@@ -2,7 +2,6 @@
 
 ## Install Python package directly for the interpreter Vim is using.md
 
-```markdown
 Sometimes Vim's Python binary can't find a package you've installed.
 
 - in vim  
@@ -13,5 +12,4 @@ Sometimes Vim's Python binary can't find a package you've installed.
 
 - install isort using this binary  
   `./python3.8 -m pip install isort`
-```
 

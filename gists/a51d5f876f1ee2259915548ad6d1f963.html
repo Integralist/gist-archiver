@@ -12,41 +12,35 @@
 
 <h2 id="set-same-cookie-on-multiple-domains-md">Set same cookie on multiple domains.md</h2>
 
-<pre><code class="language-markdown">Reference: http://subinsb.com/set-same-cookie-on-different-domains/
+<p>Reference: <a href="http://subinsb.com/set-same-cookie-on-different-domains/" target="_blank">http://subinsb.com/set-same-cookie-on-different-domains/</a></p>
 
-The way Google does this is by creating a server-side script that sets the cookie on all the domains. 
+<p>The way Google does this is by creating a server-side script that sets the cookie on all the domains.</p>
 
-On the domain where the login occurs, create a intermediary page that would load the server-side script that sets a cookie on the other two domains. 
+<p>On the domain where the login occurs, create a intermediary page that would load the server-side script that sets a cookie on the other two domains.</p>
 
-i.e. the user authenticates, and are redirected to `/processing`
+<p>i.e. the user authenticates, and are redirected to <code>/processing</code></p>
 
-In that page you would add an `onload` callback onto the `body` tag. 
+<p>In that page you would add an <code>onload</code> callback onto the <code>body</code> tag.</p>
 
-The document will only load when the images have completely loaded (i.e. the cookies are set on the other two domains). 
+<p>The document will only load when the images have completely loaded (i.e. the cookies are set on the other two domains).</p>
 
+<pre><code>&lt;!-- https://www.domain1.com/processing --&gt;
+
+&lt;html&gt;
+ &lt;head&gt;
+  &lt;script&gt;
+   function loadComplete(){
+    window.location=&quot;https://www.domain1.com/user/settings&quot;; // page to redirect user once they're authenticated
+   }
+   &lt;/script&gt;
+ &lt;/head&gt;
+ &lt;body onload=&quot;loadComplete()&quot;&gt;
+ 	Please wait..........
+ 	&lt;img src=&quot;https://www.domain2.com/setcookie.php?user=jwt&quot;/&gt;
+ 	&lt;img src=&quot;https://www.domain3.com/setcookie.php?user=jwt&quot;/&gt;
+ &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-
-<!-- https://www.domain1.com/processing -->
-
-<p><html>
- <head>
-  <script>
-   function loadComplete(){</p>
-
-<pre><code>window.location=&quot;https://www.domain1.com/user/settings&quot;; // page to redirect user once they're authenticated
-</code></pre>
-
-<p>}
-   </script>
- </head>
- <body onload="loadComplete()">
- 	Please wait&hellip;&hellip;&hellip;.
- 	<img src="https://www.domain2.com/setcookie.php?user=jwt"/>
- 	<img src="https://www.domain3.com/setcookie.php?user=jwt"/>
- </body>
-</html></p>
-
-<pre><code></code></pre>
 
 </div>
 </body>

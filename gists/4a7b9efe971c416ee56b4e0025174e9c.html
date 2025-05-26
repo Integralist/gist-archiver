@@ -10,6 +10,41 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="redis-install-and-examples-redis-install-macos">[Redis Install and Examples] #redis #install #macos</h1>
 
+<h2 id="1-install-sh">1. install.sh</h2>
+
+<pre><code class="language-shell">brew install redis
+brew services start redis
+</code></pre>
+
+<h2 id="2-server-sh">2. server.sh</h2>
+
+<pre><code class="language-shell">$ redis-server --port 7777 # OVERRIDING DEFAULT PORT 6379
+60717:C 05 Mar 2020 12:54:01.873 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+60717:C 05 Mar 2020 12:54:01.873 # Redis version=5.0.7, bits=64, commit=00000000, modified=0, pid=60717, just started
+60717:C 05 Mar 2020 12:54:01.873 # Configuration loaded
+60717:M 05 Mar 2020 12:54:01.874 * Increased maximum number of open files to 10032 (it was originally set to 256).
+                _._                                                  
+           _.-``__ ''-._                                             
+      _.-``    `.  `_.  ''-._           Redis 5.0.7 (00000000/0) 64 bit
+  .-`` .-```.  ```\/    _.,_ ''-._                                   
+ (    '      ,       .-`  | `,    )     Running in standalone mode
+ |`-._`-...-` __...-.``-._|'` _.-'|     Port: 7777
+ |    `-._   `._    /     _.-'    |     PID: 60717
+  `-._    `-._  `-./  _.-'    _.-'                                   
+ |`-._`-._    `-.__.-'    _.-'_.-'|                                  
+ |    `-._`-._        _.-'_.-'    |           http://redis.io        
+  `-._    `-._`-.__.-'_.-'    _.-'                                   
+ |`-._`-._    `-.__.-'    _.-'_.-'|                                  
+ |    `-._`-._        _.-'_.-'    |                                  
+  `-._    `-._`-.__.-'_.-'    _.-'                                   
+      `-._    `-.__.-'    _.-'                                       
+          `-._        _.-'                                           
+              `-.__.-'                                               
+
+60717:M 05 Mar 2020 12:54:01.875 # Server initialized
+60717:M 05 Mar 2020 12:54:01.875 * Ready to accept connections
+</code></pre>
+
 <h2 id="3-client-sh">3. client.sh</h2>
 
 <pre><code class="language-shell"># https://redis.io/commands
@@ -167,41 +202,6 @@ OK
 3) &quot;restrict&quot;
 4) &quot;false&quot;
 127.0.0.1:7777&gt;
-</code></pre>
-
-<h2 id="1-install-sh">1. install.sh</h2>
-
-<pre><code class="language-shell">brew install redis
-brew services start redis
-</code></pre>
-
-<h2 id="2-server-sh">2. server.sh</h2>
-
-<pre><code class="language-shell">$ redis-server --port 7777 # OVERRIDING DEFAULT PORT 6379
-60717:C 05 Mar 2020 12:54:01.873 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
-60717:C 05 Mar 2020 12:54:01.873 # Redis version=5.0.7, bits=64, commit=00000000, modified=0, pid=60717, just started
-60717:C 05 Mar 2020 12:54:01.873 # Configuration loaded
-60717:M 05 Mar 2020 12:54:01.874 * Increased maximum number of open files to 10032 (it was originally set to 256).
-                _._                                                  
-           _.-``__ ''-._                                             
-      _.-``    `.  `_.  ''-._           Redis 5.0.7 (00000000/0) 64 bit
-  .-`` .-```.  ```\/    _.,_ ''-._                                   
- (    '      ,       .-`  | `,    )     Running in standalone mode
- |`-._`-...-` __...-.``-._|'` _.-'|     Port: 7777
- |    `-._   `._    /     _.-'    |     PID: 60717
-  `-._    `-._  `-./  _.-'    _.-'                                   
- |`-._`-._    `-.__.-'    _.-'_.-'|                                  
- |    `-._`-._        _.-'_.-'    |           http://redis.io        
-  `-._    `-._`-.__.-'_.-'    _.-'                                   
- |`-._`-._    `-.__.-'    _.-'_.-'|                                  
- |    `-._`-._        _.-'_.-'    |                                  
-  `-._    `-._`-.__.-'_.-'    _.-'                                   
-      `-._    `-.__.-'    _.-'                                       
-          `-._        _.-'                                           
-              `-.__.-'                                               
-
-60717:M 05 Mar 2020 12:54:01.875 # Server initialized
-60717:M 05 Mar 2020 12:54:01.875 * Ready to accept connections
 </code></pre>
 
 </div>

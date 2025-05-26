@@ -12,52 +12,53 @@
 
 <h2 id="dns-delegation-md">DNS Delegation.md</h2>
 
-<pre><code class="language-markdown">## DNS Management and Delegation
+<h2 id="dns-management-and-delegation">DNS Management and Delegation</h2>
 
-If a domain owner wants to use another company for handling DNS management over its domain, then they can update the &quot;Name Servers&quot; for their domain wherever DNS is currently managed, and set the Name Servers to a different DNS provider. 
+<p>If a domain owner wants to use another company for handling DNS management over its domain, then they can update the &ldquo;Name Servers&rdquo; for their domain wherever DNS is currently managed, and set the Name Servers to a different DNS provider.</p>
 
-This is known as DNS _delegation_.
+<p>This is known as DNS <em>delegation</em>.</p>
 
-Once that Name Server change has propagated, the new DNS provider will be responsible for managing DNS records for the domain.
+<p>Once that Name Server change has propagated, the new DNS provider will be responsible for managing DNS records for the domain.</p>
 
-## CNAME redirection magic
+<h2 id="cname-redirection-magic">CNAME redirection magic</h2>
 
-Through a CNAME, a domain owner can delegate the DNS resolution for a specific hostname to another service, enabling that service to provide the necessary records (like TXT) for that name.
+<p>Through a CNAME, a domain owner can delegate the DNS resolution for a specific hostname to another service, enabling that service to provide the necessary records (like TXT) for that name.</p>
 
-## Example
+<h2 id="example">Example</h2>
 
-So as an example, let's say I'm onboarding my domain `integralist.co.uk` with Fastly and Fastly is going to manage a TLS certificate for me using a popular Certificate Authority (CA) such as Let's Encrypt.
+<p>So as an example, let&rsquo;s say I&rsquo;m onboarding my domain <code>integralist.co.uk</code> with Fastly and Fastly is going to manage a TLS certificate for me using a popular Certificate Authority (CA) such as Let&rsquo;s Encrypt.</p>
 
-The CA (as part of `dns-01` ACME validation) needs to prove that I own the domain before it will issue a certificate. So it asks that the domain owner create a TXT record like `_acme-challenge.integralist.co.uk` with a specific value. It'll then check if that has been done, and if so, it'll issue a TLS certificate.
+<p>The CA (as part of <code>dns-01</code> ACME validation) needs to prove that I own the domain before it will issue a certificate. So it asks that the domain owner create a TXT record like <code>_acme-challenge.integralist.co.uk</code> with a specific value. It&rsquo;ll then check if that has been done, and if so, it&rsquo;ll issue a TLS certificate.</p>
 
-Now I (as the domain owner) am not communicating with the CA. Fastly is. So Fastly is the one being given the information from the CA as to the TXT record that needs to be created. But Fastly doesn't show me that information. That's because Fastly wants to be responsible for managing TLS certificate _renewals_. It would be annoying if Fastly had to keep coming back to me (as the domain owner) every time the TLS certificate was going to expire and ask me to update my DNS each time with whatever new TXT challenge record the CA is asking to be created to verify domain ownership.
+<p>Now I (as the domain owner) am not communicating with the CA. Fastly is. So Fastly is the one being given the information from the CA as to the TXT record that needs to be created. But Fastly doesn&rsquo;t show me that information. That&rsquo;s because Fastly wants to be responsible for managing TLS certificate <em>renewals</em>. It would be annoying if Fastly had to keep coming back to me (as the domain owner) every time the TLS certificate was going to expire and ask me to update my DNS each time with whatever new TXT challenge record the CA is asking to be created to verify domain ownership.</p>
 
-So, Fastly instead asks me to create a CNAME record called `_acme-challenge.integralist.co.uk`. This record name is the same as the TXT record name the CA is expecting, but importantly, it's a CNAME record, not a TXT record. 
+<p>So, Fastly instead asks me to create a CNAME record called <code>_acme-challenge.integralist.co.uk</code>. This record name is the same as the TXT record name the CA is expecting, but importantly, it&rsquo;s a CNAME record, not a TXT record.</p>
 
-Fastly will ask me to create this CNAME record with a value like `&lt;unique-id&gt;.fastly-validations.com`.
+<p>Fastly will ask me to create this CNAME record with a value like <code>&lt;unique-id&gt;.fastly-validations.com</code>.</p>
 
-Now remember, the CA itself is expecting a TXT record called `_acme-challenge.integralist.co.uk` to be created.
+<p>Now remember, the CA itself is expecting a TXT record called <code>_acme-challenge.integralist.co.uk</code> to be created.</p>
 
-Standard DNS resolver behavior dictates that when looking for a specific record type (like TXT) and encountering a CNAME, the resolver should restart the query for the original record type but using the target of the CNAME.
+<p>Standard DNS resolver behavior dictates that when looking for a specific record type (like TXT) and encountering a CNAME, the resolver should restart the query for the original record type but using the target of the CNAME.</p>
 
-&gt; [!NOTE]
-&gt; To be clear, the DNS resolver doesn't _choose_ to look at the CNAME instead of the TXT; rather, when it asks for the TXT record, the authoritative server responds with the CNAME because:
-&gt;
-&gt; a) The CNAME exists for that name.\
-&gt; b) The DNS rules forbid a TXT record (or most other types) from existing at the same name as the CNAME.
-&gt;
-&gt; Receiving the CNAME record triggers the standard resolver behavior to follow the alias and re-query for the original record type (TXT) at the target name. It &quot;automatically sees the CNAME&quot; because that's the data the authoritative server provides in response to its TXT query, due to the CNAME's exclusive nature.
+<blockquote>
+<p>[!NOTE]
+To be clear, the DNS resolver doesn&rsquo;t <em>choose</em> to look at the CNAME instead of the TXT; rather, when it asks for the TXT record, the authoritative server responds with the CNAME because:</p>
 
-This means, it'll restart the query for the TXT record but will look for `&lt;unique-id&gt;.fastly-validations.com` as the value.
+<p>a) The CNAME exists for that name.<br />
+b) The DNS rules forbid a TXT record (or most other types) from existing at the same name as the CNAME.</p>
 
-The DNS will naturally follow the `&lt;unique-id&gt;.fastly-validations.com` to where Fastly controls the DNS, and Fastly has set-up that TXT record with the secret TXT value that the CA originally asked for.
+<p>Receiving the CNAME record triggers the standard resolver behavior to follow the alias and re-query for the original record type (TXT) at the target name. It &ldquo;automatically sees the CNAME&rdquo; because that&rsquo;s the data the authoritative server provides in response to its TXT query, due to the CNAME&rsquo;s exclusive nature.</p>
+</blockquote>
 
-## Diagram
+<p>This means, it&rsquo;ll restart the query for the TXT record but will look for <code>&lt;unique-id&gt;.fastly-validations.com</code> as the value.</p>
 
-The following is a very rough proximation of steps...
+<p>The DNS will naturally follow the <code>&lt;unique-id&gt;.fastly-validations.com</code> to where Fastly controls the DNS, and Fastly has set-up that TXT record with the secret TXT value that the CA originally asked for.</p>
 
-```mermaid
-sequenceDiagram
+<h2 id="diagram">Diagram</h2>
+
+<p>The following is a very rough proximation of steps&hellip;</p>
+
+<pre><code class="language-mermaid">sequenceDiagram
     participant User
     participant Fastly as Fastly Platform
     participant UserDNS as User's DNS Provider
@@ -105,8 +106,6 @@ sequenceDiagram
         AcmeCA--&gt;&gt;Fastly: Challenge failed
     end
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

@@ -12,18 +12,18 @@
 
 <h2 id="maintainability-md">Maintainability.md</h2>
 
-<pre><code class="language-markdown">
-We had multiple mixins for prefixing properties such as:
+<p>We had multiple mixins for prefixing properties such as:</p>
 
-- `border-box`
-- `border-radius`
-- `box-shadow`
-- ...on and on...
+<ul>
+<li><code>border-box</code></li>
+<li><code>border-radius</code></li>
+<li><code>box-shadow</code></li>
+<li>&hellip;on and on&hellip;</li>
+</ul>
 
-When realistically we just needed...
+<p>When realistically we just needed&hellip;</p>
 
-```sass
-@mixin vendor ($property, $value) {
+<pre><code class="language-sass">@mixin vendor ($property, $value) {
     -webkit-#{$property}: $value;
        -moz-#{$property}: $value;
         -ms-#{$property}: $value;
@@ -34,8 +34,7 @@ When realistically we just needed...
 
 <p>&hellip;which you would use as for example: <code>@include vendor(box-sizing, border-box);</code></p>
 
-<p>Yes this adds prefixes that might not be needed (e.g. border-radius is reasonably well supported in older versions of Firefox and WebKit) but this repeatable content will get chewed up when it comes to GZIP&rsquo;ing.
-&ldquo;`</p>
+<p>Yes this adds prefixes that might not be needed (e.g. border-radius is reasonably well supported in older versions of Firefox and WebKit) but this repeatable content will get chewed up when it comes to GZIP&rsquo;ing.</p>
 
 </div>
 </body>

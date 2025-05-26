@@ -12,16 +12,14 @@
 
 <h2 id="find-and-execute-md">Find and execute.md</h2>
 
-<pre><code class="language-markdown">To find some files and execute an additional action on them, use `-exec`:
+<p>To find some files and execute an additional action on them, use <code>-exec</code>:</p>
 
-```bash
-find . -name *.rb -exec md5 -s {} \;
+<pre><code class="language-bash">find . -name *.rb -exec md5 -s {} \;
 </code></pre>
 
 <blockquote>
 <p>Note: you need <code>\;</code> otherwise you&rsquo;ll get an error
-about <code>no terminating &quot;;&quot; or &quot;+&quot;</code>
-&ldquo;`</p>
+about <code>no terminating &quot;;&quot; or &quot;+&quot;</code></p>
 </blockquote>
 
 </div>

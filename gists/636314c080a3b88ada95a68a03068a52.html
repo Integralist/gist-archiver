@@ -12,25 +12,25 @@
 
 <h2 id="golang-interface-value-vs-interface-type-md">Golang Interface Value vs Interface Type.md</h2>
 
-<pre><code class="language-markdown">**Rereference**:
-- https://tour.golang.org/methods/11 (interface values)
-- https://tour.golang.org/methods/12 (interface values with nil underlying values)
-- https://tour.golang.org/methods/13 (nil interface values)
-- https://tour.golang.org/methods/14 (empty interface)
-- https://tour.golang.org/methods/15 (type assertions)
-- https://tour.golang.org/methods/16 (type switches)
+<p><strong>Rereference</strong>:</p>
 
-Under the hood, interface values can be thought of as a tuple of a value and a concrete type: 
+<ul>
+<li><a href="https://tour.golang.org/methods/11" target="_blank">https://tour.golang.org/methods/11</a> (interface values)</li>
+<li><a href="https://tour.golang.org/methods/12" target="_blank">https://tour.golang.org/methods/12</a> (interface values with nil underlying values)</li>
+<li><a href="https://tour.golang.org/methods/13" target="_blank">https://tour.golang.org/methods/13</a> (nil interface values)</li>
+<li><a href="https://tour.golang.org/methods/14" target="_blank">https://tour.golang.org/methods/14</a> (empty interface)</li>
+<li><a href="https://tour.golang.org/methods/15" target="_blank">https://tour.golang.org/methods/15</a> (type assertions)</li>
+<li><a href="https://tour.golang.org/methods/16" target="_blank">https://tour.golang.org/methods/16</a> (type switches)</li>
+</ul>
 
+<p>Under the hood, interface values can be thought of as a tuple of a value and a concrete type:</p>
+
+<pre><code>(value, type)
 </code></pre>
 
-<p>(value, type)</p>
+<p>Calling a method on an interface value executes the method of the same name on its underlying type.</p>
 
-<pre><code>
- Calling a method on an interface value executes the method of the same name on its underlying type. 
- 
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;fmt&quot;
@@ -79,8 +79,7 @@ func describe(i I) {
 }
 </code></pre>
 
-<p>When we assign to <code>i</code> which is the interface <code>I</code>, we&rsquo;ll find that <code>i</code> ultimately holds the expected value (e.g. either a struct <code>T</code> or a float <code>F</code>) but the &lsquo;type&rsquo; associated with the <code>i</code> variable <em>isn&rsquo;t</em> actually the <code>I</code> interface (which you <em>might</em> have expected) it&rsquo;s actually the type of the value that was assigned.
-&ldquo;`</p>
+<p>When we assign to <code>i</code> which is the interface <code>I</code>, we&rsquo;ll find that <code>i</code> ultimately holds the expected value (e.g. either a struct <code>T</code> or a float <code>F</code>) but the &lsquo;type&rsquo; associated with the <code>i</code> variable <em>isn&rsquo;t</em> actually the <code>I</code> interface (which you <em>might</em> have expected) it&rsquo;s actually the type of the value that was assigned.</p>
 
 </div>
 </body>

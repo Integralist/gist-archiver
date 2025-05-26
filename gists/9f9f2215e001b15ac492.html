@@ -10,6 +10,27 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="dynamodb-using-spurious">DynamoDB (using Spurious)</h1>
 
+<h2 id="1-setup-bash">1. Setup.bash</h2>
+
+<pre><code class="language-shell"># http://boot2docker.io/
+# https://github.com/stevenjack/spurious
+
+boot2docker init
+boot2docker up
+spurious-server start
+spurious init
+spurious start
+</code></pre>
+
+<h2 id="2-env-yaml">2. env.yaml</h2>
+
+<pre><code class="language-yaml">AWS_REGION: &quot;eu-west-1&quot;
+AWS_ACCESS_KEY_ID: &quot;development_access&quot;
+AWS_SECRET_ACCESS_KEY: &quot;development_secret&quot;
+
+DYNAMO_DB: &quot;development_db&quot;
+</code></pre>
+
 <h2 id="3-dynamodb-irb-session-rb">3 .DynamoDB IRB Session.rb</h2>
 
 <pre><code class="language-ruby"># https://github.com/BBC-News/alephant-harness can automate the below set-up when using Spurious
@@ -124,27 +145,6 @@ dyn.delete_item(
   }
 )
 # =&gt; {:member=&gt;[], :count=&gt;0, :scanned_count=&gt;0}
-</code></pre>
-
-<h2 id="1-setup-bash">1. Setup.bash</h2>
-
-<pre><code class="language-shell"># http://boot2docker.io/
-# https://github.com/stevenjack/spurious
-
-boot2docker init
-boot2docker up
-spurious-server start
-spurious init
-spurious start
-</code></pre>
-
-<h2 id="2-env-yaml">2. env.yaml</h2>
-
-<pre><code class="language-yaml">AWS_REGION: &quot;eu-west-1&quot;
-AWS_ACCESS_KEY_ID: &quot;development_access&quot;
-AWS_SECRET_ACCESS_KEY: &quot;development_secret&quot;
-
-DYNAMO_DB: &quot;development_db&quot;
 </code></pre>
 
 </div>

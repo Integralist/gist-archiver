@@ -12,54 +12,53 @@
 
 <h2 id="api-versioning-strategies-md">API Versioning Strategies.md</h2>
 
-<pre><code class="language-markdown">## Terraform Analysis
+<h2 id="terraform-analysis">Terraform Analysis</h2>
 
-Terraform uses SDKs for interacting with provider APIs. There isn’t a distinction to be made for Terraform. You just bump the SDK version and it’s down to the individual provider APIs  ‘under the covers’ to handle versioning. So in that case I looked at the top providers listed on [https://registry.terraform.io/browse/providers](https://registry.terraform.io/browse/providers) which are AWS, Azure and Google Cloud Platform.
+<p>Terraform uses SDKs for interacting with provider APIs. There isn’t a distinction to be made for Terraform. You just bump the SDK version and it’s down to the individual provider APIs  ‘under the covers’ to handle versioning. So in that case I looked at the top providers listed on <a href="https://registry.terraform.io/browse/providers" target="_blank">https://registry.terraform.io/browse/providers</a> which are AWS, Azure and Google Cloud Platform.</p>
 
-## AWS
+<h2 id="aws">AWS</h2>
 
-AWS versions its APIs using a versioning system based on the format “YYYY-MM-DD”. The YYYY-MM-DD format is based on the date of the API release. Each API has its own version number, which is incremented with each new release. 
+<p>AWS versions its APIs using a versioning system based on the format “YYYY-MM-DD”. The YYYY-MM-DD format is based on the date of the API release. Each API has its own version number, which is incremented with each new release.</p>
 
-For example, an API released on January 1st, 2020, would have a version number of “2020-01-01”. 
+<p>For example, an API released on January 1st, 2020, would have a version number of “2020-01-01”.</p>
 
-In the SDK you pass in the API version you want, for example…
+<p>In the SDK you pass in the API version you want, for example…</p>
 
+<pre><code>var dynamodb = new AWS.DynamoDB({apiVersion: '2011-12-05'});
 </code></pre>
 
-<p>var dynamodb = new AWS.DynamoDB({apiVersion: &lsquo;2011-12-05&rsquo;});</p>
+<h3 id="reference">Reference</h3>
 
-<pre><code>
-### Reference
+<p><a href="https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/locking-api-versions.html" target="_blank">https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/locking-api-versions.html</a></p>
 
-[https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/locking-api-versions.html](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/locking-api-versions.html)
+<h2 id="azure">Azure</h2>
 
-## Azure
+<p>To quote Microsoft…</p>
 
-To quote Microsoft…
+<blockquote>
+<p>To specify which version of an operation to use, set the api-version query parameter. The version is of the format Group.Major.Minor where Group is in the format ‘YYYY-MM-DD’ and Major is an integer and Minor is an integer.</p>
+</blockquote>
 
-&gt; To specify which version of an operation to use, set the api-version query parameter. The version is of the format Group.Major.Minor where Group is in the format ‘YYYY-MM-DD’ and Major is an integer and Minor is an integer.
+<p>For example…</p>
 
-For example…
-
+<pre><code>?api-version=2020-09-01.12.0
 </code></pre>
 
-<p>?api-version=2020-09-01.12.0</p>
+<h3 id="reference-1">Reference:</h3>
 
-<pre><code>
-### Reference:
+<p><a href="https://learn.microsoft.com/en-us/rest/api/batchservice/batch-service-rest-api-versioning" target="_blank">https://learn.microsoft.com/en-us/rest/api/batchservice/batch-service-rest-api-versioning</a></p>
 
-[https://learn.microsoft.com/en-us/rest/api/batchservice/batch-service-rest-api-versioning](https://learn.microsoft.com/en-us/rest/api/batchservice/batch-service-rest-api-versioning)
+<h2 id="google-cloud-platform">Google Cloud Platform</h2>
 
-## Google Cloud Platform
+<p>Google uses a path based versioning system. The beginning of the path contains the version and it’s only a major version. The Google documentation states…</p>
 
-Google uses a path based versioning system. The beginning of the path contains the version and it’s only a major version. The Google documentation states…
+<blockquote>
+<p>Google APIs must not expose minor or patch version numbers. For example, Google APIs use v1, not v1.0, v1.1, or v1.4.2. From a user&rsquo;s perspective, major versions are updated in place, and users receive new functionality without migration.</p>
+</blockquote>
 
-&gt; Google APIs must not expose minor or patch version numbers. For example, Google APIs use v1, not v1.0, v1.1, or v1.4.2. From a user's perspective, major versions are updated in place, and users receive new functionality without migration.
+<h3 id="reference-2">Reference</h3>
 
-### Reference
-
-[https://cloud.google.com/apis/design/versioning](https://cloud.google.com/apis/design/versioning)
-</code></pre>
+<p><a href="https://cloud.google.com/apis/design/versioning" target="_blank">https://cloud.google.com/apis/design/versioning</a></p>
 
 </div>
 </body>

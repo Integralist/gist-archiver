@@ -12,12 +12,11 @@
 
 <h2 id="varnish-hit-for-pass-explanation-md">varnish hit-for-pass explanation.md</h2>
 
-<pre><code class="language-markdown">## Hit For Pass
+<h2 id="hit-for-pass">Hit For Pass</h2>
 
-You may notice in `vcl_fetch` some logic like:
+<p>You may notice in <code>vcl_fetch</code> some logic like:</p>
 
-```vcl
-if (beresp.http.Cache-Control ~ &quot;private&quot;) {
+<pre><code class="language-vcl">if (beresp.http.Cache-Control ~ &quot;private&quot;) {
   return(pass);
 }
 </code></pre>
@@ -47,8 +46,7 @@ if (beresp.http.Cache-Control ~ &quot;private&quot;) {
 <p>The reason the ttl is supposed to be short is because for that ttl time period your origin is susceptible to multiple requests.</p>
 
 <p>See the following link for a more detailed explanation:<br />
-<a href="https://info.varnish-software.com/blog/hit-for-pass-varnish-cache" target="_blank">https://info.varnish-software.com/blog/hit-for-pass-varnish-cache</a>
-&ldquo;`</p>
+<a href="https://info.varnish-software.com/blog/hit-for-pass-varnish-cache" target="_blank">https://info.varnish-software.com/blog/hit-for-pass-varnish-cache</a></p>
 
 </div>
 </body>

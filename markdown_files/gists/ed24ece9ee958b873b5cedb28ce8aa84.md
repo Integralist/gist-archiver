@@ -2,7 +2,6 @@
 
 ## Terminal Colors.md
 
-```markdown
 # Problem
 
 Vim in terminal mode must be used with a terminal emulator theme in order to work properly with some vim themes!
@@ -373,5 +372,4 @@ much more complex)
 - scim (spreadsheet program) - https://github.com/andmarti1424/sc-im/issues/306
 - [gui.cs](https://github.com/migueldeicaza/gui.cs) Terminal UI toolkit for .NET
   (curses-like) - https://github.com/migueldeicaza/gui.cs/issues/48
-```
 

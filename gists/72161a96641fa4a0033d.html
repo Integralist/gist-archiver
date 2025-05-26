@@ -12,21 +12,24 @@
 
 <h2 id="install-redis-cli-on-aws-instance-md">Install Redis CLI on AWS Instance.md</h2>
 
-<pre><code class="language-markdown">- `ssh 10.6.11.62,eu-west-1`
-- `sudo yum install gcc`
-- `sudo yum install wget`
-- `wget http://download.redis.io/redis-stable.tar.gz`
-- `tar xvzf redis-stable.tar.gz`
-- `cd redis-stable`
-- `make`
-- `src/redis-cli -h mycachecluster.eaogs8.0001.usw2.cache.amazonaws.com -p 6379`
+<ul>
+<li><code>ssh 10.6.11.62,eu-west-1</code></li>
+<li><code>sudo yum install gcc</code></li>
+<li><code>sudo yum install wget</code></li>
+<li><code>wget http://download.redis.io/redis-stable.tar.gz</code></li>
+<li><code>tar xvzf redis-stable.tar.gz</code></li>
+<li><code>cd redis-stable</code></li>
+<li><code>make</code></li>
+<li><code>src/redis-cli -h mycachecluster.eaogs8.0001.usw2.cache.amazonaws.com -p 6379</code></li>
+</ul>
 
-Now run redis commands:
+<p>Now run redis commands:</p>
 
-- `Keys *`: list all keys
-- `set foo &quot;bar&quot;`: set a new key
-- `get foo`: get a specific key
-</code></pre>
+<ul>
+<li><code>Keys *</code>: list all keys</li>
+<li><code>set foo &quot;bar&quot;</code>: set a new key</li>
+<li><code>get foo</code>: get a specific key</li>
+</ul>
 
 </div>
 </body>

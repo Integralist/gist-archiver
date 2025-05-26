@@ -12,12 +12,13 @@
 
 <h2 id="vim-handling-stdin-md">Vim handling stdin.md</h2>
 
-<pre><code class="language-markdown">&gt; Note: for full details, read https://vimways.org/2018/vims-social-life/
+<blockquote>
+<p>Note: for full details, read <a href="https://vimways.org/2018/vims-social-life/" target="_blank">https://vimways.org/2018/vims-social-life/</a></p>
+</blockquote>
 
-Vim doesn't handle stdin like other posix commands...
+<p>Vim doesn&rsquo;t handle stdin like other posix commands&hellip;</p>
 
-```bash
-$ echo foo | vim
+<pre><code class="language-bash">$ echo foo | vim
 
 Vim: Warning: Input is not from a terminal
 Vim: Error reading input, exiting...
@@ -63,8 +64,7 @@ FOO
 </code></pre>
 
 <blockquote>
-<p>Note: <code>norm</code> says execute the following characters as if the user is typing them, so <code>V</code> selects the entire line and <code>gU</code> uppercases the selection. We then print the output to stdout <code>%p</code> and then quit without trying to save the modifications.
-&ldquo;`</p>
+<p>Note: <code>norm</code> says execute the following characters as if the user is typing them, so <code>V</code> selects the entire line and <code>gU</code> uppercases the selection. We then print the output to stdout <code>%p</code> and then quit without trying to save the modifications.</p>
 </blockquote>
 
 </div>

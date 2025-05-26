@@ -2,7 +2,6 @@
 
 ## rest-design-put-vs-post.md
 
-```markdown
 **UPDATE Dec 2020**
 
 HTTP Method | Description
@@ -24,5 +23,4 @@ Use PUT when you can update a resource completely through a specific resource. F
 If you do not know the actual resource location, for instance, when you add a new article, but do not have any idea where to store it, you can POST it to an URL, and let the server decide the actual URL.
 
 > Note: there must always be a body param passed to the server when executing a POST or a PUT operation. Meaning you only pass enough information in the URL to identify the resource and not including any data for that resource. For example, this is bad: `/user/<id>/username/<new_username>` but this is ok: `/user/<id>/username` upon which you'll then pass the new username as the body param: `curl --method PUT --header 'Content-Type: application/json' --data '{"username": "foobar"}' https://api.example.com/user/id/123/username`.
-```
 

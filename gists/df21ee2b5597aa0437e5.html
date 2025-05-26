@@ -12,10 +12,9 @@
 
 <h2 id="ruby-threads-failing-fast-md">Ruby Threads: failing fast.md</h2>
 
-<pre><code class="language-markdown">In our code base we spin up some Threads...
+<p>In our code base we spin up some Threads&hellip;</p>
 
-```rb
-metas.map do |meta|
+<pre><code class="language-rb">metas.map do |meta|
   Thread.new do
     fetch(meta, timeout)
   end
@@ -30,11 +29,9 @@ end.map(&amp;:value)
 
 <p>The following code replicates this behaviour and then tries to solve it&hellip;</p>
 
-<pre><code>
-## Ruby Threads: failing fast.rb
+<h2 id="ruby-threads-failing-fast-rb">Ruby Threads: failing fast.rb</h2>
 
-```ruby
-# SETUP...
+<pre><code class="language-ruby"># SETUP...
 
 class ::FooError &lt; StandardError
   def initialize(msg)

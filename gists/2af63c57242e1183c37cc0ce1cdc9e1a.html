@@ -12,19 +12,24 @@
 
 <h2 id="replace-macos-terminal-emulator-with-gpu-accelerated-alacritty-md">Replace macOS Terminal Emulator with GPU accelerated Alacritty.md</h2>
 
-<pre><code class="language-markdown">&gt; https://arslan.io/2018/02/05/gpu-accelerated-terminal-alacritty/
+<blockquote>
+<p><a href="https://arslan.io/2018/02/05/gpu-accelerated-terminal-alacritty/" target="_blank">https://arslan.io/2018/02/05/gpu-accelerated-terminal-alacritty/</a></p>
+</blockquote>
 
-- Install rust: `curl https://sh.rustup.rs -sSf | sh`
-- Make rust available: `echo 'source &quot;$HOME/.cargo/env&quot;' &gt;&gt; ~/.bashrc`
-- Set rust compiler: `rustup override set stable`
-- Update rust: `rustup update stable`
-- Get Alacritty: `git clone https://github.com/jwilm/alacritty.git`
-- Build Alacritty: `cd alacritty &amp;&amp; make app`
-- Add Alacritty to your Applications directory: `cp -r target/release/osx/Alacritty.app /Applications/`
-- Create Alacritty config: `mkdir -p ~/.config/alacritty &amp;&amp; cp alacritty_macos.yml ~/.config/alacritty/alacritty.yml`
+<ul>
+<li>Install rust: <code>curl https://sh.rustup.rs -sSf | sh</code></li>
+<li>Make rust available: <code>echo 'source &quot;$HOME/.cargo/env&quot;' &gt;&gt; ~/.bashrc</code></li>
+<li>Set rust compiler: <code>rustup override set stable</code></li>
+<li>Update rust: <code>rustup update stable</code></li>
+<li>Get Alacritty: <code>git clone https://github.com/jwilm/alacritty.git</code></li>
+<li>Build Alacritty: <code>cd alacritty &amp;&amp; make app</code></li>
+<li>Add Alacritty to your Applications directory: <code>cp -r target/release/osx/Alacritty.app /Applications/</code></li>
+<li>Create Alacritty config: <code>mkdir -p ~/.config/alacritty &amp;&amp; cp alacritty_macos.yml ~/.config/alacritty/alacritty.yml</code></li>
+</ul>
 
-&gt; https://github.com/jwilm/alacritty/issues/99 for tmux binding to be reinstated
-</code></pre>
+<blockquote>
+<p><a href="https://github.com/jwilm/alacritty/issues/99" target="_blank">https://github.com/jwilm/alacritty/issues/99</a> for tmux binding to be reinstated</p>
+</blockquote>
 
 </div>
 </body>

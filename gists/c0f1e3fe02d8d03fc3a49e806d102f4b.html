@@ -12,33 +12,38 @@
 
 <h2 id="go-interface-design-md">Go Interface Design.md</h2>
 
-<pre><code class="language-markdown">The rule of thumb when writing Go code is:
+<p>The rule of thumb when writing Go code is:</p>
 
-&gt; accept interfaces, return structs
+<blockquote>
+<p>accept interfaces, return structs</p>
+</blockquote>
 
-Accepting interfaces gives your API the greatest flexibility  
-and returning structs allows the people reading your code to quickly navigate to the correct function.
+<p>Accepting interfaces gives your API the greatest flexibility<br />
+and returning structs allows the people reading your code to quickly navigate to the correct function.</p>
 
-Avoid concrete types in favour of interface types.
+<p>Avoid concrete types in favour of interface types.</p>
 
-When you know the required functionality of a package, codify it into a interface.  
-Then check there isn't already an interface in the stdlib that defines those behaviours.
+<p>When you know the required functionality of a package, codify it into a interface.<br />
+Then check there isn&rsquo;t already an interface in the stdlib that defines those behaviours.</p>
 
-A good blog post to refer to is: 
-https://www.goinggo.net/2016/10/avoid-interface-pollution.html
+<p>A good blog post to refer to is:
+<a href="https://www.goinggo.net/2016/10/avoid-interface-pollution.html" target="_blank">https://www.goinggo.net/2016/10/avoid-interface-pollution.html</a></p>
 
-In that it shows an example where an interface was unnecessary, in that it:
+<p>In that it shows an example where an interface was unnecessary, in that it:</p>
 
-1. it described the complete concrete implementation
-2. wasn't decoupling the code from change
-3. could be removed and nothing changed for the user
+<ol>
+<li>it described the complete concrete implementation</li>
+<li>wasn&rsquo;t decoupling the code from change</li>
+<li>could be removed and nothing changed for the user</li>
+</ol>
 
-The author suggests using an interface in these circumstances:
+<p>The author suggests using an interface in these circumstances:</p>
 
-* When users of the API need to provide an implementation detail.
-* When API’s have multiple implementations they need to maintain internally.
-* When parts of the API that can change have been identified and require decoupling.
-</code></pre>
+<ul>
+<li>When users of the API need to provide an implementation detail.</li>
+<li>When API’s have multiple implementations they need to maintain internally.</li>
+<li>When parts of the API that can change have been identified and require decoupling.</li>
+</ul>
 
 </div>
 </body>

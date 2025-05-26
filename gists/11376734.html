@@ -12,12 +12,11 @@
 
 <h2 id="let-destructuring-md">Let Destructuring.md</h2>
 
-<pre><code class="language-markdown">In Clojure you can apply destructuring within either a `let` binding list; function parameter list or even a macro.
+<p>In Clojure you can apply destructuring within either a <code>let</code> binding list; function parameter list or even a macro.</p>
 
-A simple example would be:
+<p>A simple example would be:</p>
 
-```clj
-(def coords [5 7]) ; define a symbol &quot;coords&quot; that points to a vector [5 7]
+<pre><code class="language-clj">(def coords [5 7]) ; define a symbol &quot;coords&quot; that points to a vector [5 7]
 (let [[x y] coords] (println &quot;x:&quot; x &quot;y:&quot; y))
 ; =&gt; x: 5 y: 7
 </code></pre>
@@ -67,8 +66,6 @@ A simple example would be:
 (let [{{foo :foo} :params} test] 
   (prn foo))
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

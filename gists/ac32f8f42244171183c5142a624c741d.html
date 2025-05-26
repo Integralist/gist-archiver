@@ -12,18 +12,19 @@
 
 <h2 id="go-vs-rust-syntax-differences-md">Go vs Rust - syntax differences.md</h2>
 
-<pre><code class="language-markdown">The following examples are written from the perspective of an engineer who writes code using the Go programming language, and so you'll find that I've written notes about how Rust is different and I don't really cover the why or how of the example Go code. Additionally, the Go examples are far from exhaustive because I'm using this as a 'scratch pad' for my Rust learnings.
+<p>The following examples are written from the perspective of an engineer who writes code using the Go programming language, and so you&rsquo;ll find that I&rsquo;ve written notes about how Rust is different and I don&rsquo;t really cover the why or how of the example Go code. Additionally, the Go examples are far from exhaustive because I&rsquo;m using this as a &lsquo;scratch pad&rsquo; for my Rust learnings.</p>
 
-- [Error Handling](#error-handling)
-- [Structs](#structs)
-- [Interface](#interface)
+<ul>
+<li><a href="#error-handling">Error Handling</a></li>
+<li><a href="#structs">Structs</a></li>
+<li><a href="#interface">Interface</a></li>
+</ul>
 
-## Error Handling
+<h2 id="error-handling">Error Handling</h2>
 
-### Go example
+<h3 id="go-example">Go example</h3>
 
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;fmt&quot;
@@ -171,7 +172,7 @@ if let Some(i) = number {
 <li>Define a constructor function.</li>
 </ul>
 
-<h3 id="go-example">Go example</h3>
+<h3 id="go-example-1">Go example</h3>
 
 <pre><code class="language-go">package main
 
@@ -291,7 +292,7 @@ fn main() {
 
 <p>In traditional programming languages an interface defines a contract. It states that a certain object follows the behaviours expected by implementing the assigned interface.</p>
 
-<h3 id="go-example-1">Go example</h3>
+<h3 id="go-example-2">Go example</h3>
 
 <pre><code class="language-go">package main
 
@@ -428,8 +429,7 @@ fn call_bar(value: impl Foo) {
 
 <p>The last example is preferred, but often the trait bounds can be complex enough that the second variation with a <code>where</code> clause is better.</p>
 
-<p>The first example is the most traditional relative to other languages.
-&ldquo;`</p>
+<p>The first example is the most traditional relative to other languages.</p>
 
 </div>
 </body>

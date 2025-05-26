@@ -24,12 +24,11 @@ RUN cd vim &amp;&amp; make &amp;&amp; make install
 
 <h2 id="1-macos-version-md">1. macOS version.md</h2>
 
-<pre><code class="language-markdown">The key ingredient for getting compilation of vim to work is to tell the compilation script which Python3 version you want to use, but that telling it what to use by itself won't work if it's trying to use 'cached' layers (kinda like Docker caches operations in layers to make future runs quicker).
+<p>The key ingredient for getting compilation of vim to work is to tell the compilation script which Python3 version you want to use, but that telling it what to use by itself won&rsquo;t work if it&rsquo;s trying to use &lsquo;cached&rsquo; layers (kinda like Docker caches operations in layers to make future runs quicker).</p>
 
-So now whenever I'm compiling Vim I'm cleaning out the cache (see the first line in the below script)...
+<p>So now whenever I&rsquo;m compiling Vim I&rsquo;m cleaning out the cache (see the first line in the below script)&hellip;</p>
 
-```bash
-make clean distclean
+<pre><code class="language-bash">make clean distclean
 
 ./configure --with-features=huge \
   --enable-multibyte \
@@ -56,12 +55,11 @@ make &amp;&amp; make install
 
 <blockquote>
 <p>† e.g. if I run that full path in my terminal shell it&rsquo;ll actually run the Python3 REPL so I know it&rsquo;s a valid path to provide.</p>
+</blockquote>
 
-<pre><code>
-## 2. (old) manually compile Vim.sh
+<h2 id="2-old-manually-compile-vim-sh">2. (old) manually compile Vim.sh</h2>
 
-```shell
-# The build-dep command means to install all dependencies for Vim, so that we can build it
+<pre><code class="language-shell"># The build-dep command means to install all dependencies for Vim, so that we can build it
 sudo apt-get build-dep vim
 
 # Download Vim source code
@@ -210,7 +208,6 @@ rm -r vim
 # +mouse_netterm 
 # +syntax
 </code></pre>
-</blockquote>
 
 </div>
 </body>

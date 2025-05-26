@@ -12,31 +12,36 @@
 
 <h2 id="irssi-irc-md">irssi-irc.md</h2>
 
-<pre><code class="language-markdown">- `/connect irc.freenode.net 8001`
-- `/join #nginx`
-- `/msg NickServ IDENTIFY &lt;account&gt; &lt;password&gt;` †
-- `/msg &lt;person&gt; &lt;msg&gt;` to start a private message
+<ul>
+<li><code>/connect irc.freenode.net 8001</code></li>
+<li><code>/join #nginx</code></li>
+<li><code>/msg NickServ IDENTIFY &lt;account&gt; &lt;password&gt;</code> †</li>
+<li><code>/msg &lt;person&gt; &lt;msg&gt;</code> to start a private message</li>
+</ul>
 
-&gt; † `/msg NickServe IDENTITY Integralist &lt;password&gt;`  
-&gt; or `/msg nickserv SENDPASS Integralist` to change password (sends link to your email)  
-&gt; Commands Reference: http://www.deepspace.org/nickserv.htm#REGISTER  
-&gt; Freenode Help: https://freenode.net/kb/answer/registration
+<blockquote>
+<p>† <code>/msg NickServe IDENTITY Integralist &lt;password&gt;</code><br />
+or <code>/msg nickserv SENDPASS Integralist</code> to change password (sends link to your email)<br />
+Commands Reference: <a href="http://www.deepspace.org/nickserv.htm#REGISTER" target="_blank">http://www.deepspace.org/nickserv.htm#REGISTER</a><br />
+Freenode Help: <a href="https://freenode.net/kb/answer/registration" target="_blank">https://freenode.net/kb/answer/registration</a></p>
+</blockquote>
 
-With irssi open you can do:
+<p>With irssi open you can do:</p>
 
-- `/server add -network Freenode -auto irc.freenode.net`
-- `/server list` (to show it has set it up and configured it to `autoconnect`)
-- `/channel add -auto #nginx Freenode`
-- `/channel add -auto #go-nuts Freenode`
-- `/channel add -auto #rust-beginners Freenode`
-- `/channel list` (to show it has set it up and configured it to `autojoin`)
+<ul>
+<li><code>/server add -network Freenode -auto irc.freenode.net</code></li>
+<li><code>/server list</code> (to show it has set it up and configured it to <code>autoconnect</code>)</li>
+<li><code>/channel add -auto #nginx Freenode</code></li>
+<li><code>/channel add -auto #go-nuts Freenode</code></li>
+<li><code>/channel add -auto #rust-beginners Freenode</code></li>
+<li><code>/channel list</code> (to show it has set it up and configured it to <code>autojoin</code>)</li>
+</ul>
 
-For more information: https://joost.vunderink.net/blog/2012/07/01/irssi-tricks-join-channels-automatically/
+<p>For more information: <a href="https://joost.vunderink.net/blog/2012/07/01/irssi-tricks-join-channels-automatically/" target="_blank">https://joost.vunderink.net/blog/2012/07/01/irssi-tricks-join-channels-automatically/</a></p>
 
-Below is a simple `~/.irssi/config` example:
+<p>Below is a simple <code>~/.irssi/config</code> example:</p>
 
-```bash
-servers = (
+<pre><code class="language-bash">servers = (
   {
     address = &quot;irc.freenode.net&quot;;
     chatnet = &quot;Freenode&quot;;
@@ -280,8 +285,6 @@ settings = {
   &quot;fe-text&quot; = { actlist_sort = &quot;refnum&quot;; };
 };
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

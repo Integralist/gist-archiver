@@ -12,10 +12,9 @@
 
 <h2 id="terraform-debugging-with-delve-md">Terraform Debugging with Delve.md</h2>
 
-<pre><code class="language-markdown">https://developer.hashicorp.com/terraform/plugin/debugging#debugger-based-debugging
+<p><a href="https://developer.hashicorp.com/terraform/plugin/debugging#debugger-based-debugging" target="_blank">https://developer.hashicorp.com/terraform/plugin/debugging#debugger-based-debugging</a></p>
 
-```txt
-(first shell)  dlv debug . --headless -- --debug
+<pre><code class="language-txt">(first shell)  dlv debug . --headless -- --debug
 (second shell) dlv connect &lt;output from first shell&gt;
                continue
                &lt;Ctrl-c&gt;
@@ -33,8 +32,6 @@ TF_ACC=true dlv test -- -test.v -test.run TestAccFastlyServiceVCL_syslog_useTLS
 break block_fastly_service_logging_syslog_test.go:253 // break inside the test code
 break block_fastly_service_logging_syslog.go:342      // break inside the execute terraform code (trigged by the test)
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

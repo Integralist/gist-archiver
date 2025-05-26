@@ -12,14 +12,15 @@
 
 <h2 id="1-readme-md">1. README.md</h2>
 
-<pre><code class="language-markdown">This is a dirty hack to get a locally changed file to be depended on by an external resource provided by the Fastly Terraform provider.
+<p>This is a dirty hack to get a locally changed file to be depended on by an external resource provided by the Fastly Terraform provider.</p>
 
-i.e. get Terraform to actual compile the wasm binary that would otherwise be manually produced using `fastly compute build`.
+<p>i.e. get Terraform to actual compile the wasm binary that would otherwise be manually produced using <code>fastly compute build</code>.</p>
 
-&gt; **NOTE:** The example is for an older version of the Fastly Terraform provider, a more recent version (e.g. 5.4.0 at the time of writing) uses a different setup (shown below) so you'll need to tweak the older examples.
+<blockquote>
+<p><strong>NOTE:</strong> The example is for an older version of the Fastly Terraform provider, a more recent version (e.g. 5.4.0 at the time of writing) uses a different setup (shown below) so you&rsquo;ll need to tweak the older examples.</p>
+</blockquote>
 
-```hcl
-terraform {
+<pre><code class="language-hcl">terraform {
   required_providers {
     fastly = {
       source  = &quot;fastly/fastly&quot;
@@ -48,11 +49,9 @@ resource &quot;fastly_service_compute&quot; &quot;testing-fastly-tf-cli-deploys&
 }
 </code></pre>
 
-<pre><code>
-## main.tf
+<h2 id="main-tf">main.tf</h2>
 
-```hcl
-# https://www.terraform.io/docs/language/settings/index.html
+<pre><code class="language-hcl"># https://www.terraform.io/docs/language/settings/index.html
 terraform {
   # https://www.terraform.io/docs/language/providers/requirements.html
   required_providers {

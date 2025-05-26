@@ -12,21 +12,24 @@
 
 <h2 id="high-availability-content-and-resilient-systems-with-redundancy-md">High Availability Content and Resilient Systems with Redundancy.md</h2>
 
-<pre><code class="language-markdown">- Encourage greater use of existing shared software libraries (e.g. those that implement 'graceful shutdown' for in-flight requests).
-- Create shared libs supporting resilience patterns (e.g. circuit breakers, back-off, retries).
-- Monitor dependencies and identify new releases, notifying service owners/channels (allow frequency control).
-- More flexible canary deployments and introduce [blue-green deployments](https://martinfowler.com/bliki/BlueGreenDeployment.html).
-- Utilize tools such as [Chaos Monkey](https://netflix.github.io/chaosmonkey/) or [Gremlin](https://www.gremlin.com/).
-- Improve our synthetic testing (e.g. smoke testing).
-- Better service isolation (e.g. prevent problems propagating to other parts of our system). 
-- Create feature flags to help disable broken features within a service quickly.
-- Automatic failover to multiple regions † (remove the manual process for app-west).
-- Implement some form of ‘adaptive capacity’ adjustment (software and infrastructure).
-- [Prioritized load shedding](https://www.google.com/url?q=https://cloud.google.com/blog/products/gcp/using-load-shedding-to-survive-a-success-disaster-cre-life-lessons&amp;sa=D&amp;ust=1578937508830000&amp;usg=AFQjCNE3hdPlc8GprCexIrXHOXKL-Mq7gA) (effective caching might be simpler/easier).
-- Setup 'traffic mirroring' (which can help verify service performance for dark launches).
+<ul>
+<li>Encourage greater use of existing shared software libraries (e.g. those that implement &lsquo;graceful shutdown&rsquo; for in-flight requests).</li>
+<li>Create shared libs supporting resilience patterns (e.g. circuit breakers, back-off, retries).</li>
+<li>Monitor dependencies and identify new releases, notifying service owners/channels (allow frequency control).</li>
+<li>More flexible canary deployments and introduce <a href="https://martinfowler.com/bliki/BlueGreenDeployment.html" target="_blank">blue-green deployments</a>.</li>
+<li>Utilize tools such as <a href="https://netflix.github.io/chaosmonkey/" target="_blank">Chaos Monkey</a> or <a href="https://www.gremlin.com/" target="_blank">Gremlin</a>.</li>
+<li>Improve our synthetic testing (e.g. smoke testing).</li>
+<li>Better service isolation (e.g. prevent problems propagating to other parts of our system).</li>
+<li>Create feature flags to help disable broken features within a service quickly.</li>
+<li>Automatic failover to multiple regions † (remove the manual process for app-west).</li>
+<li>Implement some form of ‘adaptive capacity’ adjustment (software and infrastructure).</li>
+<li><a href="https://www.google.com/url?q=https://cloud.google.com/blog/products/gcp/using-load-shedding-to-survive-a-success-disaster-cre-life-lessons&amp;sa=D&amp;ust=1578937508830000&amp;usg=AFQjCNE3hdPlc8GprCexIrXHOXKL-Mq7gA" target="_blank">Prioritized load shedding</a> (effective caching might be simpler/easier).</li>
+<li>Setup &lsquo;traffic mirroring&rsquo; (which can help verify service performance for dark launches).</li>
+</ul>
 
-&gt; † Software libraries might need updating to reflect the dynamic nature of the regions they're interacting with.
-</code></pre>
+<blockquote>
+<p>† Software libraries might need updating to reflect the dynamic nature of the regions they&rsquo;re interacting with.</p>
+</blockquote>
 
 </div>
 </body>

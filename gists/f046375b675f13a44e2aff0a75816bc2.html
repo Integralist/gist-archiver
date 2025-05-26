@@ -12,16 +12,17 @@
 
 <h2 id="dns-update-strategy-md">DNS update strategy.md</h2>
 
-<pre><code class="language-markdown">## What’s the Best Practice for changing a DNS record?
+<h2 id="what-s-the-best-practice-for-changing-a-dns-record">What’s the Best Practice for changing a DNS record?</h2>
 
-For something relatively simple like modifying a single record to a domain, it might feel like overkill to have a “plan” or “strategy” – but given the very public severity of screwing up DNS some caution is warranted. It’s like the old saying: “A packet of prevention is worth a pound of cure.”
+<p>For something relatively simple like modifying a single record to a domain, it might feel like overkill to have a “plan” or “strategy” – but given the very public severity of screwing up DNS some caution is warranted. It’s like the old saying: “A packet of prevention is worth a pound of cure.”</p>
 
-There’s a simple way to limit your mistakes: never update both a DNS record and a TTL for that record at the same time. Ideally you’ll have a process of:
+<p>There’s a simple way to limit your mistakes: never update both a DNS record and a TTL for that record at the same time. Ideally you’ll have a process of:</p>
 
-* Drop TTL on the DNS record to something very low a couple of days before you actually need to make the switch. Ex: 300 seconds
-* Change the actual record on your cutover date.
-* Several days after you’ve made the switch, up the TTL to something higher.
-</code></pre>
+<ul>
+<li>Drop TTL on the DNS record to something very low a couple of days before you actually need to make the switch. Ex: 300 seconds</li>
+<li>Change the actual record on your cutover date.</li>
+<li>Several days after you’ve made the switch, up the TTL to something higher.</li>
+</ul>
 
 </div>
 </body>

@@ -12,24 +12,27 @@
 
 <h2 id="rollout-strategies-via-varnish-md">Rollout Strategies via Varnish.md</h2>
 
-<pre><code class="language-markdown">## Rollout Strategies via Varnish
+<h2 id="rollout-strategies-via-varnish">Rollout Strategies via Varnish</h2>
 
-We can utilise A/B testing as a rollout strategy in VCL with Fastly CDN using either:
+<p>We can utilise A/B testing as a rollout strategy in VCL with Fastly CDN using either:</p>
 
-- [Percentage based rollouts](#percentage-based-rollouts) (N % of users get access)
-- [Regional rollouts](#regional-rollouts) (access by locality)
-- [Alternative bucketing logic](#alternative-bucketing-logic)
+<ul>
+<li><a href="#percentage-based-rollouts">Percentage based rollouts</a> (N % of users get access)</li>
+<li><a href="#regional-rollouts">Regional rollouts</a> (access by locality)</li>
+<li><a href="#alternative-bucketing-logic">Alternative bucketing logic</a></li>
+</ul>
 
-### Percentage based rollouts
+<h3 id="percentage-based-rollouts">Percentage based rollouts</h3>
 
-&gt; Note: see also https://www.fastly.com/blog/ab-testing-edge/
+<blockquote>
+<p>Note: see also <a href="https://www.fastly.com/blog/ab-testing-edge/" target="_blank">https://www.fastly.com/blog/ab-testing-edge/</a></p>
+</blockquote>
 
-These can be a bit more complicated than the 'regional rollout' approach, so let's look at them first.
+<p>These can be a bit more complicated than the &lsquo;regional rollout&rsquo; approach, so let&rsquo;s look at them first.</p>
 
-Effectively you utilise cookies to help persist the various buckets you place users into, and then you need your application (or proxy) to process/inspect the HTTP request header that is then set and react accordingly (e.g. if the header exists and it has a value of `&quot;true&quot;`, then your proxy can pass the request onto a different origin or if there's only one origin you can have the application itself change the type of page that's rendered).
+<p>Effectively you utilise cookies to help persist the various buckets you place users into, and then you need your application (or proxy) to process/inspect the HTTP request header that is then set and react accordingly (e.g. if the header exists and it has a value of <code>&quot;true&quot;</code>, then your proxy can pass the request onto a different origin or if there&rsquo;s only one origin you can have the application itself change the type of page that&rsquo;s rendered).</p>
 
-```vcl
-vcl_recv {
+<pre><code class="language-vcl">vcl_recv {
   # if there is no cookie found then this is the first time this user has made a request
   # so we'll determine if they can have access to the new feature or not
   if (!req.http.Cookie:NewFeature) {
@@ -140,8 +143,7 @@ sub abtest_us_lift_feedranker_deliver {
 }
 </code></pre>
 
-<p>For example, if a user randomly gets a number <code>&lt; 5</code> (let&rsquo;s say 3) then because we&rsquo;ve picked a number out of a 100 (to represent 100%) that means 3 is equal to 3%. Where as if the random number they got was 5, then that&rsquo;s not going to match <code>&lt; 5</code> so we move to the next comparison which is <code>&lt; 6</code>, so <em>that</em> matches the number 5 and it means the percentage for those users will be 1% because there is 1 number difference between <code>&lt; 5</code> and <code>&lt; 6</code>.
-&ldquo;`</p>
+<p>For example, if a user randomly gets a number <code>&lt; 5</code> (let&rsquo;s say 3) then because we&rsquo;ve picked a number out of a 100 (to represent 100%) that means 3 is equal to 3%. Where as if the random number they got was 5, then that&rsquo;s not going to match <code>&lt; 5</code> so we move to the next comparison which is <code>&lt; 6</code>, so <em>that</em> matches the number 5 and it means the percentage for those users will be 1% because there is 1 number difference between <code>&lt; 5</code> and <code>&lt; 6</code>.</p>
 
 </div>
 </body>

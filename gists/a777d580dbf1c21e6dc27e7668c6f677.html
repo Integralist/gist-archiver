@@ -12,10 +12,9 @@
 
 <h2 id="test-rubocop-against-inline-code-md">Test Rubocop against inline code.md</h2>
 
-<pre><code class="language-markdown">Example valid script to test Rubocop against:
+<p>Example valid script to test Rubocop against:</p>
 
-```rb
-cat &gt; test.rb &lt;&lt;EOF
+<pre><code class="language-rb">cat &gt; test.rb &lt;&lt;EOF
  require &quot;json&quot;
  p JSON.generate(:foo =&gt; :bar)
 EOF
@@ -25,8 +24,6 @@ EOF
 
 <pre><code>--volume $(pwd)/test.rb:/app/test.rb
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

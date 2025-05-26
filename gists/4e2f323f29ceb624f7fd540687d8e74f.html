@@ -12,10 +12,11 @@
 
 <h2 id="0-readme-md">0. README.md</h2>
 
-<pre><code class="language-markdown">&gt; Context variables are variables that can have different values depending on their context. They are similar to Thread-Local Storage in which each execution thread may have a different value for a variable. However, with context variables, there may be several contexts in one execution thread. The main use case for context variables is keeping track of variables in concurrent asynchronous tasks. -- https://realpython.com/python37-new-features/#context-variables
+<blockquote>
+<p>Context variables are variables that can have different values depending on their context. They are similar to Thread-Local Storage in which each execution thread may have a different value for a variable. However, with context variables, there may be several contexts in one execution thread. The main use case for context variables is keeping track of variables in concurrent asynchronous tasks. &ndash; <a href="https://realpython.com/python37-new-features/#context-variables" target="_blank">https://realpython.com/python37-new-features/#context-variables</a></p>
+</blockquote>
 
-```python
-&quot;&quot;&quot;Example copied verbatim from Real Python.&quot;&quot;&quot;
+<pre><code class="language-python">&quot;&quot;&quot;Example copied verbatim from Real Python.&quot;&quot;&quot;
 
 import contextvars
 
@@ -36,11 +37,9 @@ for ctx in reversed(contexts):
     ctx.run(greet)
 </code></pre>
 
-<pre><code>
-## 1. Python ContextVars.py
+<h2 id="1-python-contextvars-py">1. Python ContextVars.py</h2>
 
-```python
-import contextvars
+<pre><code class="language-python">import contextvars
 
 &quot;&quot;&quot;
 Important: Context Variables should be created at the top module level and never in closures. 

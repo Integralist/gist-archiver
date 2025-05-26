@@ -10,19 +10,6 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="python-tornado-initialization-and-multi-process-mode-python-tornado-parallelization-multi-process-processes-cpu">[Python Tornado Initialization and Multi-Process Mode] #python #tornado #parallelization #multi-process #processes #cpu</h1>
 
-<h2 id="python-tornado-multi-process-mode-py">Python Tornado Multi-Process Mode.py</h2>
-
-<pre><code class="language-python">import logging
-
-from tornado.process import cpu_count  # helps with logging available cpu
-
-logging.info('Starting in forked mode on %s cpus', cpu_count())
-
-server = HTTPServer(App())
-server.bind(app_settings['port'])
-server.start(0)  # multi process mode (one process per cpu)
-</code></pre>
-
 <h2 id="python-tornado-initialization-diff">Python Tornado Initialization.diff</h2>
 
 <pre><code class="language-diff">from tornado.httpserver import HTTPServer
@@ -39,6 +26,19 @@ class App(Application):
 - App().listen(app_settings['port'])
 + server = HTTPServer(App())
 + server.listen(app_settings['port'])
+</code></pre>
+
+<h2 id="python-tornado-multi-process-mode-py">Python Tornado Multi-Process Mode.py</h2>
+
+<pre><code class="language-python">import logging
+
+from tornado.process import cpu_count  # helps with logging available cpu
+
+logging.info('Starting in forked mode on %s cpus', cpu_count())
+
+server = HTTPServer(App())
+server.bind(app_settings['port'])
+server.start(0)  # multi process mode (one process per cpu)
 </code></pre>
 
 </div>

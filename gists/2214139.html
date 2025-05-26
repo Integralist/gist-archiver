@@ -12,301 +12,229 @@
 
 <h2 id="readme-md">README.md</h2>
 
-<pre><code class="language-markdown"># Object-Oriented CSS
+<h1 id="object-oriented-css">Object-Oriented CSS</h1>
 
-Below is how I am currently structuring my CSS to be more object-oriented (with a little assistence from Sass):
+<p>Below is how I am currently structuring my CSS to be more object-oriented (with a little assistence from Sass):</p>
 
-* Base
-* Helpers
-* Variables (see my [Guide to Sass](https://github.com/Integralist/Blog-Posts/blob/master/Guide-to-using-SASS.md))
-* Mixins (*careful and limited usage* - see my [Guide to Sass](https://github.com/Integralist/Blog-Posts/blob/master/Guide-to-using-SASS.md))
-* Extensions (*careful and limited usage* - see my [Guide to Sass](https://github.com/Integralist/Blog-Posts/blob/master/Guide-to-using-SASS.md))
-* Layout
-* Modules
-* State
-* Theme
+<ul>
+<li>Base</li>
+<li>Helpers</li>
+<li>Variables (see my <a href="https://github.com/Integralist/Blog-Posts/blob/master/Guide-to-using-SASS.md" target="_blank">Guide to Sass</a>)</li>
+<li>Mixins (<em>careful and limited usage</em> - see my <a href="https://github.com/Integralist/Blog-Posts/blob/master/Guide-to-using-SASS.md" target="_blank">Guide to Sass</a>)</li>
+<li>Extensions (<em>careful and limited usage</em> - see my <a href="https://github.com/Integralist/Blog-Posts/blob/master/Guide-to-using-SASS.md" target="_blank">Guide to Sass</a>)</li>
+<li>Layout</li>
+<li>Modules</li>
+<li>State</li>
+<li>Theme</li>
+</ul>
 
-##Base
+<p>##Base</p>
 
-My base file is normally just called `build.css`. 
+<p>My base file is normally just called <code>build.css</code>.</p>
 
-Within that file I'll `@import` all the stylesheets I need. Normally you wouldn't use `@import` statements because they're bad for page loading performance (they block the loading of other stylesheets and elements on the page - see [Steve Souders](http://www.stevesouders.com/blog/2009/04/09/dont-use-import/) post on this from 2009 for more information).
+<p>Within that file I&rsquo;ll <code>@import</code> all the stylesheets I need. Normally you wouldn&rsquo;t use <code>@import</code> statements because they&rsquo;re bad for page loading performance (they block the loading of other stylesheets and elements on the page - see <a href="http://www.stevesouders.com/blog/2009/04/09/dont-use-import/" target="_blank">Steve Souders</a> post on this from 2009 for more information).</p>
 
-If you're using Google's `modpagespeed` Apache module on your server then you no longer have to worry about using `@import` because the latest version now flatterns the imports ([See the issue I submitted which resulted in a bug being discovered and fixed](http://code.google.com/p/modpagespeed/issues/detail?id=398&amp;can=1&amp;q=%40import&amp;sort=-status&amp;colspec=ID%20Type%20Status%20Priority%20Milestone%20Modified%20Owner%20Summary)). 
+<p>If you&rsquo;re using Google&rsquo;s <code>modpagespeed</code> Apache module on your server then you no longer have to worry about using <code>@import</code> because the latest version now flatterns the imports (<a href="http://code.google.com/p/modpagespeed/issues/detail?id=398&amp;can=1&amp;q=%40import&amp;sort=-status&amp;colspec=ID%20Type%20Status%20Priority%20Milestone%20Modified%20Owner%20Summary" target="_blank">See the issue I submitted which resulted in a bug being discovered and fixed</a>).</p>
 
-Alternatively if you're using a pre-processor such as [Sass](http://sass-lang.com/) then you'll be able to import stylesheets and leave it up to Sass to automatically flattern them for you (which is what I'm doing in my projects).
+<p>Alternatively if you&rsquo;re using a pre-processor such as <a href="http://sass-lang.com/" target="_blank">Sass</a> then you&rsquo;ll be able to import stylesheets and leave it up to Sass to automatically flattern them for you (which is what I&rsquo;m doing in my projects).</p>
 
+<pre><code>// This is our &quot;base&quot;
+@import &quot;normalise&quot;;
+
+// Miscellaneous helper classes
+@import &quot;helpers&quot;;
+
+// Project specific
+@import &quot;variables&quot;;
+@import &quot;layout&quot;;
+@import &quot;modules&quot;;
+@import &quot;state&quot;;
+@import &quot;theme&quot;;
 </code></pre>
 
-<p>// This is our &ldquo;base&rdquo;
-@import &ldquo;normalise&rdquo;;</p>
+<p>Below we&rsquo;ll discuss the last four items (layout, modules, state and theme) in more detail…</p>
 
-<p>// Miscellaneous helper classes
-@import &ldquo;helpers&rdquo;;</p>
+<p>##Helpers
+Modules are re-usable design &lsquo;patterns&rsquo; (such as the <a href="http://www.stubbornella.org/content/2010/06/25/the-media-object-saves-hundreds-of-lines-of-code/" target="_blank">&lsquo;media object&rsquo;</a>) where as these helpers (although like modules) are different in that they are re-usable layout utilities.</p>
 
-<p>// Project specific
-@import &ldquo;variables&rdquo;;
-@import &ldquo;layout&rdquo;;
-@import &ldquo;modules&rdquo;;
-@import &ldquo;state&rdquo;;
-@import &ldquo;theme&rdquo;;</p>
+<pre><code>// ClearFix - http://www.nicolasgallagher.com/micro-clearfix-hack/
+.h-clearfix {
+	zoom:1; // IE6/7
+}
 
-<pre><code>Below we'll discuss the last four items (layout, modules, state and theme) in more detail… 
+.h-clearfix:before,
+.h-clearfix:after {
+	content: &quot;&quot;;
+	display: table;
+}
 
-##Helpers
-Modules are re-usable design 'patterns' (such as the ['media object'](http://www.stubbornella.org/content/2010/06/25/the-media-object-saves-hundreds-of-lines-of-code/)) where as these helpers (although like modules) are different in that they are re-usable layout utilities.
+.h-clearfix:after {
+	clear: both;
+}
 
-</code></pre>
+// Hoz Block (Horizontal) - http://csswizardry.com/2011/09/the-nav-abstraction/
+.h-hoz {
+	list-style: none;
+	padding-left: 0;
+}
 
-<p>// ClearFix - <a href="http://www.nicolasgallagher.com/micro-clearfix-hack/" target="_blank">http://www.nicolasgallagher.com/micro-clearfix-hack/</a>
-.h-clearfix {</p>
+.h-hoz,
+.h-hoz dd {
+	margin-left: 0;
+}
 
-<pre><code>zoom:1; // IE6/7
-</code></pre>
-
-<p>}</p>
-
-<p>.h-clearfix:before,
-.h-clearfix:after {</p>
-
-<pre><code>content: &quot;&quot;;
-display: table;
-</code></pre>
-
-<p>}</p>
-
-<p>.h-clearfix:after {</p>
-
-<pre><code>clear: both;
-</code></pre>
-
-<p>}</p>
-
-<p>// Hoz Block (Horizontal) - <a href="http://csswizardry.com/2011/09/the-nav-abstraction/" target="_blank">http://csswizardry.com/2011/09/the-nav-abstraction/</a>
-.h-hoz {</p>
-
-<pre><code>list-style: none;
-padding-left: 0;
-</code></pre>
-
-<p>}</p>
-
-<p>.h-hoz,
-.h-hoz dd {</p>
-
-<pre><code>margin-left: 0;
-</code></pre>
-
-<p>}</p>
-
-<p>.h-hoz li,
+.h-hoz li,
 .h-hoz dt,
-.h-hoz dd {</p>
+.h-hoz dd {
+	display: inline;
+}
 
-<pre><code>display: inline;
+.h-hoz a {
+	display: inline-block;
+}
+
+// Image Replacement - http://www.zeldman.com/2012/03/01/replacing-the-9999px-hack-new-image-replacement/
+.h-hidden {
+	text-indent: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+// Container Block
+.h-container {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0 10px;
+	max-width: 940px;
+	width: 90%;
+}
+
+// Positioning
+.h-posab {
+	position: absolute;
+}
+
+.h-posrel {
+	position: relative;
+}
+
+.h-alignleft {
+	float: left;
+}
+
+.h-alignright {
+	float: right;
+}
 </code></pre>
 
-<p>}</p>
+<p>##Layout
+Divide the page into sections. Layouts hold one or more modules together.</p>
 
-<p>.h-hoz a {</p>
+<p><strong>Pattern</strong></p>
 
-<pre><code>display: inline-block;
+<pre><code>.l-&lt;layout-type&gt;
 </code></pre>
 
-<p>}</p>
+<p><strong>Examples</strong></p>
 
-<p>// Image Replacement - <a href="http://www.zeldman.com/2012/03/01/replacing-the-9999px-hack-new-image-replacement/" target="_blank">http://www.zeldman.com/2012/03/01/replacing-the-9999px-hack-new-image-replacement/</a>
-.h-hidden {</p>
-
-<pre><code>text-indent: 100%;
-white-space: nowrap;
-overflow: hidden;
-</code></pre>
-
-<p>}</p>
-
-<p>// Container Block
-.h-container {</p>
-
-<pre><code>display: block;
-margin-left: auto;
-margin-right: auto;
-padding: 0 10px;
-max-width: 940px;
-width: 90%;
-</code></pre>
-
-<p>}</p>
-
-<p>// Positioning
-.h-posab {</p>
-
-<pre><code>position: absolute;
-</code></pre>
-
-<p>}</p>
-
-<p>.h-posrel {</p>
-
-<pre><code>position: relative;
-</code></pre>
-
-<p>}</p>
-
-<p>.h-alignleft {</p>
-
-<pre><code>float: left;
-</code></pre>
-
-<p>}</p>
-
-<p>.h-alignright {</p>
-
-<pre><code>float: right;
-</code></pre>
-
-<p>}</p>
-
-<pre><code>
-##Layout
-Divide the page into sections. Layouts hold one or more modules together.
-
-**Pattern**
-
-</code></pre>
-
-<p>.l-<layout-type></p>
-
-<pre><code>
-**Examples**
-
-</code></pre>
-
-<p>.l-container
+<pre><code>.l-container
 .l-nav
 .l-basket
-.l-footer</p>
-
-<pre><code>
-##Modules
-These are the reusable, modular parts of our design.
-
-**Pattern**
-
+.l-footer
 </code></pre>
 
-<p>.m-<module-type></p>
+<p>##Modules
+These are the reusable, modular parts of our design.</p>
 
-<pre><code>
-**Examples**
+<p><strong>Pattern</strong></p>
 
+<pre><code>.m-&lt;module-type&gt;
 </code></pre>
 
-<p>.m-btn {</p>
+<p><strong>Examples</strong></p>
 
-<pre><code>@extend .transition;
+<pre><code>.m-btn {
+    @extend .transition;
+	
+    background-color: $brand-A-main;
+    color: $brand-A-sub;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 85%;
+}
 
-background-color: $brand-A-main;
-color: $brand-A-sub;
-font-family: Helvetica, Arial, sans-serif;
-font-size: 85%;
+// Media Block - http://www.stubbornella.org/content/2010/06/25/the-media-object-saves-hundreds-of-lines-of-code/
+.m-media {
+	display: block;
+}
+
+.m-media-img {
+	float: left;
+	margin-right: 10px;
+}
+
+.m-media-body {
+	overflow: hidden;
+	margin-bottom: 0;
+}
 </code></pre>
 
-<p>}</p>
+<p>##State
+The ways to describe how our modules or layouts will look when in a particular state.
+Is it hidden or expanded? Is it active or inactive?
+They are about describing how a module or layout looks on screens that are smaller or bigger.
+They are also about describing how a module might look in different views like the home page or the inside page.</p>
 
-<p>// Media Block - <a href="http://www.stubbornella.org/content/2010/06/25/the-media-object-saves-hundreds-of-lines-of-code/" target="_blank">http://www.stubbornella.org/content/2010/06/25/the-media-object-saves-hundreds-of-lines-of-code/</a>
-.m-media {</p>
+<p><strong>Pattern</strong></p>
 
-<pre><code>display: block;
+<pre><code>.is-&lt;state-type&gt;
 </code></pre>
 
-<p>}</p>
+<p><strong>Examples</strong></p>
 
-<p>.m-media-img {</p>
-
-<pre><code>float: left;
-margin-right: 10px;
-</code></pre>
-
-<p>}</p>
-
-<p>.m-media-body {</p>
-
-<pre><code>overflow: hidden;
-margin-bottom: 0;
-</code></pre>
-
-<p>}</p>
-
-<pre><code>
-##State
-The ways to describe how our modules or layouts will look when in a particular state. 
-Is it hidden or expanded? Is it active or inactive? 
-They are about describing how a module or layout looks on screens that are smaller or bigger. 
-They are also about describing how a module might look in different views like the home page or the inside page.
-
-**Pattern**
-
-</code></pre>
-
-<p>.is-<state-type></p>
-
-<pre><code>
-**Examples**
-
-</code></pre>
-
-<p>.is-hidden
+<pre><code>.is-hidden
 .is-collapsed
-.is-expanded</p>
-
-<pre><code>
-##Theme
-These are similar to state rules in that they describe how modules or layouts might look. 
-Most sites don’t require a layer of theming but it is good to be aware of it.
-
-**Pattern**
-
+.is-expanded
 </code></pre>
 
-<p>.t-<theme-type></p>
+<p>##Theme
+These are similar to state rules in that they describe how modules or layouts might look.
+Most sites don’t require a layer of theming but it is good to be aware of it.</p>
 
-<pre><code>
-**Examples**
+<p><strong>Pattern</strong></p>
 
-Following classes would represent seasonal theme over-rides: 
-
+<pre><code>.t-&lt;theme-type&gt;
 </code></pre>
 
-<p>.t-autumn
+<p><strong>Examples</strong></p>
+
+<p>Following classes would represent seasonal theme over-rides:</p>
+
+<pre><code>.t-autumn
 .t-spring
 .t-summer
-.t-winter</p>
-
-<pre><code>
-## JavaScript Components
-Used to provide JS-only hooks for a component. Can be used to provide a JS-enhanced UI or to abstract other JS behaviours. These ideally should be set using the `id` HTML attribute as it's more efficient for the JavaScript engine to access these elements using the host method `getElementById`.
-
-**Pattern**
-
+.t-winter
 </code></pre>
 
-<p>js-action-name</p>
+<h2 id="javascript-components">JavaScript Components</h2>
 
-<pre><code>
-**Examples**
+<p>Used to provide JS-only hooks for a component. Can be used to provide a JS-enhanced UI or to abstract other JS behaviours. These ideally should be set using the <code>id</code> HTML attribute as it&rsquo;s more efficient for the JavaScript engine to access these elements using the host method <code>getElementById</code>.</p>
 
+<p><strong>Pattern</strong></p>
+
+<pre><code>js-action-name
 </code></pre>
 
-<p>js-submit
+<p><strong>Examples</strong></p>
+
+<pre><code>js-submit
 js-action-save
 js-ui-collapsible
 js-ui-dropdown
-js-ui-dropdown&ndash;control
-js-ui-dropdown&ndash;menu
-js-ui-carousel</p>
-
-<pre><code></code></pre>
+js-ui-dropdown--control
+js-ui-dropdown--menu
+js-ui-carousel
+</code></pre>
 
 </div>
 </body>

@@ -12,20 +12,27 @@
 
 <h2 id="bgp-debugging-tools-md">BGP Debugging Tools.md</h2>
 
-<pre><code class="language-markdown">&gt; Reference: https://jvns.ca/blog/2021/10/05/tools-to-look-at-bgp-routes/
+<blockquote>
+<p>Reference: <a href="https://jvns.ca/blog/2021/10/05/tools-to-look-at-bgp-routes/" target="_blank">https://jvns.ca/blog/2021/10/05/tools-to-look-at-bgp-routes/</a></p>
+</blockquote>
 
-- **BGP View**: https://bgpview.io/asn/AS54113 (Fastly's ASN).
-- **BGP Play**: https://stat.ripe.net/special/bgplay (replay BGP events/announcements).
+<ul>
+<li><strong>BGP View</strong>: <a href="https://bgpview.io/asn/AS54113" target="_blank">https://bgpview.io/asn/AS54113</a> (Fastly&rsquo;s ASN).</li>
+<li><strong>BGP Play</strong>: <a href="https://stat.ripe.net/special/bgplay" target="_blank">https://stat.ripe.net/special/bgplay</a> (replay BGP events/announcements).</li>
+</ul>
 
-CLI tools:
+<p>CLI tools:</p>
 
-- `mtr -z &lt;host&gt;`: https://github.com/traviscross/mtr
-- `traceroute -a &lt;host&gt;`: a basic built-in tool
-- `route get &lt;host&gt;`: a basic built-in tool to lookup and display the route for a destination
-- `dig &lt;host&gt;`: a basic built-in tool to lookup and display the route for a destination
+<ul>
+<li><code>mtr -z &lt;host&gt;</code>: <a href="https://github.com/traviscross/mtr" target="_blank">https://github.com/traviscross/mtr</a></li>
+<li><code>traceroute -a &lt;host&gt;</code>: a basic built-in tool</li>
+<li><code>route get &lt;host&gt;</code>: a basic built-in tool to lookup and display the route for a destination</li>
+<li><code>dig &lt;host&gt;</code>: a basic built-in tool to lookup and display the route for a destination</li>
+</ul>
 
-&gt; NOTE: For `mtr` see [the comment thread](https://github.com/traviscross/mtr/issues/387#issuecomment-942348598) for setting up `sudo` rights.
-</code></pre>
+<blockquote>
+<p>NOTE: For <code>mtr</code> see <a href="https://github.com/traviscross/mtr/issues/387#issuecomment-942348598" target="_blank">the comment thread</a> for setting up <code>sudo</code> rights.</p>
+</blockquote>
 
 </div>
 </body>

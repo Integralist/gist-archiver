@@ -1,8 +1,7 @@
-# [Shell Script Best Practices] #shell #bash
+# Shell: Shell Scripting Best Practices #shell #bash
 
 ## shell-script-best-practices.md
 
-```markdown
 # Shell Script Best Practices
 
 > [!NOTE]
@@ -100,5 +99,4 @@ Do you have anything you think I should add to this? Please share in the comment
 Edit 1: Included fixes from HN comments at [https://news.ycombinator.com/item?id=33355407](https://news.ycombinator.com/item?id=33355407) and [https://news.ycombinator.com/item?id=33355077](https://news.ycombinator.com/item?id=33355077).
 
 Edit 2: Fix from [https://news.ycombinator.com/item?id=33354759](https://news.ycombinator.com/item?id=33354759).
-```
 

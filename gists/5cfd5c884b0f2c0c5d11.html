@@ -10,9 +10,19 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="nginx-and-ruby">nginx and ruby</h1>
 
-<h2 id="proxy-public-500-html">proxy public 500.html</h2>
+<h2 id="docker-compose-yml">docker-compose.yml</h2>
 
-<pre><code class="language-html">&lt;h1&gt;500 Error Page!?!&lt;/h1&gt;
+<pre><code class="language-yaml">frontend:
+  image: ./front-end
+  ports:
+    - &quot;8080:5000&quot;
+
+proxy:
+  image: ./proxy
+  ports:
+    - &quot;80:80&quot;
+  links:
+    - frontend
 </code></pre>
 
 <h2 id="front-end-dockerfile">front-end Dockerfile</h2>
@@ -34,26 +44,6 @@ CMD [&quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;-p&quot;, &quot;5000&quot;]
 
 gem &quot;puma&quot;
 gem &quot;sinatra&quot;
-</code></pre>
-
-<h2 id="proxy-public-index-html">proxy public index.html</h2>
-
-<pre><code class="language-html">&lt;p&gt;This is &lt;i&gt;static&lt;/i&gt; content served via nginx: abc123&lt;/p&gt;
-</code></pre>
-
-<h2 id="docker-compose-yml">docker-compose.yml</h2>
-
-<pre><code class="language-yaml">frontend:
-  image: ./front-end
-  ports:
-    - &quot;8080:5000&quot;
-
-proxy:
-  image: ./proxy
-  ports:
-    - &quot;80:80&quot;
-  links:
-    - frontend
 </code></pre>
 
 <h2 id="front-end-app-rb">front-end app.rb</h2>
@@ -87,7 +77,7 @@ EXPOSE 80
 
 <h2 id="proxy-nginx-conf">proxy nginx.conf</h2>
 
-<pre><code class="language-text">http {
+<pre><code class="language-conf">http {
     sendfile on;
     tcp_nopush on;
     tcp_nodelay on;
@@ -136,6 +126,16 @@ EXPOSE 80
         keepalive_timeout 10;
     }
 }
+</code></pre>
+
+<h2 id="proxy-public-500-html">proxy public 500.html</h2>
+
+<pre><code class="language-html">&lt;h1&gt;500 Error Page!?!&lt;/h1&gt;
+</code></pre>
+
+<h2 id="proxy-public-index-html">proxy public index.html</h2>
+
+<pre><code class="language-html">&lt;p&gt;This is &lt;i&gt;static&lt;/i&gt; content served via nginx: abc123&lt;/p&gt;
 </code></pre>
 
 </div>

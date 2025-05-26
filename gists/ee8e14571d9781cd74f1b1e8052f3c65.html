@@ -12,19 +12,20 @@
 
 <h2 id="python-api-design-md">Python API Design.md</h2>
 
-<pre><code class="language-markdown">## Rules
+<h2 id="rules">Rules</h2>
 
-1. Raise exceptions near to the source of the error.
-2. Raise custom exceptions that are a subclass of a custom parent exception.
-3. Catch the custom parent exception near the top level of your application.
-4. Return `True` if an otherwise impure/side-effect driven operation succeeded.
-5. Send (and document) standardized error messages (e.g. `NOUN_STATE` == `INPUT_INVALID`)
-6. Send appropriate response status codes so callers can handle errors without parsing response structure.
+<ol>
+<li>Raise exceptions near to the source of the error.</li>
+<li>Raise custom exceptions that are a subclass of a custom parent exception.</li>
+<li>Catch the custom parent exception near the top level of your application.</li>
+<li>Return <code>True</code> if an otherwise impure/side-effect driven operation succeeded.</li>
+<li>Send (and document) standardized error messages (e.g. <code>NOUN_STATE</code> == <code>INPUT_INVALID</code>)</li>
+<li>Send appropriate response status codes so callers can handle errors without parsing response structure.</li>
+</ol>
 
-## Example
+<h2 id="example">Example</h2>
 
-```py
-class CustomError(Exception):
+<pre><code class="language-py">class CustomError(Exception):
 	def __init__(self, exc='exception raised', code=500):
 		super().__init__(exc)
 		self.code = code
@@ -62,8 +63,6 @@ def app_entry_point():
         
    	return {'state': 'success'}
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

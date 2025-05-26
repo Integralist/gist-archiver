@@ -10,29 +10,6 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="mocking-the-window-object-in-javascript-unit-tests">Mocking the <code>window</code> object in JavaScript unit tests</h1>
 
-<h2 id="3-code-js">3. Code.js</h2>
-
-<pre><code class="language-javascript">define(['module/bootstrap'], function (lib) {
-    var $, pubsub, someObject;
-
-    someObject = {
-        // Passing mocks to production code stinks!
-        // Would love others to suggest a better solution
-        init: function (windowMock, libMock) {
-            this.global = windowMock || window;
-            this.docEl = this.global.document.documentElement || document.documentElement;
-            this.lib = libMock || lib;
-
-            $ = this.lib.$;
-            pubsub = this.lib.pubsub;
-        }
-    };
-
-    return someObject;
-});
-
-</code></pre>
-
 <h2 id="1-windowmock-js">1. WindowMock.js</h2>
 
 <pre><code class="language-javascript">define([
@@ -99,6 +76,29 @@ function resizeWindow (width, height, fakeWindow) {
     fakeWindow.resizeTo(width, height);
     WindowMock.fireResizeEvent();
 }
+</code></pre>
+
+<h2 id="3-code-js">3. Code.js</h2>
+
+<pre><code class="language-javascript">define(['module/bootstrap'], function (lib) {
+    var $, pubsub, someObject;
+
+    someObject = {
+        // Passing mocks to production code stinks!
+        // Would love others to suggest a better solution
+        init: function (windowMock, libMock) {
+            this.global = windowMock || window;
+            this.docEl = this.global.document.documentElement || document.documentElement;
+            this.lib = libMock || lib;
+
+            $ = this.lib.$;
+            pubsub = this.lib.pubsub;
+        }
+    };
+
+    return someObject;
+});
+
 </code></pre>
 
 </div>

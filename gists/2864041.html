@@ -10,31 +10,6 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="create-basic-site-using-ruby-and-sinatra-and-external-templates">Create basic site using Ruby and Sinatra (and external templates)</h1>
 
-<h2 id="mytemplate-erb">mytemplate.erb</h2>
-
-<pre><code class="language-html+erb">&lt;% @people.each do |person| %&gt;
-   &lt;p&gt;&lt;strong&gt;&lt;%= person[:name] %&gt;&lt;/strong&gt; is &lt;%= person[:age] %&gt; years old&lt;/p&gt;     
-&lt;% end %&gt;
-</code></pre>
-
-<h2 id="test-css">test.css</h2>
-
-<pre><code class="language-css">body {
-    color: #CC0;
-    font-family: Helvetica, Arial, sans-serif;
-    font-size: 100%;
-    margin: 1em;
-    padding: 1em;
-}
-</code></pre>
-
-<h2 id="test-js">test.js</h2>
-
-<pre><code class="language-javascript">window.setTimeout(function(){
-    alert(&quot;This was delayed by five seconds&quot;);
-}, 5000);
-</code></pre>
-
 <h2 id="1-sinatra-basic-with-comments-rb">1. sinatra-basic-with-comments.rb</h2>
 
 <pre><code class="language-ruby">#!/usr/bin/env ruby
@@ -141,6 +116,31 @@ end
         &lt;script src=&quot;Assets/Scripts/test.js&quot;&gt;&lt;/script&gt;
     &lt;/body&gt;
 &lt;/html&gt;
+</code></pre>
+
+<h2 id="mytemplate-erb">mytemplate.erb</h2>
+
+<pre><code class="language-html+erb">&lt;% @people.each do |person| %&gt;
+   &lt;p&gt;&lt;strong&gt;&lt;%= person[:name] %&gt;&lt;/strong&gt; is &lt;%= person[:age] %&gt; years old&lt;/p&gt;     
+&lt;% end %&gt;
+</code></pre>
+
+<h2 id="test-css">test.css</h2>
+
+<pre><code class="language-css">body {
+    color: #CC0;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 100%;
+    margin: 1em;
+    padding: 1em;
+}
+</code></pre>
+
+<h2 id="test-js">test.js</h2>
+
+<pre><code class="language-javascript">window.setTimeout(function(){
+    alert(&quot;This was delayed by five seconds&quot;);
+}, 5000);
 </code></pre>
 
 </div>

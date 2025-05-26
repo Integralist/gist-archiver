@@ -12,29 +12,32 @@
 
 <h2 id="python-s-pipenv-md">Python&rsquo;s Pipenv.md</h2>
 
-<pre><code class="language-markdown">## tl;dr
+<h2 id="tl-dr">tl;dr</h2>
 
-- `brew install pyenv`
-- `pip install pipenv`
-- `pipenv --python 3.7` (`pyenv install --list`)
-- `pipenv shell`
-- `pipenv install tornado==5.0.2`
-- `pipenv install --dev mypy tox flake8`
-- `pipenv install -r requirements.txt` (generate Pipfile from requirements.txt)
-- `pipenv lock --requirements` (generate a requirements.txt equivalent to a Pipfile)
+<ul>
+<li><code>brew install pyenv</code></li>
+<li><code>pip install pipenv</code></li>
+<li><code>pipenv --python 3.7</code> (<code>pyenv install --list</code>)</li>
+<li><code>pipenv shell</code></li>
+<li><code>pipenv install tornado==5.0.2</code></li>
+<li><code>pipenv install --dev mypy tox flake8</code></li>
+<li><code>pipenv install -r requirements.txt</code> (generate Pipfile from requirements.txt)</li>
+<li><code>pipenv lock --requirements</code> (generate a requirements.txt equivalent to a Pipfile)</li>
+</ul>
 
-## Long explanation...
+<h2 id="long-explanation">Long explanation&hellip;</h2>
 
-[https://github.com/pypa/pipenv](https://github.com/pypa/pipenv)
+<p><a href="https://github.com/pypa/pipenv" target="_blank">https://github.com/pypa/pipenv</a></p>
 
-First, make sure you're using your system install of Python (likely 2.7.x) and you have no other python environments installed, otherwise that may cause you confusion if things don't work as you expect (basically, have a spring clean of your previous/old python setup).
+<p>First, make sure you&rsquo;re using your system install of Python (likely 2.7.x) and you have no other python environments installed, otherwise that may cause you confusion if things don&rsquo;t work as you expect (basically, have a spring clean of your previous/old python setup).</p>
 
-Next make sure you have `pyenv` installed (e.g. `brew install pyenv`) as Pipenv uses that for installing python versions.
+<p>Next make sure you have <code>pyenv</code> installed (e.g. <code>brew install pyenv</code>) as Pipenv uses that for installing python versions.</p>
 
-&gt; Note: it's unclear if Pipenv will handle installing pyenv for you, so maybe try the following steps _without_ installing pyenv and see if installing a new python version (as described below) works or not.
+<blockquote>
+<p>Note: it&rsquo;s unclear if Pipenv will handle installing pyenv for you, so maybe try the following steps <em>without</em> installing pyenv and see if installing a new python version (as described below) works or not.</p>
+</blockquote>
 
-```bash
-pip install pipenv
+<pre><code class="language-bash">pip install pipenv
 </code></pre>
 
 <blockquote>
@@ -521,8 +524,6 @@ Opening '/Users/markmcdonnell/.local/share/virtualenvs/testing_pipenv-jvIwu3TP/l
     }
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

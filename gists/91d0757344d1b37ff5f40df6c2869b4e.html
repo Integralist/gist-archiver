@@ -12,28 +12,33 @@
 
 <h2 id="readme-md">README.md</h2>
 
-<pre><code class="language-markdown">**Guidelines:**
+<p><strong>Guidelines:</strong></p>
 
-&gt; [!TIP]
-&gt; The super quick summary is: use `omitzero`\
-&gt; _Unless_ you need to identify an empty map/slice/interface, then use `omitempty`.\
-&gt; If you need to identify if value was deliberately set to the zero type, use a pointer.\
-&gt; If you have specific zero requirements define custom type with `IsZero` method.
+<blockquote>
+<p>[!TIP]
+The super quick summary is: use <code>omitzero</code><br />
+<em>Unless</em> you need to identify an empty map/slice/interface, then use <code>omitempty</code>.<br />
+If you need to identify if value was deliberately set to the zero type, use a pointer.<br />
+If you have specific zero requirements define custom type with <code>IsZero</code> method.</p>
+</blockquote>
 
-- to filter out a nil map, use `omitzero`
-- to filter out a nil map _and_ an empty map, use `omitempty`
-- to filter out a nil slice, use `omitzero`
-- to filter out a nil slice _and_ an empty slice, use `omitempty`
-- to filter out an empty struct, use `omitzero`**
-- to filter out a zero time, use `omitzero`
-- to filter out a bool, use `omitzero`
+<ul>
+<li>to filter out a nil map, use <code>omitzero</code></li>
+<li>to filter out a nil map <em>and</em> an empty map, use <code>omitempty</code></li>
+<li>to filter out a nil slice, use <code>omitzero</code></li>
+<li>to filter out a nil slice <em>and</em> an empty slice, use <code>omitempty</code></li>
+<li>to filter out an empty struct, use <code>omitzero</code>**</li>
+<li>to filter out a zero time, use <code>omitzero</code></li>
+<li>to filter out a bool, use <code>omitzero</code></li>
+</ul>
 
-&gt; ** Go checks if all the struct's fields are their respective zero values _or_ if it has a custom `IsZero()` bool method that returns true. 
+<blockquote>
+<p>** Go checks if all the struct&rsquo;s fields are their respective zero values <em>or</em> if it has a custom <code>IsZero()</code> bool method that returns true.</p>
+</blockquote>
 
-Here is a contrived example of a custom int type that implements `IsZero` to trick 0 to be shown (but really, the implementation can be whatever makes sense for your application):
+<p>Here is a contrived example of a custom int type that implements <code>IsZero</code> to trick 0 to be shown (but really, the implementation can be whatever makes sense for your application):</p>
 
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;encoding/json&quot;
@@ -64,8 +69,6 @@ func main() {
 	fmt.Println(string(j3)) // {&quot;field&quot;:1}
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

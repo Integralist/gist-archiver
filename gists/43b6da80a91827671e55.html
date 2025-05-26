@@ -12,18 +12,19 @@
 
 <h2 id="process-for-rebasing-pull-request-md">Process for rebasing Pull Request.md</h2>
 
-<pre><code class="language-markdown">1. On the PR branch
-2. `git rebase -i master` (i.e. `git rebase -i {parent_commit_of_first_commit_in_PR}`)
-3. Change top commit (the oldest) to `reword`
-4. Change all other commits to `fixup`
-5. In commit message (line 1) change title to reflect entire PR
-6. In commit message (line 2) add `Closes #n` and/or `Fixes #n`
-7. In commit message (line 3) add `Authors: @integralist`
-8. `git checkout master`
-9. `git merge {PR_branch}` or `git cherry-pick {new_rebased_commit}`
-10. `git branch -D {PR_branch}`
-11. `git push origin master`
-</code></pre>
+<ol>
+<li>On the PR branch</li>
+<li><code>git rebase -i master</code> (i.e. <code>git rebase -i {parent_commit_of_first_commit_in_PR}</code>)</li>
+<li>Change top commit (the oldest) to <code>reword</code></li>
+<li>Change all other commits to <code>fixup</code></li>
+<li>In commit message (line 1) change title to reflect entire PR</li>
+<li>In commit message (line 2) add <code>Closes #n</code> and/or <code>Fixes #n</code></li>
+<li>In commit message (line 3) add <code>Authors: @integralist</code></li>
+<li><code>git checkout master</code></li>
+<li><code>git merge {PR_branch}</code> or <code>git cherry-pick {new_rebased_commit}</code></li>
+<li><code>git branch -D {PR_branch}</code></li>
+<li><code>git push origin master</code></li>
+</ol>
 
 </div>
 </body>

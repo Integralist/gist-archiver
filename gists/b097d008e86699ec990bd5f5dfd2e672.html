@@ -10,6 +10,11 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="copying-files-and-directories-bash-cp-copy-files-directories">[Copying Files and Directories] #bash #cp #copy #files #directories</h1>
 
+<h2 id="1-readme-md">1. README.md</h2>
+
+<p>A trailing slash == copy all files<br />
+No trailing slash == copy the directory</p>
+
 <h2 id="caution-with-bash-when-copying-files-and-directories-bash">Caution with Bash when copying Files and Directories.bash</h2>
 
 <pre><code class="language-shell"># copy src directory into the destination directory
@@ -22,12 +27,6 @@ cp -r src ~/Code/rust/compute/
 # NOTICE the subtle difference! a trailing slash on src/ will 
 # copy the files within that directory rather than the directory as a whole.
 cp -r src/ ~/Code/rust/compute/
-</code></pre>
-
-<h2 id="1-readme-md">1. README.md</h2>
-
-<pre><code class="language-markdown">A trailing slash == copy all files\
-No trailing slash == copy the directory
 </code></pre>
 
 </div>

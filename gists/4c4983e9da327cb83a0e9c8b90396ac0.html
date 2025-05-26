@@ -2,78 +2,113 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>[Programming Terminology] #programming #terminology</title>
+<title>Code: Programming Terminology #programming #terminology</title>
 <link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
-<h1 id="programming-terminology-programming-terminology">[Programming Terminology] #programming #terminology</h1>
+<h1 id="code-programming-terminology-programming-terminology">Code: Programming Terminology #programming #terminology</h1>
 
 <h2 id="programming-terminology-in-go-md">Programming Terminology in Go.md</h2>
 
-<pre><code class="language-markdown"># Programming Terminology in Go
+<h1 id="programming-terminology-in-go">Programming Terminology in Go</h1>
 
-## 1. Expression
-- **Definition**: A combination of values, variables, operators, and function calls that **evaluates to a single value**.
-- **Examples**:
-  - `2 + 2` (evaluates to `4`)
-  - `x * y` (evaluates to the product of `x` and `y`)
-  - `time.Second * 10` (evaluates to a `time.Duration` value of 10 seconds)
-- **Usage**: Expressions are used to compute values. They can appear within statements, assignments, or function arguments.
-
----
-
-## 2. Statement
-- **Definition**: A **complete unit of execution** that performs an action, like assigning a value, calling a function, or controlling the flow of a program.
-- **Examples**:
-  - Assignment: `x := 5`
-  - Function call: `fmt.Println(&quot;Hello, World!&quot;)`
-  - Control flow: `if x &gt; 10 { fmt.Println(&quot;x is large&quot;) }`
-- **Types of Statements**:
-  - **Expression Statement**: An expression used as a standalone statement (e.g., `x + y` is an expression; `x + y;` on its own would be invalid in Go, but `fmt.Println(x + y)` is a valid statement).
-  - **Control Statement**: Includes `if`, `for`, `switch`, etc.
-  - **Declaration Statement**: Declares variables or constants, e.g., `var a int`.
-
----
-
-## 3. Directive
-- **Definition**: A **special instruction to the compiler or tooling**, modifying behavior at compile time or runtime.
-- **Examples**:
-  - `//go:generate`: Tells the Go toolchain to generate code during build processes.
-  - Build constraints: `// +build linux` ensures code is only compiled on Linux systems.
-- **Usage**: Directives are typically comments prefixed with `//`, interpreted by Go tools.
-
----
-
-## 4. Declaration
-- **Definition**: Introduces new identifiers (variables, constants, types, or functions) into the program.
-- **Examples**:
-  - Variable declaration: `var x int`
-  - Constant declaration: `const Pi = 3.14`
-  - Type declaration: `type Point struct { X, Y int }`
-  - Function declaration: `func Add(a, b int) int { return a + b }`
-
----
-
-## 5. Keyword
-- **Definition**: Reserved words in a language with predefined meanings that cannot be used as identifiers.
-- **Examples**:
-  - `if`, `else`, `func`, `return`, `var`, `const`, etc.
-- **Usage**: Keywords form the syntax and structure of the language.
-
----
-
-## 6. Block
-- **Definition**: A sequence of statements enclosed in curly braces `{}`.
-- **Examples**:
-  ```go
-  func main() {
-      fmt.Println(&quot;Hello, World!&quot;) // This is a block
-  }
-</code></pre>
+<h2 id="1-expression">1. Expression</h2>
 
 <ul>
+<li><strong>Definition</strong>: A combination of values, variables, operators, and function calls that <strong>evaluates to a single value</strong>.</li>
+<li><strong>Examples</strong>:
+
+<ul>
+<li><code>2 + 2</code> (evaluates to <code>4</code>)</li>
+<li><code>x * y</code> (evaluates to the product of <code>x</code> and <code>y</code>)</li>
+<li><code>time.Second * 10</code> (evaluates to a <code>time.Duration</code> value of 10 seconds)</li>
+</ul></li>
+<li><strong>Usage</strong>: Expressions are used to compute values. They can appear within statements, assignments, or function arguments.</li>
+</ul>
+
+<hr />
+
+<h2 id="2-statement">2. Statement</h2>
+
+<ul>
+<li><strong>Definition</strong>: A <strong>complete unit of execution</strong> that performs an action, like assigning a value, calling a function, or controlling the flow of a program.</li>
+<li><strong>Examples</strong>:
+
+<ul>
+<li>Assignment: <code>x := 5</code></li>
+<li>Function call: <code>fmt.Println(&quot;Hello, World!&quot;)</code></li>
+<li>Control flow: <code>if x &gt; 10 { fmt.Println(&quot;x is large&quot;) }</code></li>
+</ul></li>
+<li><strong>Types of Statements</strong>:
+
+<ul>
+<li><strong>Expression Statement</strong>: An expression used as a standalone statement (e.g., <code>x + y</code> is an expression; <code>x + y;</code> on its own would be invalid in Go, but <code>fmt.Println(x + y)</code> is a valid statement).</li>
+<li><strong>Control Statement</strong>: Includes <code>if</code>, <code>for</code>, <code>switch</code>, etc.</li>
+<li><strong>Declaration Statement</strong>: Declares variables or constants, e.g., <code>var a int</code>.</li>
+</ul></li>
+</ul>
+
+<hr />
+
+<h2 id="3-directive">3. Directive</h2>
+
+<ul>
+<li><strong>Definition</strong>: A <strong>special instruction to the compiler or tooling</strong>, modifying behavior at compile time or runtime.</li>
+<li><strong>Examples</strong>:
+
+<ul>
+<li><code>//go:generate</code>: Tells the Go toolchain to generate code during build processes.</li>
+<li>Build constraints: <code>// +build linux</code> ensures code is only compiled on Linux systems.</li>
+</ul></li>
+<li><strong>Usage</strong>: Directives are typically comments prefixed with <code>//</code>, interpreted by Go tools.</li>
+</ul>
+
+<hr />
+
+<h2 id="4-declaration">4. Declaration</h2>
+
+<ul>
+<li><strong>Definition</strong>: Introduces new identifiers (variables, constants, types, or functions) into the program.</li>
+<li><strong>Examples</strong>:
+
+<ul>
+<li>Variable declaration: <code>var x int</code></li>
+<li>Constant declaration: <code>const Pi = 3.14</code></li>
+<li>Type declaration: <code>type Point struct { X, Y int }</code></li>
+<li>Function declaration: <code>func Add(a, b int) int { return a + b }</code></li>
+</ul></li>
+</ul>
+
+<hr />
+
+<h2 id="5-keyword">5. Keyword</h2>
+
+<ul>
+<li><strong>Definition</strong>: Reserved words in a language with predefined meanings that cannot be used as identifiers.</li>
+<li><strong>Examples</strong>:
+
+<ul>
+<li><code>if</code>, <code>else</code>, <code>func</code>, <code>return</code>, <code>var</code>, <code>const</code>, etc.</li>
+</ul></li>
+<li><strong>Usage</strong>: Keywords form the syntax and structure of the language.</li>
+</ul>
+
+<hr />
+
+<h2 id="6-block">6. Block</h2>
+
+<ul>
+<li><strong>Definition</strong>: A sequence of statements enclosed in curly braces <code>{}</code>.</li>
+<li><strong>Examples</strong>:
+
+<pre><code class="language-go">
+func main() {
+  fmt.Println(&quot;Hello, World!&quot;) // This is a block
+}
+</code></pre>
+</li>
 <li><strong>Usage</strong>: Blocks are used to group statements together in functions, loops, or conditionals.</li>
 </ul>
 
@@ -212,8 +247,6 @@ func main() {
     fmt.Println(&quot;End of program&quot;) // Directive example: //go:generate could appear here
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

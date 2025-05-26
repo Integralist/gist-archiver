@@ -12,26 +12,25 @@
 
 <h2 id="vim-regex-md">Vim Regex.md</h2>
 
-<pre><code class="language-markdown">A zero-width negative lookaround assertion looks like:
+<p>A zero-width negative lookaround assertion looks like:</p>
 
+<pre><code>level='(?!info)
 </code></pre>
 
-<p>level=&lsquo;(?!info)</p>
+<blockquote>
+<p>Note: this would match <code>level='error'</code> or <code>level='debug'</code>.</p>
+</blockquote>
 
-<pre><code>
-&gt; Note: this would match `level='error'` or `level='debug'`.
+<p>The equivalent in Vim is:</p>
 
-The equivalent in Vim is:
-
+<pre><code>/level='\(info\)\@!
 </code></pre>
 
-<p>/level=&rsquo;(info)\@!</p>
+<blockquote>
+<p>Note: this strange syntax is <a href="http://vimdoc.sourceforge.net/htmldoc/pattern.html#/%5C@!" target="_blank">documented here</a>, see <code>:h \@!</code></p>
+</blockquote>
 
-<pre><code>
-&gt; Note: this strange syntax is [documented here](http://vimdoc.sourceforge.net/htmldoc/pattern.html#/%5C@!), see `:h \@!`
-
-https://vim.fandom.com/wiki/Regex_lookahead_and_lookbehind
-</code></pre>
+<p><a href="https://vim.fandom.com/wiki/Regex_lookahead_and_lookbehind" target="_blank">https://vim.fandom.com/wiki/Regex_lookahead_and_lookbehind</a></p>
 
 </div>
 </body>

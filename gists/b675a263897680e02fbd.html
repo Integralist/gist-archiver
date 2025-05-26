@@ -10,6 +10,16 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="go-guardfile-bundle-exec-guard">Go Guardfile: <code>bundle exec guard</code></h1>
 
+<h2 id="gemfile">Gemfile</h2>
+
+<pre><code class="language-ruby">source &quot;https://rubygems.org&quot;
+
+gem &quot;guard&quot;
+gem &quot;guard-shell&quot;
+gem &quot;terminal-notifier&quot; # brew upgrade terminal-notifier
+gem &quot;terminal-notifier-guard&quot;
+</code></pre>
+
 <h2 id="go-guardfile-rb">Go Guardfile.rb</h2>
 
 <pre><code class="language-ruby">require &quot;terminal-notifier-guard&quot;
@@ -28,16 +38,6 @@ guard :shell do
   end
 end
 
-</code></pre>
-
-<h2 id="gemfile">Gemfile</h2>
-
-<pre><code class="language-ruby">source &quot;https://rubygems.org&quot;
-
-gem &quot;guard&quot;
-gem &quot;guard-shell&quot;
-gem &quot;terminal-notifier&quot; # brew upgrade terminal-notifier
-gem &quot;terminal-notifier-guard&quot;
 </code></pre>
 
 </div>

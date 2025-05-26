@@ -12,59 +12,68 @@
 
 <h2 id="kubernetes-essentials-md">Kubernetes Essentials.md</h2>
 
-<pre><code class="language-markdown">## Components
+<h2 id="components">Components</h2>
 
-- Master
-  - API server
-  - Controller manager
-  - Scheduler
-  - Etcd cluster
-- Node
-  - Kubelet
-  - Network proxy
-- Pod
-- Replication Controller
-- Services
-- Labels
-- Volumes
-- Kubectl
+<ul>
+<li>Master
 
-## Master
+<ul>
+<li>API server</li>
+<li>Controller manager</li>
+<li>Scheduler</li>
+<li>Etcd cluster</li>
+</ul></li>
+<li>Node
 
-The &quot;master&quot; is a cluster-wide set of services (such as the API server, which `kubectl` interacts with) which allow Kubernetes to manage our cluster of Nodes.
+<ul>
+<li>Kubelet</li>
+<li>Network proxy</li>
+</ul></li>
+<li>Pod</li>
+<li>Replication Controller</li>
+<li>Services</li>
+<li>Labels</li>
+<li>Volumes</li>
+<li>Kubectl</li>
+</ul>
 
-## Node
+<h2 id="master">Master</h2>
 
-Nodes run pods. Nodes are also managed by the master services.
+<p>The &ldquo;master&rdquo; is a cluster-wide set of services (such as the API server, which <code>kubectl</code> interacts with) which allow Kubernetes to manage our cluster of Nodes.</p>
 
-Each Node needs a Kubelet. The master sends orders to the kubelet which it uses to interact with pod containers.
+<h2 id="node">Node</h2>
 
-Each Node also needs a proxy which provides simple load balancing (kube-proxy)
+<p>Nodes run pods. Nodes are also managed by the master services.</p>
 
-## Pods
+<p>Each Node needs a Kubelet. The master sends orders to the kubelet which it uses to interact with pod containers.</p>
 
-Pods are groups of containers, co-located on the same host.
+<p>Each Node also needs a proxy which provides simple load balancing (kube-proxy)</p>
 
-Each Pod gets its own dedicated IP (these IPs change as pods are created/killed).
+<h2 id="pods">Pods</h2>
 
-Pods can be assigned labels.
+<p>Pods are groups of containers, co-located on the same host.</p>
 
-## Replication Controllers
+<p>Each Pod gets its own dedicated IP (these IPs change as pods are created/killed).</p>
 
-RCs handle the lifecycle of the pods, ensuring they match the specification. 
+<p>Pods can be assigned labels.</p>
 
-If there are too few, it'll create more. If there are too many, it'll kill those over the threshold.
+<h2 id="replication-controllers">Replication Controllers</h2>
 
-## Services
+<p>RCs handle the lifecycle of the pods, ensuring they match the specification.</p>
 
-&gt; Services are collections of pods that are exposed with a single and stable name and network address. The service provides load balancing to the underlying pods, with or without an external load balancer
+<p>If there are too few, it&rsquo;ll create more. If there are too many, it&rsquo;ll kill those over the threshold.</p>
 
-Services are an abstraction. They define a way of accessing a set of pods.
+<h2 id="services">Services</h2>
 
-In a practical sense, a 'service' is a REST endpoint, created by POST'ing a definition file to the Kubernetes &quot;API server&quot;:
+<blockquote>
+<p>Services are collections of pods that are exposed with a single and stable name and network address. The service provides load balancing to the underlying pods, with or without an external load balancer</p>
+</blockquote>
 
-```json
-{
+<p>Services are an abstraction. They define a way of accessing a set of pods.</p>
+
+<p>In a practical sense, a &lsquo;service&rsquo; is a REST endpoint, created by POST&rsquo;ing a definition file to the Kubernetes &ldquo;API server&rdquo;:</p>
+
+<pre><code class="language-json">{
     &quot;kind&quot;: &quot;Service&quot;,
     &quot;apiVersion&quot;: &quot;v1&quot;,
     &quot;metadata&quot;: {
@@ -109,8 +118,7 @@ In a practical sense, a 'service' is a REST endpoint, created by POST'ing a defi
 
 <h2 id="local-set-up">Local Set-up</h2>
 
-<p>A local set-up requires creating a &ldquo;standalone cluster&rdquo;
-&ldquo;`</p>
+<p>A local set-up requires creating a &ldquo;standalone cluster&rdquo;</p>
 
 </div>
 </body>

@@ -12,53 +12,64 @@
 
 <h2 id="example-system-contract-for-caching-behaviours-md">Example System Contract for Caching Behaviours.md</h2>
 
-<pre><code class="language-markdown">## Caching
+<h2 id="caching">Caching</h2>
 
-- `Cache-Control`: used if provided, otherwise default will be set.
-- `Surrogate-Control`: augmented if provided, otherwise default will be set.
+<ul>
+<li><code>Cache-Control</code>: used if provided, otherwise default will be set.</li>
+<li><code>Surrogate-Control</code>: augmented if provided, otherwise default will be set.</li>
+</ul>
 
-### Augmentation
+<h3 id="augmentation">Augmentation</h3>
 
-Perimeter will augment the provided `Surrogate-Control` by appending `stale-while-revalidate` and `stale-if-error` directives if they are not defined.
+<p>Perimeter will augment the provided <code>Surrogate-Control</code> by appending <code>stale-while-revalidate</code> and <code>stale-if-error</code> directives if they are not defined.</p>
 
-&gt; See also &quot;[Extensions](#extensions)&quot; section below.
+<blockquote>
+<p>See also &ldquo;<a href="#extensions">Extensions</a>&rdquo; section below.</p>
+</blockquote>
 
-### Defaults
+<h3 id="defaults">Defaults</h3>
 
-If no `Cache-Control` nor `Surrogate-Control` is provided, Perimeter will use the following default caching/stale directives:
+<p>If no <code>Cache-Control</code> nor <code>Surrogate-Control</code> is provided, Perimeter will use the following default caching/stale directives:</p>
 
-- `Cache-Control`: `no-store`
-- `Surrogate-Control`: `max-age=%d, stale-while-revalidate=%d, stale-if-error=%d`
+<ul>
+<li><code>Cache-Control</code>: <code>no-store</code></li>
+<li><code>Surrogate-Control</code>: <code>max-age=%d, stale-while-revalidate=%d, stale-if-error=%d</code></li>
+</ul>
 
-&gt; Note: `%d` is a placeholder for the actual value set in Perimeter's `config.yml`
+<blockquote>
+<p>Note: <code>%d</code> is a placeholder for the actual value set in Perimeter&rsquo;s <code>config.yml</code></p>
+</blockquote>
 
-### Exceptions
+<h3 id="exceptions">Exceptions</h3>
 
-There are a few exceptions to the [defaults](#defaults) defined above:
+<p>There are a few exceptions to the <a href="#defaults">defaults</a> defined above:</p>
 
-- Static file requests (i.e. proxied to AWS S3) will have a longer `max-age` (it uses the `stale-if-error` value).
-- Smoke requests (see `smoke_path` in `config.yml`) disables all caching.
+<ul>
+<li>Static file requests (i.e. proxied to AWS S3) will have a longer <code>max-age</code> (it uses the <code>stale-if-error</code> value).</li>
+<li>Smoke requests (see <code>smoke_path</code> in <code>config.yml</code>) disables all caching.</li>
+</ul>
 
-### Extensions
+<h3 id="extensions">Extensions</h3>
 
-Both `Cache-Control` and `Surrogate-Control` have additional directives related to serving stale content, which are not part of the core HTTP caching standards document. These are `stale-while-revalidate` and `stale-if-error`.
+<p>Both <code>Cache-Control</code> and <code>Surrogate-Control</code> have additional directives related to serving stale content, which are not part of the core HTTP caching standards document. These are <code>stale-while-revalidate</code> and <code>stale-if-error</code>.</p>
 
-Fastly CDN supports both of these extension directives via `Surrogate-Control`, but client compatibility (i.e. web browser support) via `Cache-Control` is less consistent.
+<p>Fastly CDN supports both of these extension directives via <code>Surrogate-Control</code>, but client compatibility (i.e. web browser support) via <code>Cache-Control</code> is less consistent.</p>
 
-Perimeter will only augment `Surrogate-Control`, it will _not_ augment `Cache-Control`.
+<p>Perimeter will only augment <code>Surrogate-Control</code>, it will <em>not</em> augment <code>Cache-Control</code>.</p>
 
-### Status Codes
+<h3 id="status-codes">Status Codes</h3>
 
-The CDN will only cache the following status code responses:
+<p>The CDN will only cache the following status code responses:</p>
 
-- `200 OK`
-- `203 Non-Authoritative Information`
-- `300 Multiple Choices`
-- `301 Moved Permanently`
-- `302 Moved Temporarily`
-- `404 Not Found`
-- `410 Gone`
-</code></pre>
+<ul>
+<li><code>200 OK</code></li>
+<li><code>203 Non-Authoritative Information</code></li>
+<li><code>300 Multiple Choices</code></li>
+<li><code>301 Moved Permanently</code></li>
+<li><code>302 Moved Temporarily</code></li>
+<li><code>404 Not Found</code></li>
+<li><code>410 Gone</code></li>
+</ul>
 
 </div>
 </body>

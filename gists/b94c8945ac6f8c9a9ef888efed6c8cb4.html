@@ -12,25 +12,24 @@
 
 <h2 id="terraform-modules-md">Terraform Modules.md</h2>
 
-<pre><code class="language-markdown">To use modules they must abide by the following directory structure:
+<p>To use modules they must abide by the following directory structure:</p>
 
-</code></pre>
-
-<p>.
+<pre><code>.
 ├── modules
 │   └── your_module_name_here
 │       └── whatever_you_want_to_call_this.tf
 │       └── outputs.tf
 ├── outputs.tf
-├── service.tf</p>
+├── service.tf
+</code></pre>
 
-<pre><code>
-&gt; NOTE: multiple `outputs.tf` files. We'll demonstrate below how to reference a module's output variable from within our 'root' module (i.e. `service.tf`) .
+<blockquote>
+<p>NOTE: multiple <code>outputs.tf</code> files. We&rsquo;ll demonstrate below how to reference a module&rsquo;s output variable from within our &lsquo;root&rsquo; module (i.e. <code>service.tf</code>) .</p>
+</blockquote>
 
-You would then consume the module from within your root module like so:
+<p>You would then consume the module from within your root module like so:</p>
 
-```tf
-module &quot;foo&quot; {
+<pre><code class="language-tf">module &quot;foo&quot; {
   source = &quot;./modules/your_module_name_here&quot;
   some_input_variable = &quot;example&quot;
 }
@@ -84,8 +83,7 @@ output &quot;active_foo&quot; {
 }
 </code></pre>
 
-<p>Notice the syntax to reference the module&rsquo;s output variable from within the root module: <code>module.&lt;module_name&gt;.&lt;module_output_variable_name&gt;</code>.
-&ldquo;`</p>
+<p>Notice the syntax to reference the module&rsquo;s output variable from within the root module: <code>module.&lt;module_name&gt;.&lt;module_output_variable_name&gt;</code>.</p>
 
 </div>
 </body>

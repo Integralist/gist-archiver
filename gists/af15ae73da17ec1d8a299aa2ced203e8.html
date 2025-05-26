@@ -12,15 +12,16 @@
 
 <h2 id="service-orchestration-vs-choreography-md">Service Orchestration vs Choreography.md</h2>
 
-<pre><code class="language-markdown">- Service Orchestration: Queues 
-- Service Choreography: Pub/Sub
+<ul>
+<li>Service Orchestration: Queues</li>
+<li>Service Choreography: Pub/Sub</li>
+</ul>
 
-The former requires a service to know about its upstream services.
+<p>The former requires a service to know about its upstream services.</p>
 
-The latter allows a service to _not_ know about its upstream services.
+<p>The latter allows a service to <em>not</em> know about its upstream services.</p>
 
-The latter is a cleaner separation of concerns and decoupling, because the upstream services just need to be aware of a potential &quot;event&quot; and the original service just needs to know that it has to fire an &quot;event&quot;.
-</code></pre>
+<p>The latter is a cleaner separation of concerns and decoupling, because the upstream services just need to be aware of a potential &ldquo;event&rdquo; and the original service just needs to know that it has to fire an &ldquo;event&rdquo;.</p>
 
 </div>
 </body>

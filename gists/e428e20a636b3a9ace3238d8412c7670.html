@@ -12,10 +12,9 @@
 
 <h2 id="varnish-vcl-basic-authentication-md">Varnish VCL Basic Authentication.md</h2>
 
-<pre><code class="language-markdown">## generate a username/password
+<h2 id="generate-a-username-password">generate a username/password</h2>
 
-```bash
-echo -n beep:boop | base64
+<pre><code class="language-bash">echo -n beep:boop | base64
 
 YmVlcDpib29w
 </code></pre>
@@ -66,8 +65,6 @@ sub vcl_error {
 <pre><code class="language-bash">curl --user beep:boop https://www.example.com/auth-me
 curl -H &quot;Authorization: Basic YmVlcDpib29w&quot; https://www.example.com/auth-me
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

@@ -10,14 +10,6 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="sinatra-and-docker">Sinatra and Docker</h1>
 
-<h2 id="config-ru">config.ru</h2>
-
-<pre><code class="language-ruby">require &quot;sinatra&quot;
-require &quot;./app.rb&quot;
-
-run App
-</code></pre>
-
 <h2 id="dockerfile">Dockerfile</h2>
 
 <pre><code class="language-dockerfile">FROM ruby
@@ -50,6 +42,14 @@ class App &lt; Sinatra::Base
     &quot;&lt;p&gt;This is &lt;i&gt;dynamic&lt;/i&gt; content served via puma: #{rand(36**6).to_s(36)}&quot;
   end
 end
+</code></pre>
+
+<h2 id="config-ru">config.ru</h2>
+
+<pre><code class="language-ruby">require &quot;sinatra&quot;
+require &quot;./app.rb&quot;
+
+run App
 </code></pre>
 
 </div>

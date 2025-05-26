@@ -12,39 +12,36 @@
 
 <h2 id="readme-md">README.md</h2>
 
-<pre><code class="language-markdown"># S3 backend for Terraform
+<h1 id="s3-backend-for-terraform">S3 backend for Terraform</h1>
 
-&gt; Copied verbatim from https://github.com/ozbillwang/terraform-best-practices
+<blockquote>
+<p>Copied verbatim from <a href="https://github.com/ozbillwang/terraform-best-practices" target="_blank">https://github.com/ozbillwang/terraform-best-practices</a></p>
+</blockquote>
 
-Createe a s3 bucket and dynamodb table to use as terraform backend.
+<p>Createe a s3 bucket and dynamodb table to use as terraform backend.</p>
 
-* dynamodb_table_name = terraform-lock
-* s3_bucket_name = &lt;account_id&gt;-terraform-states
+<ul>
+<li>dynamodb_table_name = terraform-lock</li>
+<li>s3_bucket_name = <account_id>-terraform-states</li>
+</ul>
 
-# usage
+<h1 id="usage">usage</h1>
 
+<pre><code># make sure you are on the right aws account
+pip install awscli
+aws s3 ls
+
+# If you don't set default region in your aws configuration, and you want to create the resources in region &quot;us-east-1&quot;
+export AWS_DEFAULT_REGION=us-east-1
+export AWS_REGION=us-east-1
+
+# Dry-run
+terraform init
+terraform plan
+
+# apply the change
+terraform apply
 </code></pre>
-
-<h1 id="make-sure-you-are-on-the-right-aws-account">make sure you are on the right aws account</h1>
-
-<p>pip install awscli
-aws s3 ls</p>
-
-<h1 id="if-you-don-t-set-default-region-in-your-aws-configuration-and-you-want-to-create-the-resources-in-region-us-east-1">If you don&rsquo;t set default region in your aws configuration, and you want to create the resources in region &ldquo;us-east-1&rdquo;</h1>
-
-<p>export AWS_DEFAULT_REGION=us-east-1
-export AWS_REGION=us-east-1</p>
-
-<h1 id="dry-run">Dry-run</h1>
-
-<p>terraform init
-terraform plan</p>
-
-<h1 id="apply-the-change">apply the change</h1>
-
-<p>terraform apply</p>
-
-<pre><code></code></pre>
 
 <h2 id="main-tf">main.tf</h2>
 
@@ -144,8 +141,7 @@ output &quot;dynamodb_table_arn&quot; {
 
 <h2 id="s3-md">s3.md</h2>
 
-<pre><code class="language-markdown">```terraform
-# main.tf
+<pre><code class="language-terraform"># main.tf
 terraform {
   backend &quot;s3&quot; {
     encrypt = true
@@ -173,8 +169,6 @@ terraform init -backend-config=config/backend-${env}.conf
 terraform plan -var-file=config/${env}.tfvars
 terraform apply -var-file=config/${env}.tfvars
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

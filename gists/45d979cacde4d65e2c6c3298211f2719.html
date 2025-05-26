@@ -12,12 +12,11 @@
 
 <h2 id="golang-reduce-function-signature-with-struct-md">Golang Reduce Function Signature with Struct.md</h2>
 
-<pre><code class="language-markdown">Instead of a long list of function arguments, consider using a struct.
+<p>Instead of a long list of function arguments, consider using a struct.</p>
 
-Because types are initialized with a zero value, it means we can easily _omit_ a field if we want.
+<p>Because types are initialized with a zero value, it means we can easily <em>omit</em> a field if we want.</p>
 
-```go
-type FooOptions struct { 
+<pre><code class="language-go">type FooOptions struct { 
   beep string 
   boop string
   bing int
@@ -30,8 +29,6 @@ f, err := foo(FooOptions{
 
 // notice `boop` field was omitted.
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

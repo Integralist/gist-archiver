@@ -12,17 +12,20 @@
 
 <h2 id="distributed-tracing-md">Distributed Tracing.md</h2>
 
-<pre><code class="language-markdown">Distributed Tracing is the process of tracking and analyzing what happens to a request (transaction) across all services it touches.
+<p>Distributed Tracing is the process of tracking and analyzing what happens to a request (transaction) across all services it touches.</p>
 
-- **Transaction**: request
-- **Trace ID**: unique request identifier
-- **Trace**: entire transaction (across all services)
-- **Span**: logical chunk of work in a given 'Trace'
+<ul>
+<li><strong>Transaction</strong>: request</li>
+<li><strong>Trace ID</strong>: unique request identifier</li>
+<li><strong>Trace</strong>: entire transaction (across all services)</li>
+<li><strong>Span</strong>: logical chunk of work in a given &lsquo;Trace&rsquo;</li>
+</ul>
 
-Spans have parent-child relationships. A parent can have multiple children. The first span is the &quot;root span&quot;. Each span has an ID and a pointer to its parent span ID.
+<p>Spans have parent-child relationships. A parent can have multiple children. The first span is the &ldquo;root span&rdquo;. Each span has an ID and a pointer to its parent span ID.</p>
 
-&gt; Note: this information was found on the [Nike engineering blog](https://medium.com/nikeengineering/hit-the-ground-running-with-distributed-tracing-core-concepts-ff5ad47c7058)
-</code></pre>
+<blockquote>
+<p>Note: this information was found on the <a href="https://medium.com/nikeengineering/hit-the-ground-running-with-distributed-tracing-core-concepts-ff5ad47c7058" target="_blank">Nike engineering blog</a></p>
+</blockquote>
 
 </div>
 </body>

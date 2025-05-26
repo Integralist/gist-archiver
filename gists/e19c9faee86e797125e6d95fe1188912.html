@@ -12,22 +12,26 @@
 
 <h2 id="readme-md">README.md</h2>
 
-<pre><code class="language-markdown">There are multiple ways to deal with non-application dependencies (i.e. &quot;tools&quot; that your project needs).
+<p>There are multiple ways to deal with non-application dependencies (i.e. &ldquo;tools&rdquo; that your project needs).</p>
 
-- [go tool](#go-tool)
-  - [caveats and issues](#caveats-and-issues)
-  - [multiple module files](#multiple-module-files)
-- [tools.go](#toolsgo)
-- [go run](#go-run)
+<ul>
+<li><a href="#go-tool">go tool</a>
 
-## go tool
+<ul>
+<li><a href="#caveats-and-issues">caveats and issues</a></li>
+<li><a href="#multiple-module-files">multiple module files</a></li>
+</ul></li>
+<li><a href="#toolsgo">tools.go</a></li>
+<li><a href="#go-run">go run</a></li>
+</ul>
 
-As of Go 1.24 (Feb 2025)
+<h2 id="go-tool">go tool</h2>
 
-To add a new tool:
+<p>As of Go 1.24 (Feb 2025)</p>
 
-```shell
-go get -tool golang.org/x/lint/golint
+<p>To add a new tool:</p>
+
+<pre><code class="language-shell">go get -tool golang.org/x/lint/golint
 go get -tool github.com/mgechev/revive@latest
 </code></pre>
 
@@ -266,8 +270,6 @@ has is that it works whilst offline because the tool is explicitly installed.
 But to work around that with <code>go run</code> you can set <code>export GOPROXY=direct</code> and
 as long as you have the module in your local cache you&rsquo;ll be able to use it.</p>
 </blockquote>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

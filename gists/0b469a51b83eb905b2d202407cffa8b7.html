@@ -12,10 +12,9 @@
 
 <h2 id="docker-alpine-md">Docker Alpine.md</h2>
 
-<pre><code class="language-markdown">Dockerfile:
+<p>Dockerfile:</p>
 
-```conf
-FROM nginx:alpine
+<pre><code class="language-conf">FROM nginx:alpine
 RUN apk update &amp;&amp; apk add curl python
 </code></pre>
 
@@ -27,8 +26,7 @@ docker run -it --name nginx-alpine-test integralist:alpine-testing ash
 
 <blockquote>
 <p>Note: no <code>bash</code> command in alpine, so use <code>ash</code> instead<br />
-Unless you <code>apk add bash</code> as well
-&ldquo;`</p>
+Unless you <code>apk add bash</code> as well</p>
 </blockquote>
 
 </div>

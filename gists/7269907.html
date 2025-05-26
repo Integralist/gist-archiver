@@ -12,229 +12,236 @@
 
 <h2 id="rtl-md">RTL.md</h2>
 
-<pre><code class="language-markdown"># Right-to-Left (RTL)
+<h1 id="right-to-left-rtl">Right-to-Left (RTL)</h1>
 
-## Implementation
+<h2 id="implementation">Implementation</h2>
 
-There are two methods to use in order to flip CSS styles: interpolated properties and the flip() function.
+<p>There are two methods to use in order to flip CSS styles: interpolated properties and the flip() function.</p>
 
-- Interpolation should be used for any property which has a direction (e.g. `padding-left`, `margin-right`, `border-right`, `left`, etc.)
-- `flip()` should be used for all other properties
+<ul>
+<li>Interpolation should be used for any property which has a direction (e.g. <code>padding-left</code>, <code>margin-right</code>, <code>border-right</code>, <code>left</code>, etc.)</li>
+<li><code>flip()</code> should be used for all other properties</li>
+</ul>
 
-### Which properties need to be flipped?
+<h3 id="which-properties-need-to-be-flipped">Which properties need to be flipped?</h3>
 
-- background
-- background-position
-- border
-- border-radius
-- clear
-- cursor
-- direction
-- float
-- left/right
-- margin
-- padding
-- text-align
-- text-indent
+<ul>
+<li>background</li>
+<li>background-position</li>
+<li>border</li>
+<li>border-radius</li>
+<li>clear</li>
+<li>cursor</li>
+<li>direction</li>
+<li>float</li>
+<li>left/right</li>
+<li>margin</li>
+<li>padding</li>
+<li>text-align</li>
+<li>text-indent</li>
+</ul>
 
-### How does it work?
+<h3 id="how-does-it-work">How does it work?</h3>
 
-    // guts/mixins/_rtl.scss
-    @function flip($value_ltr, $value_rtl) {
-      @if $rtl { @return $value_rtl; }
-      @else { @return $value_ltr; }
-    }
+<pre><code>// guts/mixins/_rtl.scss
+@function flip($value_ltr, $value_rtl) {
+  @if $rtl { @return $value_rtl; }
+  @else { @return $value_ltr; }
+}
 
-    $padding-left:    padding-left;
-    $padding-right:   padding-right;
-    $margin-left:     margin-left;
-    $margin-right:    margin-right;
-    $border-right:    border-right;
-    $left:            left;
-    $right:           right;
+$padding-left:    padding-left;
+$padding-right:   padding-right;
+$margin-left:     margin-left;
+$margin-right:    margin-right;
+$border-right:    border-right;
+$left:            left;
+$right:           right;
 
-    @if $rtl {
-      $padding-left:  padding-right;
-      $padding-right: padding-left;
-      $margin-left:   margin-right;
-      $margin-right:  margin-left;
-      $border-right:  border-left;
-      $left:          right;
-      $right:         left;
-    }
+@if $rtl {
+  $padding-left:  padding-right;
+  $padding-right: padding-left;
+  $margin-left:   margin-right;
+  $margin-right:  margin-left;
+  $border-right:  border-left;
+  $left:          right;
+  $right:         left;
+}
+</code></pre>
 
-#### Flip
+<h4 id="flip">Flip</h4>
 
-To implement, let's take the following style as an example:
+<p>To implement, let&rsquo;s take the following style as an example:</p>
 
-    // Original Sass
-    .class {
-      float: left;
-    }
+<pre><code>// Original Sass
+.class {
+  float: left;
+}
+</code></pre>
 
-For a RTL layout, `float: left;` should be flipped to `float: right'`.
+<p>For a RTL layout, <code>float: left;</code> should be flipped to <code>float: right'</code>.</p>
 
-We can use the `flip()` function to accomplish this.
+<p>We can use the <code>flip()</code> function to accomplish this.</p>
 
-    // Flipped Sass
-    .class {
-      float: flip(left, right);
-    }
+<pre><code>// Flipped Sass
+.class {
+  float: flip(left, right);
+}
+</code></pre>
 
-When Sass comes across the `flip()` function when compiling the code, it will check what the `$rtl` variable is set to. This variable is set at the top level, for example in `sass/intl-arabic-core.scss`.
+<p>When Sass comes across the <code>flip()</code> function when compiling the code, it will check what the <code>$rtl</code> variable is set to. This variable is set at the top level, for example in <code>sass/intl-arabic-core.scss</code>.</p>
 
-If `$rtl` is `false`, the `flip()` function will take the first parameter.
-If `$rtl` is `true`, the `flip()` function will take the second parameter.
+<p>If <code>$rtl</code> is <code>false</code>, the <code>flip()</code> function will take the first parameter.
+If <code>$rtl</code> is <code>true</code>, the <code>flip()</code> function will take the second parameter.</p>
 
-The Sass will compile out as follows:
+<p>The Sass will compile out as follows:</p>
 
-    // Compiled LTR style
-    .class {
-      float: left;
-    }
+<pre><code>// Compiled LTR style
+.class {
+  float: left;
+}
 
-    // Compiled RTL style
-    .class {
-      float: right;
-    }
+// Compiled RTL style
+.class {
+  float: right;
+}
+</code></pre>
 
-#### Interpolation
+<h4 id="interpolation">Interpolation</h4>
 
-This method interpolates the property names from variables which are flipped higher up.
+<p>This method interpolates the property names from variables which are flipped higher up.</p>
 
-In `_rtl.scss`, the `$padding-left` variable is declared as `padding-left`. Then if `$rtl` is `true`, it is overridden with `padding-right`.
+<p>In <code>_rtl.scss</code>, the <code>$padding-left</code> variable is declared as <code>padding-left</code>. Then if <code>$rtl</code> is <code>true</code>, it is overridden with <code>padding-right</code>.</p>
 
-To implement, take the following style as an example:
+<p>To implement, take the following style as an example:</p>
 
-    // Original Sass
-    .class {
-      padding-left: 8px;
-    }
+<pre><code>// Original Sass
+.class {
+  padding-left: 8px;
+}
+</code></pre>
 
-For a RTL layout, `padding-left: 8px;` should be flipped to `padding-right: 8px;`.
+<p>For a RTL layout, <code>padding-left: 8px;</code> should be flipped to <code>padding-right: 8px;</code>.</p>
 
-In order to flip this, we have to interpolate the style property:
+<p>In order to flip this, we have to interpolate the style property:</p>
 
-    // Flipped Sass
-    .class {
-      #{$padding-left}: 8px;
-    }
+<pre><code>// Flipped Sass
+.class {
+  #{$padding-left}: 8px;
+}
+</code></pre>
 
-This will compile out to:
+<p>This will compile out to:</p>
 
-    // Compiled LTR style
-    .class {
-      padding-left: 8px;
-    }
+<pre><code>// Compiled LTR style
+.class {
+  padding-left: 8px;
+}
 
-    // Compiled RTL style
-    .class {
-      padding-right: 8px;
-    }
+// Compiled RTL style
+.class {
+  padding-right: 8px;
+}
+</code></pre>
 
-#### Markup
+<h4 id="markup">Markup</h4>
 
-Placing the `dir=rtl` attribute on the `&lt;html&gt;` tag can cause the scrollbar in certain browsers to be flipped to the left-hand side. This is generally found to be a bad experience for RTL users.
+<p>Placing the <code>dir=rtl</code> attribute on the <code>&lt;html&gt;</code> tag can cause the scrollbar in certain browsers to be flipped to the left-hand side. This is generally found to be a bad experience for RTL users.</p>
 
-Adding `dir=rtl` to the `&lt;head&gt;` tag and to a `&lt;div&gt;` wrapping the whole page, as recommended by [W3C](http://www.w3.org/TR/i18n-html-tech-bidi/#tech-scrollbar), ensures that the scrollbar isn't flipped.
+<p>Adding <code>dir=rtl</code> to the <code>&lt;head&gt;</code> tag and to a <code>&lt;div&gt;</code> wrapping the whole page, as recommended by <a href="http://www.w3.org/TR/i18n-html-tech-bidi/#tech-scrollbar" target="_blank">W3C</a>, ensures that the scrollbar isn&rsquo;t flipped.</p>
 
-    &lt;!DOCTYPE HTML&gt;
-    &lt;html&gt;
-    &lt;head dir=&quot;rtl&quot;&gt;
+<pre><code>&lt;!DOCTYPE HTML&gt;
+&lt;html&gt;
+&lt;head dir=&quot;rtl&quot;&gt;
+    ...
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div dir=&quot;rtl&quot;&gt;
         ...
-    &lt;/head&gt;
-    &lt;body&gt;
-        &lt;div dir=&quot;rtl&quot;&gt;
-            ...
-        &lt;/div&gt;
-    &lt;/body&gt;
-    &lt;/html&gt;
-
-### More examples
-
-    // Flipped Sass
-    .class {
-      #{$padding-left}: 8px;
-      #{$padding-right}: 8px;
-      #{$margin-left}: 8px;
-      #{$margin-right}: 8px;
-      #{$left}: 8px;
-      #{$right}: 8px;
-      margin: flip(1px 2px 3px 4px, 1px 4px 3px 2px);
-      float: flip(left, right);
-    }
-
-    // Compiled LTR style
-    .class {
-      padding-left: 8px;
-      padding-right: 8px;
-      margin-left: 8px;
-      margin-right: 8px;
-      left: 8px;
-      right: 8px;
-      margin: 1px 2px 3px 4px;
-      float: left;
-    }
-
-    // Compiled RTL style
-    .class {
-      padding-right: 8px;
-      padding-left: 8px;
-      margin-right: 8px;
-      margin-left: 8px;
-      right: 8px;
-      left: 8px;
-      margin: 1px 4px 3px 2px;
-      float: right;
-    }
-
-# Best practices
-
-- Don't flip everything! Only flip what needs to be flipped. This will help keep the CSS as clean as possible.
-- Styles which are hiding elements by pushing them off the screen (e.g. `text-align: -320px;` or `right: 5000%;`) don't need to be flipped unless they are being transitioned or overridden.
-- If left and right properties have the same values in the same selector, they dont need to be flipped (e.g. `margin-left: 0; margin-right: 0;`)
-- Write long values on separate lines:
-
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
 
-<p>// Good
-.class {
-  padding: flip(<span class="math inline">\(gutter/2 \)</span>gutter*2.5 <span class="math inline">\(gutter/4 \)</span>gutter/2,</p>
+<h3 id="more-examples">More examples</h3>
 
-<pre><code>            $gutter/2 $gutter/2 $gutter/4 $gutter*2.5);
+<pre><code>// Flipped Sass
+.class {
+  #{$padding-left}: 8px;
+  #{$padding-right}: 8px;
+  #{$margin-left}: 8px;
+  #{$margin-right}: 8px;
+  #{$left}: 8px;
+  #{$right}: 8px;
+  margin: flip(1px 2px 3px 4px, 1px 4px 3px 2px);
+  float: flip(left, right);
+}
+
+// Compiled LTR style
+.class {
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-left: 8px;
+  margin-right: 8px;
+  left: 8px;
+  right: 8px;
+  margin: 1px 2px 3px 4px;
+  float: left;
+}
+
+// Compiled RTL style
+.class {
+  padding-right: 8px;
+  padding-left: 8px;
+  margin-right: 8px;
+  margin-left: 8px;
+  right: 8px;
+  left: 8px;
+  margin: 1px 4px 3px 2px;
+  float: right;
+}
 </code></pre>
 
-<p>}</p>
+<h1 id="best-practices">Best practices</h1>
 
-<p>// Bad
+<ul>
+<li>Don&rsquo;t flip everything! Only flip what needs to be flipped. This will help keep the CSS as clean as possible.</li>
+<li>Styles which are hiding elements by pushing them off the screen (e.g. <code>text-align: -320px;</code> or <code>right: 5000%;</code>) don&rsquo;t need to be flipped unless they are being transitioned or overridden.</li>
+<li>If left and right properties have the same values in the same selector, they dont need to be flipped (e.g. <code>margin-left: 0; margin-right: 0;</code>)</li>
+<li>Write long values on separate lines:</li>
+</ul>
+
+<pre><code>// Good
 .class {
-  padding: flip(<span class="math inline">\(gutter/2 \)</span>gutter*2.5 <span class="math inline">\(gutter/4 \)</span>gutter/2, <span class="math inline">\(gutter/2 \)</span>gutter/2 <span class="math inline">\(gutter/4 \)</span>gutter*2.5);
-}</p>
+  padding: flip($gutter/2 $gutter*2.5 $gutter/4 $gutter/2,
+                $gutter/2 $gutter/2 $gutter/4 $gutter*2.5);
+}
 
-<pre><code>
-- Separate `background-position` from `background` shorthand
-
+// Bad
+.class {
+  padding: flip($gutter/2 $gutter*2.5 $gutter/4 $gutter/2, $gutter/2 $gutter/2 $gutter/4 $gutter*2.5);
+}
 </code></pre>
 
-<p>// Good
+<ul>
+<li>Separate <code>background-position</code> from <code>background</code> shorthand</li>
+</ul>
+
+<pre><code>// Good
 .class {
-  background: $pale-grey image-url(&lsquo;icons-sprite.png&rsquo;) no-repeat;
+  background: $pale-grey image-url('icons-sprite.png') no-repeat;
   background-position: flip(right -792px, left -792px);
-}</p>
+}
 
-<p>// Bad
+// Bad
 .class {
-  background: flip($pale-grey image-url(&lsquo;icons-sprite.png&rsquo;) no-repeat right -792px,</p>
-
-<pre><code>               $pale-grey image-url('icons-sprite.png') no-repeat left -792px);
+  background: flip($pale-grey image-url('icons-sprite.png') no-repeat right -792px,
+                   $pale-grey image-url('icons-sprite.png') no-repeat left -792px);
+}
 </code></pre>
 
-<p>}</p>
-
-<pre><code>
-- How to fix bi-directional brackets issue: http://blog.jalproductions.co.uk/2013/04/19/how-to-fix-rtl-bracketsparenthesis-problem/
-
-</code></pre>
+<ul>
+<li>How to fix bi-directional brackets issue: <a href="http://blog.jalproductions.co.uk/2013/04/19/how-to-fix-rtl-bracketsparenthesis-problem/" target="_blank">http://blog.jalproductions.co.uk/2013/04/19/how-to-fix-rtl-bracketsparenthesis-problem/</a></li>
+</ul>
 
 </div>
 </body>

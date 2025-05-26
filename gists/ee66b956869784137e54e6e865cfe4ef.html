@@ -12,25 +12,31 @@
 
 <h2 id="vim-searching-md">vim searching.md</h2>
 
-<pre><code class="language-markdown">The following are native vim solutions to finding files and also searching multiple files for content.
+<p>The following are native vim solutions to finding files and also searching multiple files for content.</p>
 
-They require no plugins to be installed.
+<p>They require no plugins to be installed.</p>
 
-&gt; Note: at the end of this gist I'll demonstrate some plugins that remove the need to use the native solutions, and in fact I use these plugins for day-to-day vim'ing instead.
+<blockquote>
+<p>Note: at the end of this gist I&rsquo;ll demonstrate some plugins that remove the need to use the native solutions, and in fact I use these plugins for day-to-day vim&rsquo;ing instead.</p>
+</blockquote>
 
-- [Finding a single file](#finding-a-single-file)
-- [Finding content within one or more files](#finding-content-within-one-or-more-files)
-  - [Example basic vim configuration](#example-basic-vim-configuration)
-- [Plugins](#plugins)
+<ul>
+<li><a href="#finding-a-single-file">Finding a single file</a></li>
+<li><a href="#finding-content-within-one-or-more-files">Finding content within one or more files</a>
 
-## Finding a single file
+<ul>
+<li><a href="#example-basic-vim-configuration">Example basic vim configuration</a></li>
+</ul></li>
+<li><a href="#plugins">Plugins</a></li>
+</ul>
 
-To find a _single_ file you can use the `:find` Ex command and pass it a wildcard glob character to help search recursively for the specified file pattern.
+<h2 id="finding-a-single-file">Finding a single file</h2>
 
-Example: we want to find a file called `next.config.js`:
+<p>To find a <em>single</em> file you can use the <code>:find</code> Ex command and pass it a wildcard glob character to help search recursively for the specified file pattern.</p>
 
-```viml
-:find **/next.*.js 
+<p>Example: we want to find a file called <code>next.config.js</code>:</p>
+
+<pre><code class="language-viml">:find **/next.*.js 
 </code></pre>
 
 <blockquote>
@@ -112,8 +118,6 @@ set wildmode=list:longest,list:full
 &quot; Ack
 let g:ackprg = 'ag --vimgrep --smart-case --ignore-dir=node_modules'
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

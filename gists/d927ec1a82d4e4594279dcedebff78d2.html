@@ -12,53 +12,74 @@
 
 <h2 id="rust-ownership-borrowing-lifetimes-md">Rust Ownership, Borrowing, Lifetimes.md</h2>
 
-<pre><code class="language-markdown">## Ownership
+<h2 id="ownership">Ownership</h2>
 
-&gt; NOTE: all information learned from https://doc.rust-lang.org/stable/book/ch04-00-understanding-ownership.html
+<blockquote>
+<p>NOTE: all information learned from <a href="https://doc.rust-lang.org/stable/book/ch04-00-understanding-ownership.html" target="_blank">https://doc.rust-lang.org/stable/book/ch04-00-understanding-ownership.html</a></p>
+</blockquote>
 
-Understanding ownership requires understanding 'stack' vs 'heap' memory.
+<p>Understanding ownership requires understanding &lsquo;stack&rsquo; vs &lsquo;heap&rsquo; memory.</p>
 
-- Stack data is released once it goes out of scope (e.g. once a function ends the arguments passed are dropped).
-- Stack is quick because the values are literal and can be hardcoded into the compiled binary.
-- This means stack values are immutable.
-- Heap is for memory that grows or has unknown size and needs to be explicitly dropped.
-- Heap is slower as it is allocated at _runtime_ and you have to follow a 'pointer' to find the data in heap memory.
-- Rust primitive/scalar types (int, bool, float, char, string literal etc) are stored in stack memory.
-- Most other complex types (String, Box etc.) are stored into heap memory.
+<ul>
+<li>Stack data is released once it goes out of scope (e.g. once a function ends the arguments passed are dropped).</li>
+<li>Stack is quick because the values are literal and can be hardcoded into the compiled binary.</li>
+<li>This means stack values are immutable.</li>
+<li>Heap is for memory that grows or has unknown size and needs to be explicitly dropped.</li>
+<li>Heap is slower as it is allocated at <em>runtime</em> and you have to follow a &lsquo;pointer&rsquo; to find the data in heap memory.</li>
+<li>Rust primitive/scalar types (int, bool, float, char, string literal etc) are stored in stack memory.</li>
+<li>Most other complex types (String, Box etc.) are stored into heap memory.</li>
+</ul>
 
-### Rules
+<h3 id="rules">Rules</h3>
 
-- Each value in Rust has a variable that’s called its _owner_.
-- There can only be one owner at a time.
-- When the owner goes out of scope, the value will be dropped.
-  - Primitive types are popped from the stack memory automatically when out of scope.
-  - Complex types must implement a `drop` function which Rust will call when out of scope (to explicitly deallocate heap memory).
+<ul>
+<li>Each value in Rust has a variable that’s called its <em>owner</em>.</li>
+<li>There can only be one owner at a time.</li>
+<li>When the owner goes out of scope, the value will be dropped.
 
-### Gotchas
+<ul>
+<li>Primitive types are popped from the stack memory automatically when out of scope.</li>
+<li>Complex types must implement a <code>drop</code> function which Rust will call when out of scope (to explicitly deallocate heap memory).</li>
+</ul></li>
+</ul>
 
-- Primitive types are 'copied' (`a = 1; b = a`) because they exist in stack memory and are known size (i.e. cheap to copy).
-  - Primitive types have a `Copy` trait that enable this.
-- Complex types 'move' ownership (`a = String::from(&quot;hello&quot;); b = a`).
-  - Complex types _do not_ have a `Copy` trait (which is a common error).
-- One an owner changes, the previous owner cannot be reused (e.g. you can't reference the previous owner variable in a print statement after ownership has changed).
-- To allow an owner to stay an owner, you'd need to 'clone' the complex type (e.g `a = String::from(&quot;hello&quot;); b = a.clone()`) which will actually duplicate the heap memory (so it's not cheap!).
-- Passing a variable (i.e. owner) to a function will move or copy, just as assignment does.
-- Returning values can also transfer ownership.
-  - Returning a complex type will move ownership to the caller (and the variable the result is assigned to becomes the new owner).
-  - In this scenario `drop` is not called, even if the owner was created within the function, as would normally be the case if a variable went out of scope at the end of the function.
-  
-## Borrowing
+<h3 id="gotchas">Gotchas</h3>
 
-&gt; NOTE: all information learned from https://doc.rust-lang.org/stable/book/ch04-02-references-and-borrowing.html
+<ul>
+<li>Primitive types are &lsquo;copied&rsquo; (<code>a = 1; b = a</code>) because they exist in stack memory and are known size (i.e. cheap to copy).
 
-Taking ownership and then returning ownership with every function is a bit tedious. To prevent this you can pass a 'reference' to a complex type (e.g. function `foo(s: &amp;String)` and caller `foo(&amp;a)`).
+<ul>
+<li>Primitive types have a <code>Copy</code> trait that enable this.</li>
+</ul></li>
+<li>Complex types &lsquo;move&rsquo; ownership (<code>a = String::from(&quot;hello&quot;); b = a</code>).
 
-In the above example the `s` variable will (depending on function implementation) go out of scope, and yet nothing will happen (i.e. it won't be dropped) because the function doesn't _own_ what `s` refers to.
+<ul>
+<li>Complex types <em>do not</em> have a <code>Copy</code> trait (which is a common error).</li>
+</ul></li>
+<li>One an owner changes, the previous owner cannot be reused (e.g. you can&rsquo;t reference the previous owner variable in a print statement after ownership has changed).</li>
+<li>To allow an owner to stay an owner, you&rsquo;d need to &lsquo;clone&rsquo; the complex type (e.g <code>a = String::from(&quot;hello&quot;); b = a.clone()</code>) which will actually duplicate the heap memory (so it&rsquo;s not cheap!).</li>
+<li>Passing a variable (i.e. owner) to a function will move or copy, just as assignment does.</li>
+<li>Returning values can also transfer ownership.
 
-In order to mutate something borrowed, the caller and the receiver need to define the type as a 'mutable' type:
+<ul>
+<li>Returning a complex type will move ownership to the caller (and the variable the result is assigned to becomes the new owner).</li>
+<li>In this scenario <code>drop</code> is not called, even if the owner was created within the function, as would normally be the case if a variable went out of scope at the end of the function.</li>
+</ul></li>
+</ul>
 
-```rust
-fn main() {
+<h2 id="borrowing">Borrowing</h2>
+
+<blockquote>
+<p>NOTE: all information learned from <a href="https://doc.rust-lang.org/stable/book/ch04-02-references-and-borrowing.html" target="_blank">https://doc.rust-lang.org/stable/book/ch04-02-references-and-borrowing.html</a></p>
+</blockquote>
+
+<p>Taking ownership and then returning ownership with every function is a bit tedious. To prevent this you can pass a &lsquo;reference&rsquo; to a complex type (e.g. function <code>foo(s: &amp;String)</code> and caller <code>foo(&amp;a)</code>).</p>
+
+<p>In the above example the <code>s</code> variable will (depending on function implementation) go out of scope, and yet nothing will happen (i.e. it won&rsquo;t be dropped) because the function doesn&rsquo;t <em>own</em> what <code>s</code> refers to.</p>
+
+<p>In order to mutate something borrowed, the caller and the receiver need to define the type as a &lsquo;mutable&rsquo; type:</p>
+
+<pre><code class="language-rust">fn main() {
     let mut s = String::from(&quot;hello&quot;);
 
     change(&amp;mut s);
@@ -69,7 +90,7 @@ fn change(some_string: &amp;mut String) {
 }
 </code></pre>
 
-<h3 id="gotchas">Gotchas</h3>
+<h3 id="gotchas-1">Gotchas</h3>
 
 <ul>
 <li>You can have only one mutable reference (i.e. this prevents data races).</li>
@@ -123,8 +144,7 @@ fn change(some_string: &amp;mut String) {
 
 <p>The lifetime named &lsquo;static&rsquo; is a special lifetime. It signals that something has the lifetime of the entire program.</p>
 
-<p>String literals can be assigned the type <code>&amp;'static</code> lifetime annotation as a way to indicate the reference is always alive, i.e. they are baked into the data segment of the final binary.
-&ldquo;`</p>
+<p>String literals can be assigned the type <code>&amp;'static</code> lifetime annotation as a way to indicate the reference is always alive, i.e. they are baked into the data segment of the final binary.</p>
 
 </div>
 </body>

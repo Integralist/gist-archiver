@@ -12,10 +12,9 @@
 
 <h2 id="testing-a-ruby-gem-md">testing a ruby gem.md</h2>
 
-<pre><code class="language-markdown">## Version 1
+<h2 id="version-1">Version 1</h2>
 
-```sh
-# Long way of doing things (new files need to be added to staging area *before* building the gem)
+<pre><code class="language-sh"># Long way of doing things (new files need to be added to staging area *before* building the gem)
 git add . &amp;&amp; gem build my_gem.gemspec &amp;&amp; gem install my_gem-0.0.0.gem
 </code></pre>
 
@@ -36,8 +35,7 @@ gem 'some_gem', :git =&gt; 'https://github.com/User/SomeGem.git', :branch =&gt; 
 </code></pre>
 
 <blockquote>
-<p>Note: if you point to a local gem &ldquo;A&rdquo; and that gem internally references/requires another local gem &ldquo;B&rdquo; which you wish to run locally, then you need to open the Gemfile for the top-level application and modify it to use the same Bundler trick again <code>gem &quot;b&quot;, :path =&gt; &quot;path/to/local/b/gem&quot;</code>
-&ldquo;`</p>
+<p>Note: if you point to a local gem &ldquo;A&rdquo; and that gem internally references/requires another local gem &ldquo;B&rdquo; which you wish to run locally, then you need to open the Gemfile for the top-level application and modify it to use the same Bundler trick again <code>gem &quot;b&quot;, :path =&gt; &quot;path/to/local/b/gem&quot;</code></p>
 </blockquote>
 
 </div>

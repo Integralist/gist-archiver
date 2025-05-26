@@ -12,13 +12,17 @@
 
 <h2 id="boot2docker-profile-md">Boot2Docker-Profile.md</h2>
 
-<pre><code class="language-markdown">- Enter VM SSH: `boot2docker ssh`
-- Locate profile: `sudo vi /var/lib/boot2docker/profile` 
-  - Add: `EXTRA_ARGS=&quot;--insecure-registry registry.example.com&quot;`
-- Restart Docker Service: `sudo /etc/init.d/docker restart`
-- Leave VM SSH: `exit`
-- Update VM: `boot2docker up`
-</code></pre>
+<ul>
+<li>Enter VM SSH: <code>boot2docker ssh</code></li>
+<li>Locate profile: <code>sudo vi /var/lib/boot2docker/profile</code>
+
+<ul>
+<li>Add: <code>EXTRA_ARGS=&quot;--insecure-registry registry.example.com&quot;</code></li>
+</ul></li>
+<li>Restart Docker Service: <code>sudo /etc/init.d/docker restart</code></li>
+<li>Leave VM SSH: <code>exit</code></li>
+<li>Update VM: <code>boot2docker up</code></li>
+</ul>
 
 </div>
 </body>

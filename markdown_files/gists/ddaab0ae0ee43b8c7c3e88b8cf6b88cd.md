@@ -2,7 +2,6 @@
 
 ## React JS.md
 
-```markdown
 - [Beginners Guide](https://www.sitepoint.com/getting-started-react-beginners-guide/)
 - [JSX](https://www.sitepoint.com/an-introduction-to-jsx/)
 - [Data via Properties and State](https://www.sitepoint.com/working-with-data-in-react-properties-state/)
@@ -13,5 +12,4 @@
 - [Docs: render](https://reactjs.org/docs/react-dom.html#render)
 
 ![](https://docs.google.com/drawings/d/e/2PACX-1vSSEEl5c8pkwYNRM8R4K7TVupaGC1bOShhe35Klf25XBXwA-FiydGylSljIUJpEOrhk5UxrMsgBTfS7/pub?w=884&amp;h=778)
-```
 

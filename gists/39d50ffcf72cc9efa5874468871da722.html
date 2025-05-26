@@ -12,102 +12,88 @@
 
 <h2 id="ring-buffers-in-go-md">Ring Buffers in Go.md</h2>
 
-<pre><code class="language-markdown">## What's a ring buffer?
+<h2 id="what-s-a-ring-buffer">What&rsquo;s a ring buffer?</h2>
 
-Ring buffers are known by a few names, such as circular queues and circular buffers.
+<p>Ring buffers are known by a few names, such as circular queues and circular buffers.</p>
 
-A ring buffer is a fixed-size, circular data structure that overwrites the oldest data when the buffer is full. It’s particularly useful for scenarios where you want to store and retrieve data in a FIFO (First-In-First-Out) manner but with limited memory. When the buffer reaches its size limit, new data will overwrite the oldest data.
+<p>A ring buffer is a fixed-size, circular data structure that overwrites the oldest data when the buffer is full. It’s particularly useful for scenarios where you want to store and retrieve data in a FIFO (First-In-First-Out) manner but with limited memory. When the buffer reaches its size limit, new data will overwrite the oldest data.</p>
 
-Instead of adding on the end and popping from the end, like a stack, you can add to one end and remove from the start, like a queue. And as you add or remove things, the _start_ and _end_ pointers move around. By managing these pointers, a ring buffer naturally enforces the FIFO order.
+<p>Instead of adding on the end and popping from the end, like a stack, you can add to one end and remove from the start, like a queue. And as you add or remove things, the <em>start</em> and <em>end</em> pointers move around. By managing these pointers, a ring buffer naturally enforces the FIFO order.</p>
 
-## What's the benefit?
+<h2 id="what-s-the-benefit">What&rsquo;s the benefit?</h2>
 
-A ring buffer lets us keep a fixed number of elements in the buffer without running into reallocation. 
+<p>A ring buffer lets us keep a fixed number of elements in the buffer without running into reallocation.</p>
 
-In a regular old buffer, if you use it as a queue—add to the end, remove from the front—then you'll eventually need to either reallocate the entire thing or shift all the elements over. 
+<p>In a regular old buffer, if you use it as a queue—add to the end, remove from the front—then you&rsquo;ll eventually need to either reallocate the entire thing or shift all the elements over.</p>
 
-Instead, a ring buffer lets you just keep adding from either end and removing from either end and you never have to reallocate!
+<p>Instead, a ring buffer lets you just keep adding from either end and removing from either end and you never have to reallocate!</p>
 
-## Algorithm
+<h2 id="algorithm">Algorithm</h2>
 
-- We start with an empty buffer. 
-- The `start` and `end` markers both point at the first element. 
+<ul>
+<li>We start with an empty buffer.</li>
+<li>The <code>start</code> and <code>end</code> markers both point at the first element.</li>
+</ul>
 
-
-</code></pre>
-
-<p>START
+<pre><code>  START
   ▿
 | _ | _ | _ | _ | _ |
   ▵
-  END</p>
-
-<pre><code>
-- When `start == end`, we know the buffer is empty.
-- If we insert an element, we move `end` forward.
-
-</code></pre>
-
-<p>START
-  ▿
-| A | _ | _ | _ | _ |</p>
-
-<pre><code>  ▵
   END
 </code></pre>
 
-<p>START
+<ul>
+<li>When <code>start == end</code>, we know the buffer is empty.</li>
+<li>If we insert an element, we move <code>end</code> forward.</li>
+</ul>
+
+<pre><code>  START
   ▿
-| A | B | C | _ | _ |</p>
+| A | _ | _ | _ | _ |
+      ▵
+      END
+      
 
-<pre><code>          ▵
-          END
+  START
+  ▿
+| A | B | C | _ | _ |
+              ▵
+              END
 </code></pre>
 
-<pre><code>
-- If we remove an element (`&lt;X&gt;`), we move `start` forward.
+<ul>
+<li>If we remove an element (<code>&lt;X&gt;</code>), we move <code>start</code> forward.</li>
+</ul>
 
+<pre><code>        START
+        ▿
+| &lt;X&gt; | B | C | _ | _ |
+                ▵
+                END
 </code></pre>
 
-<pre><code>    START
-    ▿
+<ul>
+<li>We can also have <code>start</code> point at any part of the buffer, and it crosses over the <code>end</code> gracefully.</li>
+</ul>
+
+<pre><code>              START
+              ▿
+| A | B | C | D | E |
+      ▵
+      END
 </code></pre>
 
-<p>| <X> | B | C | _ | _ |</p>
+<h2 id="implementations">Implementations</h2>
 
-<pre><code>            ▵
-            END
-</code></pre>
+<p>Here are some Go packages that implement a ring buffer:<br />
+<a href="https://github.com/search?q=lang%3AGo+ring+buffer&amp;type=repositories&amp;s=stars&amp;o=desc" target="_blank">https://github.com/search?q=lang%3AGo+ring+buffer&amp;type=repositories&amp;s=stars&amp;o=desc</a></p>
 
-<pre><code>
-- We can also have `start` point at any part of the buffer, and it crosses over the `end` gracefully.
+<p>When I last checked <a href="https://github.com/smallnest/ringbuffer" target="_blank">https://github.com/smallnest/ringbuffer</a> seemed like a good option.</p>
 
+<p>Here&rsquo;s a custom option written by:<br />
+<a href="https://medium.com/checker-engineering/a-practical-guide-to-implementing-a-generic-ring-buffer-in-go-866d27ec1a05" target="_blank">https://medium.com/checker-engineering/a-practical-guide-to-implementing-a-generic-ring-buffer-in-go-866d27ec1a05</a></p>
 
-</code></pre>
-
-<pre><code>          START
-          ▿
-</code></pre>
-
-<p>| A | B | C | D | E |</p>
-
-<pre><code>  ▵
-  END
-</code></pre>
-
-<pre><code>
-## Implementations
-
-Here are some Go packages that implement a ring buffer:\
-https://github.com/search?q=lang%3AGo+ring+buffer&amp;type=repositories&amp;s=stars&amp;o=desc
-
-When I last checked https://github.com/smallnest/ringbuffer seemed like a good option.
-
-Here's a custom option written by:\
-https://medium.com/checker-engineering/a-practical-guide-to-implementing-a-generic-ring-buffer-in-go-866d27ec1a05
-
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;fmt&quot;
@@ -201,8 +187,6 @@ func (rb *RingBuffer[T]) Len() int {
 	return rb.count
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

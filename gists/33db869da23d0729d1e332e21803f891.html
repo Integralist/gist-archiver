@@ -12,12 +12,13 @@
 
 <h2 id="running-benchmarks-md">Running Benchmarks.md</h2>
 
-<pre><code class="language-markdown">&gt; Reference: https://dave.cheney.net/2013/06/30/how-to-write-benchmarks-in-go
+<blockquote>
+<p>Reference: <a href="https://dave.cheney.net/2013/06/30/how-to-write-benchmarks-in-go" target="_blank">https://dave.cheney.net/2013/06/30/how-to-write-benchmarks-in-go</a></p>
+</blockquote>
 
-Running benchmarks requires the `-bench` flag to be given a valid regex pattern:
+<p>Running benchmarks requires the <code>-bench</code> flag to be given a valid regex pattern:</p>
 
-```go
-go test -v -bench=.
+<pre><code class="language-go">go test -v -bench=.
 </code></pre>
 
 <blockquote>
@@ -30,8 +31,7 @@ go test -v -bench=.
 </code></pre>
 
 <blockquote>
-<p>Note: we&rsquo;ve disabled the tests by passing a valid regex pattern to the <code>-run</code> flag, which will not match any known tests.
-&ldquo;`</p>
+<p>Note: we&rsquo;ve disabled the tests by passing a valid regex pattern to the <code>-run</code> flag, which will not match any known tests.</p>
 </blockquote>
 
 </div>

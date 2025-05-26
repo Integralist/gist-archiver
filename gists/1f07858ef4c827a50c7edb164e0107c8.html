@@ -12,26 +12,29 @@
 
 <h2 id="running-python3-project-in-virtual-environment-md">Running Python3 project in Virtual Environment.md</h2>
 
-<pre><code class="language-markdown">- have Python 3 interpreter available (e.g. python3).
-- create a virtual environment (python3 -m venv /foo/bar)
-- activate the virtual environment (source /foo/bar/bin/activate)
-- manually(†) install dependencies (pip install j2cli pyyaml boto3)
-- have terraform version 0.10.7 installed (or use switcher: https://github.com/warrensbox/terraform-switcher)
+<ul>
+<li>have Python 3 interpreter available (e.g. python3).</li>
+<li>create a virtual environment (python3 -m venv /foo/bar)</li>
+<li>activate the virtual environment (source /foo/bar/bin/activate)</li>
+<li>manually(†) install dependencies (pip install j2cli pyyaml boto3)</li>
+<li>have terraform version 0.10.7 installed (or use switcher: <a href="https://github.com/warrensbox/terraform-switcher" target="_blank">https://github.com/warrensbox/terraform-switcher</a>)</li>
+</ul>
 
-&gt; † for the project I was working on they did suggest I could also use the `-e, --editable` flag to install multiple deps required (this basically installs the deps locally and symlinks up the main imported package such that any changes made to the package code would be immediately reflected wherever you were importing that code).
+<blockquote>
+<p>† for the project I was working on they did suggest I could also use the <code>-e, --editable</code> flag to install multiple deps required (this basically installs the deps locally and symlinks up the main imported package such that any changes made to the package code would be immediately reflected wherever you were importing that code).</p>
+</blockquote>
 
-To get different Python interpreters install `python-build` and `pyenv` (installing the latter should install both anyway).
+<p>To get different Python interpreters install <code>python-build</code> and <code>pyenv</code> (installing the latter should install both anyway).</p>
 
-e.g. `brew install pyenv`
+<p>e.g. <code>brew install pyenv</code></p>
 
-Then you can check Python versions available with `python-build --definitions` and install them using (for example) `pyenv install 3.8-dev`.
+<p>Then you can check Python versions available with <code>python-build --definitions</code> and install them using (for example) <code>pyenv install 3.8-dev</code>.</p>
 
-Make sure you add `eval &quot;$(pyenv init -)&quot;` to your bashrc so that when you go to a directory with `.python-version` file the shell will immediately activate the specified Python version (as long as it's installed that is).
+<p>Make sure you add <code>eval &quot;$(pyenv init -)&quot;</code> to your bashrc so that when you go to a directory with <code>.python-version</code> file the shell will immediately activate the specified Python version (as long as it&rsquo;s installed that is).</p>
 
-Now you can use `pyenv local 3.8-dev` to enable a Python version (which itself will create a `.python-version` file in that directory).
+<p>Now you can use <code>pyenv local 3.8-dev</code> to enable a Python version (which itself will create a <code>.python-version</code> file in that directory).</p>
 
-From there you can install dependencies using `python -m pip install ...` or you can create a virtual environment to install them like so `mkdir ProjectA &amp;&amp; pyenv virtualenv testing-a` (which requires `brew install pyenv-virtualenv`) and then activate it using `pyenv activate testing-a`.
-</code></pre>
+<p>From there you can install dependencies using <code>python -m pip install ...</code> or you can create a virtual environment to install them like so <code>mkdir ProjectA &amp;&amp; pyenv virtualenv testing-a</code> (which requires <code>brew install pyenv-virtualenv</code>) and then activate it using <code>pyenv activate testing-a</code>.</p>
 
 </div>
 </body>

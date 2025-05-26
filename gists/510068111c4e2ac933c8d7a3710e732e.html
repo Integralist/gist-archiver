@@ -12,12 +12,13 @@
 
 <h2 id="git-revision-range-md">git revision range.md</h2>
 
-<pre><code class="language-markdown">&gt; Reference: https://git-scm.com/book/en/v2/Git-Tools-Revision-Selection
+<blockquote>
+<p>Reference: <a href="https://git-scm.com/book/en/v2/Git-Tools-Revision-Selection" target="_blank">https://git-scm.com/book/en/v2/Git-Tools-Revision-Selection</a></p>
+</blockquote>
 
-Log commits in `feature` branch that aren't in `master`:
+<p>Log commits in <code>feature</code> branch that aren&rsquo;t in <code>master</code>:</p>
 
-```bash
-git log master..feature
+<pre><code class="language-bash">git log master..feature
 </code></pre>
 
 <p>If you <code>git pull</code> your <code>master</code> branch you might find there are additional commits from your colleagues. So you might want to check what commits were recently merged into <code>master</code> that aren&rsquo;t in your <code>feature</code> branch:</p>
@@ -31,8 +32,6 @@ git log master..feature
 
 <pre><code class="language-bash">git log master...feature
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

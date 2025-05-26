@@ -12,10 +12,9 @@
 
 <h2 id="golang-design-patterns-md">Golang Design Patterns.md</h2>
 
-<pre><code class="language-markdown">## types as abstraction layers
+<h2 id="types-as-abstraction-layers">types as abstraction layers</h2>
 
-```go
-type Source string
+<pre><code class="language-go">type Source string
 
 func (src Source) CopyTo(dest string) error {
     return CopyFile(dest, string(src))
@@ -74,8 +73,7 @@ func Thing(deps *Deps) {
 </code></pre>
 
 <blockquote>
-<p>Note: if you find you have functions that accept lots of arguments then you could also use variadic args to pass the logger and other generic dependencies, then loop over and type assert for them (but that&rsquo;s a lot of extra code for not a lot of gain). if you do have lots of function args, then try to reduce them by splitting up the code into separate functions and also reduce generic args into a struct so it&rsquo;s just one arg rather than multiple (e.g. a instrumentation struct).
-&ldquo;`</p>
+<p>Note: if you find you have functions that accept lots of arguments then you could also use variadic args to pass the logger and other generic dependencies, then loop over and type assert for them (but that&rsquo;s a lot of extra code for not a lot of gain). if you do have lots of function args, then try to reduce them by splitting up the code into separate functions and also reduce generic args into a struct so it&rsquo;s just one arg rather than multiple (e.g. a instrumentation struct).</p>
 </blockquote>
 
 </div>

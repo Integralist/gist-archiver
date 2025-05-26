@@ -12,10 +12,9 @@
 
 <h2 id="ruby-array-guarding-md">Ruby Array Guarding.md</h2>
 
-<pre><code class="language-markdown">Below is an example of trying to protect against a request for data failing to return the expected data structure (in this case an Array)...
+<p>Below is an example of trying to protect against a request for data failing to return the expected data structure (in this case an Array)&hellip;</p>
 
-```ruby
-expect_an_array_back = SomeClass.make_a_request_for_data
+<pre><code class="language-ruby">expect_an_array_back = SomeClass.make_a_request_for_data
 
 if expect_an_array_back.any?
   expect_an_array_back.each do |user|
@@ -41,8 +40,6 @@ Array(expect_an_array_back).each do |user|
   # ...
 end
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

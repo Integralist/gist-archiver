@@ -12,29 +12,28 @@
 
 <h2 id="go-modules-md">Go Modules.md</h2>
 
-<pre><code class="language-markdown">Go 1.11 introduced a new concept of 'Modules' which brings first class support for managing dependency versions and enabling reproducible builds.
+<p>Go 1.11 introduced a new concept of &lsquo;Modules&rsquo; which brings first class support for managing dependency versions and enabling reproducible builds.</p>
 
-A Module is a way to group together a set of packages and give it a version number to mark its existence (state) at a specific point in time.
+<p>A Module is a way to group together a set of packages and give it a version number to mark its existence (state) at a specific point in time.</p>
 
-Go Modules use Semantic Versioning for their numbering scheme.
+<p>Go Modules use Semantic Versioning for their numbering scheme.</p>
 
-Think of a 'module' as a project repository. Your project consists of many packages, and a module allows you to adequately group and version them.
+<p>Think of a &lsquo;module&rsquo; as a project repository. Your project consists of many packages, and a module allows you to adequately group and version them.</p>
 
-## New Project
+<h2 id="new-project">New Project</h2>
 
-Make a test project somewhere on your computer:
+<p>Make a test project somewhere on your computer:</p>
 
+<pre><code>mkdir ~/code/test-project
 </code></pre>
 
-<p>mkdir ~/code/test-project</p>
+<blockquote>
+<p>Note: creating it outside of your <code>$GOPATH</code> demonstrates the process of using modules more clearly (in my case my <code>$GOPATH</code> is actually <code>~/code/go</code> and so I&rsquo;m putting this project just outside of that).</p>
+</blockquote>
 
-<pre><code>
-&gt; Note: creating it outside of your `$GOPATH` demonstrates the process of using modules more clearly (in my case my `$GOPATH` is actually `~/code/go` and so I'm putting this project just outside of that).
+<p>Here is our application, which uses one explicit non-standard library dependency (<code>logrus</code>):</p>
 
-Here is our application, which uses one explicit non-standard library dependency (`logrus`):
-
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;fmt&quot;
@@ -244,8 +243,6 @@ replace (
 <li><a href="https://github.com/golang/go/wiki/Modules" target="_blank">Modules (Golang Wiki)</a></li>
 <li><a href="https://www.youtube.com/watch?v=aeF3l-zmPsY" target="_blank">JustForFunc</a></li>
 </ul>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

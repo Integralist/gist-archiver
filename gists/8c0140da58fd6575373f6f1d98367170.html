@@ -12,28 +12,25 @@
 
 <h2 id="difference-between-url-host-and-request-header-host-md">difference between URL host and Request Header Host.md</h2>
 
-<pre><code class="language-markdown">The `r.URL` field is created by parsing the HTTP request URI.
+<p>The <code>r.URL</code> field is created by parsing the HTTP request URI.</p>
 
-The `r.Host` field is the value of the `Host` request header. It's the same value as calling `r.Header.Get(&quot;Host&quot;)`.
+<p>The <code>r.Host</code> field is the value of the <code>Host</code> request header. It&rsquo;s the same value as calling <code>r.Header.Get(&quot;Host&quot;)</code>.</p>
 
-If the HTTP request on the wire is:
+<p>If the HTTP request on the wire is:</p>
 
+<pre><code>GET /pub/WWW/TheProject.html HTTP/1.1
+Host: www.example.org:8080
 </code></pre>
 
-<p>GET /pub/WWW/TheProject.html HTTP/1.1
-Host: www.example.org:8080</p>
+<p>&hellip;then <code>r.URL.Host</code> is <code>&quot;&quot;</code> and <code>r.Host</code> is <code>www.example.org:8080</code>.</p>
 
-<pre><code>
-...then `r.URL.Host` is `&quot;&quot;` and `r.Host` is `www.example.org:8080`.
+<p>The value of <code>r.URL.Host</code> and <code>r.Host</code> are almost always different.</p>
 
-The value of `r.URL.Host` and `r.Host` are almost always different. 
+<p>On a proxy server, <code>r.URL.Host</code> is the host of the target server and <code>r.Host</code> is the host of the proxy server itself.</p>
 
-On a proxy server, `r.URL.Host` is the host of the target server and `r.Host` is the host of the proxy server itself. 
+<p>When not connecting through a proxy, the client does not specify a host in the request URI. In this scenario, <code>r.URL.Host</code> is the empty string.</p>
 
-When not connecting through a proxy, the client does not specify a host in the request URI. In this scenario, `r.URL.Host` is the empty string.
-
-If you are not implementing a proxy, then you should use `r.Host` to determine the host.
-</code></pre>
+<p>If you are not implementing a proxy, then you should use <code>r.Host</code> to determine the host.</p>
 
 </div>
 </body>

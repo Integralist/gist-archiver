@@ -12,20 +12,21 @@
 
 <h2 id="golang-install-instructions-md">golang install instructions.md</h2>
 
-<pre><code class="language-markdown">## UPDATE
+<h2 id="update">UPDATE</h2>
 
-Just install [stefanmaric/g](https://github.com/stefanmaric/g).
+<p>Just install <a href="https://github.com/stefanmaric/g" target="_blank">stefanmaric/g</a>.</p>
 
-Otherwise, for all the gory details see the following...
+<p>Otherwise, for all the gory details see the following&hellip;</p>
 
-## Install Go
+<h2 id="install-go">Install Go</h2>
 
-You can either download the latest release from https://golang.org/doc/install or a specific release, e.g. `https://go.dev/dl/go1.18.1.darwin-arm64.pkg`.
+<p>You can either download the latest release from <a href="https://golang.org/doc/install" target="_blank">https://golang.org/doc/install</a> or a specific release, e.g. <code>https://go.dev/dl/go1.18.1.darwin-arm64.pkg</code>.</p>
 
-&gt; **NOTE:** Test on Docker using: `docker run -v $(pwd):/go-project-to-build -it ubuntu bash`
+<blockquote>
+<p><strong>NOTE:</strong> Test on Docker using: <code>docker run -v $(pwd):/go-project-to-build -it ubuntu bash</code></p>
+</blockquote>
 
-```shell
-apt-get update
+<pre><code class="language-shell">apt-get update
 apt-get install -y wget
 wget -c https://golang.org/dl/go1.22.0.linux-amd64.tar.gz
 tar -C /usr/local -xvzf go1.22.0.linux-amd64.tar.gz
@@ -181,8 +182,6 @@ source ~/.bashrc
 sudo tar -C /usr/local -xvzf go1.22.1.linux-amd64.tar.gz
 export PATH=/usr/local/go/bin:$PATH
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

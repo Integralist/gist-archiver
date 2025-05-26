@@ -2,7 +2,6 @@
 
 ## AWS Amplify Tips.md
 
-```markdown
 ## Enable debug log
 
 ```js
@@ -64,6 +63,5 @@ Auth.signUp({
     console.log(username, password, email, phone, fullname);
     console.log(err);
 })
-```
 ```
 

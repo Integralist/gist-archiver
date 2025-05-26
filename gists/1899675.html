@@ -10,25 +10,9 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="ie-box-model-in-other-browsers">IE Box Model in other browsers</h1>
 
-<h2 id="dabblet-html">dabblet.html</h2>
-
-<pre><code class="language-html">&lt;!--
-The W3C specified the width of a box to be it's content (not including padding or borders).
-Which means if you have a box with a width of 400px and add a 10px border the box will resize to 420px width.
-
-The &quot;IE Box Model&quot; dictates the width of the box would stay at 400px and it incorporates a 10px border.
-This works great for percentage based floats for example when you need to add padding to the floated elements.
---&gt;
-&lt;div&gt;
-	Some content
-&lt;/div&gt;
-
-</code></pre>
-
 <h2 id="general-example-md">General-Example.md</h2>
 
-<pre><code class="language-markdown">```css
-/* force IE Box Model */
+<pre><code class="language-css">/* force IE Box Model */
 * {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -56,11 +40,9 @@ This works great for percentage based floats for example when you need to add pa
 &lt;div class=&quot;right&quot;&gt;box-sizing&lt;/div&gt;
 </code></pre>
 
-<pre><code>
-## dabblet.css
+<h2 id="dabblet-css">dabblet.css</h2>
 
-```css
-/**
+<pre><code class="language-css">/**
  * IE Box Model in other browsers
  * All browsers have supported CSS3 box-sizing for a long time 
  * Except Firefox which only added support from version 7.0 so still a bit of time before we can use this.
@@ -78,6 +60,21 @@ div {
     border: 10px solid red;
     width: 400px;
 }
+
+</code></pre>
+
+<h2 id="dabblet-html">dabblet.html</h2>
+
+<pre><code class="language-html">&lt;!--
+The W3C specified the width of a box to be it's content (not including padding or borders).
+Which means if you have a box with a width of 400px and add a 10px border the box will resize to 420px width.
+
+The &quot;IE Box Model&quot; dictates the width of the box would stay at 400px and it incorporates a 10px border.
+This works great for percentage based floats for example when you need to add padding to the floated elements.
+--&gt;
+&lt;div&gt;
+	Some content
+&lt;/div&gt;
 
 </code></pre>
 

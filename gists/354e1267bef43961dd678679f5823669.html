@@ -26,7 +26,7 @@ find . -type f -name *.go -exec gsed -i -r -e 's/(github.com\/)fastly(\/customcl
 
 <h2 id="vim-equivalent-viml">vim equivalent.viml</h2>
 
-<pre><code class="language-text">:argdo %s/metrics.NewWriter(/metrics.NewLegacyWriter(/ge | update
+<pre><code class="language-viml">:argdo %s/metrics.NewWriter(/metrics.NewLegacyWriter(/ge | update
 
 # If I'm working with a file type (like go) that messes with the quickfix window I'll typically pipe the list of files into Vim with no vimrc set.
 </code></pre>

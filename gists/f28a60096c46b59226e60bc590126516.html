@@ -12,12 +12,11 @@
 
 <h2 id="1-readme-md">1. README.md</h2>
 
-<pre><code class="language-markdown">The Terraform Workspace feature only provides state isolation and is designed for testing out changes (synonymous with `git branch`).
+<p>The Terraform Workspace feature only provides state isolation and is designed for testing out changes (synonymous with <code>git branch</code>).</p>
 
-HashiCorp provides [guidelines](https://www.terraform.io/docs/language/state/workspaces.html#when-to-use-multiple-workspaces) on when to use the Terraform Workspace.
+<p>HashiCorp provides <a href="https://www.terraform.io/docs/language/state/workspaces.html#when-to-use-multiple-workspaces" target="_blank">guidelines</a> on when to use the Terraform Workspace.</p>
 
-```bash
-terraform init
+<pre><code class="language-bash">terraform init
 terraform workspace new stage
 terraform workspace new prod
 terraform workspace list
@@ -26,12 +25,11 @@ terraform workspace select stage
 
 <blockquote>
 <p><strong>NOTE</strong>: you can&rsquo;t <code>terraform workspace delete default</code> so best to just ignore it, or treat it as your &lsquo;production&rsquo; instead of creating a prod workspace.</p>
+</blockquote>
 
-<pre><code>
-## main.tf
+<h2 id="main-tf">main.tf</h2>
 
-```hcl
-terraform {
+<pre><code class="language-hcl">terraform {
   required_providers {
     fastly = {
       source  = &quot;fastly/fastly&quot;
@@ -60,7 +58,6 @@ resource &quot;fastly_service_v1&quot; &quot;service&quot; {
   force_destroy = true
 }
 </code></pre>
-</blockquote>
 
 </div>
 </body>

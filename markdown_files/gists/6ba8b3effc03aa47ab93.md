@@ -2,7 +2,6 @@
 
 ## 0. description.md
 
-```markdown
 - `defprotocol`: defines an interface
 - `deftype`: create a bare-bones object which implements a protocol
 - `defrecord`: creates an immutable persistent map which implements a protocol
@@ -15,7 +14,6 @@ where by you'll want to use `deftype` instead.
 Rather than (like OOP) having polymorphism on the class itself,
 polymorphic functions are created in namespaces.
 Meaning different namespaces can implement different functionality
-```
 
 ## 1. class.clj
 

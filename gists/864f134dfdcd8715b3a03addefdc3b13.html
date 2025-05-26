@@ -12,11 +12,9 @@
 
 <h2 id="1-readme-md">1. README.md</h2>
 
-<pre><code class="language-markdown"># Terraform Environments using Modules
+<h1 id="terraform-environments-using-modules">Terraform Environments using Modules</h1>
 
-</code></pre>
-
-<p>.
+<pre><code>.
 ├── modules
 │   ├── service-compute
 │   │   ├── main.tf
@@ -34,71 +32,20 @@
 │   ├── main.tf
 │   ├── provider.tf
 │   └── variables.tf
-└── stage</p>
-
-<pre><code>├── inputs.tfvars
-├── main.tf
-├── provider.tf
-└── variables.tf
+└── stage
+    ├── inputs.tfvars
+    ├── main.tf
+    ├── provider.tf
+    └── variables.tf
 </code></pre>
 
-<pre><code>
-Within each directory (`prod` and `stage`) run `terraform init`.
+<p>Within each directory (<code>prod</code> and <code>stage</code>) run <code>terraform init</code>.</p>
 
-Then inside each directory run `terraform plan -var-file=&quot;inputs.tfvars&quot;`.
+<p>Then inside each directory run <code>terraform plan -var-file=&quot;inputs.tfvars&quot;</code>.</p>
 
-&gt; **NOTE**: I don't show the contents for every file as most are the same as others. For example, `provider.tf` is the same across all directories. The stage and prod directories are all the same with the exception of the `inputs.tfvars` (e.g. I use the default variable value in prod, where I provide my own value for the variable in stage) and the `variables.tf` (where I set different default values for each environment).
-</code></pre>
-
-<h2 id="4-modules-service-vcl-main-tf">4. modules - service-vcl - main.tf</h2>
-
-<pre><code class="language-hcl">resource &quot;fastly_service_v1&quot; &quot;service&quot; {
-  name = &quot;Example Service&quot;
-
-  domain {
-    name = &quot;${var.subdomain}.example.com&quot;
-  }
-
-  backend {
-    address = &quot;httpbin.org&quot;
-    name    = &quot;httpbin&quot;
-  }
-
-  vcl {
-    content = file(&quot;${path.module}/vcl/main.vcl&quot;)
-    main    = true
-    name    = &quot;custom_vcl&quot;
-  }
-
-  force_destroy = true
-}
-
-</code></pre>
-
-<h2 id="6-stage-main-tf">6. stage - main.tf</h2>
-
-<pre><code class="language-hcl">module &quot;www&quot; {
-  source    = &quot;../modules/service-vcl&quot;
-  subdomain = var.subdomain
-}
-
-module &quot;compute&quot; {
-  source    = &quot;../modules/service-compute&quot;
-  subdomain = var.subdomain
-}
-</code></pre>
-
-<h2 id="7-stage-provider-tf">7. stage - provider.tf</h2>
-
-<pre><code class="language-hcl">terraform {
-  required_providers {
-    fastly = {
-      source  = &quot;fastly/fastly&quot;
-      version = &quot;0.27.0&quot;
-    }
-  }
-}
-</code></pre>
+<blockquote>
+<p><strong>NOTE</strong>: I don&rsquo;t show the contents for every file as most are the same as others. For example, <code>provider.tf</code> is the same across all directories. The stage and prod directories are all the same with the exception of the <code>inputs.tfvars</code> (e.g. I use the default variable value in prod, where I provide my own value for the variable in stage) and the <code>variables.tf</code> (where I set different default values for each environment).</p>
+</blockquote>
 
 <h2 id="2-modules-service-compute-main-tf">2. modules - service-compute - main.tf</h2>
 
@@ -130,9 +77,59 @@ module &quot;compute&quot; {
 }
 </code></pre>
 
+<h2 id="4-modules-service-vcl-main-tf">4. modules - service-vcl - main.tf</h2>
+
+<pre><code class="language-hcl">resource &quot;fastly_service_v1&quot; &quot;service&quot; {
+  name = &quot;Example Service&quot;
+
+  domain {
+    name = &quot;${var.subdomain}.example.com&quot;
+  }
+
+  backend {
+    address = &quot;httpbin.org&quot;
+    name    = &quot;httpbin&quot;
+  }
+
+  vcl {
+    content = file(&quot;${path.module}/vcl/main.vcl&quot;)
+    main    = true
+    name    = &quot;custom_vcl&quot;
+  }
+
+  force_destroy = true
+}
+
+</code></pre>
+
 <h2 id="5-stage-inputs-tfvars">5. stage - inputs.tfvars</h2>
 
 <pre><code class="language-hcl">subdomain = &quot;staging&quot;
+</code></pre>
+
+<h2 id="6-stage-main-tf">6. stage - main.tf</h2>
+
+<pre><code class="language-hcl">module &quot;www&quot; {
+  source    = &quot;../modules/service-vcl&quot;
+  subdomain = var.subdomain
+}
+
+module &quot;compute&quot; {
+  source    = &quot;../modules/service-compute&quot;
+  subdomain = var.subdomain
+}
+</code></pre>
+
+<h2 id="7-stage-provider-tf">7. stage - provider.tf</h2>
+
+<pre><code class="language-hcl">terraform {
+  required_providers {
+    fastly = {
+      source  = &quot;fastly/fastly&quot;
+      version = &quot;0.27.0&quot;
+    }
+  }
+}
 </code></pre>
 
 <h2 id="8-stage-variables-tf">8. stage - variables.tf</h2>

@@ -12,12 +12,13 @@
 
 <h2 id="ignore-changes-md">ignore_changes.md</h2>
 
-<pre><code class="language-markdown">&gt; The `ignore_changes` feature is intended to be used when a resource is created with references to data that may change in the future, but should not affect said resource after its creation. -- [Documentation](https://www.terraform.io/docs/language/meta-arguments/lifecycle.html#ignore_changes)
+<blockquote>
+<p>The <code>ignore_changes</code> feature is intended to be used when a resource is created with references to data that may change in the future, but should not affect said resource after its creation. &ndash; <a href="https://www.terraform.io/docs/language/meta-arguments/lifecycle.html#ignore_changes" target="_blank">Documentation</a></p>
+</blockquote>
 
-The pattern is: I want to ensure that this service has a dictionary called &quot;foo&quot; with a key &quot;bar&quot; with an intial value of &quot;baz&quot;, but after that I will managed the key/values externally.
+<p>The pattern is: I want to ensure that this service has a dictionary called &ldquo;foo&rdquo; with a key &ldquo;bar&rdquo; with an intial value of &ldquo;baz&rdquo;, but after that I will managed the key/values externally.</p>
 
-This means you can't go back and add, edit or delete the data added as part of the HCL. That data will forever exist. New data will be expected to be 'managed' (i.e. added, edited, deleted) _outside_ of Terraform.
-</code></pre>
+<p>This means you can&rsquo;t go back and add, edit or delete the data added as part of the HCL. That data will forever exist. New data will be expected to be &lsquo;managed&rsquo; (i.e. added, edited, deleted) <em>outside</em> of Terraform.</p>
 
 </div>
 </body>

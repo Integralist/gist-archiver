@@ -10,6 +10,26 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="handling-csv-files-in-python-csv-python">[Handling CSV files in Python] #csv #python</h1>
 
+<h2 id="1-handling-csv-files-in-python-unsorted-py">1. Handling CSV files in Python (unsorted).py</h2>
+
+<pre><code class="language-python">import csv
+import re
+
+TEMPLATE = &quot;&quot;&quot;
+- original: '{}'
+  redirect: '{}'&quot;&quot;&quot;
+
+with open(&quot;/Users/integralist/Downloads/example.csv&quot;) as csvfile:
+    reader = csv.DictReader(csvfile)
+
+    for row in reader:
+        for k, v in row.items():
+            if k == &quot;tasty.co link&quot; and len(v) &gt; 10:
+                match = re.search(&quot;^(https?://)?tasty.co(?P&lt;path&gt;.+)&quot;, v)
+                if match:
+                    print(TEMPLATE.format(row[&quot;slug&quot;], match.group(&quot;path&quot;)))
+</code></pre>
+
 <h2 id="2-handling-csv-files-in-python-sorted-py">2. Handling CSV files in Python (sorted).py</h2>
 
 <pre><code class="language-python">import csv
@@ -32,26 +52,6 @@ with open(&quot;/Users/integralist/Downloads/example.csv&quot;) as csvfile:
             match = re.search(&quot;^(https?://)?tasty.co(?P&lt;path&gt;.+)&quot;, row[4])
             if match:
                 print(TEMPLATE.format(row[1], match.group(&quot;path&quot;)))
-</code></pre>
-
-<h2 id="1-handling-csv-files-in-python-unsorted-py">1. Handling CSV files in Python (unsorted).py</h2>
-
-<pre><code class="language-python">import csv
-import re
-
-TEMPLATE = &quot;&quot;&quot;
-- original: '{}'
-  redirect: '{}'&quot;&quot;&quot;
-
-with open(&quot;/Users/integralist/Downloads/example.csv&quot;) as csvfile:
-    reader = csv.DictReader(csvfile)
-
-    for row in reader:
-        for k, v in row.items():
-            if k == &quot;tasty.co link&quot; and len(v) &gt; 10:
-                match = re.search(&quot;^(https?://)?tasty.co(?P&lt;path&gt;.+)&quot;, v)
-                if match:
-                    print(TEMPLATE.format(row[&quot;slug&quot;], match.group(&quot;path&quot;)))
 </code></pre>
 
 </div>

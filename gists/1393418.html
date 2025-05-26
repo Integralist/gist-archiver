@@ -12,20 +12,17 @@
 
 <h2 id="description-md">description.md</h2>
 
-<pre><code class="language-markdown">Description
------------
+<h2 id="description">Description</h2>
 
-My team likes to use the `previousElementSibling` and `nextElementSibling` methods as it saves them having to filter out TEXT_NODES (which the majority of the time - when sifting through the DOM - they don't have to worry about).
+<p>My team likes to use the <code>previousElementSibling</code> and <code>nextElementSibling</code> methods as it saves them having to filter out TEXT_NODES (which the majority of the time - when sifting through the DOM - they don&rsquo;t have to worry about).</p>
 
-Internet Explorer &lt;= 8 doesn't support either method, but it's current DOM implementation ignores TEXT_NODES (when using `previousSibling` and `nextSibling`) so they already act like `previousElementSibling` and `nextElementSibling`.
+<p>Internet Explorer &lt;= 8 doesn&rsquo;t support either method, but it&rsquo;s current DOM implementation ignores TEXT_NODES (when using <code>previousSibling</code> and <code>nextSibling</code>) so they already act like <code>previousElementSibling</code> and <code>nextElementSibling</code>.</p>
 
-But when checking over my teams code I noticed that they would use a conditional code branching in every instance where they wanted to use `previousElementSibling` and `nextElementSibling`, so to try and help keep their code DRY I just used a very basic feature detection script to abstract these methods into two separate functions for them to use instead.
+<p>But when checking over my teams code I noticed that they would use a conditional code branching in every instance where they wanted to use <code>previousElementSibling</code> and <code>nextElementSibling</code>, so to try and help keep their code DRY I just used a very basic feature detection script to abstract these methods into two separate functions for them to use instead.</p>
 
-Caveat
-------
+<h2 id="caveat">Caveat</h2>
 
-This feature detection assumes the `head` and a `body` tags are available at the time of the script executing.
-</code></pre>
+<p>This feature detection assumes the <code>head</code> and a <code>body</code> tags are available at the time of the script executing.</p>
 
 <h2 id="prevnextelementsibling-js">prevnextElementSibling.js</h2>
 

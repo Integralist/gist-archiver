@@ -12,212 +12,268 @@
 
 <h2 id="git-workflow-md">Git Workflow.md</h2>
 
-<pre><code class="language-markdown"># Git Workflow
+<h1 id="git-workflow-1">Git Workflow</h1>
 
-When using [Git Version Control](https://git-scm.com/) you have quite a few workflow variations. Which one you choose depends on your team and what fits your requirements and usage more appropriately.
+<p>When using <a href="https://git-scm.com/" target="_blank">Git Version Control</a> you have quite a few workflow variations. Which one you choose depends on your team and what fits your requirements and usage more appropriately.</p>
 
-Here are some popular options that will be described later in this document:
+<p>Here are some popular options that will be described later in this document:</p>
 
-- [Git 'Centralised' Workflow](#1)
-- [Git 'Feature Branches' Workflow](#2)
-- [Git 'Gitflow' Workflow](#3)
-- [Git 'Single Commit/No Branches' Workflow](#4)
-- [Git 'Rebase Feature Branch Commits' Workflow](#5)
+<ul>
+<li><a href="#1">Git &lsquo;Centralised&rsquo; Workflow</a></li>
+<li><a href="#2">Git &lsquo;Feature Branches&rsquo; Workflow</a></li>
+<li><a href="#3">Git &lsquo;Gitflow&rsquo; Workflow</a></li>
+<li><a href="#4">Git &lsquo;Single Commit/No Branches&rsquo; Workflow</a></li>
+<li><a href="#5">Git &lsquo;Rebase Feature Branch Commits&rsquo; Workflow</a></li>
+</ul>
 
-## Expectations
+<h2 id="expectations">Expectations</h2>
 
-All of these workflows assume that you have a remote repository and by default the main branch is called `master`.
+<p>All of these workflows assume that you have a remote repository and by default the main branch is called <code>master</code>.</p>
 
-Also, we don't cover every possible detail about git and how it works/what certain concepts mean; as we assume a certain level of past experience from the reader. By this I mean, for example, if you don't know what a 'merge conflict' is you'll need to read up on git a bit more first in order to benefit from this document.
+<p>Also, we don&rsquo;t cover every possible detail about git and how it works/what certain concepts mean; as we assume a certain level of past experience from the reader. By this I mean, for example, if you don&rsquo;t know what a &lsquo;merge conflict&rsquo; is you&rsquo;ll need to read up on git a bit more first in order to benefit from this document.</p>
 
-## What's not covered?
+<h2 id="what-s-not-covered">What&rsquo;s not covered?</h2>
 
-One model I've not covered is the &quot;Git 'Forked Repo' Workflow&quot;, which is based around the concept of developers not having push access to a repository but are able to fork the repo (i.e. make a clone of it). Pull Requests can then be made to the upstream repository that was forked from.
+<p>One model I&rsquo;ve not covered is the &ldquo;Git &lsquo;Forked Repo&rsquo; Workflow&rdquo;, which is based around the concept of developers not having push access to a repository but are able to fork the repo (i.e. make a clone of it). Pull Requests can then be made to the upstream repository that was forked from.</p>
 
-The reason for not covering this particular workflow is that within the BBC the majority of repositories are private by nature (except for those specifically made to be open-source) and so all developers working on a specific project will be given push access to the relevant private repo. 
+<p>The reason for not covering this particular workflow is that within the BBC the majority of repositories are private by nature (except for those specifically made to be open-source) and so all developers working on a specific project will be given push access to the relevant private repo.</p>
 
-&gt; Note: although the BBC does not encourage forking of its own private repositories, it does recognise and accept that the forking model is the fundamental and primary concept behind the open-source movement
+<blockquote>
+<p>Note: although the BBC does not encourage forking of its own private repositories, it does recognise and accept that the forking model is the fundamental and primary concept behind the open-source movement</p>
+</blockquote>
 
-## Code Reviews
+<h2 id="code-reviews">Code Reviews</h2>
 
-Although not directly related to git workflows, it's important to remember that the GitHub model of reviewing code revolves around the idea of a Pull Request, but this is merely a clever abstraction on top of gits own `git request-pull` model which is built around the simple concept that a feature should be encapsulated within a single commit.
+<p>Although not directly related to git workflows, it&rsquo;s important to remember that the GitHub model of reviewing code revolves around the idea of a Pull Request, but this is merely a clever abstraction on top of gits own <code>git request-pull</code> model which is built around the simple concept that a feature should be encapsulated within a single commit.</p>
 
-The command `git request-pull` is described in the git manual as follows:
+<p>The command <code>git request-pull</code> is described in the git manual as follows:</p>
 
-&gt; Summarizes the changes between two commits to the standard output, and includes the given URL in the generated summary.
+<blockquote>
+<p>Summarizes the changes between two commits to the standard output, and includes the given URL in the generated summary.</p>
+</blockquote>
 
-This facilitates the ability to post the diff/summary of changes into a mailing list for easy comparison and reasoning before consideration to merging into `master`.
+<p>This facilitates the ability to post the diff/summary of changes into a mailing list for easy comparison and reasoning before consideration to merging into <code>master</code>.</p>
 
-The only requirement for using the built-in `git request-pull` is that you need to provide a URL for where the commit you're proposing to be reviewed/merged can be pulled from by the owner of the origin repo.
+<p>The only requirement for using the built-in <code>git request-pull</code> is that you need to provide a URL for where the commit you&rsquo;re proposing to be reviewed/merged can be pulled from by the owner of the origin repo.</p>
 
-So in other words, you'll need to have a _fork_ of the origin repo in another git repo that's accessible to the developers you're asking to review your commit. This isn't a problem for most organisations, although it's a little trickier for the BBC as it doesn't encourage forks of its private repositories. Just something to be aware of.
+<p>So in other words, you&rsquo;ll need to have a <em>fork</em> of the origin repo in another git repo that&rsquo;s accessible to the developers you&rsquo;re asking to review your commit. This isn&rsquo;t a problem for most organisations, although it&rsquo;s a little trickier for the BBC as it doesn&rsquo;t encourage forks of its private repositories. Just something to be aware of.</p>
 
-&lt;div id=&quot;1&quot;&gt;&lt;/div&gt;
-## Git 'Centralised' Workflow
+<p><div id="1"></div></p>
 
-&gt; Summary: everyone works from the `master` branch
+<h2 id="git-centralised-workflow">Git &lsquo;Centralised&rsquo; Workflow</h2>
 
-- Everyone clones the remote repo and commits changes to `master` locally
-- Local changes are then pushed to the remote repository
-- If someone pushes changes before you, then your push will fail
-- You'll need to pull their changes (`git pull origin master`) first
-- Any merge conflicts will then need to be resolved locally
-- Once merge conflicts are resolved, you can push to the remote
+<blockquote>
+<p>Summary: everyone works from the <code>master</code> branch</p>
+</blockquote>
 
-### Pros
+<ul>
+<li>Everyone clones the remote repo and commits changes to <code>master</code> locally</li>
+<li>Local changes are then pushed to the remote repository</li>
+<li>If someone pushes changes before you, then your push will fail</li>
+<li>You&rsquo;ll need to pull their changes (<code>git pull origin master</code>) first</li>
+<li>Any merge conflicts will then need to be resolved locally</li>
+<li>Once merge conflicts are resolved, you can push to the remote</li>
+</ul>
 
-- Can be less complex and time consuming than dealing with feature branches (assuming small teams of &amp;lt; 5)
+<h3 id="pros">Pros</h3>
 
-### Cons
+<ul>
+<li>Can be less complex and time consuming than dealing with feature branches (assuming small teams of &amp;lt; 5)</li>
+</ul>
 
-- Everyone committing to `master` can be uncomfortable for some teams
-- No categorised history, just multiple isolated commits
-- Merge commits are ugly and make the git history harder to reason about
+<h3 id="cons">Cons</h3>
 
-&lt;div id=&quot;2&quot;&gt;&lt;/div&gt;
-## Git 'Feature Branches' Workflow
+<ul>
+<li>Everyone committing to <code>master</code> can be uncomfortable for some teams</li>
+<li>No categorised history, just multiple isolated commits</li>
+<li>Merge commits are ugly and make the git history harder to reason about</li>
+</ul>
 
-&gt; Summary: everyone works from their own 'feature' branch
+<p><div id="2"></div></p>
 
-- Everyone clones the remote repo and creates a feature branch 
-- For example `git checkout -b feat/add-redis-cache`
-- Commits are made to the feature branch locally
-- The feature branch should be pushed to the remote regularly
-- Feature branch is reviewed by other developers
-- Once approved the feature branch is merged into `master` locally
-- The updated `master` branch is then pushed to the remote
-- If someone pushes changes before you to `master`, then your push will fail
-- You'll need to pull their changes (`git pull origin master`) first
-- Any merge conflicts will then need to be resolved locally
-- Once merge conflicts are resolved, you can push to the remote
+<h2 id="git-feature-branches-workflow">Git &lsquo;Feature Branches&rsquo; Workflow</h2>
 
-### Notes
+<blockquote>
+<p>Summary: everyone works from their own &lsquo;feature&rsquo; branch</p>
+</blockquote>
 
-To reduce the likeliness of a merge conflict, developers should consider updating their `master` branch regularly and merging those changes into their feature branch (e.g. `git merge master`).
+<ul>
+<li>Everyone clones the remote repo and creates a feature branch</li>
+<li>For example <code>git checkout -b feat/add-redis-cache</code></li>
+<li>Commits are made to the feature branch locally</li>
+<li>The feature branch should be pushed to the remote regularly</li>
+<li>Feature branch is reviewed by other developers</li>
+<li>Once approved the feature branch is merged into <code>master</code> locally</li>
+<li>The updated <code>master</code> branch is then pushed to the remote</li>
+<li>If someone pushes changes before you to <code>master</code>, then your push will fail</li>
+<li>You&rsquo;ll need to pull their changes (<code>git pull origin master</code>) first</li>
+<li>Any merge conflicts will then need to be resolved locally</li>
+<li>Once merge conflicts are resolved, you can push to the remote</li>
+</ul>
 
-Developers can also consider pulling `master` directly into their feature branch either by using `git pull origin master` or by using `git pull --rebase origin master` (which will unshift their feature branch commits so that they sit ontop of whatever is inside `master`; meaning the feature branch commits are 'top of the stack').
+<h3 id="notes">Notes</h3>
 
-Also, when using `--rebase` you do typically experience less conflicts.
+<p>To reduce the likeliness of a merge conflict, developers should consider updating their <code>master</code> branch regularly and merging those changes into their feature branch (e.g. <code>git merge master</code>).</p>
 
-### Pros
+<p>Developers can also consider pulling <code>master</code> directly into their feature branch either by using <code>git pull origin master</code> or by using <code>git pull --rebase origin master</code> (which will unshift their feature branch commits so that they sit ontop of whatever is inside <code>master</code>; meaning the feature branch commits are &lsquo;top of the stack&rsquo;).</p>
 
-- Most recognised/utilised workflow model
-- Use of 'short lived' feature branches allow decoupled development
+<p>Also, when using <code>--rebase</code> you do typically experience less conflicts.</p>
 
-### Cons
+<h3 id="pros-1">Pros</h3>
 
-- No clean history, just multiple isolated commits
-- Merge commits are ugly and make the git history harder to reason about †
+<ul>
+<li>Most recognised/utilised workflow model</li>
+<li>Use of &lsquo;short lived&rsquo; feature branches allow decoupled development</li>
+</ul>
 
-&gt; † this is dependant on your team and your specific workflow  
-&gt; and the details a merge commit provides
+<h3 id="cons-1">Cons</h3>
 
-&lt;div id=&quot;3&quot;&gt;&lt;/div&gt;
-## Git 'Gitflow' Workflow
+<ul>
+<li>No clean history, just multiple isolated commits</li>
+<li>Merge commits are ugly and make the git history harder to reason about †</li>
+</ul>
 
-Gitflow is an evolution of the 'feature branch' model that adds additional layers to the workflow.
+<blockquote>
+<p>† this is dependant on your team and your specific workflow<br />
+and the details a merge commit provides</p>
+</blockquote>
 
-With Gitflow you have additional branches that interact with each other in different ways:
+<p><div id="3"></div></p>
 
-![Gitflow](https://www.atlassian.com/git/images/tutorials/collaborating/comparing-workflows/gitflow-workflow/05.svg)
+<h2 id="git-gitflow-workflow">Git &lsquo;Gitflow&rsquo; Workflow</h2>
 
-- `master`: always deployable to production (`git tag` with release info)
-- `hotfix`: only branch to fork from `master` (for _quick_ patches to production)
-- `develop`: becomes the default branch for all development work
-- `release`: forked off of `develop` once enough 'features' are ready (only hotfixes to this branch until merge with `master`)
-- `feature`: multiple feature branches that are merged back into `develop` when ready
+<p>Gitflow is an evolution of the &lsquo;feature branch&rsquo; model that adds additional layers to the workflow.</p>
 
-### Pros
+<p>With Gitflow you have additional branches that interact with each other in different ways:</p>
 
-- Provides a robust framework for dealing with large codebases
+<p><img src="https://www.atlassian.com/git/images/tutorials/collaborating/comparing-workflows/gitflow-workflow/05.svg" alt="Gitflow" /></p>
 
-### Cons
+<ul>
+<li><code>master</code>: always deployable to production (<code>git tag</code> with release info)</li>
+<li><code>hotfix</code>: only branch to fork from <code>master</code> (for <em>quick</em> patches to production)</li>
+<li><code>develop</code>: becomes the default branch for all development work</li>
+<li><code>release</code>: forked off of <code>develop</code> once enough &lsquo;features&rsquo; are ready (only hotfixes to this branch until merge with <code>master</code>)</li>
+<li><code>feature</code>: multiple feature branches that are merged back into <code>develop</code> when ready</li>
+</ul>
 
-- Vastly more complex
-- Multiple moving parts require solid co-ordination
-- No clean history, just multiple isolated commits
+<h3 id="pros-2">Pros</h3>
 
-&lt;div id=&quot;4&quot;&gt;&lt;/div&gt;
-## Git 'Single Commit/No Branches' Workflow
+<ul>
+<li>Provides a robust framework for dealing with large codebases</li>
+</ul>
 
-&gt; Summary: everyone works from `master`, but 'rebase' commits before push
+<h3 id="cons-2">Cons</h3>
 
-- Everyone clones the remote repo and commits changes to `master` locally
-- Local changes are rebased interactively (`git rebase -i &lt;commit&gt;`) into single commit
-- Local changes are then pushed to the remote repository
-- If someone pushes changes before you, then your push will fail
-- You'll need to pull their changes (`git pull origin master`) first
-- Any merge conflicts will then need to be resolved locally
-- Once merge conflicts are resolved, you can push to the remote
+<ul>
+<li>Vastly more complex</li>
+<li>Multiple moving parts require solid co-ordination</li>
+<li>No clean history, just multiple isolated commits</li>
+</ul>
 
-### Notes
+<p><div id="4"></div></p>
 
-The reason you would choose this model is if you were using a traditional `git request-pull` for code reviews, and also it helps to keep your commit history clean and organised.
+<h2 id="git-single-commit-no-branches-workflow">Git &lsquo;Single Commit/No Branches&rsquo; Workflow</h2>
 
-This approach ideally benefits small changes and short-lived PRs.
+<blockquote>
+<p>Summary: everyone works from <code>master</code>, but &lsquo;rebase&rsquo; commits before push</p>
+</blockquote>
 
-### Pros
+<ul>
+<li>Everyone clones the remote repo and commits changes to <code>master</code> locally</li>
+<li>Local changes are rebased interactively (<code>git rebase -i &lt;commit&gt;</code>) into single commit</li>
+<li>Local changes are then pushed to the remote repository</li>
+<li>If someone pushes changes before you, then your push will fail</li>
+<li>You&rsquo;ll need to pull their changes (<code>git pull origin master</code>) first</li>
+<li>Any merge conflicts will then need to be resolved locally</li>
+<li>Once merge conflicts are resolved, you can push to the remote</li>
+</ul>
 
-- Can be less complex and time consuming than dealing with feature branches (assuming small teams of &amp;lt; 5)
+<h3 id="notes-1">Notes</h3>
 
-### Cons
+<p>The reason you would choose this model is if you were using a traditional <code>git request-pull</code> for code reviews, and also it helps to keep your commit history clean and organised.</p>
 
-- Requires a team comfortable with quick and small feature releases
-- Requires steps that are more complicated for beginner git users (e.g. interactive rebasing)
-- Prone to errors on teams larger than 4 people
-- Unable to work on more than one feature at a time
+<p>This approach ideally benefits small changes and short-lived PRs.</p>
 
-&lt;div id=&quot;5&quot;&gt;&lt;/div&gt;
-## Git 'Rebase Feature Branch Commits' Workflow
+<h3 id="pros-3">Pros</h3>
 
-&gt; Summary: work from a 'feature' branch, but 'rebase' commits before merge
+<ul>
+<li>Can be less complex and time consuming than dealing with feature branches (assuming small teams of &amp;lt; 5)</li>
+</ul>
 
-- Everyone clones the remote repo and creates a feature branch 
-- For example `git checkout -b feat/add-redis-cache`
-- Commits are made to the feature branch locally
-- The feature branch should be pushed to the remote regularly
-- Feature branch is reviewed by other developers
-- Once approved the feature branch commits are rebased (`git rebase -i master`) into single commit
-- Commit message has specific format (`Closes #1 - Add Redis Cache (Fixes #2)`)
-- Commit is then cherry-picked into `master` (`git cherry-pick -`)
-- The updated `master` branch is then pushed to the remote
-- If someone pushes changes before you to `master`, then your push will fail
-- You'll need to pull their changes (`git pull --rebase origin master`) first
-- Any merge conflicts will then need to be resolved locally
-- Once merge conflicts are resolved, you can push to the remote
+<h3 id="cons-3">Cons</h3>
 
-### Notes
+<ul>
+<li>Requires a team comfortable with quick and small feature releases</li>
+<li>Requires steps that are more complicated for beginner git users (e.g. interactive rebasing)</li>
+<li>Prone to errors on teams larger than 4 people</li>
+<li>Unable to work on more than one feature at a time</li>
+</ul>
 
-GitHub specifically offers a feature where by GitHub issues are automatically closed whenever a push to `master` includes the phrase `Fixes #n` (where `n` is the issue number); similarly it'll automatically close a pull request when the commit message in `master` includes the phrase `Closes #n` (where `n` is the pull request number).
+<p><div id="5"></div></p>
 
-Also, the GitHub user interface now (as of 2016) suppports the ability to squash commits when merging. This might be a preferable option to the above steps.
+<h2 id="git-rebase-feature-branch-commits-workflow">Git &lsquo;Rebase Feature Branch Commits&rsquo; Workflow</h2>
 
-### Pros
+<blockquote>
+<p>Summary: work from a &lsquo;feature&rsquo; branch, but &lsquo;rebase&rsquo; commits before merge</p>
+</blockquote>
 
-- Use of 'short lived' feature branches allow decoupled development
-- Clean git commit history (no ugly merge commits †)
-- Auto closing of Pull Requests and Issues within GitHub (assuming relevant commit syntax is used ^^)
-- Access to original commit history within GitHub Pull Request interface
+<ul>
+<li>Everyone clones the remote repo and creates a feature branch</li>
+<li>For example <code>git checkout -b feat/add-redis-cache</code></li>
+<li>Commits are made to the feature branch locally</li>
+<li>The feature branch should be pushed to the remote regularly</li>
+<li>Feature branch is reviewed by other developers</li>
+<li>Once approved the feature branch commits are rebased (<code>git rebase -i master</code>) into single commit</li>
+<li>Commit message has specific format (<code>Closes #1 - Add Redis Cache (Fixes #2)</code>)</li>
+<li>Commit is then cherry-picked into <code>master</code> (<code>git cherry-pick -</code>)</li>
+<li>The updated <code>master</code> branch is then pushed to the remote</li>
+<li>If someone pushes changes before you to <code>master</code>, then your push will fail</li>
+<li>You&rsquo;ll need to pull their changes (<code>git pull --rebase origin master</code>) first</li>
+<li>Any merge conflicts will then need to be resolved locally</li>
+<li>Once merge conflicts are resolved, you can push to the remote</li>
+</ul>
 
-&gt; † this is dependant on your team and your specific workflow  
-&gt; and the details a merge commit provides
+<h3 id="notes-2">Notes</h3>
 
-### Cons
+<p>GitHub specifically offers a feature where by GitHub issues are automatically closed whenever a push to <code>master</code> includes the phrase <code>Fixes #n</code> (where <code>n</code> is the issue number); similarly it&rsquo;ll automatically close a pull request when the commit message in <code>master</code> includes the phrase <code>Closes #n</code> (where <code>n</code> is the pull request number).</p>
 
-- If a feature branch takes too long to merge, it can become a conflict nightmare
-- Requires steps that are more complicated for beginner git users (e.g. interactive rebasing and cherry picking)
-- Can't access original commit history via a terminal shell
+<p>Also, the GitHub user interface now (as of 2016) suppports the ability to squash commits when merging. This might be a preferable option to the above steps.</p>
 
-&gt; Note: if branches are deleted from GitHub then eventually the commits will be garbage collected and history lost there as well. So pick this option according to whether it fits your team's long term needs
+<h3 id="pros-4">Pros</h3>
 
-## References
+<ul>
+<li>Use of &lsquo;short lived&rsquo; feature branches allow decoupled development</li>
+<li>Clean git commit history (no ugly merge commits †)</li>
+<li>Auto closing of Pull Requests and Issues within GitHub (assuming relevant commit syntax is used ^^)</li>
+<li>Access to original commit history within GitHub Pull Request interface</li>
+</ul>
 
-- [Atlassian: Comparing Workflows](https://www.atlassian.com/git/tutorials/comparing-workflows/centralized-workflow)
-- [Git SCM: Distributed Workflows](https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows)
-- [Git SCM: Contributing to a Project](https://git-scm.com/book/ch5-2.html)
-- [GitHub: Workflow Guide](https://guides.github.com/introduction/flow/)
-- [Integralist: GitHub Workflow](http://www.integralist.co.uk/posts/github-workflow.html)
-</code></pre>
+<blockquote>
+<p>† this is dependant on your team and your specific workflow<br />
+and the details a merge commit provides</p>
+</blockquote>
+
+<h3 id="cons-4">Cons</h3>
+
+<ul>
+<li>If a feature branch takes too long to merge, it can become a conflict nightmare</li>
+<li>Requires steps that are more complicated for beginner git users (e.g. interactive rebasing and cherry picking)</li>
+<li>Can&rsquo;t access original commit history via a terminal shell</li>
+</ul>
+
+<blockquote>
+<p>Note: if branches are deleted from GitHub then eventually the commits will be garbage collected and history lost there as well. So pick this option according to whether it fits your team&rsquo;s long term needs</p>
+</blockquote>
+
+<h2 id="references">References</h2>
+
+<ul>
+<li><a href="https://www.atlassian.com/git/tutorials/comparing-workflows/centralized-workflow" target="_blank">Atlassian: Comparing Workflows</a></li>
+<li><a href="https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows" target="_blank">Git SCM: Distributed Workflows</a></li>
+<li><a href="https://git-scm.com/book/ch5-2.html" target="_blank">Git SCM: Contributing to a Project</a></li>
+<li><a href="https://guides.github.com/introduction/flow/" target="_blank">GitHub: Workflow Guide</a></li>
+<li><a href="http://www.integralist.co.uk/posts/github-workflow.html" target="_blank">Integralist: GitHub Workflow</a></li>
+</ul>
 
 </div>
 </body>

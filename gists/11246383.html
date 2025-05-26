@@ -12,14 +12,13 @@
 
 <h2 id="1-tco-description-md">1. TCO description.md</h2>
 
-<pre><code class="language-markdown">## The problem
+<h2 id="the-problem">The problem</h2>
 
-If a function calls itself recursively then the JavaScript engine has to create a new 'stack' (i.e. allocate a chunk of memory) to keep track of the function's arguments.
+<p>If a function calls itself recursively then the JavaScript engine has to create a new &lsquo;stack&rsquo; (i.e. allocate a chunk of memory) to keep track of the function&rsquo;s arguments.</p>
 
-Let's look at an example of this happening:
+<p>Let&rsquo;s look at an example of this happening:</p>
 
-```js
-function sum(x, y) {
+<pre><code class="language-js">function sum(x, y) {
     if (y &gt; 0) {
       return sum(x + 1, y - 1);
     } else {
@@ -166,18 +165,15 @@ sum(1, 10); // =&gt; 11
 <li>On the next iteration of the <code>while</code> loop, <code>f</code> is now a value and not a function and so the <code>while</code> loop ends and the accumulated value is returned to the <code>sum</code> function which returns that as its accumulated value.</li>
 </ul>
 
-<pre><code>
-## 2. Clojure explanation.md
+<h2 id="2-clojure-explanation-md">2. Clojure explanation.md</h2>
 
-```markdown
-*The following is copied directly from: http://aphyr.com/tags/Clojure-from-the-ground-up and it provides an alternative explanation of the problem/solution. I've commented the Clojure code heavily for those unfamiliar with it.*
+<p><em>The following is copied directly from: <a href="http://aphyr.com/tags/Clojure-from-the-ground-up" target="_blank">http://aphyr.com/tags/Clojure-from-the-ground-up</a> and it provides an alternative explanation of the problem/solution. I&rsquo;ve commented the Clojure code heavily for those unfamiliar with it.</em></p>
 
-Every time you call a function, the arguments for that function are stored in memory, in a region called the stack. They remain there for as long as the function is being called (including any deeper function calls).
+<p>Every time you call a function, the arguments for that function are stored in memory, in a region called the stack. They remain there for as long as the function is being called (including any deeper function calls).</p>
 
-Below is a Clojure example (both commented and non-commented version):
+<p>Below is a Clojure example (both commented and non-commented version):</p>
 
-```clojure
-; define a multi-arity function (different code branches depending on args provided when called)
+<pre><code class="language-clojure">; define a multi-arity function (different code branches depending on args provided when called)
 (defn sum
   ; arity branch 1
   ; accepts a single argument: numbers
@@ -222,8 +218,7 @@ Below is a Clojure example (both commented and non-commented version):
 
 <p>Notice, however, that the final expression to be evaluated is not <code>+</code>, but <code>sum (viz recur)</code> itself. We don’t need to hang on to any of the variables in this function any more, because the final return value won’t depend on them.</p>
 
-<p><code>recur</code> hints to the Clojure compiler that we don’t need to hold on to the stack, and can re-use that space for other things. This is called a tail-recursive function, and it requires only a single stack frame no matter how deep the recursive calls go.
-&ldquo;`</p>
+<p><code>recur</code> hints to the Clojure compiler that we don’t need to hold on to the stack, and can re-use that space for other things. This is called a tail-recursive function, and it requires only a single stack frame no matter how deep the recursive calls go.</p>
 
 </div>
 </body>

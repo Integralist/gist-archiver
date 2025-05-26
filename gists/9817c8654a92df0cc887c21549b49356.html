@@ -19,12 +19,11 @@
 
 <h2 id="features-md">Features.md</h2>
 
-<pre><code class="language-markdown">## Exceptions
+<h2 id="exceptions">Exceptions</h2>
 
-If you know a function raises an exception, then you can catch and assert against it by using `pytest.raises`
+<p>If you know a function raises an exception, then you can catch and assert against it by using <code>pytest.raises</code></p>
 
-```python
-with pytest.raises(exceptions.CognitoException) as exc_info:
+<pre><code class="language-python">with pytest.raises(exceptions.CognitoException) as exc_info:
         app.account.confirm(123, 'foo')
         
 assert exc_info.typename == 'CognitoException'
@@ -64,8 +63,7 @@ def test_valid_video_id(input, output):
 </code></pre>
 
 <blockquote>
-<p>Note: mock decorators come <em>before</em> the pytest decorator (also you can&rsquo;t use parametrize on a <code>tornado.testing.AsyncHTTPTestCase</code>).
-&ldquo;`</p>
+<p>Note: mock decorators come <em>before</em> the pytest decorator (also you can&rsquo;t use parametrize on a <code>tornado.testing.AsyncHTTPTestCase</code>).</p>
 </blockquote>
 
 </div>

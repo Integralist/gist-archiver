@@ -12,25 +12,30 @@
 
 <h2 id="python-tox-explanation-md">Python Tox Explanation.md</h2>
 
-<pre><code class="language-markdown">Tox is a tool that creates virtual environments, and installs the configured dependencies for those environments, for the purpose of testing a Python package (i.e. something that will be shared via PyPi, and so it only works with code that defines a `setup.py`).
+<p>Tox is a tool that creates virtual environments, and installs the configured dependencies for those environments, for the purpose of testing a Python package (i.e. something that will be shared via PyPi, and so it only works with code that defines a <code>setup.py</code>).</p>
 
-The file that you use to configure tox can be one of the following...
+<p>The file that you use to configure tox can be one of the following&hellip;</p>
 
-&gt; Note: these are all [ini file](https://en.wikipedia.org/wiki/INI_file) formats.
+<blockquote>
+<p>Note: these are all <a href="https://en.wikipedia.org/wiki/INI_file" target="_blank">ini file</a> formats.</p>
+</blockquote>
 
-- `tox.ini`
-- `pyproject.toml` (see [PEP 518](https://www.python.org/dev/peps/pep-0518/))
-- `setup.cfg` (see [official guide to distributing packages](https://packaging.python.org/guides/distributing-packages-using-setuptools/))
+<ul>
+<li><code>tox.ini</code></li>
+<li><code>pyproject.toml</code> (see <a href="https://www.python.org/dev/peps/pep-0518/" target="_blank">PEP 518</a>)</li>
+<li><code>setup.cfg</code> (see <a href="https://packaging.python.org/guides/distributing-packages-using-setuptools/" target="_blank">official guide to distributing packages</a>)</li>
+</ul>
 
-All configuration options for tox can be found here:
-[tox.readthedocs.io/en/latest/config.html](https://tox.readthedocs.io/en/latest/config.html)
+<p>All configuration options for tox can be found here:
+<a href="https://tox.readthedocs.io/en/latest/config.html" target="_blank">tox.readthedocs.io/en/latest/config.html</a></p>
 
-## Example tox.ini
+<h2 id="example-tox-ini">Example tox.ini</h2>
 
-&gt; Note: the name after `testenv:` is the _name_ of the virtual environment that will be created (e.g. `testenv:foo` will create a &quot;foo&quot; virtual environment).
+<blockquote>
+<p>Note: the name after <code>testenv:</code> is the <em>name</em> of the virtual environment that will be created (e.g. <code>testenv:foo</code> will create a &ldquo;foo&rdquo; virtual environment).</p>
+</blockquote>
 
-```ini
-[tox]
+<pre><code class="language-ini">[tox]
 envlist = 
     py37, lint
 toxworkdir = 
@@ -94,8 +99,6 @@ addopts =
 markers =
     integration: mark a test as an integration test that makes http calls.
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

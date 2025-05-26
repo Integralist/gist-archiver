@@ -10,6 +10,51 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="go-toml-examples-with-custom-marshaller-go-golang-toml">[Go TOML Examples with custom Marshaller] #go #golang #toml</h1>
 
+<h2 id="1-readme-md">1. README.md</h2>
+
+<p>The following files demonstrate how the CLI will handle the input toml.</p>
+
+<p>Here are the files:</p>
+
+<ul>
+<li><a href="#file-example-toml"><code>example.toml</code></a>: it represents similar content to what <code>fastly.toml</code> holds and we expect the CLI to manage.</li>
+<li><a href="#file-main-go"><code>main.go</code></a>: a reduced test case go program that attempts to decode/encode the provided toml to see how it handles things by default.</li>
+<li><a href="#file-output"><code>output</code></a>: shows the output of the go program.</li>
+</ul>
+
+<h2 id="summary">Summary</h2>
+
+<p>The TOML library will continue to produce more verbose output, and will overwrite the users toml with the verbose variation (only for <code>fastly.toml</code>, as that&rsquo;s the only file that CLI manages).</p>
+
+<h2 id="custom-marshaller">Custom Marshaller</h2>
+
+<p>I&rsquo;ve written a custom marshaller but there are some issues to keep in mind.</p>
+
+<p>First, here&rsquo;s the implementation of the custom marshal:</p>
+
+<pre><code class="language-go">func (m Manifest) MarshalTOML() ([]byte, error) {
+	var b bytes.Buffer
+
+	b.WriteString(&quot;managed = &quot; + m.Managed + &quot;\n\n&quot;)
+	b.WriteString(&quot;[testing.backends]\n&quot;)
+
+	for k, v := range m.Testing.Backends {
+		line := fmt.Sprintf(&quot;%s = { url = \&quot;%s\&quot; }\n&quot;, k, v.URL)
+		b.WriteString(line)
+	}
+
+	return b.Bytes(), nil
+}
+</code></pre>
+
+<p>Here are the issues:</p>
+
+<ol>
+<li>The order of the backends are non-deterministic so they won&rsquo;t necessarily match what the user entered originally.</li>
+<li>This is a very simple implementation and so we don&rsquo;t analyse the original syntax. This means if the user writes their toml over multiple lines, then the CLI will overwrite that with the more concise version defined in <code>MarshalTOML</code>.</li>
+<li>The user is going to mostly copy/paste toml between <code>fastly.toml</code> and their environment files. Meaning: there will be a difference between the <code>fastly.toml</code> (which the CLI will overwrite the toml with more verbose toml syntax) and the environment files that the CLI doesn&rsquo;t manage.</li>
+</ol>
+
 <h2 id="example-toml">example.toml</h2>
 
 <pre><code class="language-toml">managed = &quot;by CLI&quot;
@@ -139,52 +184,6 @@ managed = &quot;by CLI&quot;
     [testing.backends.qux]
       url = &quot;https://qux.com/&quot;
 </code></pre>
-
-<h2 id="1-readme-md">1. README.md</h2>
-
-<pre><code class="language-markdown">The following files demonstrate how the CLI will handle the input toml.
-
-Here are the files:
-
-- [`example.toml`](#file-example-toml): it represents similar content to what `fastly.toml` holds and we expect the CLI to manage.
-- [`main.go`](#file-main-go): a reduced test case go program that attempts to decode/encode the provided toml to see how it handles things by default.
-- [`output`](#file-output): shows the output of the go program.
-
-## Summary
-
-The TOML library will continue to produce more verbose output, and will overwrite the users toml with the verbose variation (only for `fastly.toml`, as that's the only file that CLI manages).
-
-## Custom Marshaller
-
-I've written a custom marshaller but there are some issues to keep in mind.
-
-First, here's the implementation of the custom marshal:
-
-```go
-func (m Manifest) MarshalTOML() ([]byte, error) {
-	var b bytes.Buffer
-
-	b.WriteString(&quot;managed = &quot; + m.Managed + &quot;\n\n&quot;)
-	b.WriteString(&quot;[testing.backends]\n&quot;)
-
-	for k, v := range m.Testing.Backends {
-		line := fmt.Sprintf(&quot;%s = { url = \&quot;%s\&quot; }\n&quot;, k, v.URL)
-		b.WriteString(line)
-	}
-
-	return b.Bytes(), nil
-}
-</code></pre>
-
-<p>Here are the issues:</p>
-
-<ol>
-<li>The order of the backends are non-deterministic so they won&rsquo;t necessarily match what the user entered originally.</li>
-<li>This is a very simple implementation and so we don&rsquo;t analyse the original syntax. This means if the user writes their toml over multiple lines, then the CLI will overwrite that with the more concise version defined in <code>MarshalTOML</code>.</li>
-<li>The user is going to mostly copy/paste toml between <code>fastly.toml</code> and their environment files. Meaning: there will be a difference between the <code>fastly.toml</code> (which the CLI will overwrite the toml with more verbose toml syntax) and the environment files that the CLI doesn&rsquo;t manage.</li>
-</ol>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

@@ -12,37 +12,38 @@
 
 <h2 id="0-readme-md">0. README.md</h2>
 
-<pre><code class="language-markdown">It is worth considering the variation in load that you get on a normal computer. 
+<p>It is worth considering the variation in load that you get on a normal computer.</p>
 
-Many background tasks are running (e.g. Dropbox, backups) that could impact the CPU and disk resources at random.
+<p>Many background tasks are running (e.g. Dropbox, backups) that could impact the CPU and disk resources at random.</p>
 
-Tools available:
+<p>Tools available:</p>
 
-* `timeit` module: understand behavior of statements and functions
-* `cProfile`: understand which functions in your code take the longest to run (high-level only)
-* `line_profiler`: profiles your chosen functions on a line-by-line basis (granular)
-* `memory_profiler`: chart RAM usage over time on a labelled chart (function level)
-* `heapy`: track all of the objects inside Python’s memory (useful for hunting down memory-leaks)
-* `perf stat`: understand number of instructions executed on CPU and how efficiently the CPU’s caches are utilized
-* CPython: understand Python stack based vm operates (understand why certain coding styles run more slowly than others)
+<ul>
+<li><code>timeit</code> module: understand behavior of statements and functions</li>
+<li><code>cProfile</code>: understand which functions in your code take the longest to run (high-level only)</li>
+<li><code>line_profiler</code>: profiles your chosen functions on a line-by-line basis (granular)</li>
+<li><code>memory_profiler</code>: chart RAM usage over time on a labelled chart (function level)</li>
+<li><code>heapy</code>: track all of the objects inside Python’s memory (useful for hunting down memory-leaks)</li>
+<li><code>perf stat</code>: understand number of instructions executed on CPU and how efficiently the CPU’s caches are utilized</li>
+<li>CPython: understand Python stack based vm operates (understand why certain coding styles run more slowly than others)</li>
+</ul>
 
-&gt; [Reference article](http://www.marinamele.com/7-tips-to-time-python-scripts-and-control-memory-and-cpu-usage)
+<blockquote>
+<p><a href="http://www.marinamele.com/7-tips-to-time-python-scripts-and-control-memory-and-cpu-usage" target="_blank">Reference article</a></p>
+</blockquote>
 
-### Locating Python Packages
+<h3 id="locating-python-packages">Locating Python Packages</h3>
 
-```bash
-find / -type d -name &lt;package_name&gt;
+<pre><code class="language-bash">find / -type d -name &lt;package_name&gt;
 
 # for example, the result could look like...
 #
 # ./usr/local/lib/python3.6/site-packages/package_name
 </code></pre>
 
-<pre><code>
-## 1. app-source.py
+<h2 id="1-app-source-py">1. app-source.py</h2>
 
-```python
-&quot;&quot;&quot;This module is for profiling purposes.&quot;&quot;&quot;
+<pre><code class="language-python">&quot;&quot;&quot;This module is for profiling purposes.&quot;&quot;&quot;
 
 from pprint import pprint
 

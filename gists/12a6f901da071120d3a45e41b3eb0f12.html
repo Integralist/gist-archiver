@@ -2,26 +2,27 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>[OpenAPI feature flags use different schemas] #schemas #openapi #api #design</title>
+<title>OpenAPI: feature flags use different schemas #schemas #openapi #api #design</title>
 <link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
-<h1 id="openapi-feature-flags-use-different-schemas-schemas-openapi-api-design">[OpenAPI feature flags use different schemas] #schemas #openapi #api #design</h1>
+<h1 id="openapi-feature-flags-use-different-schemas-schemas-openapi-api-design">OpenAPI: feature flags use different schemas #schemas #openapi #api #design</h1>
 
 <h2 id="readme-md">README.md</h2>
 
-<pre><code class="language-markdown">I don't know if this actually works but apparently you can use a [discriminator](https://swagger.io/docs/specification/v3_0/data-models/inheritance-and-polymorphism/#discriminator) like this...
+<p>I don&rsquo;t know if this actually works but apparently you can use a <a href="https://swagger.io/docs/specification/v3_0/data-models/inheritance-and-polymorphism/#discriminator" target="_blank">discriminator</a> like this&hellip;</p>
 
-&gt; [!NOTE]
-&gt; In this example, your API has to return a `type` property that might have a value like `&quot;base&quot;` or `&quot;feature_x&quot;`.
+<blockquote>
+<p>[!NOTE]
+In this example, your API has to return a <code>type</code> property that might have a value like <code>&quot;base&quot;</code> or <code>&quot;feature_x&quot;</code>.</p>
+</blockquote>
 
-If the API response contains `&quot;type&quot;: &quot;base&quot;`, then the OpenAPI schema will use the `BaseResponse` schema. 
-Otherwise, if it's `&quot;type&quot;: &quot;feature_x&quot;`, the OpenAPI schema will use the `eatureXResponse` schema.
+<p>If the API response contains <code>&quot;type&quot;: &quot;base&quot;</code>, then the OpenAPI schema will use the <code>BaseResponse</code> schema.
+Otherwise, if it&rsquo;s <code>&quot;type&quot;: &quot;feature_x&quot;</code>, the OpenAPI schema will use the <code>eatureXResponse</code> schema.</p>
 
-```yaml
-openapi: 3.1.0
+<pre><code class="language-yaml">openapi: 3.1.0
 info:
   title: Discriminator Example API
   version: 1.0.0
@@ -84,8 +85,6 @@ components:
               type: string
               description: &quot;Additional data when FeatureX is enabled.&quot;
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

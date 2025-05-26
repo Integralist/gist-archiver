@@ -12,20 +12,19 @@
 
 <h2 id="git-commit-template-example-file-md">git commit template example file.md</h2>
 
-<pre><code class="language-markdown">- Commit your file
-- `git update-index --assume-unchanged &lt;file&gt;`
-- Allow changes using: `git update-index --no-assume-unchanged &lt;file&gt;`
+<ul>
+<li>Commit your file</li>
+<li><code>git update-index --assume-unchanged &lt;file&gt;</code></li>
+<li>Allow changes using: <code>git update-index --no-assume-unchanged &lt;file&gt;</code></li>
+</ul>
 
-This only works when user executes the command.
+<p>This only works when user executes the command.</p>
 
-So you'll need to add a note to the repo's README and maybe make it easy by abstracting within a Makefile:
+<p>So you&rsquo;ll need to add a note to the repo&rsquo;s README and maybe make it easy by abstracting within a Makefile:</p>
 
-```make
-lock_local_file:
+<pre><code class="language-make">lock_local_file:
   git update-index --assume-unchanged ./some/file.json
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

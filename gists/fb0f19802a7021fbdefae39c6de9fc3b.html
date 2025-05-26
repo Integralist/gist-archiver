@@ -12,12 +12,13 @@
 
 <h2 id="calculating-bigo-md">Calculating BigO.md</h2>
 
-<pre><code class="language-markdown">&gt; This is condensed information gleened from the excellent [interactivepython.org](http://interactivepython.org/runestone/static/pythonds/AlgorithmAnalysis/BigONotation.html)
+<blockquote>
+<p>This is condensed information gleened from the excellent <a href="http://interactivepython.org/runestone/static/pythonds/AlgorithmAnalysis/BigONotation.html" target="_blank">interactivepython.org</a></p>
+</blockquote>
 
-## Algorithm
+<h2 id="algorithm">Algorithm</h2>
 
-```py
-def sumOfN(n):
+<pre><code class="language-py">def sumOfN(n):
    theSum = 0
    for i in range(1,n+1):
        theSum = theSum + i
@@ -125,8 +126,7 @@ d = 33
 <p>With this in mind we can say the code is <code>O(n2)</code> because when we look at the exponents of each segment of the time analysis (i.e. the condensed version: <code>3n2 + 2n + 4</code>) we can see that as <code>n</code> grows, the <code>n2</code> portion is the most significant.</p>
 
 <blockquote>
-<p>Remember: although we write &lsquo;Big O&rsquo; as <code>O(...)</code> the underlying principle is <code>O(f(...))</code>, where <code>f(...)</code> is the dominant part of <code>T(...)</code> and when focusing in on the dominant part of the time complexity we drop the constants &ndash; also known as the <em>coefficient</em> &ndash; (e.g. <code>3n2</code> thus becomes <code>n2</code>). This is because the constants become <em>insignificant</em> as <code>n</code> grows.
-&ldquo;`</p>
+<p>Remember: although we write &lsquo;Big O&rsquo; as <code>O(...)</code> the underlying principle is <code>O(f(...))</code>, where <code>f(...)</code> is the dominant part of <code>T(...)</code> and when focusing in on the dominant part of the time complexity we drop the constants &ndash; also known as the <em>coefficient</em> &ndash; (e.g. <code>3n2</code> thus becomes <code>n2</code>). This is because the constants become <em>insignificant</em> as <code>n</code> grows.</p>
 </blockquote>
 
 </div>

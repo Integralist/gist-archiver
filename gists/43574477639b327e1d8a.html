@@ -12,14 +12,15 @@
 
 <h2 id="coreos-essentials-md">CoreOS Essentials.md</h2>
 
-<pre><code class="language-markdown">## Getting started
+<h2 id="getting-started">Getting started</h2>
 
-- `git clone git@github.com:coreos/coreos-vagrant.git`
-- `mv user-data.sample user-data`
-- Change `etcd2` to have the following content:
+<ul>
+<li><code>git clone git@github.com:coreos/coreos-vagrant.git</code></li>
+<li><code>mv user-data.sample user-data</code></li>
+<li>Change <code>etcd2</code> to have the following content:</li>
+</ul>
 
-```ini
-advertise-client-urls: http://$public_ipv4:2379,http://$public_ipv4:4001
+<pre><code class="language-ini">advertise-client-urls: http://$public_ipv4:2379,http://$public_ipv4:4001
 initial-advertise-peer-urls: http://$private_ipv4:2380
 listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
 listen-peer-urls: http://$private_ipv4:2380,http://$private_ipv4:7001
@@ -381,8 +382,6 @@ ExecStart=/usr/bin/bash -c &quot;while true; do echo 'Hello Cluster'; sleep 1; d
 <pre><code>Unit hello-cluster.service inactive
 Unit hello-cluster.service launched on 5fcf399b.../172.17.8.101
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

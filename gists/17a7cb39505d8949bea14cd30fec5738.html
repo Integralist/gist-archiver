@@ -12,29 +12,33 @@
 
 <h2 id="1-readme-md">1. README.md</h2>
 
-<pre><code class="language-markdown">- https://golang.org/ref/spec#Allocation
-- https://golang.org/ref/spec#The_zero_value
-- https://golang.org/doc/effective_go#allocation_new
-- https://golang.org/doc/effective_go#allocation_make
+<ul>
+<li><a href="https://golang.org/ref/spec#Allocation" target="_blank">https://golang.org/ref/spec#Allocation</a></li>
+<li><a href="https://golang.org/ref/spec#The_zero_value" target="_blank">https://golang.org/ref/spec#The_zero_value</a></li>
+<li><a href="https://golang.org/doc/effective_go#allocation_new" target="_blank">https://golang.org/doc/effective_go#allocation_new</a></li>
+<li><a href="https://golang.org/doc/effective_go#allocation_make" target="_blank">https://golang.org/doc/effective_go#allocation_make</a></li>
+</ul>
 
-## Summary
+<h2 id="summary">Summary</h2>
 
-- `make`: allocates memory to hold a built-in type (slice, map or channel) with `len` and `cap` (capacity) set accordingly to the type's zero value (immediately usable).
-- `new`: allocates memory to hold both built-in and custom user types with fields zeroed, not immediately usable for some types.
+<ul>
+<li><code>make</code>: allocates memory to hold a built-in type (slice, map or channel) with <code>len</code> and <code>cap</code> (capacity) set accordingly to the type&rsquo;s zero value (immediately usable).</li>
+<li><code>new</code>: allocates memory to hold both built-in and custom user types with fields zeroed, not immediately usable for some types.</li>
+</ul>
 
-&gt; **NOTE**: This means `t := new(T)` and `var t *T` are equivalent.  
+<blockquote>
+<p><strong>NOTE</strong>: This means <code>t := new(T)</code> and <code>var t *T</code> are equivalent.</p>
+</blockquote>
 
-**Example**:
-```go
-m := new(int)
+<p><strong>Example</strong>:</p>
+
+<pre><code class="language-go">m := new(int)
 fmt.Printf(&quot;%+v | %p | %T\n&quot;, *m, m, m) // 0 | 0xc000110008 | *int`
 </code></pre>
 
-<pre><code>
-## main.go
+<h2 id="main-go">main.go</h2>
 
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;fmt&quot;

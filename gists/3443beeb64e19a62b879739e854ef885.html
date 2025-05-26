@@ -12,16 +12,15 @@
 
 <h2 id="the-problem-with-terraform-s-schema-typeset-md">The problem with Terraform&rsquo;s schema.TypeSet.md</h2>
 
-<pre><code class="language-markdown">Set elements are viewed as opaque values that are added/removed. 
+<p>Set elements are viewed as opaque values that are added/removed.</p>
 
-If any elements &quot;change&quot;, then the set's &quot;identity&quot; has changed. 
+<p>If any elements &ldquo;change&rdquo;, then the set&rsquo;s &ldquo;identity&rdquo; has changed.</p>
 
-The contents of the set is hashed, and so the changing of the content results in the set _as a whole_ needing to be recreated.
+<p>The contents of the set is hashed, and so the changing of the content results in the set <em>as a whole</em> needing to be recreated.</p>
 
-This is why if you update a field inside a `schema.TypeSet` in Terraform, and you run a `terraform plan` you'll see the entire resource marked as needing to be deleted and recreated.
+<p>This is why if you update a field inside a <code>schema.TypeSet</code> in Terraform, and you run a <code>terraform plan</code> you&rsquo;ll see the entire resource marked as needing to be deleted and recreated.</p>
 
-Official GitHub discussion: https://github.com/hashicorp/terraform/pull/2336#issuecomment-115744243
-</code></pre>
+<p>Official GitHub discussion: <a href="https://github.com/hashicorp/terraform/pull/2336#issuecomment-115744243" target="_blank">https://github.com/hashicorp/terraform/pull/2336#issuecomment-115744243</a></p>
 
 </div>
 </body>

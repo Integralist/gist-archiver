@@ -10,36 +10,6 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="golang-simple-retry-logic-for-http-request-go-golang-http-client-retry">[golang simple retry logic for http request] #go #golang #http #client #retry</h1>
 
-<h2 id="3-example-with-jitter-go">3. example with jitter.go</h2>
-
-<pre><code class="language-go">// retry accepts a function and retries it up to n times before returning an error
-func retry(n int, metricWriter metrics.Writer, kind string, cb func() error) error {
-	var err error
-	if err = cb(); err == nil {
-		return nil
-	}
-
-	for i := 0; i &lt; n; i++ {
-		metricWriter.Incr(&quot;api_gateway.retry&quot;, 1.0, metrics.Tag{Key: &quot;kind&quot;, Value: kind}, metrics.Tag{Key: &quot;error&quot;, Value: err.Error()})
-		// Full Jitter from https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
-		// backoff = random_between(0, baseBackoff * 2 ** attempt)
-		maxBackoff := float64(50*time.Millisecond) * math.Exp2(float64(i))
-		backoff := time.Duration(rand.Float64() * maxBackoff)
-
-		log.WithFields(log.Fields{&quot;retry_kind&quot;: kind, &quot;count&quot;: i, &quot;backoff&quot;: backoff, &quot;error&quot;: err}).Info(&quot;retrying, backing off.&quot;)
-
-		time.Sleep(backoff)
-
-		err = cb()
-		if err == nil {
-			return nil
-		}
-	}
-
-	return err
-}
-</code></pre>
-
 <h2 id="1-golang-simple-retry-logic-for-http-request-go">1. golang simple retry logic for http request.go</h2>
 
 <pre><code class="language-go">// report indicates the failing test and the host it is associated with.
@@ -288,6 +258,36 @@ func TestStatusCode(statusCode int, host, needle string, config *settings.Config
 		msg := fmt.Sprintf(&quot;test%d: passed&quot;, statusCode)
 		log.Println(host, msg)
 	}
+}
+</code></pre>
+
+<h2 id="3-example-with-jitter-go">3. example with jitter.go</h2>
+
+<pre><code class="language-go">// retry accepts a function and retries it up to n times before returning an error
+func retry(n int, metricWriter metrics.Writer, kind string, cb func() error) error {
+	var err error
+	if err = cb(); err == nil {
+		return nil
+	}
+
+	for i := 0; i &lt; n; i++ {
+		metricWriter.Incr(&quot;api_gateway.retry&quot;, 1.0, metrics.Tag{Key: &quot;kind&quot;, Value: kind}, metrics.Tag{Key: &quot;error&quot;, Value: err.Error()})
+		// Full Jitter from https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
+		// backoff = random_between(0, baseBackoff * 2 ** attempt)
+		maxBackoff := float64(50*time.Millisecond) * math.Exp2(float64(i))
+		backoff := time.Duration(rand.Float64() * maxBackoff)
+
+		log.WithFields(log.Fields{&quot;retry_kind&quot;: kind, &quot;count&quot;: i, &quot;backoff&quot;: backoff, &quot;error&quot;: err}).Info(&quot;retrying, backing off.&quot;)
+
+		time.Sleep(backoff)
+
+		err = cb()
+		if err == nil {
+			return nil
+		}
+	}
+
+	return err
 }
 </code></pre>
 

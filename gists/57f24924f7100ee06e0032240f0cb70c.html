@@ -12,25 +12,22 @@
 
 <h2 id="ag-with-pcre-dotall-md">Ag with PCRE_DOTALL.md</h2>
 
-<pre><code class="language-markdown">As noted in this thread: https://github.com/ggreer/the_silver_searcher/issues/459#issuecomment-118785490
+<p>As noted in this thread: <a href="https://github.com/ggreer/the_silver_searcher/issues/459#issuecomment-118785490" target="_blank">https://github.com/ggreer/the_silver_searcher/issues/459#issuecomment-118785490</a></p>
 
-The trick to get the PCRE engine have `.` to include new lines is to prefix your pattern with 'Perl options' (http://www.pcre.org/original/doc/html/pcrepattern.html#SEC13). 
+<p>The trick to get the PCRE engine have <code>.</code> to include new lines is to prefix your pattern with &lsquo;Perl options&rsquo; (<a href="http://www.pcre.org/original/doc/html/pcrepattern.html#SEC13" target="_blank">http://www.pcre.org/original/doc/html/pcrepattern.html#SEC13</a>).</p>
 
-So to get `PCRE_DOTALL` we need to prefix our regex pattern with `(?s)`.
+<p>So to get <code>PCRE_DOTALL</code> we need to prefix our regex pattern with <code>(?s)</code>.</p>
 
-For example, consider a file `test.txt` with the following content:
+<p>For example, consider a file <code>test.txt</code> with the following content:</p>
 
+<pre><code>Line 1
+Line 2
+Line 3
 </code></pre>
 
-<p>Line 1
-Line 2
-Line 3</p>
+<p>We can match all three lines using:</p>
 
-<pre><code>
-We can match all three lines using:
-
-```bash
-ag '(?s)Line 1.+Line 3' test.txt
+<pre><code class="language-bash">ag '(?s)Line 1.+Line 3' test.txt
 </code></pre>
 
 <blockquote>
@@ -77,8 +74,6 @@ ag '(?s)Line 1.+Line 3' test.txt
 
 <pre><code>:Ack! '(?s)cmd\.ServiceDetails\((?!.+?ServiceNameFlag).+?}\)'
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

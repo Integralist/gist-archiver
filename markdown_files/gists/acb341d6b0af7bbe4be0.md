@@ -2,7 +2,6 @@
 
 ## 00_destructuring.md
 
-```markdown
 Clojure Destructuring Tutorial and Cheat Sheet
 ==============================================
 
@@ -218,11 +217,9 @@ Here be dragons.
 **TODO**
 
 
-```
 
 ## 01_compojure.md
 
-```markdown
 Compojure Destructuring
 =======================
 
@@ -285,5 +282,4 @@ From here, assume that all handlers are wrapped with `wrap-params`.
 [compojure]: https://github.com/weavejester/compojure/wiki/Destructuring-Syntax
 [ring-request-map]: https://github.com/ring-clojure/ring/wiki/Concepts#requests
 [wrap-params]: https://github.com/ring-clojure/ring/wiki/Parameters
-```
 

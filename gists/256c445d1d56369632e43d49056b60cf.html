@@ -12,23 +12,21 @@
 
 <h2 id="golang-array-and-slices-md">Golang Array and Slices.md</h2>
 
-<pre><code class="language-markdown">I'll explain how 'slices' work as best I can, but it might be worth also reading this official go post on the subject: https://blog.golang.org/go-slices-usage-and-internals (it has some nice visual aids too).
+<p>I&rsquo;ll explain how &lsquo;slices&rsquo; work as best I can, but it might be worth also reading this official go post on the subject: <a href="https://blog.golang.org/go-slices-usage-and-internals" target="_blank">https://blog.golang.org/go-slices-usage-and-internals</a> (it has some nice visual aids too).</p>
 
-A 'slice' is a data structure abstraction around the 'Array' [composite](https://www.integralist.co.uk/posts/data-types-and-data-structures/#data-types) data type.
+<p>A &lsquo;slice&rsquo; is a data structure abstraction around the &lsquo;Array&rsquo; <a href="https://www.integralist.co.uk/posts/data-types-and-data-structures/#data-types" target="_blank">composite</a> data type.</p>
 
-An array is a fixed size and can't be resized once it is full. A slice also cannot dynamically grow larger at runtime, we must create a new slice, and this requires the use of the appropriate builtin functions.
+<p>An array is a fixed size and can&rsquo;t be resized once it is full. A slice also cannot dynamically grow larger at runtime, we must create a new slice, and this requires the use of the appropriate builtin functions.</p>
 
-The reason we have to use the builtin `append` function is because the [slice data structure](https://golang.org/pkg/reflect/#SliceHeader) includes a pointer to an array in memory. When appending more data than can be fit into the underlying array, the slice will copy the original array data to a _new_ array and will return a _new_ slice with an updated pointer.
+<p>The reason we have to use the builtin <code>append</code> function is because the <a href="https://golang.org/pkg/reflect/#SliceHeader" target="_blank">slice data structure</a> includes a pointer to an array in memory. When appending more data than can be fit into the underlying array, the slice will copy the original array data to a <em>new</em> array and will return a <em>new</em> slice with an updated pointer.</p>
 
-So if you tried to append the values &quot;a&quot;, &quot;b&quot; and &quot;c&quot; to a slice `s` like so: `append(s, &quot;a&quot;, &quot;b&quot;, &quot;c&quot;)` then this would return a new slice, but the original slice `s` would not be changed (i.e. it would still reference the original underlying/untouched array). Hence we overwrite `s` to ensure it is the updated slice with a potentially updated internal array pointer.
+<p>So if you tried to append the values &ldquo;a&rdquo;, &ldquo;b&rdquo; and &ldquo;c&rdquo; to a slice <code>s</code> like so: <code>append(s, &quot;a&quot;, &quot;b&quot;, &quot;c&quot;)</code> then this would return a new slice, but the original slice <code>s</code> would not be changed (i.e. it would still reference the original underlying/untouched array). Hence we overwrite <code>s</code> to ensure it is the updated slice with a potentially updated internal array pointer.</p>
 
-It's worth noting that if the underlying array has enough capacity, then although append will still return a new slice, the underlying array will be the same (as no new array needed to be allocated to hold the extra data). This can mean that updates happen to the underlying array when maybe you didn't intend them to.
+<p>It&rsquo;s worth noting that if the underlying array has enough capacity, then although append will still return a new slice, the underlying array will be the same (as no new array needed to be allocated to hold the extra data). This can mean that updates happen to the underlying array when maybe you didn&rsquo;t intend them to.</p>
 
-There is also the `...` syntax which is similar to rest/splat syntax in Python in that it unpacks the provided array/slice (e.g. `append(s, anotherSlice...)`).
+<p>There is also the <code>...</code> syntax which is similar to rest/splat syntax in Python in that it unpacks the provided array/slice (e.g. <code>append(s, anotherSlice...)</code>).</p>
 
-There's also a gotcha which is worth being aware of, and is related to the fact that slices point to the same underlying array if the slice modifications didn't change the array's capacity: https://yourbasic.org/golang/gotcha-append/
-
-</code></pre>
+<p>There&rsquo;s also a gotcha which is worth being aware of, and is related to the fact that slices point to the same underlying array if the slice modifications didn&rsquo;t change the array&rsquo;s capacity: <a href="https://yourbasic.org/golang/gotcha-append/" target="_blank">https://yourbasic.org/golang/gotcha-append/</a></p>
 
 </div>
 </body>

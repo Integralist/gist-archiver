@@ -12,37 +12,42 @@
 
 <h2 id="python-virtualenv-dockerized-md">Python VirtualEnv Dockerized.md</h2>
 
-<pre><code class="language-markdown">Python 3 has two ways of handling Virtual Environments:
+<p>Python 3 has two ways of handling Virtual Environments:</p>
 
-1. python3 -m venv /path/to/new/virtual/environment (builtin module)
-2. `virtualenv` (which `venv` module is a subset of)
+<ol>
+<li>python3 -m venv /path/to/new/virtual/environment (builtin module)</li>
+<li><code>virtualenv</code> (which <code>venv</code> module is a subset of)</li>
+</ol>
 
-The downside of option 1 is that it only works for the version of the Python 3 interpreter that's running. For example, if your Python 3 version is `3.6` then you can't run a virtual environment of packages using Python 3.7
+<p>The downside of option 1 is that it only works for the version of the Python 3 interpreter that&rsquo;s running. For example, if your Python 3 version is <code>3.6</code> then you can&rsquo;t run a virtual environment of packages using Python 3.7</p>
 
-At least with `virtualenv` you have the option of specifying the Python interpreter you want to use: `virtualenv --python=/opt/python-3.3/bin/python`.
+<p>At least with <code>virtualenv</code> you have the option of specifying the Python interpreter you want to use: <code>virtualenv --python=/opt/python-3.3/bin/python</code>.</p>
 
-&gt; [Source Reference](https://pythonspeed.com/articles/activate-virtualenv-dockerfile/)
+<blockquote>
+<p><a href="https://pythonspeed.com/articles/activate-virtualenv-dockerfile/" target="_blank">Source Reference</a></p>
+</blockquote>
 
-Once the virtual environment is created you'll need to activate it: `source &lt;path/to/venv&gt;/bin/activate`
+<p>Once the virtual environment is created you&rsquo;ll need to activate it: <code>source &lt;path/to/venv&gt;/bin/activate</code></p>
 
-It’s easy to think of `activate` as some mysterious magic, a pentacle drawn in blood to keep Python safely trapped. But it’s just software, and fairly simple software at that. [The virtualenv documentation](https://virtualenv.readthedocs.io/en/latest/userguide/#activate-script) will even tell you that `activate` is &quot;purely a convenience.&quot;
+<p>It’s easy to think of <code>activate</code> as some mysterious magic, a pentacle drawn in blood to keep Python safely trapped. But it’s just software, and fairly simple software at that. <a href="https://virtualenv.readthedocs.io/en/latest/userguide/#activate-script" target="_blank">The virtualenv documentation</a> will even tell you that <code>activate</code> is &ldquo;purely a convenience.&rdquo;</p>
 
-If you go and read the code for `activate`, it does a number of things:
+<p>If you go and read the code for <code>activate</code>, it does a number of things:</p>
 
-- It figures out what shell you’re running.
-- It adds a `deactivate` function to your shell, and messes around with `pydoc`.
-- It changes the shell prompt to include the virtualenv name.
-- It unsets the `PYTHONHOME` environment variable, if someone happened to set it.
-- It sets two environment variables: `VIRTUAL_ENV` and `PATH`.
+<ul>
+<li>It figures out what shell you’re running.</li>
+<li>It adds a <code>deactivate</code> function to your shell, and messes around with <code>pydoc</code>.</li>
+<li>It changes the shell prompt to include the virtualenv name.</li>
+<li>It unsets the <code>PYTHONHOME</code> environment variable, if someone happened to set it.</li>
+<li>It sets two environment variables: <code>VIRTUAL_ENV</code> and <code>PATH</code>.</li>
+</ul>
 
-The first four are basically irrelevant to Docker usage, so that just leaves the last item. The most important part is setting `PATH: PATH` is a list of directories which are searched for commands to run. `activate` simply adds the virtualenv’s `bin/` directory to the start of the list.
+<p>The first four are basically irrelevant to Docker usage, so that just leaves the last item. The most important part is setting <code>PATH: PATH</code> is a list of directories which are searched for commands to run. <code>activate</code> simply adds the virtualenv’s <code>bin/</code> directory to the start of the list.</p>
 
-We can replace `activate` by setting the appropriate environment variables: Docker’s `ENV` command applies both subsequent `RUN`s as well as to the `CMD`.
+<p>We can replace <code>activate</code> by setting the appropriate environment variables: Docker’s <code>ENV</code> command applies both subsequent <code>RUN</code>s as well as to the <code>CMD</code>.</p>
 
-The result is the following Dockerfile:
+<p>The result is the following Dockerfile:</p>
 
-```Dockerfile
-FROM ubuntu:18.04
+<pre><code class="language-Dockerfile">FROM ubuntu:18.04
 RUN apt-get update &amp;&amp; apt-get install \
   -y --no-install-recommends python3 python3-virtualenv
 
@@ -58,8 +63,6 @@ RUN pip install -r requirements.txt
 COPY myapp.py .
 CMD [&quot;python&quot;, &quot;myapp.py&quot;]
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

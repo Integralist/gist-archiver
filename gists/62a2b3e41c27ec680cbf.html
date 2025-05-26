@@ -12,17 +12,18 @@
 
 <h2 id="spawning-actors-in-celluloid-md">Spawning Actors in Celluloid.md</h2>
 
-<pre><code class="language-markdown">// Taken from http://uberfork.com/post/30510463110/spawning-actors-in-celluloid
+<p>// Taken from <a href="http://uberfork.com/post/30510463110/spawning-actors-in-celluloid" target="_blank">http://uberfork.com/post/30510463110/spawning-actors-in-celluloid</a></p>
 
-There are four built-in classes that help managing Actor instances:
+<p>There are four built-in classes that help managing Actor instances:</p>
 
-1. Actor
-2. Supervisor
-3. PoolManager
-4. SupervisionGroup
+<ol>
+<li>Actor</li>
+<li>Supervisor</li>
+<li>PoolManager</li>
+<li>SupervisionGroup</li>
+</ol>
 
-```ruby
-class Cat
+<pre><code class="language-ruby">class Cat
   include Celluloid
   class DeadCatError &lt; StandardError; end
  
@@ -164,8 +165,6 @@ end
 puts &quot;The gang members died #{member_died} times.\n&quot;\
      &quot;The leader (Garfield) died #{alpha_leader_died} times.&quot;
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

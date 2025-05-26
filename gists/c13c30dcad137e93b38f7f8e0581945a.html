@@ -12,20 +12,19 @@
 
 <h2 id="nginx-rate-limiting-is-weird-md">nginx rate limiting is weird.md</h2>
 
-<pre><code class="language-markdown">nginx rate limiting is weird
+<p>nginx rate limiting is weird</p>
 
-it takes input in requests per second
+<p>it takes input in requests per second</p>
 
-but that’s not how it rate limits
+<p>but that’s not how it rate limits</p>
 
-instead it divides your limit into tenth of a second chunks
+<p>instead it divides your limit into tenth of a second chunks</p>
 
-so a rate limit of 10 req/s is actually 1 req / 0.1 s
+<p>so a rate limit of 10 req/s is actually 1 req / 0.1 s</p>
 
-which means if you get 2 requests within 0.1 s, the second one will be rejected
+<p>which means if you get 2 requests within 0.1 s, the second one will be rejected</p>
 
-the best way to mitigate this is to allow a burst (this is what we do on webapp_waf) where you allow a burst of e.g. 10 reqs - meaning the first 10 requests wont be limited, but then if that rate is sustained future ones will be limited based on the tenth of a second bucketing
-</code></pre>
+<p>the best way to mitigate this is to allow a burst (this is what we do on webapp_waf) where you allow a burst of e.g. 10 reqs - meaning the first 10 requests wont be limited, but then if that rate is sustained future ones will be limited based on the tenth of a second bucketing</p>
 
 </div>
 </body>

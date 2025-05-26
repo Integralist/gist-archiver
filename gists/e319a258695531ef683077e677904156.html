@@ -10,32 +10,13 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="fastly-terraform-cli-with-terraform-fastly-cli-terraform-wasm">[Fastly Terraform CLI with Terraform] #fastly #cli #terraform #wasm</h1>
 
-<h2 id="provider-tf">provider.tf</h2>
-
-<pre><code class="language-hcl">terraform {
-  required_providers {
-    fastly = {
-      source  = &quot;fastly/fastly&quot;
-      version = &quot;0.29.1&quot;
-    }
-  }
-}
-</code></pre>
-
-<h2 id="variables-tf">variables.tf</h2>
-
-<pre><code class="language-hcl">variable &quot;name&quot; {
-  type    = string
-  default = &quot;testing-cli-to-tf-compute&quot;
-}
-</code></pre>
-
 <h2 id="1-readme-md">1. README.md</h2>
 
-<pre><code class="language-markdown">&gt; **NOTE:** The example is for an older version of the Fastly Terraform provider, a more recent version (e.g. 5.4.0 at the time of writing) uses a different setup (shown below) so you'll need to tweak the older examples.
+<blockquote>
+<p><strong>NOTE:</strong> The example is for an older version of the Fastly Terraform provider, a more recent version (e.g. 5.4.0 at the time of writing) uses a different setup (shown below) so you&rsquo;ll need to tweak the older examples.</p>
+</blockquote>
 
-```hcl
-terraform {
+<pre><code class="language-hcl">terraform {
   required_providers {
     fastly = {
       source  = &quot;fastly/fastly&quot;
@@ -136,12 +117,11 @@ resource &quot;fastly_service_compute&quot; &quot;testing-fastly-tf-cli-deploys&
 
 <blockquote>
 <p><strong>NOTE</strong>: For testing purposes of the CLI logic I had to keep re-initialising my CLI project, which meant having to rebuild the rust dependency tree each time (very slow). To avoid doing that, don&rsquo;t <code>rm -rf *</code> but instead only <code>rm -r bin/ pkg/ src/ fastly.toml</code> and so long as you&rsquo;re going to use the same rust starter kit, then you&rsquo;ll get a much quicker build step.</p>
+</blockquote>
 
-<pre><code>
-## main.tf
+<h2 id="main-tf">main.tf</h2>
 
-```hcl
-locals {
+<pre><code class="language-hcl">locals {
   pkg = regex(&quot;name = \&quot;(?P&lt;name&gt;[^\&quot;]+)&quot;, file(&quot;../fastly.toml&quot;))
 }
 
@@ -167,7 +147,26 @@ resource &quot;fastly_service_compute&quot; &quot;test_service&quot; {
   force_destroy = true
 }
 </code></pre>
-</blockquote>
+
+<h2 id="provider-tf">provider.tf</h2>
+
+<pre><code class="language-hcl">terraform {
+  required_providers {
+    fastly = {
+      source  = &quot;fastly/fastly&quot;
+      version = &quot;0.29.1&quot;
+    }
+  }
+}
+</code></pre>
+
+<h2 id="variables-tf">variables.tf</h2>
+
+<pre><code class="language-hcl">variable &quot;name&quot; {
+  type    = string
+  default = &quot;testing-cli-to-tf-compute&quot;
+}
+</code></pre>
 
 </div>
 </body>

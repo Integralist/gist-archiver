@@ -12,14 +12,13 @@
 
 <h2 id="cabinjs-md">CabinJS.md</h2>
 
-<pre><code class="language-markdown">Using CabinJS to create my blog, but it only works with GitHub pages (so as I have a user account set-up for my domain repo CabinJS' deployment process doesn't work for me, which means I need to copy the `dist` folder over to my website repo manually).
+<p>Using CabinJS to create my blog, but it only works with GitHub pages (so as I have a user account set-up for my domain repo CabinJS&rsquo; deployment process doesn&rsquo;t work for me, which means I need to copy the <code>dist</code> folder over to my website repo manually).</p>
 
-So rather than write a Rake task (or a Node/Grunt task) and have to spend time looking up the different File system APIs (which I always forget), I've decided to use standard unix commands to achieve the same thing.
+<p>So rather than write a Rake task (or a Node/Grunt task) and have to spend time looking up the different File system APIs (which I always forget), I&rsquo;ve decided to use standard unix commands to achieve the same thing.</p>
 
-Yes I'm sure it *looks* a lot more long winded but it works and took me a lot less time to write...
+<p>Yes I&rsquo;m sure it <em>looks</em> a lot more long winded but it works and took me a lot less time to write&hellip;</p>
 
-```sh
-alias site=&quot;cd ~/Code/CabinJS &amp;&amp; 
+<pre><code class="language-sh">alias site=&quot;cd ~/Code/CabinJS &amp;&amp; 
             touch log.txt &amp;&amp; 
             git log --oneline -n 1 | 
             cut -d ' ' -f 2- | 
@@ -48,8 +47,6 @@ alias site=&quot;cd ~/Code/CabinJS &amp;&amp;
 <li>we then pipe that commit message over to xargs which runs <code>git commit</code> using it</li>
 <li>finally we <code>git push origin master</code></li>
 </ul>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

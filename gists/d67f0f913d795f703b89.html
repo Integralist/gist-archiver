@@ -12,55 +12,54 @@
 
 <h2 id="design-patterns-adapter-vs-facade-vs-bridge-md">Design Patterns: Adapter vs Facade vs Bridge.md</h2>
 
-<pre><code class="language-markdown">The three design patterns (Adapter, Facade and Bridge) all produce the result of a clean public API. The difference between the patterns are usually due to a subtle context shift (and in some cases, a behavioural requirement).
+<p>The three design patterns (Adapter, Facade and Bridge) all produce the result of a clean public API. The difference between the patterns are usually due to a subtle context shift (and in some cases, a behavioural requirement).</p>
 
-## Adapter
+<h2 id="adapter">Adapter</h2>
 
-The primary function of an Adapter is to produce a *unified* interface for a number of underlying and unrelated objects.
+<p>The primary function of an Adapter is to produce a <em>unified</em> interface for a number of underlying and unrelated objects.</p>
 
-You will notice this pattern being utilised in many applications. For example, ActiveRecord (the popular Ruby ORM; object-relational mapping) creates a unified interface as part of its API but the code underneath the interface is able to communicate with many different types of databases. Allowing the consumer of the API to not have to worry about specific database implementation details.
+<p>You will notice this pattern being utilised in many applications. For example, ActiveRecord (the popular Ruby ORM; object-relational mapping) creates a unified interface as part of its API but the code underneath the interface is able to communicate with many different types of databases. Allowing the consumer of the API to not have to worry about specific database implementation details.</p>
 
-The principle structure of this pattern is:
+<p>The principle structure of this pattern is:</p>
 
+<pre><code>Current | Future
+----------------
+B(C)    | B(A)
 </code></pre>
 
-<h2 id="current-future">Current | Future</h2>
+<p>The <code>B</code> function cannot be changed and it is dependant on the interface that was originally provided by <code>C</code>, but now we are passing in <code>A</code> which has an incompatible interface.</p>
 
-<p>B&copy;    | B(A)</p>
+<p>An adapter can solve this by creating a new function <code>A2C</code> which contains the relevant logic for handling the interaction between <code>B</code> and <code>A</code>.</p>
 
-<pre><code>
-The `B` function cannot be changed and it is dependant on the interface that was originally provided by `C`, but now we are passing in `A` which has an incompatible interface.
-
-An adapter can solve this by creating a new function `A2C` which contains the relevant logic for handling the interaction between `B` and `A`.
-
+<pre><code>Current | Future
+----------------
+B(C)    | B(A2C(A))
 </code></pre>
 
-<h2 id="current-future-1">Current | Future</h2>
+<h2 id="facade">Facade</h2>
 
-<p>B&copy;    | B(A2C(A))</p>
+<p>The primary function of a Facade is to simplify the interaction between a consumer and an interface.</p>
 
-<pre><code>
-## Facade
+<p>Most DSL&rsquo;s are a facade of some form. The popular jQuery library consists of multiple facades (one for each type of feature). For example, the jQuery <code>ajax</code> method makes it very easy to make an XHR (<code>XMLHttpRequest</code>).</p>
 
-The primary function of a Facade is to simplify the interaction between a consumer and an interface.
+<blockquote>
+<p>The difference between a Facade and an Adapter is that the Facade makes a simple abstraction, where as an Adapter will handle complex interactions by taking incoming data and constructing it to work with the underlying objects.</p>
+</blockquote>
 
-Most DSL's are a facade of some form. The popular jQuery library consists of multiple facades (one for each type of feature). For example, the jQuery `ajax` method makes it very easy to make an XHR (`XMLHttpRequest`).
+<h2 id="bridge">Bridge</h2>
 
-&gt; The difference between a Facade and an Adapter is that the Facade makes a simple abstraction, where as an Adapter will handle complex interactions by taking incoming data and constructing it to work with the underlying objects.
+<p>The primary function of a Bridge is to decouple an abstraction from its implementation.</p>
 
-## Bridge
+<blockquote>
+<p>Adapter makes things work <em>after</em> they&rsquo;re designed<br />
+Bridge makes them work <em>before</em> they are</p>
+</blockquote>
 
-The primary function of a Bridge is to decouple an abstraction from its implementation.
+<p>Imagine you have a function that abstracts the implementation detail of making an HTTP request to an external API endpoint. In a language like JavaScript you might tightly couple the abstraction with the consumer code.</p>
 
-&gt; Adapter makes things work _after_ they're designed  
-&gt; Bridge makes them work _before_ they are
+<p>For example:</p>
 
-Imagine you have a function that abstracts the implementation detail of making an HTTP request to an external API endpoint. In a language like JavaScript you might tightly couple the abstraction with the consumer code.
-
-For example:
-
-```js
-function get(e) {
+<pre><code class="language-js">function get(e) {
   return asyncRequest('foo?bar=' + this.id, function(response) {
     console.log(response)
   })
@@ -87,8 +86,6 @@ function getBridge(e) {
 
 myTrigger.addEventListener('click', getBridge, false)
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

@@ -12,15 +12,16 @@
 
 <h2 id="terminal-go-back-up-one-line-md">Terminal go back up one line.md</h2>
 
-<pre><code class="language-markdown">http://stackoverflow.com/questions/6939673/go-back-up-a-line-in-a-linux-console
+<p><a href="http://stackoverflow.com/questions/6939673/go-back-up-a-line-in-a-linux-console" target="_blank">http://stackoverflow.com/questions/6939673/go-back-up-a-line-in-a-linux-console</a></p>
 
-&gt; I know I can go back the line and overwrite its contents with \r.  
-Now how can I go up into the previous line to change that?
+<blockquote>
+<p>I know I can go back the line and overwrite its contents with \r.<br />
+Now how can I go up into the previous line to change that?</p>
+</blockquote>
 
-The basic solution involves: `\x1B[1F` (which effectively is an [ANSI Escape Code](http://en.wikipedia.org/wiki/ANSI_escape_code): `Esc [ 1 F`)
+<p>The basic solution involves: <code>\x1B[1F</code> (which effectively is an <a href="http://en.wikipedia.org/wiki/ANSI_escape_code" target="_blank">ANSI Escape Code</a>: <code>Esc [ 1 F</code>)</p>
 
-But in context of a Ruby CLI script: `print &quot;\r\x1B[1F\x1B[1F&quot;`
-</code></pre>
+<p>But in context of a Ruby CLI script: <code>print &quot;\r\x1B[1F\x1B[1F&quot;</code></p>
 
 </div>
 </body>

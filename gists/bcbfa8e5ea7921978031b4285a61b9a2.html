@@ -10,198 +10,11 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="golang-slog-structure-logging-go-golang-log-logging-structuredlogs">[Golang slog structure logging] #go #golang #log #logging #structuredlogs</h1>
 
-<h2 id="wrapping-go">wrapping.go</h2>
-
-<pre><code class="language-go">// There are issues with LogAttrs when it wraps slog.Logger's LogAttrs. 
-// So we must implement wrapping as described in 
-// https://pkg.go.dev/log/slog#hdr-Wrapping_output_methods 
-// Which helps to preserve the correct source location.
-
-// Package logging wraps the features we want to expose from log/slog and
-// provides standard constructors for loggers.
-package logging
-
-import (
-	&quot;context&quot;
-	&quot;io&quot;
-	&quot;log&quot;
-	&quot;log/slog&quot;
-	&quot;os&quot;
-	&quot;path/filepath&quot;
-	&quot;runtime&quot;
-	&quot;strconv&quot;
-	&quot;strings&quot;
-	&quot;time&quot;
-
-	&quot;github.com/domainr/mustang/internal/version&quot;
-)
-
-// Level allows dynamically changing the output level via .Set() method.
-// Defaults to [slog.LevelInfo].
-var Level = new(slog.LevelVar)
-
-// Logger describes the set of features we want to expose from log/slog.
-//
-// NOTE: Don't confuse our custom With() signature with (*slog.Logger).With
-// We return a Logger type where the standard library returns a *slog.Logger
-type Logger interface {
-	Enabled(ctx context.Context, level slog.Level) bool
-	LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr)
-	With(args ...any) Logger
-	_private(private) // prevents any other package from implementing this interface
-}
-
-// NewLogger returns a logging.Logger configured for stderr.
-func NewLogger() Logger {
-	return NewLoggerWithOutputLevel(os.Stderr, Level)
-}
-
-// NewLoggerWithOutputLevel returns a [Logger] configured with an output writer and Level.
-func NewLoggerWithOutputLevel(w io.Writer, l slog.Leveler) Logger {
-	opts := defaultOptions()
-	opts.Level = l
-	return (*logger)(slog.New(slog.NewTextHandler(w, opts).WithAttrs(defaultAttrs())))
-}
-
-// NewBareLoggerWithOutputLevel returns a [Logger] configured with an output location and [slog.Leveler].
-// It does not include any additional attributes.
-func NewBareLoggerWithOutputLevel(w io.Writer, l slog.Leveler) Logger {
-	opts := defaultOptions()
-	opts.Level = l
-	return (*logger)(slog.New(slog.NewTextHandler(w, opts)))
-}
-
-type private struct{}
-
-// IMPORTANT: logger is an alias to slog.Logger to avoid a double-pointer deference.
-// All methods off the type will need to type-cast a *logger to *slog.Logger.
-// With() must additionally type-cast back to a Logger compatible type.
-type logger slog.Logger
-
-func (*logger) _private(private) {}
-
-func (l *logger) Enabled(ctx context.Context, level slog.Level) bool {
-	return (*slog.Logger)(l).Enabled(ctx, level)
-}
-
-// LogAttrs effectively wraps slog.Logger's LogAttrs, so we must implement wrapping as described
-// in https://pkg.go.dev/log/slog#hdr-Wrapping_output_methods to preserve the correct source location.
-func (l *logger) LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr) {
-	if !l.Enabled(context.Background(), level) {
-		return
-	}
-	var pcs [1]uintptr
-	runtime.Callers(2, pcs[:]) // skip 2 [Callers, LogAttrs]
-	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
-	r.AddAttrs(attrs...)
-	(*slog.Logger)(l).Handler().Handle(ctx, r)
-}
-
-func (l *logger) With(args ...any) Logger {
-	return (*logger)((*slog.Logger)(l).With(args...))
-}
-
-// Adapt returns a [log.Logger] for use with packages that are not yet compatible with
-// [log/slog].
-func Adapt(l Logger, level slog.Level) *log.Logger {
-	// _private() ensures this type assertion cannot panic.
-	slogger := (*slog.Logger)(l.(*logger)) //nolint:revive,forcetypeassert
-	return slog.NewLogLogger(slogger.Handler(), level)
-}
-
-func defaultOptions() *slog.HandlerOptions {
-	return &amp;slog.HandlerOptions{
-		AddSource:   true,
-		ReplaceAttr: slogReplaceAttr,
-		Level:       Level,
-	}
-}
-
-func defaultAttrs() []slog.Attr {
-	appName := strings.Replace(os.Getenv(&quot;HEROKU_APP_NAME&quot;), &quot;mustang&quot;, &quot;heroku&quot;, 1)
-	if appName == &quot;&quot; {
-		appName = os.Getenv(&quot;USER&quot;)
-	}
-	return []slog.Attr{slog.Group(&quot;mustang&quot;,
-		slog.String(&quot;name&quot;, appName),
-		slog.String(&quot;version&quot;, version.Version()),
-	)}
-}
-
-// NullLogger discards logs.
-func NullLogger() Logger {
-	// NOTE: We pass a level not currently defined to reduce operational overhead.
-	// The intent, unlike passing nil for the opts argument, is for the logger to
-	// not even bother generating a message that will just be discarded.
-	// An additional gap of 4 was used as it aligns with Go's original design.
-	// https://github.com/golang/go/blob/1e95fc7/src/log/slog/level.go#L34-L42
-	return (*logger)(slog.New(slog.NewTextHandler(io.Discard, &amp;slog.HandlerOptions{Level: slog.LevelError + 4}))) //nolint:gomnd
-}
-
-// slogReplaceAttr adjusts the log output.
-//
-// - Restricts these changes to top-level keys (not keys within groups)
-//   - Changes default time field value to UTC time zone
-//   - Replaces msg key with event
-//   - Omits event field if empty
-//   - Omits error field if when nil
-//   - Truncates source's filename to mustang directory
-//
-// - Formats duration and delay values in microseconds as xxxxµs
-//
-// See https://pkg.go.dev/log/slog#HandlerOptions.ReplaceAttr
-// N.B: TextHandler manages quoting attribute values as necessary.
-func slogReplaceAttr(groups []string, a slog.Attr) slog.Attr {
-	// Limit application of these rules only to top-level keys
-	if len(groups) == 0 {
-		// Set time zone to UTC
-		if a.Key == slog.TimeKey {
-			a.Value = slog.TimeValue(a.Value.Time().UTC())
-			return a
-		}
-		// Use event as the default MessageKey, remove if empty
-		if a.Key == slog.MessageKey {
-			a.Key = &quot;event&quot;
-			if a.Value.String() == &quot;&quot; {
-				return slog.Attr{}
-			}
-			return a
-		}
-		// Display a 'partial' path.
-		// Avoids ambiguity when multiple files have the same name across packages.
-		// e.g. billing.go appears under 'global', 'billing' and 'server' packages.
-		if a.Key == slog.SourceKey {
-			if source, ok := a.Value.Any().(*slog.Source); ok {
-				a.Key = &quot;caller&quot;
-				if _, after, ok := strings.Cut(source.File, &quot;mustang&quot;+string(filepath.Separator)); ok {
-					source.File = after
-				}
-			}
-			return a
-		}
-	}
-
-	// Remove error key=value when error is nil
-	if a.Equal(slog.Any(&quot;error&quot;, error(nil))) {
-		return slog.Attr{}
-	}
-
-	// Present durations and delays as xxxxµs
-	switch a.Key {
-	case &quot;dur&quot;, &quot;delay&quot;, &quot;p95&quot;, &quot;previous_p95&quot;, &quot;remaining&quot;, &quot;max_wait&quot;:
-		a.Value = slog.StringValue(strconv.FormatInt(a.Value.Duration().Microseconds(), 10) + &quot;µs&quot;)
-	}
-
-	return a
-}
-</code></pre>
-
 <h2 id="1-readme-md">1. README.md</h2>
 
-<pre><code class="language-markdown">Simple TEXT implementation:
+<p>Simple TEXT implementation:</p>
 
-```go
-var logger = slog.New(slog.NewTextHandler(os.Stdout, &amp;slog.HandlerOptions{
+<pre><code class="language-go">var logger = slog.New(slog.NewTextHandler(os.Stdout, &amp;slog.HandlerOptions{
 	AddSource: true,
 	ReplaceAttr: func(g []string, a slog.Attr) slog.Attr {
 		// Ensure time is always logged in UTC.
@@ -499,11 +312,9 @@ func slogReplaceAttr(groups []string, a slog.Attr) slog.Attr {
 }
 </code></pre>
 
-<pre><code>
-## dedupe.go
+<h2 id="dedupe-go">dedupe.go</h2>
 
-```go
-// https://go.dev/play/p/dgMult9xaao
+<pre><code class="language-go">// https://go.dev/play/p/dgMult9xaao
 //
 // Code copied verbatim from https://github.com/veqryn/slog-dedup
 
@@ -1320,6 +1131,192 @@ func (ef ErrFoo) Error() string {
 // https://betterstack.com/community/guides/logging/logging-in-go/#hiding-sensitive-fields-with-the-logvaluer-interface
 func (ef ErrFoo) LogValue() slog.Value {
 	return slog.StringValue(ef.Err.Error())
+}
+</code></pre>
+
+<h2 id="wrapping-go">wrapping.go</h2>
+
+<pre><code class="language-go">// There are issues with LogAttrs when it wraps slog.Logger's LogAttrs. 
+// So we must implement wrapping as described in 
+// https://pkg.go.dev/log/slog#hdr-Wrapping_output_methods 
+// Which helps to preserve the correct source location.
+
+// Package logging wraps the features we want to expose from log/slog and
+// provides standard constructors for loggers.
+package logging
+
+import (
+	&quot;context&quot;
+	&quot;io&quot;
+	&quot;log&quot;
+	&quot;log/slog&quot;
+	&quot;os&quot;
+	&quot;path/filepath&quot;
+	&quot;runtime&quot;
+	&quot;strconv&quot;
+	&quot;strings&quot;
+	&quot;time&quot;
+
+	&quot;github.com/domainr/mustang/internal/version&quot;
+)
+
+// Level allows dynamically changing the output level via .Set() method.
+// Defaults to [slog.LevelInfo].
+var Level = new(slog.LevelVar)
+
+// Logger describes the set of features we want to expose from log/slog.
+//
+// NOTE: Don't confuse our custom With() signature with (*slog.Logger).With
+// We return a Logger type where the standard library returns a *slog.Logger
+type Logger interface {
+	Enabled(ctx context.Context, level slog.Level) bool
+	LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr)
+	With(args ...any) Logger
+	_private(private) // prevents any other package from implementing this interface
+}
+
+// NewLogger returns a logging.Logger configured for stderr.
+func NewLogger() Logger {
+	return NewLoggerWithOutputLevel(os.Stderr, Level)
+}
+
+// NewLoggerWithOutputLevel returns a [Logger] configured with an output writer and Level.
+func NewLoggerWithOutputLevel(w io.Writer, l slog.Leveler) Logger {
+	opts := defaultOptions()
+	opts.Level = l
+	return (*logger)(slog.New(slog.NewTextHandler(w, opts).WithAttrs(defaultAttrs())))
+}
+
+// NewBareLoggerWithOutputLevel returns a [Logger] configured with an output location and [slog.Leveler].
+// It does not include any additional attributes.
+func NewBareLoggerWithOutputLevel(w io.Writer, l slog.Leveler) Logger {
+	opts := defaultOptions()
+	opts.Level = l
+	return (*logger)(slog.New(slog.NewTextHandler(w, opts)))
+}
+
+type private struct{}
+
+// IMPORTANT: logger is an alias to slog.Logger to avoid a double-pointer deference.
+// All methods off the type will need to type-cast a *logger to *slog.Logger.
+// With() must additionally type-cast back to a Logger compatible type.
+type logger slog.Logger
+
+func (*logger) _private(private) {}
+
+func (l *logger) Enabled(ctx context.Context, level slog.Level) bool {
+	return (*slog.Logger)(l).Enabled(ctx, level)
+}
+
+// LogAttrs effectively wraps slog.Logger's LogAttrs, so we must implement wrapping as described
+// in https://pkg.go.dev/log/slog#hdr-Wrapping_output_methods to preserve the correct source location.
+func (l *logger) LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr) {
+	if !l.Enabled(context.Background(), level) {
+		return
+	}
+	var pcs [1]uintptr
+	runtime.Callers(2, pcs[:]) // skip 2 [Callers, LogAttrs]
+	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
+	r.AddAttrs(attrs...)
+	(*slog.Logger)(l).Handler().Handle(ctx, r)
+}
+
+func (l *logger) With(args ...any) Logger {
+	return (*logger)((*slog.Logger)(l).With(args...))
+}
+
+// Adapt returns a [log.Logger] for use with packages that are not yet compatible with
+// [log/slog].
+func Adapt(l Logger, level slog.Level) *log.Logger {
+	// _private() ensures this type assertion cannot panic.
+	slogger := (*slog.Logger)(l.(*logger)) //nolint:revive,forcetypeassert
+	return slog.NewLogLogger(slogger.Handler(), level)
+}
+
+func defaultOptions() *slog.HandlerOptions {
+	return &amp;slog.HandlerOptions{
+		AddSource:   true,
+		ReplaceAttr: slogReplaceAttr,
+		Level:       Level,
+	}
+}
+
+func defaultAttrs() []slog.Attr {
+	appName := strings.Replace(os.Getenv(&quot;HEROKU_APP_NAME&quot;), &quot;mustang&quot;, &quot;heroku&quot;, 1)
+	if appName == &quot;&quot; {
+		appName = os.Getenv(&quot;USER&quot;)
+	}
+	return []slog.Attr{slog.Group(&quot;mustang&quot;,
+		slog.String(&quot;name&quot;, appName),
+		slog.String(&quot;version&quot;, version.Version()),
+	)}
+}
+
+// NullLogger discards logs.
+func NullLogger() Logger {
+	// NOTE: We pass a level not currently defined to reduce operational overhead.
+	// The intent, unlike passing nil for the opts argument, is for the logger to
+	// not even bother generating a message that will just be discarded.
+	// An additional gap of 4 was used as it aligns with Go's original design.
+	// https://github.com/golang/go/blob/1e95fc7/src/log/slog/level.go#L34-L42
+	return (*logger)(slog.New(slog.NewTextHandler(io.Discard, &amp;slog.HandlerOptions{Level: slog.LevelError + 4}))) //nolint:gomnd
+}
+
+// slogReplaceAttr adjusts the log output.
+//
+// - Restricts these changes to top-level keys (not keys within groups)
+//   - Changes default time field value to UTC time zone
+//   - Replaces msg key with event
+//   - Omits event field if empty
+//   - Omits error field if when nil
+//   - Truncates source's filename to mustang directory
+//
+// - Formats duration and delay values in microseconds as xxxxµs
+//
+// See https://pkg.go.dev/log/slog#HandlerOptions.ReplaceAttr
+// N.B: TextHandler manages quoting attribute values as necessary.
+func slogReplaceAttr(groups []string, a slog.Attr) slog.Attr {
+	// Limit application of these rules only to top-level keys
+	if len(groups) == 0 {
+		// Set time zone to UTC
+		if a.Key == slog.TimeKey {
+			a.Value = slog.TimeValue(a.Value.Time().UTC())
+			return a
+		}
+		// Use event as the default MessageKey, remove if empty
+		if a.Key == slog.MessageKey {
+			a.Key = &quot;event&quot;
+			if a.Value.String() == &quot;&quot; {
+				return slog.Attr{}
+			}
+			return a
+		}
+		// Display a 'partial' path.
+		// Avoids ambiguity when multiple files have the same name across packages.
+		// e.g. billing.go appears under 'global', 'billing' and 'server' packages.
+		if a.Key == slog.SourceKey {
+			if source, ok := a.Value.Any().(*slog.Source); ok {
+				a.Key = &quot;caller&quot;
+				if _, after, ok := strings.Cut(source.File, &quot;mustang&quot;+string(filepath.Separator)); ok {
+					source.File = after
+				}
+			}
+			return a
+		}
+	}
+
+	// Remove error key=value when error is nil
+	if a.Equal(slog.Any(&quot;error&quot;, error(nil))) {
+		return slog.Attr{}
+	}
+
+	// Present durations and delays as xxxxµs
+	switch a.Key {
+	case &quot;dur&quot;, &quot;delay&quot;, &quot;p95&quot;, &quot;previous_p95&quot;, &quot;remaining&quot;, &quot;max_wait&quot;:
+		a.Value = slog.StringValue(strconv.FormatInt(a.Value.Duration().Microseconds(), 10) + &quot;µs&quot;)
+	}
+
+	return a
 }
 </code></pre>
 

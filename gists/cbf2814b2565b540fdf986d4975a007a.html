@@ -12,8 +12,7 @@
 
 <h2 id="panic-vs-os-exit-md">Panic vs os.Exit.md</h2>
 
-<pre><code class="language-markdown">`panic` signals &quot;the programmer has made a fundamental mistake and execution cannot continue safely&quot;, whereas `os.Exit` signals &quot;the programmer has decided that the process should terminate here&quot; — different meanings. Also, important difference in behavior: `panic` will unwind the callstack, which means it will call any pending `defer` statements; `os.Exit` will just do a hard kill, so it won't.
-</code></pre>
+<p><code>panic</code> signals &ldquo;the programmer has made a fundamental mistake and execution cannot continue safely&rdquo;, whereas <code>os.Exit</code> signals &ldquo;the programmer has decided that the process should terminate here&rdquo; — different meanings. Also, important difference in behavior: <code>panic</code> will unwind the callstack, which means it will call any pending <code>defer</code> statements; <code>os.Exit</code> will just do a hard kill, so it won&rsquo;t.</p>
 
 </div>
 </body>

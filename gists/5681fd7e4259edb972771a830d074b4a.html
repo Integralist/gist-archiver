@@ -12,35 +12,34 @@
 
 <h2 id="multi-torrent-site-search-md">Multi Torrent Site Search.md</h2>
 
-<pre><code class="language-markdown">&gt; Note: for _searching_ torrents you can use [torrench](https://github.com/kryptxy/torrench)
+<blockquote>
+<p>Note: for <em>searching</em> torrents you can use <a href="https://github.com/kryptxy/torrench" target="_blank">torrench</a></p>
+</blockquote>
 
-- `pip install pyopenssl`
-- `pip install --upgrade torrench`
-- `torrench -h`
+<ul>
+<li><code>pip install pyopenssl</code></li>
+<li><code>pip install --upgrade torrench</code></li>
+<li><code>torrench -h</code></li>
+</ul>
 
-To use illegal torrent sites (at your own risk!)
+<p>To use illegal torrent sites (at your own risk!)</p>
 
+<pre><code># generate config directory
+mkdir ~/.config/torrench`
+
+# download config file
+curl -so ~/.config/torrench/config.ini https://pastebin.com/raw/reymRHSL`
+
+# enable TBP searching
+sed -i '' 's/\(enable = \)0/\11/' ~/.config/torrench/config.ini`
+
+# search TBP
+torrench -t 'ufc 219'`
 </code></pre>
 
-<h1 id="generate-config-directory">generate config directory</h1>
-
-<p>mkdir ~/.config/torrench`</p>
-
-<h1 id="download-config-file">download config file</h1>
-
-<p>curl -so ~/.config/torrench/config.ini <a href="https://pastebin.com/raw/reymRHSL`" target="_blank">https://pastebin.com/raw/reymRHSL`</a></p>
-
-<h1 id="enable-tbp-searching">enable TBP searching</h1>
-
-<p>sed -i &ldquo; &rsquo;s/(enable = )0/\11/&rsquo; ~/.config/torrench/config.ini`</p>
-
-<h1 id="search-tbp">search TBP</h1>
-
-<p>torrench -t &lsquo;ufc 219&rsquo;`</p>
-
-<pre><code>
-&gt; Note: for _downloading_ you can use [tget](https://github.com/jeffjose/tget)
-</code></pre>
+<blockquote>
+<p>Note: for <em>downloading</em> you can use <a href="https://github.com/jeffjose/tget" target="_blank">tget</a></p>
+</blockquote>
 
 </div>
 </body>

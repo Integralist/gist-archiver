@@ -12,79 +12,83 @@
 
 <h2 id="golang-essentials-md">Golang Essentials.md</h2>
 
-<pre><code class="language-markdown">- [Install](#install)
-- [Shell exports](#shell-exports)
-- [Directory explanations](#directory-explanations)
-- [Automatic Imports](#automatic-imports)
-- [Private repo access](#private-repo-access)
-- [Guard (automatic go run)](#guard-automatic-go-run)
-- [Godo](#godo)
-- [Spurious](#spurious)
-- [AWS SDK with Go (inc. some old possibly broken examples)](#aws-sdk-with-go)
-- [Build and Compilation](#build-and-compilation)
-- [Dependency information with `go list`](#dependency-information-with-go-list)
-- [Dependencies with godeps](#dependencies-with-godeps)
-- [Dependencies with gb](#dependencies-with-gb)
-- [Dependencies with glide](#dependencies-with-glide)
-- [Documentation](#documentation)
-- [Testing](#testing)
-- [Logging](#logging)
-- [Bits, Bytes, Runes](#bits-bytes-runes)
-- [Code Examples](#code-examples)
-  - [Init](#init)
-  - [New vs Make](#new-vs-make)
-  - [Custom Types](#custom-types)
-  - [Function Types](#function-types)
-  - [Structure: Var vs Type](#struct-var-vs-type)
-  - [Reference vs Value](#reference-vs-value)
-  - [See all methods of a &amp;lt;Type&amp;gt;](#see-all-methods-of-a-type) 
-  - [Set time](#set-time)
-  - [Convert Struct into JSON](#convert-struct-into-json)
-  - [Extract only JSON you need](#extract-only-json-you-need)
-  - [Nested JSON handling](#nested-json-handling)
-  - [Pretty Printing JSON String](#pretty-printing-json-string)
-  - [Nested YAML handling](#nested-yaml-handling)
-  - [Unknown YAML Structure](#unknown-yaml-structure)
-  - [Sorting Structs](#sorting-structs)
-  - [Read User Input](#read-users-input)
-  - [Web Server](#web-server)
-  - [Middleware](#middleware)
-  - [Sessions](#sessions)
-  - [HTTP Requests with Timeouts](#http-requests-with-timeouts)
-  - [S3 GetObject](#s3-getobject)
-  - [Compile time variables](#compile-time-variables)
-  - [TLS HTTP Request](#tls-http-request)
-  - [Custom HTTP Request](#custom-http-request)
-  - [HTTP GET Web Page](#http-get-web-page)
-  - [Pointers](#pointers)
-  - [Array Pointer](#array-pointer)
-  - [Type Assertion](#type-assertion)
-  - [Line Count](#line-count)
-  - [Measuring time](#measuring-time)
-  - [Reading a file in chunks](#reading-a-file-in-chunks)
-  - [Time and Channels](#time-and-channels)
-  - [Quit a Channel](#quit-a-channel)
-  - [Starting and Stopping things with Channels](#starting-and-stopping-things-with-channels)
-  - [Channel Pipelines](#channel-pipelines)
-  - [Templating](#templating)
-  - [Error handling with context](#error-handling-with-context)
-  - [Socket programming with TCP server](#socket-programming-with-tcp-server)
-  - [Comparing maps](#comparing-maps)
-  - [Embedded Structs](#embedded-structs)
-  - [Zip File Contents](#zip-file-contents)
-  - [OAuth](https://gist.github.com/Integralist/0e277a517fee68153f93)
-  - [RPC](#rpc)
-  - [Enumerator IOTA](#enumerator-iota)
-  - [FizzBuzz](#fizzbuzz)
-  - [Execute Shell Command](#execute-shell-command)
-  - [New Instance Idiom](#new-instance-idiom)
-  - [Mutating Values](#mutating-values)
-  - [Draining Connections](#draining-connections)
+<ul>
+<li><a href="#install">Install</a></li>
+<li><a href="#shell-exports">Shell exports</a></li>
+<li><a href="#directory-explanations">Directory explanations</a></li>
+<li><a href="#automatic-imports">Automatic Imports</a></li>
+<li><a href="#private-repo-access">Private repo access</a></li>
+<li><a href="#guard-automatic-go-run">Guard (automatic go run)</a></li>
+<li><a href="#godo">Godo</a></li>
+<li><a href="#spurious">Spurious</a></li>
+<li><a href="#aws-sdk-with-go">AWS SDK with Go (inc. some old possibly broken examples)</a></li>
+<li><a href="#build-and-compilation">Build and Compilation</a></li>
+<li><a href="#dependency-information-with-go-list">Dependency information with <code>go list</code></a></li>
+<li><a href="#dependencies-with-godeps">Dependencies with godeps</a></li>
+<li><a href="#dependencies-with-gb">Dependencies with gb</a></li>
+<li><a href="#dependencies-with-glide">Dependencies with glide</a></li>
+<li><a href="#documentation">Documentation</a></li>
+<li><a href="#testing">Testing</a></li>
+<li><a href="#logging">Logging</a></li>
+<li><a href="#bits-bytes-runes">Bits, Bytes, Runes</a></li>
+<li><a href="#code-examples">Code Examples</a>
 
-## Install
+<ul>
+<li><a href="#init">Init</a></li>
+<li><a href="#new-vs-make">New vs Make</a></li>
+<li><a href="#custom-types">Custom Types</a></li>
+<li><a href="#function-types">Function Types</a></li>
+<li><a href="#struct-var-vs-type">Structure: Var vs Type</a></li>
+<li><a href="#reference-vs-value">Reference vs Value</a></li>
+<li><a href="#see-all-methods-of-a-type">See all methods of a &amp;lt;Type&amp;gt;</a></li>
+<li><a href="#set-time">Set time</a></li>
+<li><a href="#convert-struct-into-json">Convert Struct into JSON</a></li>
+<li><a href="#extract-only-json-you-need">Extract only JSON you need</a></li>
+<li><a href="#nested-json-handling">Nested JSON handling</a></li>
+<li><a href="#pretty-printing-json-string">Pretty Printing JSON String</a></li>
+<li><a href="#nested-yaml-handling">Nested YAML handling</a></li>
+<li><a href="#unknown-yaml-structure">Unknown YAML Structure</a></li>
+<li><a href="#sorting-structs">Sorting Structs</a></li>
+<li><a href="#read-users-input">Read User Input</a></li>
+<li><a href="#web-server">Web Server</a></li>
+<li><a href="#middleware">Middleware</a></li>
+<li><a href="#sessions">Sessions</a></li>
+<li><a href="#http-requests-with-timeouts">HTTP Requests with Timeouts</a></li>
+<li><a href="#s3-getobject">S3 GetObject</a></li>
+<li><a href="#compile-time-variables">Compile time variables</a></li>
+<li><a href="#tls-http-request">TLS HTTP Request</a></li>
+<li><a href="#custom-http-request">Custom HTTP Request</a></li>
+<li><a href="#http-get-web-page">HTTP GET Web Page</a></li>
+<li><a href="#pointers">Pointers</a></li>
+<li><a href="#array-pointer">Array Pointer</a></li>
+<li><a href="#type-assertion">Type Assertion</a></li>
+<li><a href="#line-count">Line Count</a></li>
+<li><a href="#measuring-time">Measuring time</a></li>
+<li><a href="#reading-a-file-in-chunks">Reading a file in chunks</a></li>
+<li><a href="#time-and-channels">Time and Channels</a></li>
+<li><a href="#quit-a-channel">Quit a Channel</a></li>
+<li><a href="#starting-and-stopping-things-with-channels">Starting and Stopping things with Channels</a></li>
+<li><a href="#channel-pipelines">Channel Pipelines</a></li>
+<li><a href="#templating">Templating</a></li>
+<li><a href="#error-handling-with-context">Error handling with context</a></li>
+<li><a href="#socket-programming-with-tcp-server">Socket programming with TCP server</a></li>
+<li><a href="#comparing-maps">Comparing maps</a></li>
+<li><a href="#embedded-structs">Embedded Structs</a></li>
+<li><a href="#zip-file-contents">Zip File Contents</a></li>
+<li><a href="https://gist.github.com/Integralist/0e277a517fee68153f93" target="_blank">OAuth</a></li>
+<li><a href="#rpc">RPC</a></li>
+<li><a href="#enumerator-iota">Enumerator IOTA</a></li>
+<li><a href="#fizzbuzz">FizzBuzz</a></li>
+<li><a href="#execute-shell-command">Execute Shell Command</a></li>
+<li><a href="#new-instance-idiom">New Instance Idiom</a></li>
+<li><a href="#mutating-values">Mutating Values</a></li>
+<li><a href="#draining-connections">Draining Connections</a></li>
+</ul></li>
+</ul>
 
-```bash
-brew install go
+<h2 id="install">Install</h2>
+
+<pre><code class="language-bash">brew install go
 </code></pre>
 
 <h2 id="shell-exports">Shell exports</h2>
@@ -4139,8 +4143,7 @@ func main() {
 </code></pre>
 
 <blockquote>
-<p>Note: <a href="https://github.com/google/go-github/pull/317" target="_blank">https://github.com/google/go-github/pull/317</a>
-&ldquo;`</p>
+<p>Note: <a href="https://github.com/google/go-github/pull/317" target="_blank">https://github.com/google/go-github/pull/317</a></p>
 </blockquote>
 
 </div>

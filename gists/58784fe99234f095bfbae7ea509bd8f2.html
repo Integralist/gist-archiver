@@ -12,42 +12,43 @@
 
 <h2 id="api-vs-abi-md">API vs ABI.md</h2>
 
-<pre><code class="language-markdown">## Summary
+<h2 id="summary">Summary</h2>
 
-An API is a _compile time_ interface (e.g. using non-project functionality provided by an external library). Where as an ABI is a _runtime_ interface (e.g. an interface used by a program during execution, where the program is internally communicating with machine code).
+<p>An API is a <em>compile time</em> interface (e.g. using non-project functionality provided by an external library). Where as an ABI is a <em>runtime</em> interface (e.g. an interface used by a program during execution, where the program is internally communicating with machine code).</p>
 
-## Explanation
+<h2 id="explanation">Explanation</h2>
 
-An ABI is just an API for two machines, expressed more strictly and at a lower level than an API would be — thus Application Binary Interface vs. Application Programing Interface.
+<p>An ABI is just an API for two machines, expressed more strictly and at a lower level than an API would be — thus Application Binary Interface vs. Application Programing Interface.</p>
 
-It's not true that every communication layer between (for example) an SDK and something else is necessarily going through an ABI.
+<p>It&rsquo;s not true that every communication layer between (for example) an SDK and something else is necessarily going through an ABI.</p>
 
-The distinction is that ABI is only relevant to binary interactions (e.g. an SDK communicating with a separate binary program; that linking process occurs at _runtime_, through an ABI) rather than just interactions in a general sense (e.g. an SDK communicating with an external REST API).
+<p>The distinction is that ABI is only relevant to binary interactions (e.g. an SDK communicating with a separate binary program; that linking process occurs at <em>runtime</em>, through an ABI) rather than just interactions in a general sense (e.g. an SDK communicating with an external REST API).</p>
 
-## Contrived Example
+<h2 id="contrived-example">Contrived Example</h2>
 
-An ABI incompatible change is if I change a method `A#m()` from taking a `String` as an argument to `String...` argument. 
+<p>An ABI incompatible change is if I change a method <code>A#m()</code> from taking a <code>String</code> as an argument to <code>String...</code> argument.</p>
 
-This is not ABI compatible because you have to recompile any code that is calling that function, but it is API compatible as you can resolve the issue by recompiling the caller without any code changes in the caller.
+<p>This is not ABI compatible because you have to recompile any code that is calling that function, but it is API compatible as you can resolve the issue by recompiling the caller without any code changes in the caller.</p>
 
-&gt; Find more examples here: https://stackoverflow.com/questions/3784389/difference-between-api-and-abi
+<blockquote>
+<p>Find more examples here: <a href="https://stackoverflow.com/questions/3784389/difference-between-api-and-abi" target="_blank">https://stackoverflow.com/questions/3784389/difference-between-api-and-abi</a></p>
+</blockquote>
 
-## Real Life Example
+<h2 id="real-life-example">Real Life Example</h2>
 
-We had a rust crate `foo` that depended on another crate `bar` (i.e. `foo` would interact with `bar`) and so both had to be available on the user's system. 
+<p>We had a rust crate <code>foo</code> that depended on another crate <code>bar</code> (i.e. <code>foo</code> would interact with <code>bar</code>) and so both had to be available on the user&rsquo;s system.</p>
 
-A user would write their own rust program that consumed `foo`. As part of setting up their environment we'd ensure that `bar` got installed (as it was a required for `foo` to work), but the user didn't need to know about `bar` (and for the most part they didn't know about it). They only knew that `foo` provided an API they wanted to use, and so the fact that `foo` called `bar` internally didn't matter to the user (they just had to make sure `bar` existed on their system).
+<p>A user would write their own rust program that consumed <code>foo</code>. As part of setting up their environment we&rsquo;d ensure that <code>bar</code> got installed (as it was a required for <code>foo</code> to work), but the user didn&rsquo;t need to know about <code>bar</code> (and for the most part they didn&rsquo;t know about it). They only knew that <code>foo</code> provided an API they wanted to use, and so the fact that <code>foo</code> called <code>bar</code> internally didn&rsquo;t matter to the user (they just had to make sure <code>bar</code> existed on their system).</p>
 
-Remember that the user's program, and the `foo` and `bar` dependencies are all written in rust code, but ultimately for them to be used together the user has to _compile_ their program (and the dependencies) to machine code.
+<p>Remember that the user&rsquo;s program, and the <code>foo</code> and <code>bar</code> dependencies are all written in rust code, but ultimately for them to be used together the user has to <em>compile</em> their program (and the dependencies) to machine code.</p>
 
-So imagine we have `foo` at version 1, and `bar` at version 1. Both work fine together.
+<p>So imagine we have <code>foo</code> at version 1, and <code>bar</code> at version 1. Both work fine together.</p>
 
-Now a change to `bar` is released as version 2, which is incompatible with `foo` version 1.
+<p>Now a change to <code>bar</code> is released as version 2, which is incompatible with <code>foo</code> version 1.</p>
 
-When the user installs `foo` and `bar`, they get `foo` version 1 and `bar` version 2. This means their rust program breaks because the interactions between the `foo` crate and `bar` are broken.
+<p>When the user installs <code>foo</code> and <code>bar</code>, they get <code>foo</code> version 1 and <code>bar</code> version 2. This means their rust program breaks because the interactions between the <code>foo</code> crate and <code>bar</code> are broken.</p>
 
-Subsequently the user would need to install an updated version of `foo` which was compatible with `bar`. This meant when releasing changes to `bar` we had to ensure that our environment setup scripts would ensure that the correct version of `foo` would be installed alongside the appropriate version of `bar`. The user still knew nothing about this, as they only cared about `foo`.
-</code></pre>
+<p>Subsequently the user would need to install an updated version of <code>foo</code> which was compatible with <code>bar</code>. This meant when releasing changes to <code>bar</code> we had to ensure that our environment setup scripts would ensure that the correct version of <code>foo</code> would be installed alongside the appropriate version of <code>bar</code>. The user still knew nothing about this, as they only cared about <code>foo</code>.</p>
 
 </div>
 </body>

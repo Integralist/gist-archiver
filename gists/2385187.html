@@ -12,12 +12,11 @@
 
 <h2 id="1-html-md">1. HTML.md</h2>
 
-<pre><code class="language-markdown">Example of how I used to write my code (before I discovered AMD)
+<p>Example of how I used to write my code (before I discovered AMD)</p>
 
-For example in my HTML page would be… 
+<p>For example in my HTML page would be…</p>
 
-```html
-&lt;script src=&quot;Assets/Scripts/LAB.min.js&quot;&gt;&lt;/script&gt;
+<pre><code class="language-html">&lt;script src=&quot;Assets/Scripts/LAB.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 	$LAB
 	.setOptions({ AlwaysPreserveOrder:true, BasePath:&quot;Assets/Scripts/&quot; })
@@ -27,14 +26,11 @@ For example in my HTML page would be…
 &lt;/script&gt;
 </code></pre>
 
-<pre><code>
-## 2. bootstrap.md
+<h2 id="2-bootstrap-md">2. bootstrap.md</h2>
 
-```markdown
-…and within `bootstrap.js`… 
+<p>…and within <code>bootstrap.js</code>…</p>
 
-```js
-var mm = {
+<pre><code class="language-js">var mm = {
 	init: function (settings) {
 		if (settings === undefined) {
 			return &quot;this method should be passed an object literal&quot;;
@@ -47,21 +43,16 @@ var mm = {
 };
 </code></pre>
 
-<pre><code>
-## 3. lazy-loaded.md
+<h2 id="3-lazy-loaded-md">3. lazy-loaded.md</h2>
 
-```markdown
-…and within the lazy-loaded script… 
+<p>…and within the lazy-loaded script…</p>
 
-```js
-mm.cool_feature = function(){
+<pre><code class="language-js">mm.cool_feature = function(){
 	// code
 };
 
 mm.cool_feature();
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

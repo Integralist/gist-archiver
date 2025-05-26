@@ -12,25 +12,30 @@
 
 <h2 id="storing-passwords-md">Storing Passwords.md</h2>
 
-<pre><code class="language-markdown">To Store a Password
+<p>To Store a Password</p>
 
-* Generate a long random salt using a CSPRNG.
-* Prepend the salt to the password and hash it with a standard password hashing function like Argon2, bcrypt, scrypt, or PBKDF2.
-* Save both the salt and the hash in the user's database record.
+<ul>
+<li>Generate a long random salt using a CSPRNG.</li>
+<li>Prepend the salt to the password and hash it with a standard password hashing function like Argon2, bcrypt, scrypt, or PBKDF2.</li>
+<li>Save both the salt and the hash in the user&rsquo;s database record.</li>
+</ul>
 
-To Validate a Password
+<p>To Validate a Password</p>
 
-* Retrieve the user's salt and hash from the database.
-* Prepend the salt to the given password and hash it using the same hash function.
-* Compare the hash of the given password with the hash from the database. 
-* If they match, the password is correct. Otherwise, the password is incorrect.
+<ul>
+<li>Retrieve the user&rsquo;s salt and hash from the database.</li>
+<li>Prepend the salt to the given password and hash it using the same hash function.</li>
+<li>Compare the hash of the given password with the hash from the database.</li>
+<li>If they match, the password is correct. Otherwise, the password is incorrect.</li>
+</ul>
 
-Example CSPRNG
+<p>Example CSPRNG</p>
 
-* https://docs.python.org/3/library/os.html#os.urandom
-* http://www.rubydoc.info/stdlib/securerandom/1.9.3/SecureRandom
-* https://en.m.wikipedia.org/wiki//dev/random
-</code></pre>
+<ul>
+<li><a href="https://docs.python.org/3/library/os.html#os.urandom" target="_blank">https://docs.python.org/3/library/os.html#os.urandom</a></li>
+<li><a href="http://www.rubydoc.info/stdlib/securerandom/1.9.3/SecureRandom" target="_blank">http://www.rubydoc.info/stdlib/securerandom/1.9.3/SecureRandom</a></li>
+<li><a href="https://en.m.wikipedia.org/wiki//dev/random" target="_blank">https://en.m.wikipedia.org/wiki//dev/random</a></li>
+</ul>
 
 </div>
 </body>

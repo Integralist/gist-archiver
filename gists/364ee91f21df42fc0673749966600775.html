@@ -12,68 +12,72 @@
 
 <h2 id="api-documentation-example-md">API Documentation Example.md</h2>
 
-<pre><code class="language-markdown"># Example Auth API
+<h1 id="example-auth-api">Example Auth API</h1>
 
-A standalone HTTP service that handles authenticating users between AWS Cognito and the legacy WebApp.
+<p>A standalone HTTP service that handles authenticating users between AWS Cognito and the legacy WebApp.</p>
 
-## Location
+<h2 id="location">Location</h2>
 
-The Example Auth API is available through the API Gateway at these URL prefixes:
+<p>The Example Auth API is available through the API Gateway at these URL prefixes:</p>
 
- - https://api.example.com/auth (production)
- - https://api-stage.example.com/auth (staging)
+<ul>
+<li><a href="https://api.example.com/auth" target="_blank">https://api.example.com/auth</a> (production)</li>
+<li><a href="https://api-stage.example.com/auth" target="_blank">https://api-stage.example.com/auth</a> (staging)</li>
+</ul>
 
-## Endpoints
+<h2 id="endpoints">Endpoints</h2>
 
-- [`/account/confirm`](#accountconfirm)
-- [`/admin/email/change`](#adminemailchange)
-- [`/admin/status/change`](#adminstatuschange)
-- [`/admin/user/create`](#adminusercreate)
-- [`/admin/user/get`](#adminuserget)
-- [`/email/change`](#emailchange)
-- [`/email/confirm`](#emailconfirm)
-- [`/password/change`](#passwordchange)
-- [`/password/confirm`](#passwordconfirm)
-- [`/signin`](#signin)
-- [`/signin/social`](#signinsocial)
-- [`/signout`](#signout)
-- [`/tokens/verify`](#tokensverify)
-- [`/user/signup`](#usersignup)
-- [`/users/filter/email`](#usersfilteremail)
-- [`/users/filter/username`](#usersfilterusername)
+<ul>
+<li><a href="#accountconfirm"><code>/account/confirm</code></a></li>
+<li><a href="#adminemailchange"><code>/admin/email/change</code></a></li>
+<li><a href="#adminstatuschange"><code>/admin/status/change</code></a></li>
+<li><a href="#adminusercreate"><code>/admin/user/create</code></a></li>
+<li><a href="#adminuserget"><code>/admin/user/get</code></a></li>
+<li><a href="#emailchange"><code>/email/change</code></a></li>
+<li><a href="#emailconfirm"><code>/email/confirm</code></a></li>
+<li><a href="#passwordchange"><code>/password/change</code></a></li>
+<li><a href="#passwordconfirm"><code>/password/confirm</code></a></li>
+<li><a href="#signin"><code>/signin</code></a></li>
+<li><a href="#signinsocial"><code>/signin/social</code></a></li>
+<li><a href="#signout"><code>/signout</code></a></li>
+<li><a href="#tokensverify"><code>/tokens/verify</code></a></li>
+<li><a href="#usersignup"><code>/user/signup</code></a></li>
+<li><a href="#usersfilteremail"><code>/users/filter/email</code></a></li>
+<li><a href="#usersfilterusername"><code>/users/filter/username</code></a></li>
+</ul>
 
-### `/account/confirm`
+<h3 id="account-confirm"><code>/account/confirm</code></h3>
 
-Confirms registration of a user (i.e. they're 'verified').
+<p>Confirms registration of a user (i.e. they&rsquo;re &lsquo;verified&rsquo;).</p>
 
-#### Request
+<h4 id="request">Request</h4>
 
-`POST https://api.example.com/auth/account/confirm`
+<p><code>POST https://api.example.com/auth/account/confirm</code></p>
 
-#### Headers
+<h4 id="headers">Headers</h4>
 
-- `Content-Type: application/x-www-form-urlencoded` (required)
+<ul>
+<li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
+</ul>
 
-#### Body
+<h4 id="body">Body</h4>
 
+<pre><code>code=...&amp;username=...
 </code></pre>
 
-<p>code=&hellip;&amp;username=&hellip;</p>
+<h4 id="params">Params</h4>
 
-<pre><code>
-#### Params
+<ul>
+<li><code>code</code>: verification code (provided by AWS)</li>
+<li><code>username</code>: user to verify</li>
+</ul>
 
-- `code`: verification code (provided by AWS)
-- `username`: user to verify
+<h4 id="successful-response">Successful Response</h4>
 
-#### Successful Response
-
+<pre><code>200 OK
 </code></pre>
 
-<p>200 OK</p>
-
-<pre><code>```json
-{
+<pre><code class="language-json">{
   &quot;status&quot;: &quot;success&quot;
 }
 </code></pre>
@@ -127,28 +131,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request">Request</h4>
+<h4 id="request-1">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers">Headers</h4>
+<h4 id="headers-1">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body">Body</h4>
+<h4 id="body-1">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params">Params</h4>
+<h4 id="params-1">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response">Successful Response</h4>
+<h4 id="successful-response-1">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -200,28 +204,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-1">Request</h4>
+<h4 id="request-2">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-1">Headers</h4>
+<h4 id="headers-2">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-1">Body</h4>
+<h4 id="body-2">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-1">Params</h4>
+<h4 id="params-2">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-1">Successful Response</h4>
+<h4 id="successful-response-2">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -273,28 +277,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-2">Request</h4>
+<h4 id="request-3">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-2">Headers</h4>
+<h4 id="headers-3">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-2">Body</h4>
+<h4 id="body-3">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-2">Params</h4>
+<h4 id="params-3">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-2">Successful Response</h4>
+<h4 id="successful-response-3">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -346,28 +350,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-3">Request</h4>
+<h4 id="request-4">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-3">Headers</h4>
+<h4 id="headers-4">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-3">Body</h4>
+<h4 id="body-4">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-3">Params</h4>
+<h4 id="params-4">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-3">Successful Response</h4>
+<h4 id="successful-response-4">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -419,28 +423,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-4">Request</h4>
+<h4 id="request-5">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-4">Headers</h4>
+<h4 id="headers-5">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-4">Body</h4>
+<h4 id="body-5">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-4">Params</h4>
+<h4 id="params-5">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-4">Successful Response</h4>
+<h4 id="successful-response-5">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -492,28 +496,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-5">Request</h4>
+<h4 id="request-6">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-5">Headers</h4>
+<h4 id="headers-6">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-5">Body</h4>
+<h4 id="body-6">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-5">Params</h4>
+<h4 id="params-6">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-5">Successful Response</h4>
+<h4 id="successful-response-6">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -565,28 +569,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-6">Request</h4>
+<h4 id="request-7">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-6">Headers</h4>
+<h4 id="headers-7">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-6">Body</h4>
+<h4 id="body-7">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-6">Params</h4>
+<h4 id="params-7">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-6">Successful Response</h4>
+<h4 id="successful-response-7">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -638,28 +642,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-7">Request</h4>
+<h4 id="request-8">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-7">Headers</h4>
+<h4 id="headers-8">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-7">Body</h4>
+<h4 id="body-8">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-7">Params</h4>
+<h4 id="params-8">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-7">Successful Response</h4>
+<h4 id="successful-response-8">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -711,28 +715,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-8">Request</h4>
+<h4 id="request-9">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-8">Headers</h4>
+<h4 id="headers-9">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-8">Body</h4>
+<h4 id="body-9">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-8">Params</h4>
+<h4 id="params-9">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-8">Successful Response</h4>
+<h4 id="successful-response-9">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -784,28 +788,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-9">Request</h4>
+<h4 id="request-10">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-9">Headers</h4>
+<h4 id="headers-10">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-9">Body</h4>
+<h4 id="body-10">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-9">Params</h4>
+<h4 id="params-10">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-9">Successful Response</h4>
+<h4 id="successful-response-10">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -857,28 +861,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-10">Request</h4>
+<h4 id="request-11">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-10">Headers</h4>
+<h4 id="headers-11">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-10">Body</h4>
+<h4 id="body-11">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-10">Params</h4>
+<h4 id="params-11">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-10">Successful Response</h4>
+<h4 id="successful-response-11">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -930,28 +934,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-11">Request</h4>
+<h4 id="request-12">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-11">Headers</h4>
+<h4 id="headers-12">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-11">Body</h4>
+<h4 id="body-12">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-11">Params</h4>
+<h4 id="params-12">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-11">Successful Response</h4>
+<h4 id="successful-response-12">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -1003,28 +1007,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-12">Request</h4>
+<h4 id="request-13">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-12">Headers</h4>
+<h4 id="headers-13">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-12">Body</h4>
+<h4 id="body-13">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-12">Params</h4>
+<h4 id="params-13">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-12">Successful Response</h4>
+<h4 id="successful-response-13">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -1076,28 +1080,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-13">Request</h4>
+<h4 id="request-14">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-13">Headers</h4>
+<h4 id="headers-14">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-13">Body</h4>
+<h4 id="body-14">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-13">Params</h4>
+<h4 id="params-14">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-13">Successful Response</h4>
+<h4 id="successful-response-14">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -1149,28 +1153,28 @@ Confirms registration of a user (i.e. they're 'verified').
 
 <p>&hellip;</p>
 
-<h4 id="request-14">Request</h4>
+<h4 id="request-15">Request</h4>
 
 <p><code>METHOD https://api.example.com/auth/...</code></p>
 
-<h4 id="headers-14">Headers</h4>
+<h4 id="headers-15">Headers</h4>
 
 <ul>
 <li><code>Content-Type: application/x-www-form-urlencoded</code> (required)</li>
 </ul>
 
-<h4 id="body-14">Body</h4>
+<h4 id="body-15">Body</h4>
 
 <pre><code>key=value&amp;key=value
 </code></pre>
 
-<h4 id="params-14">Params</h4>
+<h4 id="params-15">Params</h4>
 
 <ul>
 <li><code>...</code>: &hellip;</li>
 </ul>
 
-<h4 id="successful-response-14">Successful Response</h4>
+<h4 id="successful-response-15">Successful Response</h4>
 
 <pre><code>200 OK
 </code></pre>
@@ -1212,8 +1216,6 @@ Confirms registration of a user (i.e. they're 'verified').
   &quot;context&quot;: &quot;ERROR_MESSAGE&quot;
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

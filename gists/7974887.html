@@ -12,26 +12,27 @@
 
 <h2 id="s-o-l-i-d-md">S.O.L.I.D.md</h2>
 
-<pre><code class="language-markdown"># S.O.L.I.D principles
+<h1 id="s-o-l-i-d-principles-1">S.O.L.I.D principles</h1>
 
-- [Single Responsibility Principle](#single-responsibility-principle)
-- [Open/Closed Principle](#openclosed-principle)
-- [Liskov Substitution Principle](#liskov-substitution-principle)
-- [Interface Segregation Principle](#interface-segregation-principle)
-- [Dependency Inversion Principle](#dependency-inversion-principle)
+<ul>
+<li><a href="#single-responsibility-principle">Single Responsibility Principle</a></li>
+<li><a href="#openclosed-principle">Open/Closed Principle</a></li>
+<li><a href="#liskov-substitution-principle">Liskov Substitution Principle</a></li>
+<li><a href="#interface-segregation-principle">Interface Segregation Principle</a></li>
+<li><a href="#dependency-inversion-principle">Dependency Inversion Principle</a></li>
+</ul>
 
-## Single Responsibility Principle
+<h2 id="single-responsibility-principle">Single Responsibility Principle</h2>
 
-A class or method should have no more than one responsibility. If it has more than one responsibility then use the relevant refactoring technique(s) to extract the functionality into its own class or method.
+<p>A class or method should have no more than one responsibility. If it has more than one responsibility then use the relevant refactoring technique(s) to extract the functionality into its own class or method.</p>
 
-## Open/Closed Principle
+<h2 id="open-closed-principle">Open/Closed Principle</h2>
 
-An object should be 'open to extension' but 'closed for modification'.
+<p>An object should be &lsquo;open to extension&rsquo; but &lsquo;closed for modification&rsquo;.</p>
 
-Here is a class that violates this principle...
+<p>Here is a class that violates this principle&hellip;</p>
 
-```ruby
-require 'json'
+<pre><code class="language-ruby">require 'json'
 
 class Report
   def body
@@ -167,8 +168,7 @@ end
 
 <p>One way to conform to this principle is to use &ldquo;dependency injection&rdquo;, which we saw this used in the solution for OCP (Open/Closed Principle).</p>
 
-<p>Dependency Injection is one part of the solution. See this example: <a href="https://gist.github.com/Integralist/5763515" target="_blank">https://gist.github.com/Integralist/5763515</a> and you&rsquo;ll notice that DIP relies on the use of Interfaces (or in Ruby&rsquo;s case &ldquo;duck typing&rdquo;) to decouple the consuming code and the injected dependency (e.g. using an Interface allows any object that implements that interface to be injected into the consuming object).
-&ldquo;`</p>
+<p>Dependency Injection is one part of the solution. See this example: <a href="https://gist.github.com/Integralist/5763515" target="_blank">https://gist.github.com/Integralist/5763515</a> and you&rsquo;ll notice that DIP relies on the use of Interfaces (or in Ruby&rsquo;s case &ldquo;duck typing&rdquo;) to decouple the consuming code and the injected dependency (e.g. using an Interface allows any object that implements that interface to be injected into the consuming object).</p>
 
 </div>
 </body>

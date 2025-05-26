@@ -12,14 +12,13 @@
 
 <h2 id="improving-dig-output-md">Improving dig output.md</h2>
 
-<pre><code class="language-markdown">## Outcome
+<h2 id="outcome">Outcome</h2>
 
-&lt;img width=&quot;691&quot; alt=&quot;Screenshot 2025-03-12 at 16 31 37&quot; src=&quot;https://gist.github.com/user-attachments/assets/7f884893-160d-4cb9-bab3-d871e8e131b1&quot; /&gt;
+<p><img width="691" alt="Screenshot 2025-03-12 at 16 31 37" src="https://gist.github.com/user-attachments/assets/7f884893-160d-4cb9-bab3-d871e8e131b1" /></p>
 
-## Implementation
+<h2 id="implementation">Implementation</h2>
 
-```shell
-# digg adds colors to the standard dig output to improve readability while not losing contextual information.
+<pre><code class="language-shell"># digg adds colors to the standard dig output to improve readability while not losing contextual information.
 #
 DIG_COMMENT_COLOR_SINGLE=&quot;\e[38;5;8m&quot;  # Dark grey text, no background, no bold
 DIG_COMMENT_COLOR_DOUBLE=&quot;\e[48;5;88m\e[1;37m&quot; # Dark red background, bold white text
@@ -56,8 +55,6 @@ digg() {
 	done &lt;&lt;&lt; &quot;$dig_output&quot;
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

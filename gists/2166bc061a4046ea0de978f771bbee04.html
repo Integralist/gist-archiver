@@ -12,29 +12,34 @@
 
 <h2 id="golang-pointers-guidelines-md">Golang Pointers - Guidelines.md</h2>
 
-<pre><code class="language-markdown">## Reference
+<h2 id="reference">Reference</h2>
 
-Information was pulled from https://medium.com/@kent.rancourt/go-pointers-when-to-use-pointers-4f29256ddff3
+<p>Information was pulled from <a href="https://medium.com/@kent.rancourt/go-pointers-when-to-use-pointers-4f29256ddff3" target="_blank">https://medium.com/@kent.rancourt/go-pointers-when-to-use-pointers-4f29256ddff3</a></p>
 
-## Problems with Pointers
+<h2 id="problems-with-pointers">Problems with Pointers</h2>
 
-- nil dereferencing.
-- accidental mutation.
+<ul>
+<li>nil dereferencing.</li>
+<li>accidental mutation.</li>
+</ul>
 
-&gt; an unrelated comment would be, from a code design perspective, functions should not dip inside of data structures to access nested fields (I've seen this done to access a pointer to a struct): [law of demeter](https://en.wikipedia.org/wiki/Law_of_Demeter).
+<blockquote>
+<p>an unrelated comment would be, from a code design perspective, functions should not dip inside of data structures to access nested fields (I&rsquo;ve seen this done to access a pointer to a struct): <a href="https://en.wikipedia.org/wiki/Law_of_Demeter" target="_blank">law of demeter</a>.</p>
+</blockquote>
 
-1. Avoid pointers (you can always justify your way into using them later if necessary).
-2. Don't expect pointers to be more efficient: benchmark! (pass-by-value 'copies' are placed in the 'stack' not 'heap' and thus are handled faster by the CPU).
-3. When returning a pointer, also return a bool to indicate success (in case of error, returning an empty struct will cause a nil dereference error for caller if they don't expect an empty struct).
-4. Use a pointer when a function needs to modify its receiver (e.g. create method on struct whose receiver is a pointer, that way user can pass around/work with a non-pointer and when calling the method will the compiler switch to a pointer receiver to allow data modification).
-5. Use a pointer when you need a singleton.
+<ol>
+<li>Avoid pointers (you can always justify your way into using them later if necessary).</li>
+<li>Don&rsquo;t expect pointers to be more efficient: benchmark! (pass-by-value &lsquo;copies&rsquo; are placed in the &lsquo;stack&rsquo; not &lsquo;heap&rsquo; and thus are handled faster by the CPU).</li>
+<li>When returning a pointer, also return a bool to indicate success (in case of error, returning an empty struct will cause a nil dereference error for caller if they don&rsquo;t expect an empty struct).</li>
+<li>Use a pointer when a function needs to modify its receiver (e.g. create method on struct whose receiver is a pointer, that way user can pass around/work with a non-pointer and when calling the method will the compiler switch to a pointer receiver to allow data modification).</li>
+<li>Use a pointer when you need a singleton.</li>
+</ol>
 
-## Best Practice for Singleton
+<h2 id="best-practice-for-singleton">Best Practice for Singleton</h2>
 
-For components with great importance, we should control the terms on which others interact with them. To do this, create an exported interface with a non-exported implementation, where pointers to the component in question implement the interface.
+<p>For components with great importance, we should control the terms on which others interact with them. To do this, create an exported interface with a non-exported implementation, where pointers to the component in question implement the interface.</p>
 
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;fmt&quot;
@@ -77,8 +82,6 @@ func main() {
 	fmt.Printf(&quot;%+v\n&quot;, c.foo) // &lt;--- but they can't interact with it (compile time error: c.foo undefined (type Cache has no field or method foo))
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

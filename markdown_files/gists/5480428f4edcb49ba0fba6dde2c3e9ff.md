@@ -2,7 +2,6 @@
 
 ## Local Memcache and ElastiCache.md
 
-```markdown
 ## Single Node
 
 - `brew install memcached` (or `docker run -d -p 11211:11211 memcached`)
@@ -128,6 +127,5 @@ func main() {
 
 	fmt.Printf("%+v", it)
 }
-```
 ```
 

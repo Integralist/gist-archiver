@@ -12,34 +12,37 @@
 
 <h2 id="vim-highlighting-words-md">Vim highlighting words.md</h2>
 
-<pre><code class="language-markdown">Vim can highlight certain words inside of code comments, such as...
+<p>Vim can highlight certain words inside of code comments, such as&hellip;</p>
 
-- `BUG` (Golang)
-- `FIXME`
-- `NOTE`
-- `NOTES` (Python)
-- `TODO`
-- `XXX`
+<ul>
+<li><code>BUG</code> (Golang)</li>
+<li><code>FIXME</code></li>
+<li><code>NOTE</code></li>
+<li><code>NOTES</code> (Python)</li>
+<li><code>TODO</code></li>
+<li><code>XXX</code></li>
+</ul>
 
-&gt; The `NOTE` works in both Go and Python files and yet it's not defined in the Go syntax file, which means it's likely inherited from a default syntax file.
+<blockquote>
+<p>The <code>NOTE</code> works in both Go and Python files and yet it&rsquo;s not defined in the Go syntax file, which means it&rsquo;s likely inherited from a default syntax file.</p>
+</blockquote>
 
-See the syntax files for...
+<p>See the syntax files for&hellip;</p>
 
-- [Python](https://github.com/vim/vim/blob/a87b72cc316e065d66dcbcf7ec1cde330adef3a3/runtime/syntax/python.vim#L134)
-- [Go](https://github.com/vim/vim/blob/a87b72cc316e065d66dcbcf7ec1cde330adef3a3/runtime/syntax/go.vim#L95)
+<ul>
+<li><a href="https://github.com/vim/vim/blob/a87b72cc316e065d66dcbcf7ec1cde330adef3a3/runtime/syntax/python.vim#L134" target="_blank">Python</a></li>
+<li><a href="https://github.com/vim/vim/blob/a87b72cc316e065d66dcbcf7ec1cde330adef3a3/runtime/syntax/go.vim#L95" target="_blank">Go</a></li>
+</ul>
 
-You can add your own, see [this StackOverflow post](https://vi.stackexchange.com/a/15531) for the full details, but in summary it looks something like:
+<p>You can add your own, see <a href="https://vi.stackexchange.com/a/15531" target="_blank">this StackOverflow post</a> for the full details, but in summary it looks something like:</p>
 
-```vim
-augroup myTodo
+<pre><code class="language-vim">augroup myTodo
   autocmd!
   autocmd Syntax * syntax match myTodo /\v\_.&lt;(TODO|FIXME).*/hs=s+1 containedin=.*Comment
 augroup END
 
 highlight link myTodo Todo
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

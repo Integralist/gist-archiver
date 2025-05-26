@@ -12,12 +12,11 @@
 
 <h2 id="tornado-configure-asynchttpclient-to-use-curl-md">Tornado configure AsyncHTTPClient to use Curl.md</h2>
 
-<pre><code class="language-markdown">## Linux 
+<h2 id="linux">Linux</h2>
 
-Install OS dependencies...
+<p>Install OS dependencies&hellip;</p>
 
-```bash
-apt-get update &amp;&amp; apt-get install -y libpq-dev build-essential libcurl4-openssl-dev libssl-dev
+<pre><code class="language-bash">apt-get update &amp;&amp; apt-get install -y libpq-dev build-essential libcurl4-openssl-dev libssl-dev
 </code></pre>
 
 <p>Install Python dependencies&hellip;</p>
@@ -46,8 +45,6 @@ http_client.fetch(&quot;https://www.integralist.co.uk/&quot;)
 
 pip install --no-cache-dir --global-option=build_ext --global-option=&quot;-L/usr/local/opt/openssl/lib&quot; --global-option=&quot;-I/usr/local/opt/openssl/include&quot;  pycurl
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

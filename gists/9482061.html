@@ -10,15 +10,6 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="download-a-single-file-from-a-private-github-repo-you-ll-need-an-access-token-as-described-in-this-github-help-article-https-help-github-com-articles-creating-an-access-token-for-command-line-use">Download a single file from a private GitHub repo. You&rsquo;ll need an access token as described in this GitHub Help article: <a href="https://help.github.com/articles/creating-an-access-token-for-command-line-use" target="_blank">https://help.github.com/articles/creating-an-access-token-for-command-line-use</a></h1>
 
-<h2 id="options-md">options.md</h2>
-
-<pre><code class="language-markdown">- `-H --header` Extra header to use when getting a web page. You may specify any number of extra headers
-
-- `-O --remote-name` Write output to a local file named like the remote file we get (only the file part of the remote  file  is  used, the path is cut off)
-
-- `-L --location`  If the server reports that the requested page has moved to a different  location  (indicated  with  a Location:  header  and a 3XX response code), this option will make curl redo the request on the new place
-</code></pre>
-
 <h2 id="github-curl-sh">GitHub curl.sh</h2>
 
 <pre><code class="language-shell">curl --header 'Authorization: token INSERTACCESSTOKENHERE' \
@@ -39,6 +30,16 @@ curl --header 'Authorization: token $TOKEN' \
      --remote-name \
      --location $FILE
 </code></pre>
+
+<h2 id="options-md">options.md</h2>
+
+<ul>
+<li><p><code>-H --header</code> Extra header to use when getting a web page. You may specify any number of extra headers</p></li>
+
+<li><p><code>-O --remote-name</code> Write output to a local file named like the remote file we get (only the file part of the remote  file  is  used, the path is cut off)</p></li>
+
+<li><p><code>-L --location</code>  If the server reports that the requested page has moved to a different  location  (indicated  with  a Location:  header  and a 3XX response code), this option will make curl redo the request on the new place</p></li>
+</ul>
 
 </div>
 </body>

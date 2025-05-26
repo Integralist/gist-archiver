@@ -12,42 +12,47 @@
 
 <h2 id="http2-md">http2.md</h2>
 
-<pre><code class="language-markdown">## General features
+<h2 id="general-features">General features</h2>
 
-HTTP/2 adds five key features:
+<p>HTTP/2 adds five key features:</p>
 
-- Single, Persistent Connection - Only one connection is used for each web page, as
-shown in the figure. The same connection is used as long as the web page is open.
-- Multiplexing - Requests and replies are prioritized and multiplexed onto separate
+<ul>
+<li>Single, Persistent Connection - Only one connection is used for each web page, as
+shown in the figure. The same connection is used as long as the web page is open.</li>
+<li>Multiplexing - Requests and replies are prioritized and multiplexed onto separate
 streams within the single connection. When the connection is stable, “head of line
 blocking” - making every transfer wait for all previous transfers to complete - is
-eliminated.
-- Header Compression and Binary Encoding - Headers are compressed using a new,
+eliminated.</li>
+<li>Header Compression and Binary Encoding - Headers are compressed using a new,
 separate, secure standard, HPACK compression, which reduces the amount of data
 crossing the network. Header information is sent in compact, binary format, not as
-plain text.
-- Prioritization - Requests are assigned levels of dependency and requests at the same
+plain text.</li>
+<li>Prioritization - Requests are assigned levels of dependency and requests at the same
 level are prioritized. The server uses this information to order and assign resources to
-fulfilling requests.
-- SSL Encryption - HTTP/2 allows you to add SSL support with, in some cases, no
-performance penalty, making your site more secure.
+fulfilling requests.</li>
+<li>SSL Encryption - HTTP/2 allows you to add SSL support with, in some cases, no
+performance penalty, making your site more secure.</li>
+</ul>
 
-## SSL
+<h2 id="ssl">SSL</h2>
 
-How does HTTP/2 overcome the performance overhead imposed by SSL on HTTP/1.x? There
-are four key techniques:
+<p>How does HTTP/2 overcome the performance overhead imposed by SSL on HTTP/1.x? There
+are four key techniques:</p>
 
-1. Having a single connection minimizes SSL handshaking.
-2. Headers are compressed, reducing the time needed to send them.
-3. Multiplexing means file transfers don’t wait on other requests.
-4. Files don’t need to be in-lined, concatenated, or sprited, so caching can work
-optimally.
+<ol>
+<li>Having a single connection minimizes SSL handshaking.</li>
+<li>Headers are compressed, reducing the time needed to send them.</li>
+<li>Multiplexing means file transfers don’t wait on other requests.</li>
+<li>Files don’t need to be in-lined, concatenated, or sprited, so caching can work
+optimally.</li>
+</ol>
 
-When compared to a non-SSL implementation, there is still SSL performance overhead for
-authenticating the single connection and for encrypting and decrypting data, but this remaining overhead should be more or less offset by the performance improvements in HTTP/2.
+<p>When compared to a non-SSL implementation, there is still SSL performance overhead for
+authenticating the single connection and for encrypting and decrypting data, but this remaining overhead should be more or less offset by the performance improvements in HTTP/2.</p>
 
-&gt; Note: The HTTP/2 specification also includes server push, in which the server sends files listed in a page’s HTML before they’re requested
-</code></pre>
+<blockquote>
+<p>Note: The HTTP/2 specification also includes server push, in which the server sends files listed in a page’s HTML before they’re requested</p>
+</blockquote>
 
 </div>
 </body>

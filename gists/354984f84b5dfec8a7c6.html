@@ -12,30 +12,38 @@
 
 <h2 id="docker-machine-mac-osx-md">docker-machine-mac-osx.md</h2>
 
-<pre><code class="language-markdown">## VirtualBox
+<h2 id="virtualbox">VirtualBox</h2>
 
-- https://www.docker.com/toolbox
-- `docker-machine create --driver virtualbox dev`
-- `docker-machine env dev` (add values to `~/.zshrc`)
-  - e.g. `echo eval &quot;$(docker-machine env dev)&quot; &gt;&gt; ~/.zshrc`
-- `docker-machine ls`
-- `docker ps` (might need to re-source `.zshrc` file; e.g. `. ~/.zshrc`)
-- `docker run hello-world`
-- `docker-machine ip dev`
-- `docker-machine stop dev`
-- `docker-machine start dev`
-- `docker-machine &lt;command&gt; --help`
+<ul>
+<li><a href="https://www.docker.com/toolbox" target="_blank">https://www.docker.com/toolbox</a></li>
+<li><code>docker-machine create --driver virtualbox dev</code></li>
+<li><code>docker-machine env dev</code> (add values to <code>~/.zshrc</code>)
 
----
+<ul>
+<li>e.g. <code>echo eval &quot;$(docker-machine env dev)&quot; &gt;&gt; ~/.zshrc</code></li>
+</ul></li>
+<li><code>docker-machine ls</code></li>
+<li><code>docker ps</code> (might need to re-source <code>.zshrc</code> file; e.g. <code>. ~/.zshrc</code>)</li>
+<li><code>docker run hello-world</code></li>
+<li><code>docker-machine ip dev</code></li>
+<li><code>docker-machine stop dev</code></li>
+<li><code>docker-machine start dev</code></li>
+<li><code>docker-machine &lt;command&gt; --help</code></li>
+</ul>
 
-## VMWare Fusion
+<hr />
 
-- `docker-machine rm dev`
-- `docker-machine create --driver=vmwarefusion dev`
-- `docker-machine create --driver vmwarefusion --vmwarefusion-cpu-count 2 --vmwarefusion-disk-size 80000 --vmwarefusion-memory-size 4096 default`
+<h2 id="vmware-fusion">VMWare Fusion</h2>
 
-&gt; http://blog.javabien.net/2015/08/20/better-docker-on-osx-with-docker-machine-boot2docker-and-vmware/
-</code></pre>
+<ul>
+<li><code>docker-machine rm dev</code></li>
+<li><code>docker-machine create --driver=vmwarefusion dev</code></li>
+<li><code>docker-machine create --driver vmwarefusion --vmwarefusion-cpu-count 2 --vmwarefusion-disk-size 80000 --vmwarefusion-memory-size 4096 default</code></li>
+</ul>
+
+<blockquote>
+<p><a href="http://blog.javabien.net/2015/08/20/better-docker-on-osx-with-docker-machine-boot2docker-and-vmware/" target="_blank">http://blog.javabien.net/2015/08/20/better-docker-on-osx-with-docker-machine-boot2docker-and-vmware/</a></p>
+</blockquote>
 
 </div>
 </body>

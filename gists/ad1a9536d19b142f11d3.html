@@ -12,8 +12,7 @@
 
 <h2 id="rack-middleware-md">Rack Middleware.md</h2>
 
-<pre><code class="language-markdown">```ruby
-use Rack::Lint # gives more descriptive error messages when responses aren't valid
+<pre><code class="language-ruby">use Rack::Lint # gives more descriptive error messages when responses aren't valid
 
 class LogIt
   def initialize(app)
@@ -78,8 +77,7 @@ app = Rack::Builder.new do
 end
 </code></pre>
 
-<p>&hellip;this is because the built-in <code>rackup</code> command is a standalone Rack::Builder runner
-&ldquo;`</p>
+<p>&hellip;this is because the built-in <code>rackup</code> command is a standalone Rack::Builder runner</p>
 
 </div>
 </body>

@@ -12,8 +12,7 @@
 
 <h2 id="parallelism-md">Parallelism.md</h2>
 
-<pre><code class="language-markdown">```py
-import asyncio
+<pre><code class="language-py">import asyncio
 import time
 from concurrent.futures import ProcessPoolExecutor
 
@@ -83,8 +82,7 @@ loop.run_until_complete(main(executor))
 
 <p>One other interesting aspect of these ‘executors’ is that their abstract base class <code>concurrent.futures.Executor</code> defines specific functional behaviour such as a <code>map</code> function.</p>
 
-<p>Which is an asynchronous equivalent to the standard library’s own <code>map</code> function.
-&ldquo;`</p>
+<p>Which is an asynchronous equivalent to the standard library’s own <code>map</code> function.</p>
 
 </div>
 </body>

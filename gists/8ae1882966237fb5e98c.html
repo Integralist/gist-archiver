@@ -12,26 +12,23 @@
 
 <h2 id="1-avoid-ssh-connection-timeout-freezing-of-terminal-tab-md">1. Avoid SSH connection timeout &amp; freezing of terminal tab.md</h2>
 
-<pre><code class="language-markdown"></code></pre>
-
-<p><Enter>~.</p>
-
-<pre><code>
-&gt; The section &quot;ESCAPE CHARACTERS&quot; in the ssh man page explains the underlying details
+<pre><code>&lt;Enter&gt;~.
 </code></pre>
+
+<blockquote>
+<p>The section &ldquo;ESCAPE CHARACTERS&rdquo; in the ssh man page explains the underlying details</p>
+</blockquote>
 
 <h2 id="2-proper-md">2. Proper.md</h2>
 
-<pre><code class="language-markdown">Add the following to your `~/.ssh/config`:
+<p>Add the following to your <code>~/.ssh/config</code>:</p>
 
-```bash
-Host remotehost
+<pre><code class="language-bash">Host remotehost
   HostName remotehost.com
   ServerAliveInterval 240
 </code></pre>
 
-<p><code>ServerAliveInterval</code>: Pings server every 4 minutes
-&ldquo;`</p>
+<p><code>ServerAliveInterval</code>: Pings server every 4 minutes</p>
 
 </div>
 </body>

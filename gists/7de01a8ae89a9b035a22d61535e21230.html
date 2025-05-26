@@ -12,14 +12,13 @@
 
 <h2 id="go-generics-md">Go Generics.md</h2>
 
-<pre><code class="language-markdown">## When to use Generics?
+<h2 id="when-to-use-generics">When to use Generics?</h2>
 
-If you find yourself writing the exact same code multiple times, where the only difference between the copies is the code uses different types, _consider_ whether you can use a generic type parameter.
+<p>If you find yourself writing the exact same code multiple times, where the only difference between the copies is the code uses different types, <em>consider</em> whether you can use a generic type parameter.</p>
 
-It's probably also useful anywhere you have `[]interface{}` today, for example a caching library might define something like...
+<p>It&rsquo;s probably also useful anywhere you have <code>[]interface{}</code> today, for example a caching library might define something like&hellip;</p>
 
-```go
-Get(key string) (interface{}, error)
+<pre><code class="language-go">Get(key string) (interface{}, error)
 </code></pre>
 
 <p>This could be changed to&hellip;</p>
@@ -151,8 +150,6 @@ func main() {
 	Accept(swc)
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

@@ -12,7 +12,7 @@
 
 <h2 id="muttrc">.muttrc</h2>
 
-<pre><code class="language-text"># http://www.mutt.org/doc/manual/
+<pre><code class="language-muttrc"># http://www.mutt.org/doc/manual/
 
 # decrypt passwords
 source &quot;gpg -d ~/.mutt/passwords.gpg |&quot;
@@ -116,41 +116,48 @@ color index red black ~D
 
 <h2 id="mutt-usage-md">Mutt Usage.md</h2>
 
-<pre><code class="language-markdown">## Basic Usage
+<h2 id="basic-usage">Basic Usage</h2>
 
-General commands:
+<p>General commands:</p>
 
-- `/`: search
-- `/~b &lt;phrase&gt;`: search inside all message bodies for phrase
-- `/~B &lt;phrase&gt;`: search inside all message bodies (and headers) for phrase
+<ul>
+<li><code>/</code>: search</li>
+<li><code>/~b &lt;phrase&gt;</code>: search inside all message bodies for phrase</li>
+<li><code>/~B &lt;phrase&gt;</code>: search inside all message bodies (and headers) for phrase</li>
+</ul>
 
-Whilst viewing your inbox, and cursor is over a message:
+<p>Whilst viewing your inbox, and cursor is over a message:</p>
 
-- `$`: sync changes
-- `d`: delete message
-- `C-d`: delete the whole thread
-- `N`: mark as 'new' (equivalent to it being 'unread')
-- `ENTER`: open message
-- `/~r DD/MM/YYYY`: search for message received on specified date (stops on first match)
+<ul>
+<li><code>$</code>: sync changes</li>
+<li><code>d</code>: delete message</li>
+<li><code>C-d</code>: delete the whole thread</li>
+<li><code>N</code>: mark as &lsquo;new&rsquo; (equivalent to it being &lsquo;unread&rsquo;)</li>
+<li><code>ENTER</code>: open message</li>
+<li><code>/~r DD/MM/YYYY</code>: search for message received on specified date (stops on first match)</li>
+</ul>
 
-&gt; Note: `YYYY` can be omitted but you need `DD/MM`
+<blockquote>
+<p>Note: <code>YYYY</code> can be omitted but you need <code>DD/MM</code></p>
+</blockquote>
 
-Whilst viewing a message:
+<p>Whilst viewing a message:</p>
 
-- `i`: exit
-- `d`: delete message
-- `C-d`: delete the whole thread
-- `C-b`: activate urlview
-- `arrow keys (left/right)`: &lt;- next message | -&gt; previous message 
-- `SPACE`: scroll down
-- `-`: scroll up
+<ul>
+<li><code>i</code>: exit</li>
+<li><code>d</code>: delete message</li>
+<li><code>C-d</code>: delete the whole thread</li>
+<li><code>C-b</code>: activate urlview</li>
+<li><code>arrow keys (left/right)</code>: &lt;- next message | -&gt; previous message</li>
+<li><code>SPACE</code>: scroll down</li>
+<li><code>-</code>: scroll up</li>
+</ul>
 
-## Multiple Mutts
+<h2 id="multiple-mutts">Multiple Mutts</h2>
 
-You can create an alias for starting Mutt with a different `.muttrc` file:
+<p>You can create an alias for starting Mutt with a different <code>.muttrc</code> file:</p>
 
-```sh
-alias muttb=&quot;mutt -F ~/.muttrc-buzzfeed&quot;
+<pre><code class="language-sh">alias muttb=&quot;mutt -F ~/.muttrc-buzzfeed&quot;
 </code></pre>
 
 <h2 id="sending-email-via-vim">Sending email via Vim</h2>
@@ -160,8 +167,7 @@ alias muttb=&quot;mutt -F ~/.muttrc-buzzfeed&quot;
 
 <blockquote>
 <p>Vim will convert <code>%</code> into the current buffer&rsquo;s name<br />
-Leave off <code>&lt; /dev/null</code> if you wish to edit message body
-&ldquo;`</p>
+Leave off <code>&lt; /dev/null</code> if you wish to edit message body</p>
 </blockquote>
 
 </div>

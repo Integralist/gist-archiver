@@ -10,6 +10,39 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="python-function-timer-decorator-async-version-passing-arguments-version-python-python3-timer-decorator-performance-context-manager">[Python Function Timer Decorator + Async Version + Passing Arguments Version] #python #python3 #timer #decorator #performance #context #manager</h1>
 
+<h2 id="1-python-function-timer-decorator-sync-py">1. Python Function Timer Decorator Sync.py</h2>
+
+<pre><code class="language-python">import functools
+import time
+
+
+def timer(func):
+    &quot;&quot;&quot;calculate run time of decorated function.&quot;&quot;&quot;
+
+    @functools.wraps(func)
+    def wrap_timer(*args, **kwargs):
+        start_time = time.perf_counter()  # could also use perf_counter_ns()
+        result = func(*args, **kwargs)
+
+        end_time = time.perf_counter()
+        run_time = end_time - start_time
+        print(run_time)
+        return result
+
+    return wrap_timer
+
+
+@timer
+def slow_op():
+    print(&quot;start&quot;)
+    time.sleep(5)
+    print(&quot;end&quot;)
+    return &quot;done&quot;
+
+
+print(slow_op())
+</code></pre>
+
 <h2 id="2-python-function-timer-decorator-async-py">2. Python Function Timer Decorator Async.py</h2>
 
 <pre><code class="language-python">import asyncio  # NEW: import asyncio module
@@ -231,39 +264,6 @@ with timer(&quot;foo.bar&quot;):
     print(&quot;context manager start&quot;)
     time.sleep(10)
     print(&quot;context manager finished&quot;)
-</code></pre>
-
-<h2 id="1-python-function-timer-decorator-sync-py">1. Python Function Timer Decorator Sync.py</h2>
-
-<pre><code class="language-python">import functools
-import time
-
-
-def timer(func):
-    &quot;&quot;&quot;calculate run time of decorated function.&quot;&quot;&quot;
-
-    @functools.wraps(func)
-    def wrap_timer(*args, **kwargs):
-        start_time = time.perf_counter()  # could also use perf_counter_ns()
-        result = func(*args, **kwargs)
-
-        end_time = time.perf_counter()
-        run_time = end_time - start_time
-        print(run_time)
-        return result
-
-    return wrap_timer
-
-
-@timer
-def slow_op():
-    print(&quot;start&quot;)
-    time.sleep(5)
-    print(&quot;end&quot;)
-    return &quot;done&quot;
-
-
-print(slow_op())
 </code></pre>
 
 </div>

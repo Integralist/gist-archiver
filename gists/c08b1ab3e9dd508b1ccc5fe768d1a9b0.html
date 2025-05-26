@@ -12,14 +12,15 @@
 
 <h2 id="fastly-clustering-and-shielding-example-md">Fastly Clustering and Shielding Example.md</h2>
 
-<pre><code class="language-markdown">The below VCL snippets are expected to be run on https://fiddle.fastlydemo.net/
+<p>The below VCL snippets are expected to be run on <a href="https://fiddle.fastlydemo.net/" target="_blank">https://fiddle.fastlydemo.net/</a></p>
 
-&gt; Note: they are copied verbatim from https://fiddle.fastlydemo.net/fiddle/72e0d619
+<blockquote>
+<p>Note: they are copied verbatim from <a href="https://fiddle.fastlydemo.net/fiddle/72e0d619" target="_blank">https://fiddle.fastlydemo.net/fiddle/72e0d619</a></p>
+</blockquote>
 
-## vcl_recv
+<h2 id="vcl-recv">vcl_recv</h2>
 
-```vcl
-if (req.backend.is_shield)
+<pre><code class="language-vcl">if (req.backend.is_shield)
 {
   set req.http.shield = &quot;This is on the Edge PoP (req.backend.is_shield)&quot;;
 }
@@ -211,8 +212,6 @@ if (req.restarts == 0) {
   return(restart);
 }
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

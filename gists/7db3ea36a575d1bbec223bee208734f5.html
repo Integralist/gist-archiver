@@ -12,79 +12,93 @@
 
 <h2 id="0-outdated-md">0. OUTDATED.md</h2>
 
-<pre><code class="language-markdown">Refer to my blog post here:
+<p>Refer to my blog post here:</p>
 
-https://www.integralist.co.uk/posts/python-asyncio/
-</code></pre>
+<p><a href="https://www.integralist.co.uk/posts/python-asyncio/" target="_blank">https://www.integralist.co.uk/posts/python-asyncio/</a></p>
 
 <h2 id="1-python-asyncio-md">1. Python Asyncio.md</h2>
 
-<pre><code class="language-markdown">The following guide is based on Python 3.8
+<p>The following guide is based on Python 3.8</p>
 
-&gt; asyncio is a library to write concurrent code using the `async`/`await` syntax. -- https://docs.python.org/3.8/library/asyncio.html
+<blockquote>
+<p>asyncio is a library to write concurrent code using the <code>async</code>/<code>await</code> syntax. &ndash; <a href="https://docs.python.org/3.8/library/asyncio.html" target="_blank">https://docs.python.org/3.8/library/asyncio.html</a></p>
+</blockquote>
 
-The asyncio module provides both high-level and low-level APIs. Library and Framework developers will be expected to use the low-level APIs, while all other users are encouraged to use the high-level APIs.
+<p>The asyncio module provides both high-level and low-level APIs. Library and Framework developers will be expected to use the low-level APIs, while all other users are encouraged to use the high-level APIs.</p>
 
-## Event Loop
+<h2 id="event-loop">Event Loop</h2>
 
-The core element of all asyncio applications is the 'event loop'. The event loop is what schedules and runs asynchronous tasks (it also handles network IO operations and the running of subprocesses).
+<p>The core element of all asyncio applications is the &lsquo;event loop&rsquo;. The event loop is what schedules and runs asynchronous tasks (it also handles network IO operations and the running of subprocesses).</p>
 
-## Awaitables
+<h2 id="awaitables">Awaitables</h2>
 
-Something is _awaitable_ if it can be used in an `await` expression.
+<p>Something is <em>awaitable</em> if it can be used in an <code>await</code> expression.</p>
 
-There are three main types of awaitables:
+<p>There are three main types of awaitables:</p>
 
-1. Coroutines
-2. Tasks
-3. Futures
+<ol>
+<li>Coroutines</li>
+<li>Tasks</li>
+<li>Futures</li>
+</ol>
 
-&gt; Note: Futures is a _low-level_ type and so you shouldn't need to worry about it too much if you're not a library/framework developer (as you should be using the higher-level abstraction APIs instead).
+<blockquote>
+<p>Note: Futures is a <em>low-level</em> type and so you shouldn&rsquo;t need to worry about it too much if you&rsquo;re not a library/framework developer (as you should be using the higher-level abstraction APIs instead).</p>
+</blockquote>
 
-### Coroutines
+<h3 id="coroutines">Coroutines</h3>
 
-There are two closely related terms used here:
+<p>There are two closely related terms used here:</p>
 
-- a _coroutine function_: an `async def` function.
-- a _coroutine object_: an object returned by calling a coroutine function.
+<ul>
+<li>a <em>coroutine function</em>: an <code>async def</code> function.</li>
+<li>a <em>coroutine object</em>: an object returned by calling a coroutine function.</li>
+</ul>
 
-&gt; Generator based coroutine functions (e.g. those defined by decorating a function with `@asyncio.coroutine`) are superseded by the `async`/`await` syntax, but will continue to be supported _until_ Python 3.10 -- https://docs.python.org/3.8/library/asyncio-task.html#asyncio-generator-based-coro
+<blockquote>
+<p>Generator based coroutine functions (e.g. those defined by decorating a function with <code>@asyncio.coroutine</code>) are superseded by the <code>async</code>/<code>await</code> syntax, but will continue to be supported <em>until</em> Python 3.10 &ndash; <a href="https://docs.python.org/3.8/library/asyncio-task.html#asyncio-generator-based-coro" target="_blank">https://docs.python.org/3.8/library/asyncio-task.html#asyncio-generator-based-coro</a></p>
+</blockquote>
 
-### Tasks
+<h3 id="tasks">Tasks</h3>
 
-[Tasks](https://docs.python.org/3.8/library/asyncio-task.html#asyncio.Task) are used to schedule coroutines _concurrently_.
+<p><a href="https://docs.python.org/3.8/library/asyncio-task.html#asyncio.Task" target="_blank">Tasks</a> are used to schedule coroutines <em>concurrently</em>.</p>
 
-All asyncio applications will have (at least) a single 'main' entrypoint task that will be scheduled to run immediately on the event loop. This is done using the `asyncio.run` function (see '[Running an asyncio program](#running-an-asyncio-program)'). 
+<p>All asyncio applications will have (at least) a single &lsquo;main&rsquo; entrypoint task that will be scheduled to run immediately on the event loop. This is done using the <code>asyncio.run</code> function (see &lsquo;<a href="#running-an-asyncio-program">Running an asyncio program</a>&rsquo;).</p>
 
-A coroutine function is expected to be passed to `asyncio.run`, while _internally_ asyncio will check this using the helper function `coroutines.iscoroutine`. If not a coroutine, then an error is raised, otherwise the coroutine will be passed to `loop.run_until_complete`. The `run_until_complete` function expects a [Future](#future) (see below section) and uses another helper function `futures.isfuture` to check the type provided.
+<p>A coroutine function is expected to be passed to <code>asyncio.run</code>, while <em>internally</em> asyncio will check this using the helper function <code>coroutines.iscoroutine</code>. If not a coroutine, then an error is raised, otherwise the coroutine will be passed to <code>loop.run_until_complete</code>. The <code>run_until_complete</code> function expects a <a href="#future">Future</a> (see below section) and uses another helper function <code>futures.isfuture</code> to check the type provided.</p>
 
-In older versions of Python you would have used `asyncio.ensure_future` (now considered to be a low-level API) to schedule a coroutine to be executed on the event loop, but with Python 3.7+ this has been superseded by `asyncio.create_task`. 
+<p>In older versions of Python you would have used <code>asyncio.ensure_future</code> (now considered to be a low-level API) to schedule a coroutine to be executed on the event loop, but with Python 3.7+ this has been superseded by <code>asyncio.create_task</code>.</p>
 
-Additionally, with Python 3.8, the idea of interacting with the event loop directly (e.g. getting the event loop, creating a task with `create_task` and then passing it to the event loop) has been replaced with `asyncio.run`, which abstracts it all away for you (see '[Running an asyncio program](#running-an-asyncio-program)' to understand what that means).
+<p>Additionally, with Python 3.8, the idea of interacting with the event loop directly (e.g. getting the event loop, creating a task with <code>create_task</code> and then passing it to the event loop) has been replaced with <code>asyncio.run</code>, which abstracts it all away for you (see &lsquo;<a href="#running-an-asyncio-program">Running an asyncio program</a>&rsquo; to understand what that means).</p>
 
-The following APIs let you see the state of the tasks running on the event loop:
+<p>The following APIs let you see the state of the tasks running on the event loop:</p>
 
-- `asyncio.current_task`
-- `asyncio.all_tasks`
+<ul>
+<li><code>asyncio.current_task</code></li>
+<li><code>asyncio.all_tasks</code></li>
+</ul>
 
-&gt; Note: for other available methods on a Task object please refer to [the documentation](https://docs.python.org/3.8/library/asyncio-task.html#asyncio.Task).
+<blockquote>
+<p>Note: for other available methods on a Task object please refer to <a href="https://docs.python.org/3.8/library/asyncio-task.html#asyncio.Task" target="_blank">the documentation</a>.</p>
+</blockquote>
 
-### Futures
+<h3 id="futures">Futures</h3>
 
-A Future is a low-level awaitable object that represents an eventual result of an asynchronous operation.
+<p>A Future is a low-level awaitable object that represents an eventual result of an asynchronous operation.</p>
 
-To use an analogy: it's like an empty postbox. At _some point_ in the future the postman will arrive and stick a letter into the postbox.
+<p>To use an analogy: it&rsquo;s like an empty postbox. At <em>some point</em> in the future the postman will arrive and stick a letter into the postbox.</p>
 
-This API exists to enable callback-based code to be used with `async`/`await`, while [`loop.run_in_executor`](https://docs.python.org/3.8/library/asyncio-eventloop.html#asyncio.loop.run_in_executor) is an example of an asyncio low-level API function that returns a Future (see also some of the APIs listed in [Concurrent Functions](#concurrent-functions)).
+<p>This API exists to enable callback-based code to be used with <code>async</code>/<code>await</code>, while <a href="https://docs.python.org/3.8/library/asyncio-eventloop.html#asyncio.loop.run_in_executor" target="_blank"><code>loop.run_in_executor</code></a> is an example of an asyncio low-level API function that returns a Future (see also some of the APIs listed in <a href="#concurrent-functions">Concurrent Functions</a>).</p>
 
-&gt; Note: for other available methods on a Future please refer to [the documentation](https://docs.python.org/3.8/library/asyncio-future.html#asyncio.Future).
+<blockquote>
+<p>Note: for other available methods on a Future please refer to <a href="https://docs.python.org/3.8/library/asyncio-future.html#asyncio.Future" target="_blank">the documentation</a>.</p>
+</blockquote>
 
-## Running an asyncio program
+<h2 id="running-an-asyncio-program">Running an asyncio program</h2>
 
-The high-level API (as per Python 3.7+) is:
+<p>The high-level API (as per Python 3.7+) is:</p>
 
-```python
-import asyncio
+<pre><code class="language-python">import asyncio
 
 async def foo():
     print(&quot;Foo!&quot;)
@@ -137,8 +151,6 @@ loop.close()
 <li><a href="https://gist.github.com/Integralist/7db3ea36a575d1bbec223bee208734f5#gistcomment-1767396" target="_blank">Futures</a></li>
 <li><a href="https://gist.github.com/Integralist/7db3ea36a575d1bbec223bee208734f5#gistcomment-1767544" target="_blank">Parallel Execution</a></li>
 </ul>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

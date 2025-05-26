@@ -12,39 +12,42 @@
 
 <h2 id="go-concurrency-md">Go Concurrency.md</h2>
 
-<pre><code class="language-markdown"># Go Concurrency
+<h1 id="go-concurrency">Go Concurrency</h1>
 
-- [Goroutines](#goroutines)
-- [Channels](#channels)
-- [Select Statement](#select-statement)
-- [Wait Groups](#wait-groups)
-- [Mutex](#mutex)
-- [Conditions](#conditions)
-- [Atomic Operations](#atomic-operations)
-- [Once](#once)
-- [Context](#context)
-- [Map](#map)
-- [Real Examples](#real-examples)
+<ul>
+<li><a href="#goroutines">Goroutines</a></li>
+<li><a href="#channels">Channels</a></li>
+<li><a href="#select-statement">Select Statement</a></li>
+<li><a href="#wait-groups">Wait Groups</a></li>
+<li><a href="#mutex">Mutex</a></li>
+<li><a href="#conditions">Conditions</a></li>
+<li><a href="#atomic-operations">Atomic Operations</a></li>
+<li><a href="#once">Once</a></li>
+<li><a href="#context">Context</a></li>
+<li><a href="#map">Map</a></li>
+<li><a href="#real-examples">Real Examples</a></li>
+</ul>
 
-## Goroutines
+<h2 id="goroutines">Goroutines</h2>
 
-The `go` keyword is used to start a goroutine.
+<p>The <code>go</code> keyword is used to start a goroutine.</p>
 
-A goroutine is a lightweight, managed thread used by the Go runtime to run functions concurrently.
+<p>A goroutine is a lightweight, managed thread used by the Go runtime to run functions concurrently.</p>
 
-Unlike OS threads, which have a fixed stack size (often around 1MB), goroutines start with a very small stack, around 2KB, and can grow or shrink dynamically as needed. This makes it possible to run thousands or even millions of goroutines simultaneously, depending on the available memory.
+<p>Unlike OS threads, which have a fixed stack size (often around 1MB), goroutines start with a very small stack, around 2KB, and can grow or shrink dynamically as needed. This makes it possible to run thousands or even millions of goroutines simultaneously, depending on the available memory.</p>
 
-Goroutines are sometimes compared to &quot;green threads,&quot; which are threads that are scheduled in user space rather than by the OS. The problem with green threads is that they may not leverage multiple CPU cores efficiently since they don't interact directly with the OS’s scheduler.
+<p>Goroutines are sometimes compared to &ldquo;green threads,&rdquo; which are threads that are scheduled in user space rather than by the OS. The problem with green threads is that they may not leverage multiple CPU cores efficiently since they don&rsquo;t interact directly with the OS’s scheduler.</p>
 
-Goroutines are similar to green threads in that they are scheduled by the Go runtime rather than the OS. However, they differ in a crucial way: Go uses a model called Mscheduling, where the Go runtime maps multiple goroutines (M) onto multiple OS threads (N). This allows the runtime to distribute goroutines across multiple CPU cores when possible, making Go’s concurrency model more efficient and scalable than traditional green threads.
+<p>Goroutines are similar to green threads in that they are scheduled by the Go runtime rather than the OS. However, they differ in a crucial way: Go uses a model called Mscheduling, where the Go runtime maps multiple goroutines (M) onto multiple OS threads (N). This allows the runtime to distribute goroutines across multiple CPU cores when possible, making Go’s concurrency model more efficient and scalable than traditional green threads.</p>
 
-&gt; [!IMPORTANT]
-&gt; The following example uses a `time.Sleep` to wait for the goroutine to finish.\
-&gt; This is done for simplicity. Do NOT use this approach.\
-&gt; I'll explain alternative options afterwards.
+<blockquote>
+<p>[!IMPORTANT]
+The following example uses a <code>time.Sleep</code> to wait for the goroutine to finish.<br />
+This is done for simplicity. Do NOT use this approach.<br />
+I&rsquo;ll explain alternative options afterwards.</p>
+</blockquote>
 
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;fmt&quot;
@@ -673,8 +676,6 @@ func DeleteAllKeys(storeID string, out io.Writer) error {
 <li><a href="https://www.integralist.co.uk/posts/go-style-guide/" target="_blank">https://www.integralist.co.uk/posts/go-style-guide/</a></li>
 <li><a href="https://go.dev/doc/effective_go#concurrency" target="_blank">https://go.dev/doc/effective_go#concurrency</a></li>
 </ul>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>

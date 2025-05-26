@@ -12,27 +12,33 @@
 
 <h2 id="backup-all-your-github-gists-inc-private-gists-md">Backup all your GitHub Gists (inc. private gists).md</h2>
 
-<pre><code class="language-markdown">## Instructions
+<h2 id="instructions">Instructions</h2>
 
-- Install this gem: https://github.com/swdyh/gisty
-- Create a new access token in GitHub: https://github.com/settings/tokens
-  - You only need the `gist` box ticked, nothing else necessary
-- Set this: `export GISTY_DIR=&quot;$HOME/path/where/you/want/gists/saved&quot;`
-- Set this: `export GISTY_ACCESS_TOKEN=xxxxxxxxxx`
-- Run this: `gisty sync`
+<ul>
+<li>Install this gem: <a href="https://github.com/swdyh/gisty" target="_blank">https://github.com/swdyh/gisty</a></li>
+<li>Create a new access token in GitHub: <a href="https://github.com/settings/tokens" target="_blank">https://github.com/settings/tokens</a>
 
-...now sit and wait for it to start cloning all your gists into the specified directory
+<ul>
+<li>You only need the <code>gist</code> box ticked, nothing else necessary</li>
+</ul></li>
+<li>Set this: <code>export GISTY_DIR=&quot;$HOME/path/where/you/want/gists/saved&quot;</code></li>
+<li>Set this: <code>export GISTY_ACCESS_TOKEN=xxxxxxxxxx</code></li>
+<li>Run this: <code>gisty sync</code></li>
+</ul>
 
-&gt; Use `ls -l | wc -l` to count how many gists you have
+<p>&hellip;now sit and wait for it to start cloning all your gists into the specified directory</p>
 
-## Caveats
+<blockquote>
+<p>Use <code>ls -l | wc -l</code> to count how many gists you have</p>
+</blockquote>
 
-The cloned gists are placed inside folders named after the gist ID so it's not exactly clear what a folder is.
+<h2 id="caveats">Caveats</h2>
 
-You can obviously try and search through your gists using something like:
+<p>The cloned gists are placed inside folders named after the gist ID so it&rsquo;s not exactly clear what a folder is.</p>
 
-```bash
-function search_gists(){
+<p>You can obviously try and search through your gists using something like:</p>
+
+<pre><code class="language-bash">function search_gists(){
   local search=*$1*
   find . -name $search
 }
@@ -41,8 +47,7 @@ search_gists docker
 search_gists aws
 </code></pre>
 
-<p>But remember that this is for local backups and not a replacement for GitHub&rsquo;s Gist service
-&ldquo;`</p>
+<p>But remember that this is for local backups and not a replacement for GitHub&rsquo;s Gist service</p>
 
 </div>
 </body>

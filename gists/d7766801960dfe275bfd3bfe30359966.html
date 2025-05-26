@@ -12,76 +12,89 @@
 
 <h2 id="different-approaches-to-http-routing-in-go-md">Different approaches to HTTP routing in Go.md</h2>
 
-<pre><code class="language-markdown">## Reference
+<h2 id="reference">Reference</h2>
 
-- https://benhoyt.com/writings/go-routing/
-- https://github.com/benhoyt/go-routing
+<ul>
+<li><a href="https://benhoyt.com/writings/go-routing/" target="_blank">https://benhoyt.com/writings/go-routing/</a></li>
+<li><a href="https://github.com/benhoyt/go-routing" target="_blank">https://github.com/benhoyt/go-routing</a></li>
+</ul>
 
-## Approaches
+<h2 id="approaches">Approaches</h2>
 
-- **Regex Table**: loop through pre-compiled regexes and pass matches using the request context.
-- **Regex Switch**: a switch statement with cases that call a regex-based match() helper which scans path parameters into variables.
-- **Pattern Matcher**: similar to the above, but using a simple pattern matching function instead of regexes.
-- **Split Switch**: split the path on / and then switch on the contents of the path segments.
-- **ShiftPath**: Axel Wagner’s hierarchical ShiftPath technique.
+<ul>
+<li><strong>Regex Table</strong>: loop through pre-compiled regexes and pass matches using the request context.</li>
+<li><strong>Regex Switch</strong>: a switch statement with cases that call a regex-based match() helper which scans path parameters into variables.</li>
+<li><strong>Pattern Matcher</strong>: similar to the above, but using a simple pattern matching function instead of regexes.</li>
+<li><strong>Split Switch</strong>: split the path on / and then switch on the contents of the path segments.</li>
+<li><strong>ShiftPath</strong>: Axel Wagner’s hierarchical ShiftPath technique.</li>
+</ul>
 
-## Performance
+<h2 id="performance">Performance</h2>
 
-In this comparison we're not concerned about speed. Most of the approaches loop or switch through a list of routes (in contrast to fancy trie-lookup structures). All of these approaches only add a few microseconds to the request time, and that isn't an issue in the majority of web applications.
+<p>In this comparison we&rsquo;re not concerned about speed. Most of the approaches loop or switch through a list of routes (in contrast to fancy trie-lookup structures). All of these approaches only add a few microseconds to the request time, and that isn&rsquo;t an issue in the majority of web applications.</p>
 
-## Opinions
+<h2 id="opinions">Opinions</h2>
 
-Below are the opinions of the author of the article (linked above), while my (@integralist) own preference is towards &quot;Regex Switch&quot; due to the ease of implementation and the ease of understanding for engineers working on the code, as well as the extra flexibility you get over the &quot;Regex Table&quot; approach.
+<p>Below are the opinions of the author of the article (linked above), while my (@integralist) own preference is towards &ldquo;Regex Switch&rdquo; due to the ease of implementation and the ease of understanding for engineers working on the code, as well as the extra flexibility you get over the &ldquo;Regex Table&rdquo; approach.</p>
 
-### Regex Table
+<h3 id="regex-table">Regex Table</h3>
 
-- https://benhoyt.com/writings/go-routing/#regex-table
-- https://github.com/benhoyt/go-routing/blob/master/retable/route.go
+<ul>
+<li><a href="https://benhoyt.com/writings/go-routing/#regex-table" target="_blank">https://benhoyt.com/writings/go-routing/#regex-table</a></li>
+<li><a href="https://github.com/benhoyt/go-routing/blob/master/retable/route.go" target="_blank">https://github.com/benhoyt/go-routing/blob/master/retable/route.go</a></li>
+</ul>
 
-It's basically a table of pre-compiled regexp objects with a little 21-line routing function that loops through them, and calls the first one that matches both the path and the HTTP method.
+<p>It&rsquo;s basically a table of pre-compiled regexp objects with a little 21-line routing function that loops through them, and calls the first one that matches both the path and the HTTP method.</p>
 
-There's nothing particularly clever about the regex table approach, and it's similar to how a number of the third-party packages work. But it's so simple it only takes a few lines of code and a few minutes to write. It's also easy to modify if you need to: for example, to add logging, change the error responses to JSON, and so on.
+<p>There&rsquo;s nothing particularly clever about the regex table approach, and it&rsquo;s similar to how a number of the third-party packages work. But it&rsquo;s so simple it only takes a few lines of code and a few minutes to write. It&rsquo;s also easy to modify if you need to: for example, to add logging, change the error responses to JSON, and so on.</p>
 
-### Regex Switch
+<h3 id="regex-switch">Regex Switch</h3>
 
-- https://benhoyt.com/writings/go-routing/#regex-switch
-- https://github.com/benhoyt/go-routing/blob/master/reswitch/route.go
+<ul>
+<li><a href="https://benhoyt.com/writings/go-routing/#regex-switch" target="_blank">https://benhoyt.com/writings/go-routing/#regex-switch</a></li>
+<li><a href="https://github.com/benhoyt/go-routing/blob/master/reswitch/route.go" target="_blank">https://github.com/benhoyt/go-routing/blob/master/reswitch/route.go</a></li>
+</ul>
 
-The second approach still uses regexes, but with a simple imperative switch statement and a `match()` helper to go through the matches. The advantage of this approach is that you can call other functions or test other things in each case. Also, the signature of the `match` function allows you to &quot;scan&quot; path parameters into variables in order to pass them to the handlers more directly.
+<p>The second approach still uses regexes, but with a simple imperative switch statement and a <code>match()</code> helper to go through the matches. The advantage of this approach is that you can call other functions or test other things in each case. Also, the signature of the <code>match</code> function allows you to &ldquo;scan&rdquo; path parameters into variables in order to pass them to the handlers more directly.</p>
 
-I must admit to being quite fond of this approach. I like how simple and direct it is, and I think the scan-like behaviour for path parameters is clean. Overall, despite liking the clarity of this approach and the scan-like `match()` helper, a point against it is the messiness required to cache the regex compilation.
+<p>I must admit to being quite fond of this approach. I like how simple and direct it is, and I think the scan-like behaviour for path parameters is clean. Overall, despite liking the clarity of this approach and the scan-like <code>match()</code> helper, a point against it is the messiness required to cache the regex compilation.</p>
 
-### Pattern Matcher
+<h3 id="pattern-matcher">Pattern Matcher</h3>
 
-- https://benhoyt.com/writings/go-routing/#pattern-matcher
-- https://github.com/benhoyt/go-routing/blob/master/pat/route.go
+<ul>
+<li><a href="https://benhoyt.com/writings/go-routing/#pattern-matcher" target="_blank">https://benhoyt.com/writings/go-routing/#pattern-matcher</a></li>
+<li><a href="https://github.com/benhoyt/go-routing/blob/master/pat/route.go" target="_blank">https://github.com/benhoyt/go-routing/blob/master/pat/route.go</a></li>
+</ul>
 
-This approach is similar to the regex switch method, but instead of regexes it uses a simple, custom pattern matcher.
+<p>This approach is similar to the regex switch method, but instead of regexes it uses a simple, custom pattern matcher.</p>
 
-The patterns supplied to the custom `match()` function handle one wildcard character, `+`, which matches (and captures) any characters till the next `/` in the request path. This is of course much less powerful than regex matching, but generally I've not needed anything more than &quot;match till next slash&quot; in my routes.
+<p>The patterns supplied to the custom <code>match()</code> function handle one wildcard character, <code>+</code>, which matches (and captures) any characters till the next <code>/</code> in the request path. This is of course much less powerful than regex matching, but generally I&rsquo;ve not needed anything more than &ldquo;match till next slash&rdquo; in my routes.</p>
 
-I quite like this approach (and it's efficient), but the byte-by-byte matching code was a little fiddly to write – definitely not as simple as calling `regex.FindStringSubmatch()`.
+<p>I quite like this approach (and it&rsquo;s efficient), but the byte-by-byte matching code was a little fiddly to write – definitely not as simple as calling <code>regex.FindStringSubmatch()</code>.</p>
 
-### Split Switch
+<h3 id="split-switch">Split Switch</h3>
 
-- https://benhoyt.com/writings/go-routing/#split-switch
-- https://github.com/benhoyt/go-routing/blob/master/split/route.go
+<ul>
+<li><a href="https://benhoyt.com/writings/go-routing/#split-switch" target="_blank">https://benhoyt.com/writings/go-routing/#split-switch</a></li>
+<li><a href="https://github.com/benhoyt/go-routing/blob/master/split/route.go" target="_blank">https://github.com/benhoyt/go-routing/blob/master/split/route.go</a></li>
+</ul>
 
-This approach simply splits the request path on `/` and then uses a switch with case statements that compare the number of path segments and the content of each segment. It's direct and simple, but also a bit error-prone, with lots of hard-coded lengths and indexes.
+<p>This approach simply splits the request path on <code>/</code> and then uses a switch with case statements that compare the number of path segments and the content of each segment. It&rsquo;s direct and simple, but also a bit error-prone, with lots of hard-coded lengths and indexes.</p>
 
-So while I like the bare-bones simplicity of this approach – just basic string equality comparisons – the verbosity of the matching and the error-prone integer constants would make me think twice about actually using it for anything but very simple routing.
+<p>So while I like the bare-bones simplicity of this approach – just basic string equality comparisons – the verbosity of the matching and the error-prone integer constants would make me think twice about actually using it for anything but very simple routing.</p>
 
-### ShiftPath
+<h3 id="shiftpath">ShiftPath</h3>
 
-- https://benhoyt.com/writings/go-routing/#shiftpath
-- https://github.com/benhoyt/go-routing/blob/master/shiftpath/route.go
+<ul>
+<li><a href="https://benhoyt.com/writings/go-routing/#shiftpath" target="_blank">https://benhoyt.com/writings/go-routing/#shiftpath</a></li>
+<li><a href="https://github.com/benhoyt/go-routing/blob/master/shiftpath/route.go" target="_blank">https://github.com/benhoyt/go-routing/blob/master/shiftpath/route.go</a></li>
+</ul>
 
-A technique involving a small `ShiftPath()` helper that returns the first path segment, and shifts the rest of the URL down. The current handler switches on the first path segment, then delegates to sub-handlers which do the same thing on the rest of the URL.
+<p>A technique involving a small <code>ShiftPath()</code> helper that returns the first path segment, and shifts the rest of the URL down. The current handler switches on the first path segment, then delegates to sub-handlers which do the same thing on the rest of the URL.</p>
 
-While I like the idea of just using the standard library, and the path-shifting technique is quite clever, I strongly prefer seeing my URLs all in one place – This approach spreads the logic across many handlers, so it's difficult to see what handles what. It's also quite a lot of code, some of which is error prone.
+<p>While I like the idea of just using the standard library, and the path-shifting technique is quite clever, I strongly prefer seeing my URLs all in one place – This approach spreads the logic across many handlers, so it&rsquo;s difficult to see what handles what. It&rsquo;s also quite a lot of code, some of which is error prone.</p>
 
-On balance, I find it too verbose and think it'd be difficult for people reading the code to quickly answer the question, &quot;given this HTTP method and URL, what happens?&quot;
-</code></pre>
+<p>On balance, I find it too verbose and think it&rsquo;d be difficult for people reading the code to quickly answer the question, &ldquo;given this HTTP method and URL, what happens?&rdquo;</p>
 
 </div>
 </body>

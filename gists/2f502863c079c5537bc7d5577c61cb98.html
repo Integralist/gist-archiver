@@ -12,22 +12,19 @@
 
 <h2 id="how-to-ignore-root-file-but-not-a-sub-directory-of-the-same-name-md">How to ignore root file but not a sub directory of the same name.md</h2>
 
-<pre><code class="language-markdown">Imagine you have the following tree structure:
+<p>Imagine you have the following tree structure:</p>
 
-</code></pre>
-
-<p>.
+<pre><code>.
 ├── cmd
 │   └── fastly
-├── fastly</p>
+├── fastly
+</code></pre>
 
-<pre><code>
-You want to avoid commiting the `fastly` file in the root, but you're OK with `cmd/fastly` being committed.
+<p>You want to avoid commiting the <code>fastly</code> file in the root, but you&rsquo;re OK with <code>cmd/fastly</code> being committed.</p>
 
-To achieve this we need to use a specific wildcard glob that at first glance appears unintuitive:
+<p>To achieve this we need to use a specific wildcard glob that at first glance appears unintuitive:</p>
 
-```gitignore
-**/fastly
+<pre><code class="language-gitignore">**/fastly
 !cmd/fastly
 </code></pre>
 
@@ -35,8 +32,7 @@ To achieve this we need to use a specific wildcard glob that at first glance app
 
 <p>Originally, the first line was set to <code>fastly</code> but it turns out if you do that, the second line will no longer work because the first line is matched anywhere in the path, and that means gitignore cannot negate files inside an an already ignored directory (which this would do, i.e. <code>fastly</code> isn&rsquo;t ignoring the root <code>fastly</code> file, it&rsquo;s ignoring <em>anything</em> that contains <code>fastly</code>).</p>
 
-<p>The reason <code>**/fastly</code> didn&rsquo;t immediately spring to mind for me is because I read it as matching any subdirectory containing <code>fastly</code> (e.g. it would match <code>cmd/fastly</code>), when in fact the <code>**/</code> is misleading because it will match either <code>./</code> or <code>&lt;some-directory-name&gt;/</code> and that&rsquo;s why it works to match <code>./fastly</code> and <code>./cmd/fastly</code> and thus we can safely negate the second line of our gitignore, because we&rsquo;ve not just blanket ignored every possible folder containing <code>fastly</code>, we have this time in fact constrained our match to include the root file.
-&ldquo;`</p>
+<p>The reason <code>**/fastly</code> didn&rsquo;t immediately spring to mind for me is because I read it as matching any subdirectory containing <code>fastly</code> (e.g. it would match <code>cmd/fastly</code>), when in fact the <code>**/</code> is misleading because it will match either <code>./</code> or <code>&lt;some-directory-name&gt;/</code> and that&rsquo;s why it works to match <code>./fastly</code> and <code>./cmd/fastly</code> and thus we can safely negate the second line of our gitignore, because we&rsquo;ve not just blanket ignored every possible folder containing <code>fastly</code>, we have this time in fact constrained our match to include the root file.</p>
 
 </div>
 </body>

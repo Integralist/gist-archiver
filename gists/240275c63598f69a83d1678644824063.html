@@ -12,14 +12,15 @@
 
 <h2 id="example-nginx-global-rollout-strategy-md">Example NGINX global &ldquo;rollout&rdquo; strategy.md</h2>
 
-<pre><code class="language-markdown">&gt; Note: `X-User-Country-Code` &amp; `X-Device-Type` provided by our CDN (YMMV)  
-&gt; `set req.http.X-User-Country-Code = geoip.country_code;`  
-&gt; `set req.http.X-User-Continent-Code = geoip.continent_code;`
+<blockquote>
+<p>Note: <code>X-User-Country-Code</code> &amp; <code>X-Device-Type</code> provided by our CDN (YMMV)<br />
+<code>set req.http.X-User-Country-Code = geoip.country_code;</code><br />
+<code>set req.http.X-User-Continent-Code = geoip.continent_code;</code></p>
+</blockquote>
 
-Send Australia/New Zealand homepage mobile traffic
+<p>Send Australia/New Zealand homepage mobile traffic</p>
 
-```bash
-30_home_mobile:
+<pre><code class="language-bash">30_home_mobile:
   variable: '$http_x_user_country_code:$http_x_device_type'
   match: '~*(?:NZ|AU):mobile'
 </code></pre>
@@ -59,8 +60,6 @@ Send Australia/New Zealand homepage mobile traffic
   variable: '$http_x_device_type'
   match: 'mobile'
 </code></pre>
-
-<p>&rdquo;`</p>
 
 </div>
 </body>
