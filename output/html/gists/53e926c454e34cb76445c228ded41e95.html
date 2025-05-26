@@ -3,20 +3,231 @@
 <head>
 <meta charset="utf-8">
 <title>[Python Tornado Graceful Shutdown] #python #python3 #tornado #graceful #shutdown #signals #sigterm #sigint</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="python-tornado-graceful-shutdown-python-python3-tornado-graceful-shutdown-signals-sigterm-sigint">[Python Tornado Graceful Shutdown] #python #python3 #tornado #graceful #shutdown #signals #sigterm #sigint</h1>
+
+<h2 id="1-summary-md">1. Summary.md</h2>
+
+<pre><code class="language-markdown">- Things tried and explanation of the problem/solution.
+- OLD CODE TESTING SCRATCH PAD -- Python Tornado Graceful Shutdown.py
+- Working Example -- Python 3.7 Tornado 5+ Example with tests.md
+</code></pre>
+
+<h2 id="2-things-tried-md">2. things tried.md</h2>
+
+<pre><code class="language-markdown">Working code (Python 3.7+)...
+
+```py
+def sig_handler(server, sig, frame):
+    io_loop = IOLoop.current()
+    
+    def stop_loop(deadline):
+        now = time.time()
+        if now &lt; deadline and len(asyncio.all_tasks()) &gt; 0:
+            logging.info('waiting for next event loop tick')
+            io_loop.add_timeout(now + 1, stop_loop, deadline)
+        else:
+            io_loop.stop()
+            logging.info('event loop stopped')
+            
+    async def shutdown():
+        logging.info('stop listening for new connections')
+        server.stop()
+        logging.info(f'stopping event loop in {SHUTDOWN_TIMEOUT} seconds')
+        # await server.close_all_connections() &lt;&lt; don't use unless you WANT to kill all client connections immediately
+        stop_loop(time.time() + SHUTDOWN_TIMEOUT)
+        
+    io_loop.add_callback_from_signal(shutdown)
+</code></pre>
+
+<p>To recap what we had tried, that failed (iirc)&hellip;</p>
+
+<ul>
+<li><p>calling <code>tornado.httpserver.HTTPServer#close_all_connections</code>:<br />
+this wasn&rsquo;t documented, only found via source code<br />
+it didn&rsquo;t actually do <em>anything</em> in Python 3.6 (even though its implemented? but it worked in later versions)<br />
+i.e. when not using a timeout it still didn&rsquo;t wait for the in-flight requests to complete</p></li>
+
+<li><p>checking timeout deadline and <code>io_loop._callbacks</code>/<code>io_loop._timeouts</code>:<br />
+this would have helped close the event loop sooner<br />
+but didn&rsquo;t work once we migrated to latest tornado as internal properties were deprecated<br />
+couldn&rsquo;t find alternative properties to rely on<br />
+either way I don&rsquo;t think we should rely on really old tornado versions</p></li>
+
+<li><p>use asyncio&rsquo;s event loop with <code>run_until_complete</code> and <code>shutdown_asyncgens</code>:<br />
+didn&rsquo;t work and I&rsquo;m now not quite sure why.<br />
+at first it seemed like it was because tornado wraps the asyncio loop<br />
+and that maybe it was not exposing these methods directly<br />
+but the following calls all look to return the <em>same</em> event loop instance&hellip;</p>
+
+<ul>
+<li><code>tornado.ioloop.IOLoop.current()</code></li>
+<li><code>tornado.ioloop.IOLoop.current().asyncio_loop</code> &lt;&lt; internally where asyncio loop is stored</li>
+<li><code>asyncio.get_event_loop()</code></li>
+</ul></li>
+
+<li><p>I also tried updating to Python 3.8 so I could use <code>asyncio.all_tasks(loop=io_loop)</code><br />
+this function should return all running tasks on the event loop.<br />
+each http request is a unique event loop &lsquo;task&rsquo;<br />
+so if we shutdown while there are running tasks, they should be returned<br />
+unfortunately this just yielded an empty set data structure<br />
+the <code>io_loop</code> variable we pass to the constructor is a tornado event loop (which itself should be the underlying asyncio event loop)</p></li>
+
+<li><p><code>all_tasks</code> works! but only if you omit the <code>loop</code> argument<br />
+this lets asyncio use <code>get_running_loop</code> to acquire the event loop</p></li>
+</ul>
+
+<pre><code>
+## 3. OLD CODE TESTING SCRATCH PAD -- Python Tornado Graceful Shutdown.py
+
+```python
+#!/usr/bin/env python
+
+&quot;&quot;&quot;
+How to use it:
+1. Just `kill -2 PROCESS_ID` or `kill -15 PROCESS_ID`,
+   The Tornado Web Server Will shutdown after process all the request.
+2. When you run it behind Nginx, it can graceful reboot your production server.
+
+&gt; Note: the original version of this code didn't account for closing in-flight requests. There is a method (not documented other than sifting through the tornado source code for its HTTPServer class) that supposedly handles this, called `close_all_connections` but that doesn't seem to work when I tested it (not sure why :shrugs:). But the below version does try and account for checking internal properties `_callbacks` or `_timeouts` (which are only available for older versions of tornado, so the code doesn't work for version 5+).
+
+See alternative approach (uses tornado.gen.sleep instead of ioloop ticks):
+https://github.com/tornadoweb/tornado/issues/1791#issuecomment-409258371
+
+    async def shutdown():
+        logging.info('Stopping http server')
+        server.stop()
+        await server.close_all_connections()
+        logging.info('Will shutdown in %s seconds ...', SHUTDOWN_TIMEOUT)
+        await tornado.gen.sleep(SHUTDOWN_TIMEOUT)
+        ioloop.IOLoop.current().stop()
+        
+&gt; Note: a lot of these examples are problematic or don't quite work due to the incompatible nature of tornado's IOLoop vs asyncio's. In Tornado version 5.0+ their IOLoop became a wrapper around asyncio's but even then they only expose a small number of methods that proxy to the underlying IOLoop, so methods like `run_until_complete` and `shutdown_asyncgens` (see below example) just don't work.
+
+    def shutdown():
+        logging.info('Stopping http server')
+        server.stop()
+        io_loop.run_until_complete(io_loop.shutdown_asyncgens())
+        io_loop.close()
+
+The following are all the same event loop instance...
+
+- tornado.ioloop.IOLoop.current()
+- tornado.ioloop.IOLoop.current().asyncio_loop
+- asyncio.get_event_loop()
+
+## UPDATE
+
+The best I've been able to achieve with latest tornado (6.0.3) is...
+
+def sig_handler(server, sig, frame):
+    io_loop = IOLoop.current()
+
+    async def shutdown():
+        logging.info('stop listening for new connections')
+        server.stop()
+        logging.info(f'stopping event loop in {SHUTDOWN_TIMEOUT} seconds')
+        await tornado.gen.sleep(SHUTDOWN_TIMEOUT)
+        io_loop.stop()
+        logging.info('event loop stopped')
+
+    io_loop.add_callback_from_signal(shutdown)
+    
+## UPDATE 2 -- BETTER SOLUTION
+
+def sig_handler(server, sig, frame):
+    io_loop = IOLoop.current()
+
+    def stop_loop(deadline):
+        now = time.time()
+        logging.info(f'len(asyncio.all_tasks()): {len(asyncio.all_tasks())}')
+        if now &lt; deadline and len(asyncio.all_tasks()) &gt; 0:
+            logging.info('waiting for next event loop tick')
+            io_loop.add_timeout(now + 1, stop_loop, deadline)
+        else:
+            io_loop.stop()
+            logging.info('event loop stopped')
+
+    async def shutdown():
+        logging.info('stop listening for new connections')
+        server.stop()
+        logging.info(f'stopping event loop in {SHUTDOWN_TIMEOUT} seconds')
+        # await server.close_all_connections() &lt;&lt; don't use unless you WANT to kill all client connections immediately
+        stop_loop(time.time() + SHUTDOWN_TIMEOUT)
+
+    io_loop.add_callback_from_signal(shutdown)
+&quot;&quot;&quot;
+
+import time
+import signal
+import logging
+from functools import partial
+
+import tornado.httpserver
+import tornado.ioloop
+import tornado.options
+import tornado.web
+
+from tornado.options import define, options
+
+define(&quot;port&quot;, default=8888, help=&quot;run on the given port&quot;, type=int)
+
+MAX_WAIT_SECONDS_BEFORE_SHUTDOWN = 3
+
+
+class MainHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.write(&quot;Hello, world&quot;)
+
+
+def sig_handler(server, sig, frame):
+    io_loop = tornado.ioloop.IOLoop.instance()
+
+    def stop_loop(deadline):
+        now = time.time()
+        if now &lt; deadline and (io_loop._callbacks or io_loop._timeouts):
+            logging.info('Waiting for next tick')
+            io_loop.add_timeout(now + 1, stop_loop, deadline)
+        else:
+            io_loop.stop()
+            logging.info('Shutdown finally')
+
+    async def shutdown():
+        logging.info('Stopping http server')
+        server.stop()
+        logging.info('Will shutdown in %s seconds ...',
+                     MAX_WAIT_SECONDS_BEFORE_SHUTDOWN)
+        await server.close_all_connections()
+        stop_loop(time.time() + MAX_WAIT_SECONDS_BEFORE_SHUTDOWN)
+
+    logging.warning('Caught signal: %s', sig)
+    io_loop.add_callback_from_signal(shutdown)
+
+
+def main():
+    tornado.options.parse_command_line()
+    application = tornado.web.Application([
+        (r&quot;/&quot;, MainHandler),
+    ])
+
+    server = tornado.httpserver.HTTPServer(application)
+    server.listen(options.port)
+
+    signal.signal(signal.SIGTERM, partial(sig_handler, server))
+    signal.signal(signal.SIGINT, partial(sig_handler, server))
+
+    tornado.ioloop.IOLoop.instance().start()
+
+    logging.info(&quot;Exit...&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
 
 <h2 id="4-working-example-python-3-7-tornado-5-example-with-tests-md">4. Working Example &ndash; Python 3.7 Tornado 5+ Example with tests.md</h2>
 
@@ -262,226 +473,7 @@ class TestGracefulShutdown(tornado.testing.AsyncHTTPTestCase):
         mock_stop_loop.assert_called()
 </code></pre>
 
-<pre><code>
-## 1. Summary.md
-
-```markdown
-- Things tried and explanation of the problem/solution.
-- OLD CODE TESTING SCRATCH PAD -- Python Tornado Graceful Shutdown.py
-- Working Example -- Python 3.7 Tornado 5+ Example with tests.md
-</code></pre>
-
-<h2 id="2-things-tried-md">2. things tried.md</h2>
-
-<pre><code class="language-markdown">Working code (Python 3.7+)...
-
-```py
-def sig_handler(server, sig, frame):
-    io_loop = IOLoop.current()
-    
-    def stop_loop(deadline):
-        now = time.time()
-        if now &lt; deadline and len(asyncio.all_tasks()) &gt; 0:
-            logging.info('waiting for next event loop tick')
-            io_loop.add_timeout(now + 1, stop_loop, deadline)
-        else:
-            io_loop.stop()
-            logging.info('event loop stopped')
-            
-    async def shutdown():
-        logging.info('stop listening for new connections')
-        server.stop()
-        logging.info(f'stopping event loop in {SHUTDOWN_TIMEOUT} seconds')
-        # await server.close_all_connections() &lt;&lt; don't use unless you WANT to kill all client connections immediately
-        stop_loop(time.time() + SHUTDOWN_TIMEOUT)
-        
-    io_loop.add_callback_from_signal(shutdown)
-</code></pre>
-
-<p>To recap what we had tried, that failed (iirc)&hellip;</p>
-
-<ul>
-<li><p>calling <code>tornado.httpserver.HTTPServer#close_all_connections</code>:<br />
-this wasn&rsquo;t documented, only found via source code<br />
-it didn&rsquo;t actually do <em>anything</em> in Python 3.6 (even though its implemented? but it worked in later versions)<br />
-i.e. when not using a timeout it still didn&rsquo;t wait for the in-flight requests to complete</p></li>
-
-<li><p>checking timeout deadline and <code>io_loop._callbacks</code>/<code>io_loop._timeouts</code>:<br />
-this would have helped close the event loop sooner<br />
-but didn&rsquo;t work once we migrated to latest tornado as internal properties were deprecated<br />
-couldn&rsquo;t find alternative properties to rely on<br />
-either way I don&rsquo;t think we should rely on really old tornado versions</p></li>
-
-<li><p>use asyncio&rsquo;s event loop with <code>run_until_complete</code> and <code>shutdown_asyncgens</code>:<br />
-didn&rsquo;t work and I&rsquo;m now not quite sure why.<br />
-at first it seemed like it was because tornado wraps the asyncio loop<br />
-and that maybe it was not exposing these methods directly<br />
-but the following calls all look to return the <em>same</em> event loop instance&hellip;</p>
-
-<ul>
-<li><code>tornado.ioloop.IOLoop.current()</code></li>
-<li><code>tornado.ioloop.IOLoop.current().asyncio_loop</code> &lt;&lt; internally where asyncio loop is stored</li>
-<li><code>asyncio.get_event_loop()</code></li>
-</ul></li>
-
-<li><p>I also tried updating to Python 3.8 so I could use <code>asyncio.all_tasks(loop=io_loop)</code><br />
-this function should return all running tasks on the event loop.<br />
-each http request is a unique event loop &lsquo;task&rsquo;<br />
-so if we shutdown while there are running tasks, they should be returned<br />
-unfortunately this just yielded an empty set data structure<br />
-the <code>io_loop</code> variable we pass to the constructor is a tornado event loop (which itself should be the underlying asyncio event loop)</p></li>
-
-<li><p><code>all_tasks</code> works! but only if you omit the <code>loop</code> argument<br />
-this lets asyncio use <code>get_running_loop</code> to acquire the event loop</p></li>
-</ul>
-
-<pre><code>
-## 3. OLD CODE TESTING SCRATCH PAD -- Python Tornado Graceful Shutdown.py
-
-```python
-#!/usr/bin/env python
-
-&quot;&quot;&quot;
-How to use it:
-1. Just `kill -2 PROCESS_ID` or `kill -15 PROCESS_ID`,
-   The Tornado Web Server Will shutdown after process all the request.
-2. When you run it behind Nginx, it can graceful reboot your production server.
-
-&gt; Note: the original version of this code didn't account for closing in-flight requests. There is a method (not documented other than sifting through the tornado source code for its HTTPServer class) that supposedly handles this, called `close_all_connections` but that doesn't seem to work when I tested it (not sure why :shrugs:). But the below version does try and account for checking internal properties `_callbacks` or `_timeouts` (which are only available for older versions of tornado, so the code doesn't work for version 5+).
-
-See alternative approach (uses tornado.gen.sleep instead of ioloop ticks):
-https://github.com/tornadoweb/tornado/issues/1791#issuecomment-409258371
-
-    async def shutdown():
-        logging.info('Stopping http server')
-        server.stop()
-        await server.close_all_connections()
-        logging.info('Will shutdown in %s seconds ...', SHUTDOWN_TIMEOUT)
-        await tornado.gen.sleep(SHUTDOWN_TIMEOUT)
-        ioloop.IOLoop.current().stop()
-        
-&gt; Note: a lot of these examples are problematic or don't quite work due to the incompatible nature of tornado's IOLoop vs asyncio's. In Tornado version 5.0+ their IOLoop became a wrapper around asyncio's but even then they only expose a small number of methods that proxy to the underlying IOLoop, so methods like `run_until_complete` and `shutdown_asyncgens` (see below example) just don't work.
-
-    def shutdown():
-        logging.info('Stopping http server')
-        server.stop()
-        io_loop.run_until_complete(io_loop.shutdown_asyncgens())
-        io_loop.close()
-
-The following are all the same event loop instance...
-
-- tornado.ioloop.IOLoop.current()
-- tornado.ioloop.IOLoop.current().asyncio_loop
-- asyncio.get_event_loop()
-
-## UPDATE
-
-The best I've been able to achieve with latest tornado (6.0.3) is...
-
-def sig_handler(server, sig, frame):
-    io_loop = IOLoop.current()
-
-    async def shutdown():
-        logging.info('stop listening for new connections')
-        server.stop()
-        logging.info(f'stopping event loop in {SHUTDOWN_TIMEOUT} seconds')
-        await tornado.gen.sleep(SHUTDOWN_TIMEOUT)
-        io_loop.stop()
-        logging.info('event loop stopped')
-
-    io_loop.add_callback_from_signal(shutdown)
-    
-## UPDATE 2 -- BETTER SOLUTION
-
-def sig_handler(server, sig, frame):
-    io_loop = IOLoop.current()
-
-    def stop_loop(deadline):
-        now = time.time()
-        logging.info(f'len(asyncio.all_tasks()): {len(asyncio.all_tasks())}')
-        if now &lt; deadline and len(asyncio.all_tasks()) &gt; 0:
-            logging.info('waiting for next event loop tick')
-            io_loop.add_timeout(now + 1, stop_loop, deadline)
-        else:
-            io_loop.stop()
-            logging.info('event loop stopped')
-
-    async def shutdown():
-        logging.info('stop listening for new connections')
-        server.stop()
-        logging.info(f'stopping event loop in {SHUTDOWN_TIMEOUT} seconds')
-        # await server.close_all_connections() &lt;&lt; don't use unless you WANT to kill all client connections immediately
-        stop_loop(time.time() + SHUTDOWN_TIMEOUT)
-
-    io_loop.add_callback_from_signal(shutdown)
-&quot;&quot;&quot;
-
-import time
-import signal
-import logging
-from functools import partial
-
-import tornado.httpserver
-import tornado.ioloop
-import tornado.options
-import tornado.web
-
-from tornado.options import define, options
-
-define(&quot;port&quot;, default=8888, help=&quot;run on the given port&quot;, type=int)
-
-MAX_WAIT_SECONDS_BEFORE_SHUTDOWN = 3
-
-
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.write(&quot;Hello, world&quot;)
-
-
-def sig_handler(server, sig, frame):
-    io_loop = tornado.ioloop.IOLoop.instance()
-
-    def stop_loop(deadline):
-        now = time.time()
-        if now &lt; deadline and (io_loop._callbacks or io_loop._timeouts):
-            logging.info('Waiting for next tick')
-            io_loop.add_timeout(now + 1, stop_loop, deadline)
-        else:
-            io_loop.stop()
-            logging.info('Shutdown finally')
-
-    async def shutdown():
-        logging.info('Stopping http server')
-        server.stop()
-        logging.info('Will shutdown in %s seconds ...',
-                     MAX_WAIT_SECONDS_BEFORE_SHUTDOWN)
-        await server.close_all_connections()
-        stop_loop(time.time() + MAX_WAIT_SECONDS_BEFORE_SHUTDOWN)
-
-    logging.warning('Caught signal: %s', sig)
-    io_loop.add_callback_from_signal(shutdown)
-
-
-def main():
-    tornado.options.parse_command_line()
-    application = tornado.web.Application([
-        (r&quot;/&quot;, MainHandler),
-    ])
-
-    server = tornado.httpserver.HTTPServer(application)
-    server.listen(options.port)
-
-    signal.signal(signal.SIGTERM, partial(sig_handler, server))
-    signal.signal(signal.SIGINT, partial(sig_handler, server))
-
-    tornado.ioloop.IOLoop.instance().start()
-
-    logging.info(&quot;Exit...&quot;)
-
-
-if __name__ == &quot;__main__&quot;:
-    main()
-</code></pre>
+<p>&rdquo;`</p>
 
 </div>
 </body>

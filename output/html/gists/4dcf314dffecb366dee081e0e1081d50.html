@@ -3,20 +3,34 @@
 <head>
 <meta charset="utf-8">
 <title>[Python Flame Graph with pyflame] #pyflame #flame #graph #python</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="python-flame-graph-with-pyflame-pyflame-flame-graph-python">[Python Flame Graph with pyflame] #pyflame #flame #graph #python</h1>
+
+<h2 id="2-app-py">2. app.py</h2>
+
+<pre><code class="language-python">def foo():
+    return 1 + 1
+
+
+def get_number():
+    foo()
+    for i in range(10000000):
+        yield i
+
+
+def expensive_function():
+    for n in get_number():
+        r = n ^ n ^ n
+    return f&quot;some result! {r}&quot;
+
+
+result = expensive_function()
+print(result)
+</code></pre>
 
 <h2 id="1-python-flame-graph-with-pyflame-dockerfile">1. Python Flame Graph with pyflame-Dockerfile</h2>
 
@@ -43,28 +57,6 @@ CMD /pyflame/pyflame/src/pyflame -o prof.txt -t python app.py &amp;&amp;\
 
 # docker build -t pyflame .
 # docker run --privileged pyflame &gt; output.svg &amp;&amp; tail -n+2 output.svg &gt; output_stripped.svg
-</code></pre>
-
-<h2 id="2-app-py">2. app.py</h2>
-
-<pre><code class="language-python">def foo():
-    return 1 + 1
-
-
-def get_number():
-    foo()
-    for i in range(10000000):
-        yield i
-
-
-def expensive_function():
-    for n in get_number():
-        r = n ^ n ^ n
-    return f&quot;some result! {r}&quot;
-
-
-result = expensive_function()
-print(result)
 </code></pre>
 
 </div>

@@ -3,46 +3,16 @@
 <head>
 <meta charset="utf-8">
 <title>[Go: new vs make] #go #golang #memory #mem #allocation #allocate</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="go-new-vs-make-go-golang-memory-mem-allocation-allocate">[Go: new vs make] #go #golang #memory #mem #allocation #allocate</h1>
 
-<h2 id="1-readme-md">1. README.md</h2>
+<h2 id="main-go">main.go</h2>
 
-<pre><code class="language-markdown">- https://golang.org/ref/spec#Allocation
-- https://golang.org/ref/spec#The_zero_value
-- https://golang.org/doc/effective_go#allocation_new
-- https://golang.org/doc/effective_go#allocation_make
-
-## Summary
-
-- `make`: allocates memory to hold a built-in type (slice, map or channel) with `len` and `cap` (capacity) set accordingly to the type's zero value (immediately usable).
-- `new`: allocates memory to hold both built-in and custom user types with fields zeroed, not immediately usable for some types.
-
-&gt; **NOTE**: This means `t := new(T)` and `var t *T` are equivalent.  
-
-**Example**:
-```go
-m := new(int)
-fmt.Printf(&quot;%+v | %p | %T\n&quot;, *m, m, m) // 0 | 0xc000110008 | *int`
-</code></pre>
-
-<pre><code>
-## main.go
-
-```go
-package main
+<pre><code class="language-go">package main
 
 import (
 	&quot;fmt&quot;
@@ -78,6 +48,28 @@ func main() {
 
 }
 </code></pre>
+
+<h2 id="1-readme-md">1. README.md</h2>
+
+<pre><code class="language-markdown">- https://golang.org/ref/spec#Allocation
+- https://golang.org/ref/spec#The_zero_value
+- https://golang.org/doc/effective_go#allocation_new
+- https://golang.org/doc/effective_go#allocation_make
+
+## Summary
+
+- `make`: allocates memory to hold a built-in type (slice, map or channel) with `len` and `cap` (capacity) set accordingly to the type's zero value (immediately usable).
+- `new`: allocates memory to hold both built-in and custom user types with fields zeroed, not immediately usable for some types.
+
+&gt; **NOTE**: This means `t := new(T)` and `var t *T` are equivalent.  
+
+**Example**:
+```go
+m := new(int)
+fmt.Printf(&quot;%+v | %p | %T\n&quot;, *m, m, m) // 0 | 0xc000110008 | *int`
+</code></pre>
+
+<p>&rdquo;`</p>
 
 </div>
 </body>

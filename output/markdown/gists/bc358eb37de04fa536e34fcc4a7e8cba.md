@@ -1,5 +1,19 @@
 # [Perl add language to markdown code block] #perl #regex #codeblock #markdown
 
+## cli.md
+
+```markdown
+```bash
+# Ensure all code blocks without a language get 'plain' appended.
+# NOTE: constraint is that there needs to be an empty line preceding the code block.
+cat file.mdx | perl -pe 'BEGIN { undef $/ }; s/(?<=^\n)(```)(\n.+?```)/\1plain\2/s'
+```
+
+> **NOTE**: The Perl variable `$/` stores the line ending, used for processing files line-by-line. By calling `undef` on it, we cause Perl to slurp the entire file all in one string at once for us to process.
+>
+> **WARNING**: If the code block has a non-empty preceding line, and the contents of the code block has an empty line before the closing code fence, then the current pattern will accidentally match. So if that's the case, we need to ensure all code blocks don't have an unnecessary empty line at the bottom of them.
+```
+
 ## file.mdx
 
 ```mdx
@@ -37,19 +51,5 @@ One more time, let's see an expected code block match:
 ```
 some stuff
 ```
-```
-
-## cli.md
-
-```markdown
-```bash
-# Ensure all code blocks without a language get 'plain' appended.
-# NOTE: constraint is that there needs to be an empty line preceding the code block.
-cat file.mdx | perl -pe 'BEGIN { undef $/ }; s/(?<=^\n)(```)(\n.+?```)/\1plain\2/s'
-```
-
-> **NOTE**: The Perl variable `$/` stores the line ending, used for processing files line-by-line. By calling `undef` on it, we cause Perl to slurp the entire file all in one string at once for us to process.
->
-> **WARNING**: If the code block has a non-empty preceding line, and the contents of the code block has an empty line before the closing code fence, then the current pattern will accidentally match. So if that's the case, we need to ensure all code blocks don't have an unnecessary empty line at the bottom of them.
 ```
 

@@ -3,20 +3,215 @@
 <head>
 <meta charset="utf-8">
 <title>[Go basic middleware abstraction] #go #golang #middleware</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="go-basic-middleware-abstraction-go-golang-middleware">[Go basic middleware abstraction] #go #golang #middleware</h1>
+
+<h2 id="5-logging-go">5. logging.go</h2>
+
+<pre><code class="language-go">package logging
+
+import (
+	&quot;context&quot;
+	&quot;io&quot;
+	&quot;log&quot;
+	&quot;log/slog&quot;
+	&quot;net/http&quot;
+	&quot;os&quot;
+	&quot;path/filepath&quot;
+	&quot;regexp&quot;
+	&quot;strconv&quot;
+	&quot;strings&quot;
+
+	h &quot;github.com/org/repo/internal/http&quot;
+	&quot;github.com/org/repo/internal/traces&quot;
+)
+
+// Level allows dynamically changing the output level via .Set() method.
+// Defaults to [slog.LevelInfo].
+var Level = new(slog.LevelVar)
+
+// routePattern matches the content inside curly brackets.
+var routePattern = regexp.MustCompile(`\{([^{}]+)\}`)
+
+// Logger describes the set of features we want to expose from log/slog.
+//
+// NOTE: Don't confuse our custom With() signature with (*slog.Logger).With
+// We return a Logger type where the standard library returns a *slog.Logger
+type Logger interface {
+	Enabled(ctx context.Context, level slog.Level) bool
+	LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr)
+	With(args ...any) Logger
+	_private()
+}
+
+// NewLogger returns a logging.Logger configured for stderr.
+func NewLogger() Logger {
+	return NewLoggerWithOutputLevel(os.Stdout, Level)
+}
+
+// NewLoggerWithOutput returns a [Logger] configured with an output writer.
+func NewLoggerWithOutput(w io.Writer) Logger {
+	return (*logger)(slog.New(slog.NewJSONHandler(w, defaultOptions()).WithAttrs(defaultAttrs())))
+}
+
+// NewLoggerWithOutputLevel returns a [Logger] configured with an output writer and Level.
+func NewLoggerWithOutputLevel(w io.Writer, l slog.Leveler) Logger {
+	opts := defaultOptions()
+	opts.Level = l
+	return (*logger)(slog.New(slog.NewJSONHandler(w, opts).WithAttrs(defaultAttrs())))
+}
+
+// NewBareLoggerWithOutputLevel returns a [Logger] configured with an output location and [slog.Leveler].
+// It does not include any additional attributes.
+func NewBareLoggerWithOutputLevel(w io.Writer, l slog.Leveler) Logger {
+	opts := defaultOptions()
+	opts.Level = l
+	return (*logger)(slog.New(slog.NewJSONHandler(w, opts)))
+}
+
+// nolint:revive
+//
+//lint:ignore U1000 Prevents any other package from implementing this interface
+type private struct{} //nolint:unused
+
+// IMPORTANT: logger is an alias to slog.Logger to avoid a double-pointer deference.
+// All methods off the type will need to type-cast a *logger to *slog.Logger.
+// With() must additionally type-cast back to a Logger compatible type.
+type logger slog.Logger
+
+func (*logger) _private() {}
+
+func (l *logger) Enabled(ctx context.Context, level slog.Level) bool {
+	return (*slog.Logger)(l).Enabled(ctx, level)
+}
+
+func (l *logger) LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr) {
+	(*slog.Logger)(l).LogAttrs(ctx, level, msg, attrs...)
+}
+
+func (l *logger) With(args ...any) Logger {
+	return (*logger)((*slog.Logger)(l).With(args...))
+}
+
+// Adapt returns a [log.Logger] for use with packages that are not yet compatible with
+// [log/slog].
+func Adapt(l Logger, level slog.Level) *log.Logger {
+	// _private() ensures this type assertion cannot panic.
+	slogger := (*slog.Logger)(l.(*logger)) //nolint:revive,forcetypeassert
+	return slog.NewLogLogger(slogger.Handler(), level)
+}
+
+func defaultOptions() *slog.HandlerOptions {
+	return &amp;slog.HandlerOptions{
+		AddSource:   true,
+		ReplaceAttr: slogReplaceAttr,
+		Level:       Level,
+	}
+}
+
+func defaultAttrs() []slog.Attr {
+	return []slog.Attr{slog.Group(&quot;app&quot;,
+		slog.String(&quot;name&quot;, build.Info.Project),
+		slog.String(&quot;version&quot;, build.Info.Version),
+	)}
+}
+
+// NullLogger discards logs.
+func NullLogger() Logger {
+	// NOTE: We pass a level not currently defined to reduce operational overhead.
+	// The intent, unlike passing nil for the opts argument, is for the logger to
+	// not even bother generating a message that will just be discarded.
+	// An additional gap of 4 was used as it aligns with Go's original design.
+	// https://github.com/golang/go/blob/1e95fc7/src/log/slog/level.go#L34-L42
+	return (*logger)(slog.New(slog.NewTextHandler(io.Discard, &amp;slog.HandlerOptions{Level: slog.LevelError + 4}))) //nolint:gomnd
+}
+
+// slogReplaceAttr adjusts the log output.
+//
+// - Restricts these changes to top-level keys (not keys within groups)
+//   - Changes default time field value to UTC time zone
+//   - Replaces msg key with event
+//   - Omits event field if empty
+//   - Omits error field if when nil
+//   - Truncates source's filename to example-app directory
+//
+// - Formats duration and delay values in microseconds as xxxxµs
+//
+// See https://pkg.go.dev/log/slog#HandlerOptions.ReplaceAttr
+// N.B: TextHandler manages quoting attribute values as necessary.
+func slogReplaceAttr(groups []string, a slog.Attr) slog.Attr {
+	// Limit application of these rules only to top-level keys
+	if len(groups) == 0 {
+		// Set time zone to UTC
+		if a.Key == slog.TimeKey {
+			a.Value = slog.TimeValue(a.Value.Time().UTC())
+			return a
+		}
+		// Use event as the default MessageKey, remove if empty
+		if a.Key == slog.MessageKey {
+			a.Key = &quot;event&quot;
+			if a.Value.String() == &quot;&quot; {
+				return slog.Attr{}
+			}
+			return a
+		}
+		// Display a 'partial' path.
+		// Avoids ambiguity when multiple files have the same name across packages.
+		// e.g. billing.go appears under 'global', 'billing' and 'server' packages.
+		if a.Key == slog.SourceKey {
+			if source, ok := a.Value.Any().(*slog.Source); ok {
+				a.Key = &quot;caller&quot;
+				if _, after, ok := strings.Cut(source.File, &quot;example-app&quot;+string(filepath.Separator)); ok {
+					source.File = after
+				}
+			}
+			return a
+		}
+	}
+
+	// Remove error key=value when error is nil
+	if a.Equal(slog.Any(&quot;error&quot;, error(nil))) {
+		return slog.Attr{}
+	}
+
+	// Present durations and delays as xxxxµs
+	switch a.Key {
+	case &quot;dur&quot;, &quot;delay&quot;, &quot;p95&quot;, &quot;previous_p95&quot;, &quot;remaining&quot;, &quot;max_wait&quot;:
+		a.Value = slog.StringValue(strconv.FormatInt(a.Value.Duration().Microseconds(), 10) + &quot;µs&quot;)
+	}
+
+	return a
+}
+
+// WithRoutePattern logs the http handler with the route pattern.
+func WithRoutePattern(mux *http.ServeMux, logger Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := h.ContextWithRoutePattern(mux, r)
+			route, _ := h.RoutePatternFromContext(ctx) //nolint:contextcheck
+			attrs := []any{
+				slog.String(&quot;pattern&quot;, route),
+			}
+			segments := routePattern.FindAllStringSubmatch(route, -1)
+			for _, seg := range segments {
+				if len(seg) == 2 { //nolint:gomnd
+					key := seg[1]
+					attrs = append(attrs, slog.String(key, r.PathValue(key)))
+				}
+			}
+			if traceID := traces.GetTraceID(ctx); traceID != &quot;&quot; { //nolint:contextcheck
+				logger = logger.With(slog.String(&quot;trace_id&quot;, traceID))
+			}
+			logger.LogAttrs(r.Context(), slog.LevelInfo, &quot;handler_called&quot;, slog.Group(&quot;request&quot;, attrs...))
+			next.ServeHTTP(w, r.WithContext(ctx)) //nolint:contextcheck
+		})
+	}
+}
+</code></pre>
 
 <h2 id="6-http-go">6. http.go</h2>
 
@@ -865,209 +1060,6 @@ func app() error {
 	}
 
 	return nil
-}
-</code></pre>
-
-<h2 id="5-logging-go">5. logging.go</h2>
-
-<pre><code class="language-go">package logging
-
-import (
-	&quot;context&quot;
-	&quot;io&quot;
-	&quot;log&quot;
-	&quot;log/slog&quot;
-	&quot;net/http&quot;
-	&quot;os&quot;
-	&quot;path/filepath&quot;
-	&quot;regexp&quot;
-	&quot;strconv&quot;
-	&quot;strings&quot;
-
-	h &quot;github.com/org/repo/internal/http&quot;
-	&quot;github.com/org/repo/internal/traces&quot;
-)
-
-// Level allows dynamically changing the output level via .Set() method.
-// Defaults to [slog.LevelInfo].
-var Level = new(slog.LevelVar)
-
-// routePattern matches the content inside curly brackets.
-var routePattern = regexp.MustCompile(`\{([^{}]+)\}`)
-
-// Logger describes the set of features we want to expose from log/slog.
-//
-// NOTE: Don't confuse our custom With() signature with (*slog.Logger).With
-// We return a Logger type where the standard library returns a *slog.Logger
-type Logger interface {
-	Enabled(ctx context.Context, level slog.Level) bool
-	LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr)
-	With(args ...any) Logger
-	_private()
-}
-
-// NewLogger returns a logging.Logger configured for stderr.
-func NewLogger() Logger {
-	return NewLoggerWithOutputLevel(os.Stdout, Level)
-}
-
-// NewLoggerWithOutput returns a [Logger] configured with an output writer.
-func NewLoggerWithOutput(w io.Writer) Logger {
-	return (*logger)(slog.New(slog.NewJSONHandler(w, defaultOptions()).WithAttrs(defaultAttrs())))
-}
-
-// NewLoggerWithOutputLevel returns a [Logger] configured with an output writer and Level.
-func NewLoggerWithOutputLevel(w io.Writer, l slog.Leveler) Logger {
-	opts := defaultOptions()
-	opts.Level = l
-	return (*logger)(slog.New(slog.NewJSONHandler(w, opts).WithAttrs(defaultAttrs())))
-}
-
-// NewBareLoggerWithOutputLevel returns a [Logger] configured with an output location and [slog.Leveler].
-// It does not include any additional attributes.
-func NewBareLoggerWithOutputLevel(w io.Writer, l slog.Leveler) Logger {
-	opts := defaultOptions()
-	opts.Level = l
-	return (*logger)(slog.New(slog.NewJSONHandler(w, opts)))
-}
-
-// nolint:revive
-//
-//lint:ignore U1000 Prevents any other package from implementing this interface
-type private struct{} //nolint:unused
-
-// IMPORTANT: logger is an alias to slog.Logger to avoid a double-pointer deference.
-// All methods off the type will need to type-cast a *logger to *slog.Logger.
-// With() must additionally type-cast back to a Logger compatible type.
-type logger slog.Logger
-
-func (*logger) _private() {}
-
-func (l *logger) Enabled(ctx context.Context, level slog.Level) bool {
-	return (*slog.Logger)(l).Enabled(ctx, level)
-}
-
-func (l *logger) LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr) {
-	(*slog.Logger)(l).LogAttrs(ctx, level, msg, attrs...)
-}
-
-func (l *logger) With(args ...any) Logger {
-	return (*logger)((*slog.Logger)(l).With(args...))
-}
-
-// Adapt returns a [log.Logger] for use with packages that are not yet compatible with
-// [log/slog].
-func Adapt(l Logger, level slog.Level) *log.Logger {
-	// _private() ensures this type assertion cannot panic.
-	slogger := (*slog.Logger)(l.(*logger)) //nolint:revive,forcetypeassert
-	return slog.NewLogLogger(slogger.Handler(), level)
-}
-
-func defaultOptions() *slog.HandlerOptions {
-	return &amp;slog.HandlerOptions{
-		AddSource:   true,
-		ReplaceAttr: slogReplaceAttr,
-		Level:       Level,
-	}
-}
-
-func defaultAttrs() []slog.Attr {
-	return []slog.Attr{slog.Group(&quot;app&quot;,
-		slog.String(&quot;name&quot;, build.Info.Project),
-		slog.String(&quot;version&quot;, build.Info.Version),
-	)}
-}
-
-// NullLogger discards logs.
-func NullLogger() Logger {
-	// NOTE: We pass a level not currently defined to reduce operational overhead.
-	// The intent, unlike passing nil for the opts argument, is for the logger to
-	// not even bother generating a message that will just be discarded.
-	// An additional gap of 4 was used as it aligns with Go's original design.
-	// https://github.com/golang/go/blob/1e95fc7/src/log/slog/level.go#L34-L42
-	return (*logger)(slog.New(slog.NewTextHandler(io.Discard, &amp;slog.HandlerOptions{Level: slog.LevelError + 4}))) //nolint:gomnd
-}
-
-// slogReplaceAttr adjusts the log output.
-//
-// - Restricts these changes to top-level keys (not keys within groups)
-//   - Changes default time field value to UTC time zone
-//   - Replaces msg key with event
-//   - Omits event field if empty
-//   - Omits error field if when nil
-//   - Truncates source's filename to example-app directory
-//
-// - Formats duration and delay values in microseconds as xxxxµs
-//
-// See https://pkg.go.dev/log/slog#HandlerOptions.ReplaceAttr
-// N.B: TextHandler manages quoting attribute values as necessary.
-func slogReplaceAttr(groups []string, a slog.Attr) slog.Attr {
-	// Limit application of these rules only to top-level keys
-	if len(groups) == 0 {
-		// Set time zone to UTC
-		if a.Key == slog.TimeKey {
-			a.Value = slog.TimeValue(a.Value.Time().UTC())
-			return a
-		}
-		// Use event as the default MessageKey, remove if empty
-		if a.Key == slog.MessageKey {
-			a.Key = &quot;event&quot;
-			if a.Value.String() == &quot;&quot; {
-				return slog.Attr{}
-			}
-			return a
-		}
-		// Display a 'partial' path.
-		// Avoids ambiguity when multiple files have the same name across packages.
-		// e.g. billing.go appears under 'global', 'billing' and 'server' packages.
-		if a.Key == slog.SourceKey {
-			if source, ok := a.Value.Any().(*slog.Source); ok {
-				a.Key = &quot;caller&quot;
-				if _, after, ok := strings.Cut(source.File, &quot;example-app&quot;+string(filepath.Separator)); ok {
-					source.File = after
-				}
-			}
-			return a
-		}
-	}
-
-	// Remove error key=value when error is nil
-	if a.Equal(slog.Any(&quot;error&quot;, error(nil))) {
-		return slog.Attr{}
-	}
-
-	// Present durations and delays as xxxxµs
-	switch a.Key {
-	case &quot;dur&quot;, &quot;delay&quot;, &quot;p95&quot;, &quot;previous_p95&quot;, &quot;remaining&quot;, &quot;max_wait&quot;:
-		a.Value = slog.StringValue(strconv.FormatInt(a.Value.Duration().Microseconds(), 10) + &quot;µs&quot;)
-	}
-
-	return a
-}
-
-// WithRoutePattern logs the http handler with the route pattern.
-func WithRoutePattern(mux *http.ServeMux, logger Logger) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := h.ContextWithRoutePattern(mux, r)
-			route, _ := h.RoutePatternFromContext(ctx) //nolint:contextcheck
-			attrs := []any{
-				slog.String(&quot;pattern&quot;, route),
-			}
-			segments := routePattern.FindAllStringSubmatch(route, -1)
-			for _, seg := range segments {
-				if len(seg) == 2 { //nolint:gomnd
-					key := seg[1]
-					attrs = append(attrs, slog.String(key, r.PathValue(key)))
-				}
-			}
-			if traceID := traces.GetTraceID(ctx); traceID != &quot;&quot; { //nolint:contextcheck
-				logger = logger.With(slog.String(&quot;trace_id&quot;, traceID))
-			}
-			logger.LogAttrs(r.Context(), slog.LevelInfo, &quot;handler_called&quot;, slog.Group(&quot;request&quot;, attrs...))
-			next.ServeHTTP(w, r.WithContext(ctx)) //nolint:contextcheck
-		})
-	}
 }
 </code></pre>
 

@@ -3,20 +3,63 @@
 <head>
 <meta charset="utf-8">
 <title>Ruby Meta Programming</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="ruby-meta-programming">Ruby Meta Programming</h1>
+
+<h2 id="01-dynamic-dispatch-rb">01. Dynamic Dispatch.rb</h2>
+
+<pre><code class="language-ruby"># Dynamic Dispatch
+# Allows us to send messages to even private methods
+# object.send(message, *arguments)
+1.send(:+, 2) # =&gt; 3
+</code></pre>
+
+<h2 id="08-context-probe-rb">08. Context Probe.rb</h2>
+
+<pre><code class="language-ruby"># Context Probe
+# Execute a code block in the context of another object using `instance_eval`
+class Foo
+  def initialize
+    @z = 1
+  end
+end
+foo = Foo.new
+foo.instance_eval do
+  puts self # =&gt; #&lt;Foo:0x7d15e891&gt;
+  puts @z # =&gt; 1
+end
+new_value = 2
+foo.instance_eval { @z = new_value }
+foo.instance_eval { puts @z } # =&gt; 2
+
+# There is also `instance_exec` which works the same way but allows passing arguments to the block
+class Foo
+  def initialize
+    @x, @y = 1, 2
+  end
+end
+Foo.new.instance_exec(3) { |arg| (@x + @y) * arg } # =&gt; 9
+</code></pre>
+
+<h2 id="03-ghost-methods-rb">03. Ghost Methods.rb</h2>
+
+<pre><code class="language-ruby"># Ghost Methods
+# Utilises `method_missing`
+class Hai
+  def method_missing(method, *args)
+    puts &quot;You called: #{method}(#{args.join(', ')})&quot;
+    puts &quot;You also passed a block&quot; if block_given?
+  end
+end
+Hai.new.yolo # =&gt; You called: yolo()
+Hai.new.yolo &quot;a&quot;, 123, :c # =&gt; You called: yolo(a, 123, c)
+Hai.new.yolo(:a, :b, :c) { puts &quot;a block&quot; } # =&gt; You called: yolo(a, b, c)
+                                            # =&gt; You also passed a block
+</code></pre>
 
 <h2 id="04-dynamic-proxies-rb">04. Dynamic Proxies.rb</h2>
 
@@ -38,26 +81,72 @@ end
 # the message has been received by `method_missing` the first time.
 </code></pre>
 
-<h2 id="06-kernel-method-rb">06. Kernel Method.rb</h2>
+<h2 id="13-class-extension-mixin-rb">13. Class Extension Mixin.rb</h2>
 
-<pre><code class="language-ruby"># Kernel Method
-# Add a method that gives the illusion it's a language keyword
-# But really it's just added to the `Kernel` module which all other objects inherit from.
-# At the top level of a Ruby program `self` is == `main`.
-# `self.class` == `Object` and the `Kernel` sits above it in the hierarchy.
-# You can see this by running the following code:
-class Foo; end
-Foo.ancestors # =&gt; [Foo, Object, Kernel, BasicObject]
+<pre><code class="language-ruby"># Class Extension Mixin allows you to both `include` and `extend` a class
+module MyMixin
+  def self.included(base) # Hook Method
+    base.extend(ClassMethods)
+  end
 
-# So we can see we can add what looks to be a language provided feature like so:
-module Kernel
-  def foobar
-    puts &quot;I'm not a language keyword, I'm just a fake&quot;
+  def a
+    puts &quot;I'm A (an instance method)&quot;
+  end
+
+  module ClassMethods # &quot;ClassMethods&quot; is a recognised naming pattern
+    def x
+      puts &quot;I'm X (a class method)&quot;
+    end
   end
 end
 
-# Now from any where in our program we can call
-foobar # =&gt; I'm not a language keyword, I'm just a fake
+class Foo
+  include MyMixin
+end
+
+Foo.x # =&gt; I'm X (a class method)
+Foo.new.a # =&gt; I'm A (an instance method)
+</code></pre>
+
+<h2 id="14-module-namespace-interpolation-rb">14. Module Namespace Interpolation.rb</h2>
+
+<pre><code class="language-ruby">type = &quot;baz&quot;
+Foo::Bar.const_get(type.capitalize).new # =&gt; new instance of Foo::Bar::Baz
+</code></pre>
+
+<h2 id="07-flattening-the-scope-aka-nested-lexical-scopes-rb">07. Flattening the Scope (aka Nested Lexical Scopes).rb</h2>
+
+<pre><code class="language-ruby"># Flattening the Scope (aka Nested Lexical Scopes)
+# Where you change the code in such a way that it's easier for you to pass variables through &quot;Scope Gates&quot;.
+# A scope gate is any block, where normally when you enter its scope the variables outside of it become unreachable.
+# This happens in: Class definitions, Module definitions, Method definitions
+# I'm not sure what the real life examples are of this, but if you ever wonder why some code does the following,
+# then maybe it was that they wanted to flatten the scope so they could more easily pass around variables.
+# I guess it's better to do it this way than to define a global variable?
+#
+# In the following code we want to access `my_var` from inside the method (inner scope gate) that's
+# inside the class (outer scope gate).
+my_var = &quot;abc&quot;
+class OuterScopeGate
+  puts my_var
+
+  def inner_scope_gate
+    puts my_var
+  end
+end
+
+# We fix this by flattening the code into method calls (method *calls* aren't scope gates)
+# So we turn the class keyword into a method call using `Class.new`
+# We also turn the method inside the class from a keyword into a method call using `define_method`
+my_var = &quot;abc&quot;
+MyClass = Class.new do
+  puts &quot;Here is 'my_var' inside my class definition: #{my_var}&quot;
+  
+  define_method :my_method do
+    puts &quot;Here is 'my_var' inside my class instance method: #{my_var}&quot;
+  end
+end # =&gt; Here is 'my_var' inside my class definition: abc
+MyClass.new.my_method # =&gt; Here is 'my_var' inside my class instance method: abc
 </code></pre>
 
 <h2 id="09-class-eval-rb">09. Class Eval.rb</h2>
@@ -101,120 +190,27 @@ end
 #=&gt; &quot;Length of string 'abc' is: 3&quot;
 </code></pre>
 
-<h2 id="01-dynamic-dispatch-rb">01. Dynamic Dispatch.rb</h2>
+<h2 id="0-ruby-meta-programming-spells-covered-md">0. Ruby Meta Programming - spells covered.md</h2>
 
-<pre><code class="language-ruby"># Dynamic Dispatch
-# Allows us to send messages to even private methods
-# object.send(message, *arguments)
-1.send(:+, 2) # =&gt; 3
+<pre><code class="language-markdown">- Dynamic Dispatch
+- Dynamic Method
+- Ghost Methods
+- Dynamic Proxies
+- Blank Slate
+- Kernel Method
+- Flattening the Scope (aka Nested Lexical Scopes)
+- Context Probe
+- Class Eval *(not really a 'spell' more just a demonstration of its usage)*
+- Class Macros
+- Around Alias
+- Hook Methods
+- Class Extension Mixin
+- Module Namespace Interpolation
 </code></pre>
 
-<h2 id="03-ghost-methods-rb">03. Ghost Methods.rb</h2>
+<h2 id="02-dynamic-method-rb">02. Dynamic Method.rb</h2>
 
-<pre><code class="language-ruby"># Ghost Methods
-# Utilises `method_missing`
-class Hai
-  def method_missing(method, *args)
-    puts &quot;You called: #{method}(#{args.join(', ')})&quot;
-    puts &quot;You also passed a block&quot; if block_given?
-  end
-end
-Hai.new.yolo # =&gt; You called: yolo()
-Hai.new.yolo &quot;a&quot;, 123, :c # =&gt; You called: yolo(a, 123, c)
-Hai.new.yolo(:a, :b, :c) { puts &quot;a block&quot; } # =&gt; You called: yolo(a, b, c)
-                                            # =&gt; You also passed a block
-</code></pre>
-
-<h2 id="07-flattening-the-scope-aka-nested-lexical-scopes-rb">07. Flattening the Scope (aka Nested Lexical Scopes).rb</h2>
-
-<pre><code class="language-ruby"># Flattening the Scope (aka Nested Lexical Scopes)
-# Where you change the code in such a way that it's easier for you to pass variables through &quot;Scope Gates&quot;.
-# A scope gate is any block, where normally when you enter its scope the variables outside of it become unreachable.
-# This happens in: Class definitions, Module definitions, Method definitions
-# I'm not sure what the real life examples are of this, but if you ever wonder why some code does the following,
-# then maybe it was that they wanted to flatten the scope so they could more easily pass around variables.
-# I guess it's better to do it this way than to define a global variable?
-#
-# In the following code we want to access `my_var` from inside the method (inner scope gate) that's
-# inside the class (outer scope gate).
-my_var = &quot;abc&quot;
-class OuterScopeGate
-  puts my_var
-
-  def inner_scope_gate
-    puts my_var
-  end
-end
-
-# We fix this by flattening the code into method calls (method *calls* aren't scope gates)
-# So we turn the class keyword into a method call using `Class.new`
-# We also turn the method inside the class from a keyword into a method call using `define_method`
-my_var = &quot;abc&quot;
-MyClass = Class.new do
-  puts &quot;Here is 'my_var' inside my class definition: #{my_var}&quot;
-  
-  define_method :my_method do
-    puts &quot;Here is 'my_var' inside my class instance method: #{my_var}&quot;
-  end
-end # =&gt; Here is 'my_var' inside my class definition: abc
-MyClass.new.my_method # =&gt; Here is 'my_var' inside my class instance method: abc
-</code></pre>
-
-<h2 id="12-hook-methods-md">12. Hook Methods.md</h2>
-
-<pre><code class="language-markdown">```rb
-# Hook Methods are provided by the Ruby language and let you know about certain events
-# such as when a class inherits from another class or when a method has been added to an object.
-class String
-  def self.inherited(subclass)
-    puts &quot;#{self} was inherited by #{subclass}&quot;
-  end
-end
-class MyString &lt; String; end # =&gt; String was inherited by MyString
-</code></pre>
-
-<p>There are quite a few hooks which I&rsquo;ve listed below.</p>
-
-<p><strong>Method-related hooks</strong></p>
-
-<pre><code>method_missing
-method_added
-singleton_method_added
-method_removed
-singleton_method_removed
-method_undefined
-singleton_method_undefined
-</code></pre>
-
-<p><strong>Class &amp; Module Hooks</strong></p>
-
-<pre><code>inherited
-append_features
-included
-extend_object
-extended
-initialize_copy
-const_missing
-</code></pre>
-
-<p><strong>Marshalling Hooks</strong></p>
-
-<pre><code>marshal_dump
-marshal_load
-</code></pre>
-
-<p><strong>Coercion Hooks</strong></p>
-
-<pre><code>coerce
-induced_from
-to_xxx
-</code></pre>
-
-<pre><code>
-## 02. Dynamic Method.rb
-
-```ruby
-# Dynamic Method
+<pre><code class="language-ruby"># Dynamic Method
 # Allows us to dynamically create methods
 # define_method :method_name { block that becomes method body }
 class Foo
@@ -301,6 +297,28 @@ class ImBlank
 end
 </code></pre>
 
+<h2 id="06-kernel-method-rb">06. Kernel Method.rb</h2>
+
+<pre><code class="language-ruby"># Kernel Method
+# Add a method that gives the illusion it's a language keyword
+# But really it's just added to the `Kernel` module which all other objects inherit from.
+# At the top level of a Ruby program `self` is == `main`.
+# `self.class` == `Object` and the `Kernel` sits above it in the hierarchy.
+# You can see this by running the following code:
+class Foo; end
+Foo.ancestors # =&gt; [Foo, Object, Kernel, BasicObject]
+
+# So we can see we can add what looks to be a language provided feature like so:
+module Kernel
+  def foobar
+    puts &quot;I'm not a language keyword, I'm just a fake&quot;
+  end
+end
+
+# Now from any where in our program we can call
+foobar # =&gt; I'm not a language keyword, I'm just a fake
+</code></pre>
+
 <h2 id="10-class-macros-rb">10. Class Macros.rb</h2>
 
 <pre><code class="language-ruby"># Class Macros are just regular class methods that are only used in a class definition 
@@ -332,83 +350,57 @@ class Foo
 end
 </code></pre>
 
-<h2 id="13-class-extension-mixin-rb">13. Class Extension Mixin.rb</h2>
+<h2 id="12-hook-methods-md">12. Hook Methods.md</h2>
 
-<pre><code class="language-ruby"># Class Extension Mixin allows you to both `include` and `extend` a class
-module MyMixin
-  def self.included(base) # Hook Method
-    base.extend(ClassMethods)
-  end
-
-  def a
-    puts &quot;I'm A (an instance method)&quot;
-  end
-
-  module ClassMethods # &quot;ClassMethods&quot; is a recognised naming pattern
-    def x
-      puts &quot;I'm X (a class method)&quot;
-    end
+<pre><code class="language-markdown">```rb
+# Hook Methods are provided by the Ruby language and let you know about certain events
+# such as when a class inherits from another class or when a method has been added to an object.
+class String
+  def self.inherited(subclass)
+    puts &quot;#{self} was inherited by #{subclass}&quot;
   end
 end
-
-class Foo
-  include MyMixin
-end
-
-Foo.x # =&gt; I'm X (a class method)
-Foo.new.a # =&gt; I'm A (an instance method)
+class MyString &lt; String; end # =&gt; String was inherited by MyString
 </code></pre>
 
-<h2 id="14-module-namespace-interpolation-rb">14. Module Namespace Interpolation.rb</h2>
+<p>There are quite a few hooks which I&rsquo;ve listed below.</p>
 
-<pre><code class="language-ruby">type = &quot;baz&quot;
-Foo::Bar.const_get(type.capitalize).new # =&gt; new instance of Foo::Bar::Baz
+<p><strong>Method-related hooks</strong></p>
+
+<pre><code>method_missing
+method_added
+singleton_method_added
+method_removed
+singleton_method_removed
+method_undefined
+singleton_method_undefined
 </code></pre>
 
-<h2 id="0-ruby-meta-programming-spells-covered-md">0. Ruby Meta Programming - spells covered.md</h2>
+<p><strong>Class &amp; Module Hooks</strong></p>
 
-<pre><code class="language-markdown">- Dynamic Dispatch
-- Dynamic Method
-- Ghost Methods
-- Dynamic Proxies
-- Blank Slate
-- Kernel Method
-- Flattening the Scope (aka Nested Lexical Scopes)
-- Context Probe
-- Class Eval *(not really a 'spell' more just a demonstration of its usage)*
-- Class Macros
-- Around Alias
-- Hook Methods
-- Class Extension Mixin
-- Module Namespace Interpolation
+<pre><code>inherited
+append_features
+included
+extend_object
+extended
+initialize_copy
+const_missing
 </code></pre>
 
-<h2 id="08-context-probe-rb">08. Context Probe.rb</h2>
+<p><strong>Marshalling Hooks</strong></p>
 
-<pre><code class="language-ruby"># Context Probe
-# Execute a code block in the context of another object using `instance_eval`
-class Foo
-  def initialize
-    @z = 1
-  end
-end
-foo = Foo.new
-foo.instance_eval do
-  puts self # =&gt; #&lt;Foo:0x7d15e891&gt;
-  puts @z # =&gt; 1
-end
-new_value = 2
-foo.instance_eval { @z = new_value }
-foo.instance_eval { puts @z } # =&gt; 2
-
-# There is also `instance_exec` which works the same way but allows passing arguments to the block
-class Foo
-  def initialize
-    @x, @y = 1, 2
-  end
-end
-Foo.new.instance_exec(3) { |arg| (@x + @y) * arg } # =&gt; 9
+<pre><code>marshal_dump
+marshal_load
 </code></pre>
+
+<p><strong>Coercion Hooks</strong></p>
+
+<pre><code>coerce
+induced_from
+to_xxx
+</code></pre>
+
+<p>&rdquo;`</p>
 
 </div>
 </body>

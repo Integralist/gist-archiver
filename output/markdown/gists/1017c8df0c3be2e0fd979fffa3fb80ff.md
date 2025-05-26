@@ -1,25 +1,5 @@
 # Configure Wrk https://github.com/wg/wrk (brew install wrk) with Lua to execute against multiple URLs
 
-## 1. Usage.sh
-
-```shell
-$ docker run --rm -v "$(pwd)/multi-request-json.lua":/multi-request-json.lua -v "$(pwd)/requests.json":/requests.json czerasz/wrk-json wrk -c1 -t1 -d5s -s /multi-request-json.lua https://www.example.com
-
-multiplerequests: Found 2 requests
-multiplerequests: Found 2 requests
-
-Running 5s test @ https://www.example.com
-
-  1 threads and 1 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   887.09ms  415.48ms   1.36s    60.00%
-    Req/Sec     0.60      0.55     1.00     60.00%
-  5 requests in 5.10s, 1.54MB read
-
-Requests/sec:      0.98
-Transfer/sec:    309.12KB
-```
-
 ## Dockerfile
 
 ```dockerfile
@@ -192,5 +172,25 @@ end
     }
   }
 ]
+```
+
+## 1. Usage.sh
+
+```shell
+$ docker run --rm -v "$(pwd)/multi-request-json.lua":/multi-request-json.lua -v "$(pwd)/requests.json":/requests.json czerasz/wrk-json wrk -c1 -t1 -d5s -s /multi-request-json.lua https://www.example.com
+
+multiplerequests: Found 2 requests
+multiplerequests: Found 2 requests
+
+Running 5s test @ https://www.example.com
+
+  1 threads and 1 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   887.09ms  415.48ms   1.36s    60.00%
+    Req/Sec     0.60      0.55     1.00     60.00%
+  5 requests in 5.10s, 1.54MB read
+
+Requests/sec:      0.98
+Transfer/sec:    309.12KB
 ```
 

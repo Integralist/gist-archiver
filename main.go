@@ -10,7 +10,10 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
+	"sort" // <-- Added for sorting
 	"strings"
+	"sync"
 	"time"
 
 	md "github.com/gomarkdown/markdown"
@@ -19,17 +22,125 @@ import (
 )
 
 const (
-	apiBaseURL      = "https://api.github.com"
-	gistsHtmlSubDir = "gists"
-	gistsMdSubDir   = "gists"
-	gistsPerPage    = 100
-	githubUsername  = "integralist"
-	htmlBaseDir     = "output/html"
-	markdownBaseDir = "output/markdown"
+	apiBaseURL           = "https://api.github.com"
+	gistsHtmlSubDir      = "gists"
+	gistsMdSubDir        = "gists"
+	gistsPerPage         = 100
+	githubUsername       = "integralist" // Replace if needed
+	htmlBaseDir          = "output/html"
+	markdownBaseDir      = "output/markdown"
+	assetsBaseDir        = "output/assets"
+	cssDir               = "css"
+	cssFileName          = "styles.css"
+	maxConcurrentFetches = 10
 )
 
+const cssContent = `
+/* General body and container styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    margin: 20px;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+}
+
+/* Headings */
+h1, h2 {
+    color: #333;
+    border-bottom: 1px solid #eaecef;
+    padding-bottom: 0.3em;
+    margin-top: 24px;
+    margin-bottom: 16px;
+}
+
+h1:first-child, h2:first-child {
+    margin-top: 0;
+}
+
+h1 {
+    font-size: 2em;
+}
+
+h2 { /* For filenames */
+    font-size: 1.5em;
+}
+
+/* Links */
+a {
+    color: #0366d6;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Index Page List */
+.container > ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.container > ul > li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+.container > ul > li:last-child {
+    border-bottom: none;
+}
+.container > ul > li > small.date { /* Style for the date */
+    display: block;
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 4px;
+}
+
+
+/* Gist page specific "back to index" link */
+a.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+}
+
+/* Code blocks */
+pre {
+    background-color: #f6f8fa;
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    margin-bottom: 16px;
+}
+
+code {
+    font-family: 'SFMono-Regular', Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: inherit;
+}
+
+:not(pre) > code {
+  padding: .2em .4em;
+  margin: 0 2px;
+  font-size: 85%;
+  background-color: rgba(27,31,35,0.07);
+  border-radius: 3px;
+}
+`
+
 var (
-	httpClient = &http.Client{Timeout: 20 * time.Second}
+	httpClient = &http.Client{Timeout: 30 * time.Second}
 	linkRegex  = regexp.MustCompile(`<([^>]+)>;\s*rel="next"`)
 )
 
@@ -39,10 +150,10 @@ type GistListEntry struct {
 	Description string                  `json:"description"`
 	Public      bool                    `json:"public"`
 	Owner       GistOwner               `json:"owner"`
-	Files       map[string]GistListFile `json:"files"` // to get a fallback title if description is empty
+	Files       map[string]GistListFile `json:"files"`
+	// CreatedAt   string             `json:"created_at"` // Could get from list, but detail is more robust
 }
 
-// GistListFile provides minimal file info from the list endpoint
 type GistListFile struct {
 	Filename string `json:"filename"`
 }
@@ -54,19 +165,19 @@ type GistDetail struct {
 	Public      bool                `json:"public"`
 	Owner       GistOwner           `json:"owner"`
 	Files       map[string]GistFile `json:"files"`
+	CreatedAt   string              `json:"created_at"` // <-- Added to get creation date
+	UpdatedAt   string              `json:"updated_at"` // Also available
 }
 
-// GistFile represents a file within a Gist, including its content
 type GistFile struct {
 	Filename  string `json:"filename"`
 	Language  string `json:"language"`
 	Content   string `json:"content"`
-	RawURL    string `json:"raw_url"` // optional fallback if content is missing
+	RawURL    string `json:"raw_url"`
 	Size      int    `json:"size"`
-	Truncated bool   `json:"truncated"` // indicates if content is too large for direct inclusion
+	Truncated bool   `json:"truncated"`
 }
 
-// GistOwner represents the owner of a Gist
 type GistOwner struct {
 	Login string `json:"login"`
 }
@@ -74,153 +185,9 @@ type GistOwner struct {
 // IndexEntry holds info for the index file
 type IndexEntry struct {
 	Title        string
-	MarkdownPath string // Relative to markdownBaseDir
-	HTMLPath     string // Relative to htmlBaseDir
-}
-
-func main() {
-	log.Printf("Starting gist archival for user: %s", githubUsername)
-
-	// Create base output directories
-	if err := os.MkdirAll(filepath.Join(markdownBaseDir, gistsMdSubDir), 0755); err != nil {
-		log.Fatalf("Failed to create markdown output directory: %v", err)
-	}
-	if err := os.MkdirAll(filepath.Join(htmlBaseDir, gistsHtmlSubDir), 0755); err != nil {
-		log.Fatalf("Failed to create HTML output directory: %v", err)
-	}
-
-	// 1. Fetch all Gist details
-	allGists, err := fetchAllGistDetails(githubUsername)
-	if err != nil {
-		log.Fatalf("Error fetching gists: %v", err)
-	}
-
-	if len(allGists) == 0 {
-		log.Println("No public gists found for this user.")
-		// Create empty index files if no gists
-		emptyEntries := []IndexEntry{}
-		_, err = generateIndexMarkdown(emptyEntries)
-		if err != nil {
-			log.Printf("Error generating empty markdown index: %v", err)
-		} else {
-			err = convertMarkdownToHTML(filepath.Join(markdownBaseDir, "index.md"), filepath.Join(htmlBaseDir, "index.html"))
-			if err != nil {
-				log.Printf("Error converting empty markdown index to HTML: %v", err)
-			}
-		}
-		return
-	}
-
-	// 2. Generate individual Markdown files for each Gist
-	var indexEntries []IndexEntry
-	for _, gist := range allGists {
-		if !gist.Public { // Double-check, though API should only return public ones
-			continue
-		}
-		relativeMdPath, err := generateGistMarkdownFile(gist)
-		if err != nil {
-			log.Printf("Error generating markdown for gist %s: %v. Skipping.", gist.ID, err)
-			continue
-		}
-		title := getGistTitle(gist)
-		indexEntries = append(indexEntries, IndexEntry{
-			Title:        title,
-			MarkdownPath: filepath.ToSlash(relativeMdPath), // Ensure forward slashes for web/md links
-			HTMLPath:     filepath.ToSlash(strings.Replace(relativeMdPath, ".md", ".html", 1)),
-		})
-	}
-
-	// 3. Generate Index Markdown file
-	relativeIndexMdPath, err := generateIndexMarkdown(indexEntries)
-	if err != nil {
-		log.Fatalf("Error generating index.md: %v", err)
-	}
-
-	// 4. Convert Markdown to HTML
-	// Convert index.md to index.html
-	fullIndexHtmlPath := filepath.Join(htmlBaseDir, strings.Replace(relativeIndexMdPath, ".md", ".html", 1))
-
-	var htmlIndexContent strings.Builder
-	htmlIndexContent.WriteString("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n")
-	htmlIndexContent.WriteString("<title>My Gists Archive</title>\n")
-	// Basic styling
-	htmlIndexContent.WriteString("<style>\n")
-	htmlIndexContent.WriteString("body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }\n")
-	htmlIndexContent.WriteString("h1, h2 { color: #333; }\n")
-	htmlIndexContent.WriteString(".container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }\n")
-	htmlIndexContent.WriteString("ul {}\n")
-	htmlIndexContent.WriteString("li a { text-decoration: none; color: #007bff; }\n")
-	htmlIndexContent.WriteString("li a:hover { text-decoration: underline; }\n")
-	htmlIndexContent.WriteString("pre { background: #eee; padding: 10px; border-radius: 4px; overflow-x: auto; }\n")
-	htmlIndexContent.WriteString("code { font-family: monospace; }\n")
-	htmlIndexContent.WriteString("</style>\n")
-	htmlIndexContent.WriteString("</head>\n<body>\n<div class=\"container\">\n")
-	htmlIndexContent.WriteString("<h1>My Gists Archive</h1>\n<ul>\n")
-
-	for _, entry := range indexEntries {
-		htmlIndexContent.WriteString(fmt.Sprintf("<li><a href=\"%s\">%s</a></li>\n", entry.HTMLPath, entry.Title))
-	}
-	htmlIndexContent.WriteString("</ul>\n</div>\n</body>\n</html>")
-
-	if err := os.WriteFile(fullIndexHtmlPath, []byte(htmlIndexContent.String()), 0644); err != nil {
-		log.Fatalf("Failed to write HTML index file %s: %v", fullIndexHtmlPath, err)
-	}
-	log.Printf("Generated HTML Index: %s", fullIndexHtmlPath)
-
-	// Convert individual gist markdown files to HTML
-	for _, entry := range indexEntries {
-		fullGistMdPath := filepath.Join(markdownBaseDir, entry.MarkdownPath)
-		fullGistHtmlPath := filepath.Join(htmlBaseDir, entry.HTMLPath)
-
-		mdInput, err := os.ReadFile(fullGistMdPath)
-		if err != nil {
-			log.Printf("Error reading gist markdown %s: %v", fullGistMdPath, err)
-			continue
-		}
-
-		// Generate HTML content for individual gist page
-		var gistHtmlBuffer bytes.Buffer
-		gistHtmlBuffer.WriteString("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n")
-		gistHtmlBuffer.WriteString(fmt.Sprintf("<title>%s</title>\n", entry.Title))
-		gistHtmlBuffer.WriteString("<style>\n") // Same style as index
-		gistHtmlBuffer.WriteString("body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }\n")
-		gistHtmlBuffer.WriteString(".container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }\n")
-		gistHtmlBuffer.WriteString("pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }\n")
-		gistHtmlBuffer.WriteString("code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}\n")
-		gistHtmlBuffer.WriteString("h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}\n")
-		gistHtmlBuffer.WriteString("a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }\n")
-		gistHtmlBuffer.WriteString("a.back-link:hover { text-decoration: underline; }\n")
-		gistHtmlBuffer.WriteString("</style>\n")
-		gistHtmlBuffer.WriteString("</head>\n<body>\n<div class=\"container\">\n")
-		gistHtmlBuffer.WriteString("<a href=\"../index.html\" class=\"back-link\">&laquo; Back to Index</a>\n")
-
-		p := parser.NewWithExtensions(parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock | parser.FencedCode)
-		doc := p.Parse(mdInput)
-		htmlFlags := html.CommonFlags | html.HrefTargetBlank | html.UseXHTML // UseXHTML for self-closing tags if any
-		opts := html.RendererOptions{Flags: htmlFlags, Title: entry.Title}
-		renderer := html.NewRenderer(opts)
-		renderedMarkdown := md.Render(doc, renderer)
-
-		gistHtmlBuffer.Write(renderedMarkdown)
-		gistHtmlBuffer.WriteString("\n</div>\n</body>\n</html>")
-
-		if err := os.MkdirAll(filepath.Dir(fullGistHtmlPath), 0755); err != nil {
-			log.Printf("Failed to create directory for HTML gist file %s: %v", fullGistHtmlPath, err)
-			continue
-		}
-		if err := os.WriteFile(fullGistHtmlPath, gistHtmlBuffer.Bytes(), 0644); err != nil {
-			log.Printf("Error converting gist markdown %s to HTML: %v", fullGistMdPath, err)
-			continue
-		}
-		log.Printf("Converted %s to %s", fullGistMdPath, fullGistHtmlPath)
-	}
-
-	log.Println("-----------------------------------------------------")
-	log.Println("Processing complete!")
-	log.Printf("Markdown files are in: %s", filepath.Join(markdownBaseDir))
-	log.Printf("HTML files are in: %s", filepath.Join(htmlBaseDir))
-	log.Printf("Open %s in your browser to view the archive.", filepath.Join(htmlBaseDir, "index.html"))
-	log.Println("-----------------------------------------------------")
+	MarkdownPath string
+	HTMLPath     string
+	Date         time.Time // <-- Added to store parsed date
 }
 
 func makeAPIRequest(url string, target any) error {
@@ -228,13 +195,12 @@ func makeAPIRequest(url string, target any) error {
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
-	// GitHub API requires a User-Agent header
-	req.Header.Set("User-Agent", "go-gist-archiver/1.0")
+	req.Header.Set("User-Agent", "go-gist-archiver/1.3") // Version bump
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 
 	token := os.Getenv("GITHUB_TOKEN")
 	if token != "" {
-		req.Header.Set("Authorization", "token "+token)
+		req.Header.Set("Authorization", "Bearer "+token)
 	}
 
 	resp, err := httpClient.Do(req)
@@ -242,6 +208,11 @@ func makeAPIRequest(url string, target any) error {
 		return fmt.Errorf("failed to make request to %s: %w", url, err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusForbidden && strings.Contains(resp.Header.Get("X-RateLimit-Remaining"), "0") {
+		log.Printf("Rate limit hit for URL %s. Status: %s", url, resp.Status)
+		return fmt.Errorf("rate limit hit for %s. X-RateLimit-Remaining: %s, X-RateLimit-Reset: %s", url, resp.Header.Get("X-RateLimit-Remaining"), resp.Header.Get("X-RateLimit-Reset"))
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)
@@ -256,19 +227,29 @@ func makeAPIRequest(url string, target any) error {
 	return nil
 }
 
-func makeAPIRequestWithPagination(url string, target any) (string, error) {
+func makeAPIRequestForGistList(url string, target any) (string, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}
-	req.Header.Set("User-Agent", "go-gist-archiver/1.0")
+	req.Header.Set("User-Agent", "go-gist-archiver/1.3")
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
+
+	token := os.Getenv("GITHUB_TOKEN")
+	if token != "" {
+		req.Header.Set("Authorization", "Bearer "+token)
+	}
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("failed to make request to %s: %w", url, err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusForbidden && strings.Contains(resp.Header.Get("X-RateLimit-Remaining"), "0") {
+		log.Printf("Rate limit hit for URL %s. Status: %s", url, resp.Status)
+		return "", fmt.Errorf("rate limit hit for %s. X-RateLimit-Remaining: %s, X-RateLimit-Reset: %s", url, resp.Header.Get("X-RateLimit-Remaining"), resp.Header.Get("X-RateLimit-Reset"))
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)
@@ -285,93 +266,108 @@ func makeAPIRequestWithPagination(url string, target any) (string, error) {
 	if linkHeader != "" {
 		matches := linkRegex.FindStringSubmatch(linkHeader)
 		if len(matches) > 1 {
-			return matches[1], nil // Return the next URL
+			return matches[1], nil
 		}
 	}
-	return "", nil // No next page
+	return "", nil
 }
 
-// fetchAllGistDetails fetches all public gists for a user
-func fetchAllGistDetails(username string) ([]GistDetail, error) {
-	var allGistDetails []GistDetail
+func fetchAndProcessGistDetails(username string, gistDetailChan chan<- GistDetail, fetchWg *sync.WaitGroup) {
+	defer close(gistDetailChan)
+
 	nextURL := fmt.Sprintf("%s/users/%s/gists?per_page=%d", apiBaseURL, username, gistsPerPage)
 	page := 1
+	fetchSemaphore := make(chan struct{}, maxConcurrentFetches)
 
 	for nextURL != "" {
-		log.Printf("Fetching page %d of gists for user %s from %s", page, username, nextURL)
+		log.Printf("Fetching page %d of gist list for user %s from %s", page, username, nextURL)
 		var gistListEntries []GistListEntry
 		var err error
-		nextURL, err = makeAPIRequestWithPagination(nextURL, &gistListEntries)
+		nextURL, err = makeAPIRequestForGistList(nextURL, &gistListEntries)
 		if err != nil {
-			return nil, fmt.Errorf("failed to fetch gist list page %d: %w", page, err)
+			log.Printf("Error: Failed to fetch gist list page %d: %v. Stopping further list fetching.", page, err)
+			return
 		}
 
 		for _, entry := range gistListEntries {
-			if !entry.Public { // Ensure we only process public gists, though the endpoint should only return them for unauth user
+			if !entry.Public {
 				continue
 			}
-			log.Printf("Fetching details for gist ID: %s", entry.ID)
-			var gistDetail GistDetail
-			detailURL := fmt.Sprintf("%s/gists/%s", apiBaseURL, entry.ID)
-			if err := makeAPIRequest(detailURL, &gistDetail); err != nil {
-				log.Printf("Warning: Failed to fetch detail for gist %s: %v. Skipping.", entry.ID, err)
-				continue // Skip this gist if detail fetch fails
-			}
-			allGistDetails = append(allGistDetails, gistDetail)
-			time.Sleep(200 * time.Millisecond) // Be polite to the API, ~5 req/sec
+
+			fetchWg.Add(1)
+			go func(gistEntry GistListEntry) {
+				defer fetchWg.Done()
+				fetchSemaphore <- struct{}{}
+				defer func() { <-fetchSemaphore }()
+
+				log.Printf("Fetching details for gist ID: %s (%s)", gistEntry.ID, getGistTitle(GistDetail{Description: gistEntry.Description, Files: convertListFilesToDetailFiles(gistEntry.Files), ID: gistEntry.ID}))
+				var gistDetail GistDetail
+				detailURL := fmt.Sprintf("%s/gists/%s", apiBaseURL, gistEntry.ID)
+				if err := makeAPIRequest(detailURL, &gistDetail); err != nil {
+					log.Printf("Warning: Failed to fetch detail for gist %s: %v. Skipping.", gistEntry.ID, err)
+					return
+				}
+				gistDetailChan <- gistDetail
+			}(entry)
 		}
 		page++
 		if nextURL != "" {
-			time.Sleep(500 * time.Millisecond) // Pause between fetching pages
+			time.Sleep(250 * time.Millisecond)
 		}
 	}
-	log.Printf("Fetched details for %d public gists.", len(allGistDetails))
-	return allGistDetails, nil
+	fetchWg.Wait()
+}
+
+func convertListFilesToDetailFiles(listFiles map[string]GistListFile) map[string]GistFile {
+	detailFiles := make(map[string]GistFile)
+	for k, v := range listFiles {
+		detailFiles[k] = GistFile{Filename: v.Filename}
+	}
+	return detailFiles
 }
 
 func getGistTitle(gist GistDetail) string {
 	if gist.Description != "" {
 		return gist.Description
 	}
-	// Fallback to the first filename if description is empty
 	for _, file := range gist.Files {
-		return file.Filename // Returns the first one encountered
+		return file.Filename
 	}
-	return gist.ID // Ultimate fallback
+	return gist.ID
 }
 
-// generateGistMarkdownFile creates a markdown file for a single gist
 func generateGistMarkdownFile(gist GistDetail) (string, error) {
 	var mdContent strings.Builder
 	title := getGistTitle(gist)
 	mdContent.WriteString(fmt.Sprintf("# %s\n\n", title))
 
+	// Optionally, add date to markdown file header
+	// if !gist.Date.IsZero() {
+	// 	mdContent.WriteString(fmt.Sprintf("Created: %s\n\n", gist.Date.Format("January 2, 2006")))
+	// }
+
 	if len(gist.Files) == 0 {
 		mdContent.WriteString("This gist has no files.\n")
 	}
 
-	for _, file := range gist.Files {
+	for filename, file := range gist.Files {
 		lang := file.Language
-		if lang == "" { // Default to text if language is not specified
+		if lang == "" {
 			lang = "text"
 		}
-		// Ensure content is present, especially if it could be truncated
-		// For truncated files, GistFile.Content might be empty.
-		// A more robust solution would fetch RawURL if file.Truncated is true.
-		// This example assumes content is available or an empty block is acceptable.
 		fileContent := file.Content
 		if file.Truncated && fileContent == "" {
 			fileContent = fmt.Sprintf("File content truncated. View original at %s", file.RawURL)
 		}
 
-		mdContent.WriteString(fmt.Sprintf("## %s\n\n", file.Filename))
+		mdContent.WriteString(fmt.Sprintf("## %s\n\n", filename))
 		mdContent.WriteString(fmt.Sprintf("```%s\n", strings.ToLower(lang)))
 		mdContent.WriteString(fileContent)
 		mdContent.WriteString("\n```\n\n")
 	}
 
-	filename := fmt.Sprintf("%s.md", gist.ID)
-	filePath := filepath.Join(markdownBaseDir, gistsMdSubDir, filename)
+	mdFilename := fmt.Sprintf("%s.md", gist.ID)
+	filePath := filepath.Join(markdownBaseDir, gistsMdSubDir, mdFilename)
 
 	if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
 		return "", fmt.Errorf("failed to create directory %s: %w", filepath.Dir(filePath), err)
@@ -380,56 +376,212 @@ func generateGistMarkdownFile(gist GistDetail) (string, error) {
 	if err := os.WriteFile(filePath, []byte(mdContent.String()), 0644); err != nil {
 		return "", fmt.Errorf("failed to write markdown file %s: %w", filePath, err)
 	}
-	log.Printf("Generated Markdown: %s", filePath)
-	return filepath.Join(gistsMdSubDir, filename), nil // Return relative path
+	return filepath.Join(gistsMdSubDir, mdFilename), nil
 }
 
-// generateIndexMarkdown creates the main index.md file
-func generateIndexMarkdown(entries []IndexEntry) (string, error) {
+func processSingleGist(gist GistDetail, indexEntryChan chan<- IndexEntry) {
+	title := getGistTitle(gist)
+	relativeMdPath, err := generateGistMarkdownFile(gist)
+	if err != nil {
+		log.Printf("Error generating markdown for gist %s (%s): %v. Skipping.", gist.ID, title, err)
+		return
+	}
+
+	fullGistMdPath := filepath.Join(markdownBaseDir, relativeMdPath)
+	relativeHtmlPath := strings.Replace(relativeMdPath, ".md", ".html", 1)
+	fullGistHtmlPath := filepath.Join(htmlBaseDir, relativeHtmlPath)
+
+	mdInput, err := os.ReadFile(fullGistMdPath)
+	if err != nil {
+		log.Printf("Error reading gist markdown for HTML conversion %s: %v", fullGistMdPath, err)
+		return
+	}
+
+	var gistHtmlBuffer bytes.Buffer
+	gistHtmlBuffer.WriteString("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n")
+	gistHtmlBuffer.WriteString(fmt.Sprintf("<title>%s</title>\n", title))
+	gistHtmlBuffer.WriteString(fmt.Sprintf("<link rel=\"stylesheet\" type=\"text/css\" href=\"../../%s/%s/%s\">\n",
+		filepath.Base(assetsBaseDir), cssDir, cssFileName))
+	gistHtmlBuffer.WriteString("</head>\n<body>\n<div class=\"container\">\n")
+	gistHtmlBuffer.WriteString("<a href=\"../index.html\" class=\"back-link\">&laquo; Back to Index</a>\n")
+
+	p := parser.NewWithExtensions(parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock | parser.FencedCode)
+	doc := p.Parse(mdInput)
+	htmlFlags := html.CommonFlags | html.HrefTargetBlank | html.UseXHTML
+	opts := html.RendererOptions{Flags: htmlFlags, Title: title}
+	renderer := html.NewRenderer(opts)
+	renderedMarkdown := md.Render(doc, renderer)
+
+	gistHtmlBuffer.Write(renderedMarkdown)
+	gistHtmlBuffer.WriteString("\n</div>\n</body>\n</html>")
+
+	if err := os.MkdirAll(filepath.Dir(fullGistHtmlPath), 0755); err != nil {
+		log.Printf("Failed to create directory for HTML gist file %s: %v", fullGistHtmlPath, err)
+		return
+	}
+	if err := os.WriteFile(fullGistHtmlPath, gistHtmlBuffer.Bytes(), 0644); err != nil {
+		log.Printf("Error writing HTML for gist %s: %v", fullGistHtmlPath, err)
+		return
+	}
+	log.Printf("Processed gist: %s (%s)", gist.ID, title)
+
+	// Parse CreatedAt date string
+	var gistDate time.Time
+	if gist.CreatedAt != "" {
+		parsedDate, err := time.Parse(time.RFC3339, gist.CreatedAt)
+		if err != nil {
+			log.Printf("Warning: Could not parse date string '%s' for gist %s: %v", gist.CreatedAt, gist.ID, err)
+			gistDate = time.Time{} // Zero value for time if parsing fails
+		} else {
+			gistDate = parsedDate
+		}
+	}
+
+	indexEntryChan <- IndexEntry{
+		Title:        title,
+		MarkdownPath: filepath.ToSlash(relativeMdPath),
+		HTMLPath:     filepath.ToSlash(relativeHtmlPath),
+		Date:         gistDate, // <-- Store parsed date
+	}
+}
+
+func generateIndexFiles(entries []IndexEntry) {
+	// Generate Index Markdown
 	var mdContent strings.Builder
 	mdContent.WriteString("# My Gists Archive\n\n")
-
 	if len(entries) == 0 {
 		mdContent.WriteString("No gists found or processed.\n")
+	} else {
+		for _, entry := range entries {
+			// Optionally, include date in Markdown index as well
+			// dateStr := ""
+			// if !entry.Date.IsZero() {
+			// 	dateStr = fmt.Sprintf(" (Created: %s)", entry.Date.Format("2006-01-02"))
+			// }
+			// mdContent.WriteString(fmt.Sprintf("- [%s](./%s)%s\n", entry.Title, entry.MarkdownPath, dateStr))
+			mdContent.WriteString(fmt.Sprintf("- [%s](./%s)\n", entry.Title, entry.MarkdownPath))
+		}
 	}
+	indexMdFilePath := filepath.Join(markdownBaseDir, "index.md")
+	if err := os.WriteFile(indexMdFilePath, []byte(mdContent.String()), 0644); err != nil {
+		log.Fatalf("Failed to write index.md: %v", err)
+	}
+	log.Printf("Generated Markdown Index: %s", indexMdFilePath)
 
-	for _, entry := range entries {
-		// Link relative to the index.md file itself
-		mdContent.WriteString(fmt.Sprintf("- [%s](./%s)\n", entry.Title, entry.MarkdownPath))
-	}
+	// Generate Index HTML
+	var htmlIndexContent strings.Builder
+	htmlIndexContent.WriteString("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n")
+	htmlIndexContent.WriteString("<title>My Gists Archive</title>\n")
+	htmlIndexContent.WriteString(fmt.Sprintf("<link rel=\"stylesheet\" type=\"text/css\" href=\"../%s/%s/%s\">\n",
+		filepath.Base(assetsBaseDir), cssDir, cssFileName))
+	htmlIndexContent.WriteString("</head>\n<body>\n<div class=\"container\">\n")
+	htmlIndexContent.WriteString("<h1>My Gists Archive</h1>\n<ul>\n")
 
-	filePath := filepath.Join(markdownBaseDir, "index.md")
-	if err := os.WriteFile(filePath, []byte(mdContent.String()), 0644); err != nil {
-		return "", fmt.Errorf("failed to write index.md: %w", err)
+	if len(entries) == 0 {
+		htmlIndexContent.WriteString("<li>No gists found or processed.</li>\n")
+	} else {
+		for _, entry := range entries {
+			dateStr := ""
+			if !entry.Date.IsZero() { // Check if the date is not its zero value
+				dateStr = fmt.Sprintf("<br><small class=\"date\">Created: %s</small>", entry.Date.Format("January 2, 2006"))
+			}
+			htmlIndexContent.WriteString(fmt.Sprintf("<li><a href=\"%s\">%s</a>%s</li>\n", entry.HTMLPath, entry.Title, dateStr))
+		}
 	}
-	log.Printf("Generated Markdown Index: %s", filePath)
-	return "index.md", nil // Return relative path
+	htmlIndexContent.WriteString("</ul>\n</div>\n</body>\n</html>")
+
+	indexHtmlFilePath := filepath.Join(htmlBaseDir, "index.html")
+	if err := os.WriteFile(indexHtmlFilePath, []byte(htmlIndexContent.String()), 0644); err != nil {
+		log.Fatalf("Failed to write HTML index file %s: %v", indexHtmlFilePath, err)
+	}
+	log.Printf("Generated HTML Index: %s", indexHtmlFilePath)
 }
 
-// convertMarkdownToHTML converts a single markdown file to HTML
-func convertMarkdownToHTML(mdFilePath, htmlFilePath string) error {
-	mdInput, err := os.ReadFile(mdFilePath)
-	if err != nil {
-		return fmt.Errorf("failed to read markdown file %s: %w", mdFilePath, err)
+func main() {
+	startTime := time.Now()
+	log.Printf("Starting gist archival for user: %s", githubUsername)
+
+	if err := os.MkdirAll(filepath.Join(markdownBaseDir, gistsMdSubDir), 0755); err != nil {
+		log.Fatalf("Failed to create markdown output directory: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(htmlBaseDir, gistsHtmlSubDir), 0755); err != nil {
+		log.Fatalf("Failed to create HTML output directory: %v", err)
 	}
 
-	// Setup gomarkdown parser and renderer
-	p := parser.NewWithExtensions(parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock)
-	doc := p.Parse(mdInput)
+	cssDirPath := filepath.Join(assetsBaseDir, cssDir)
+	if err := os.MkdirAll(cssDirPath, 0755); err != nil {
+		log.Fatalf("Failed to create CSS assets directory %s: %v", cssDirPath, err)
+	}
+	cssFilePath := filepath.Join(cssDirPath, cssFileName)
+	if err := os.WriteFile(cssFilePath, []byte(strings.TrimSpace(cssContent)), 0644); err != nil {
+		log.Fatalf("Failed to write CSS file %s: %v", cssFilePath, err)
+	}
+	log.Printf("Generated CSS file: %s", cssFilePath)
 
-	htmlFlags := html.CommonFlags | html.HrefTargetBlank // Open external links in new tab
-	opts := html.RendererOptions{Flags: htmlFlags}
-	renderer := html.NewRenderer(opts)
+	gistDetailChan := make(chan GistDetail, maxConcurrentFetches)
+	indexEntryChan := make(chan IndexEntry, runtime.NumCPU()*2)
 
-	htmlOutput := md.Render(doc, renderer)
+	var fetchWg sync.WaitGroup
+	var processWg sync.WaitGroup
 
-	if err := os.MkdirAll(filepath.Dir(htmlFilePath), 0755); err != nil {
-		return fmt.Errorf("failed to create directory for html file %s: %w", htmlFilePath, err)
+	numProcessors := runtime.NumCPU()
+	if numProcessors < 1 {
+		numProcessors = 1
+	}
+	log.Printf("Launching %d gist processing workers.", numProcessors)
+	for i := 0; i < numProcessors; i++ {
+		processWg.Add(1)
+		go func(workerID int) {
+			defer processWg.Done()
+			for gist := range gistDetailChan {
+				processSingleGist(gist, indexEntryChan)
+			}
+		}(i)
 	}
 
-	if err := os.WriteFile(htmlFilePath, htmlOutput, 0644); err != nil {
-		return fmt.Errorf("failed to write html file %s: %w", htmlFilePath, err)
-	}
-	log.Printf("Converted %s to %s", mdFilePath, htmlFilePath)
-	return nil
+	var collectedIndexEntries []IndexEntry
+	var indexWg sync.WaitGroup
+	indexWg.Add(1)
+	go func() {
+		defer indexWg.Done()
+		for entry := range indexEntryChan {
+			collectedIndexEntries = append(collectedIndexEntries, entry)
+		}
+		log.Printf("Collected %d index entries.", len(collectedIndexEntries))
+
+		// Sort entries by Date (newest first)
+		sort.Slice(collectedIndexEntries, func(i, j int) bool {
+			// Handle cases where dates might be zero (e.g., if parsing failed for some)
+			if collectedIndexEntries[i].Date.IsZero() {
+				return false // Zero dates go to the end
+			}
+			if collectedIndexEntries[j].Date.IsZero() {
+				return true // Zero dates go to the end
+			}
+			return collectedIndexEntries[j].Date.Before(collectedIndexEntries[i].Date) // Newest first
+		})
+		log.Println("Index entries sorted by date (newest first).")
+
+		generateIndexFiles(collectedIndexEntries)
+	}()
+
+	fetchAndProcessGistDetails(githubUsername, gistDetailChan, &fetchWg)
+	log.Println("All gist detail fetching goroutines launched and channel closed by fetcher.")
+
+	processWg.Wait()
+	log.Println("All gist processing workers have completed.")
+
+	close(indexEntryChan)
+	log.Println("Index entry channel closed.")
+
+	indexWg.Wait()
+	log.Println("Index file generation complete.")
+
+	log.Println("-----------------------------------------------------")
+	log.Printf("Processing complete in %v!", time.Since(startTime))
+	log.Printf("Markdown files are in: ./%s", markdownBaseDir)
+	log.Printf("HTML files are in:     ./%s", htmlBaseDir)
+	log.Printf("CSS assets are in:   ./%s", assetsBaseDir)
+	log.Printf("Open ./%s in your browser to view the archive.", filepath.Join(htmlBaseDir, "index.html"))
+	log.Println("-----------------------------------------------------")
 }

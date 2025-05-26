@@ -3,20 +3,31 @@
 <head>
 <meta charset="utf-8">
 <title>Ruby: Symbol class to_proc and custom class object to_proc (see also https://gist.github.com/Integralist/8079e79c5eb4e7b88183 to see how to use `&` with `method()`)</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="ruby-symbol-class-to-proc-and-custom-class-object-to-proc-see-also-https-gist-github-com-integralist-8079e79c5eb4e7b88183-to-see-how-to-use-with-method">Ruby: Symbol class to_proc and custom class object to_proc (see also <a href="https://gist.github.com/Integralist/8079e79c5eb4e7b88183" target="_blank">https://gist.github.com/Integralist/8079e79c5eb4e7b88183</a> to see how to use <code>&amp;</code> with <code>method()</code>)</h1>
+
+<h2 id="1-typical-example-rb">1. Typical Example.rb</h2>
+
+<pre><code class="language-ruby">strs = ['foo', 'bar', 'baz']
+
+# standard long form way
+caps = strs.map { |str| str.upcase }
+
+# short hand
+caps = strs.map(&amp;:upcase)
+
+# The &amp; takes any object and calls to_proc on it
+# In the above example we're using a Symbol and not an object
+# So the Symbol class's to_proc method returns a Proc, 
+# that given some object will send itself (the Symbol) as a message to that given object
+
+# Using that explanation, the short hand is equivalent to:
+caps = strs.map { |str| str.send(:upcase) }
+</code></pre>
 
 <h2 id="2-use-existing-method-rb">2. Use existing method.rb</h2>
 
@@ -47,25 +58,6 @@ strs.map(&amp;method(:dramatise)) # =&gt; [&quot;foo!!&quot;, &quot;bar!!&quot;,
 end
 
 [[1, 5], [4, 2]].map(&amp;Point) # =&gt; [#&lt;Point:0x007f87e983af40 @x=1, @y=5&gt;, #&lt;Point:0x007f87e983ace8 @x=4, @y=2&gt;]
-</code></pre>
-
-<h2 id="1-typical-example-rb">1. Typical Example.rb</h2>
-
-<pre><code class="language-ruby">strs = ['foo', 'bar', 'baz']
-
-# standard long form way
-caps = strs.map { |str| str.upcase }
-
-# short hand
-caps = strs.map(&amp;:upcase)
-
-# The &amp; takes any object and calls to_proc on it
-# In the above example we're using a Symbol and not an object
-# So the Symbol class's to_proc method returns a Proc, 
-# that given some object will send itself (the Symbol) as a message to that given object
-
-# Using that explanation, the short hand is equivalent to:
-caps = strs.map { |str| str.send(:upcase) }
 </code></pre>
 
 </div>

@@ -3,20 +3,46 @@
 <head>
 <meta charset="utf-8">
 <title>[Python Auto Generate API Documentation] Python Auto Generate API Documentation #tags: python, git, bash, make</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="python-auto-generate-api-documentation-python-auto-generate-api-documentation-tags-python-git-bash-make">[Python Auto Generate API Documentation] Python Auto Generate API Documentation #tags: python, git, bash, make</h1>
+
+<h2 id="makefile">Makefile</h2>
+
+<pre><code class="language-makefile">REPO := $(shell git rev-parse --show-toplevel)
+GIT := &quot;.git/hooks&quot;
+HOOK := &quot;.custom-hooks&quot;
+
+define copy_base_hooks
+	@cp &quot;$(REPO)/$(HOOK)/pre-commit&quot; &quot;$(REPO)/$(GIT)/pre-commit&quot;
+endef
+
+define copy_template_hooks
+	@cp &quot;$(REPO)/$(HOOK)/pre-commit-pydoc&quot; &quot;$(REPO)/$(GIT)/pre-commit-pydoc&quot;
+endef
+
+check_hook_requirements:
+	@pycco -h 1&gt;/dev/null 2&gt;&amp;1 || (echo &quot;Looks like you don't have the pycco executable, we need that to auto generate documentation&quot; &amp;&amp; exit 1)
+
+clean_hooks:
+	-@rm $(REPO)/$(GIT)/pre-commit.sample &amp;&gt; /dev/null || true
+	-@rm $(REPO)/$(GIT)/pre-commit &amp;&gt; /dev/null || true
+	-@rm $(REPO)/$(GIT)/pre-commit-* &amp;&gt; /dev/null || true
+
+hooks: check_hook_requirements clean_hooks
+	$(call copy_base_hooks)
+	$(call copy_template_hooks)
+
+# Explanation of clean_precommits syntax:
+#
+# -       ...allows errors to be ignored (i.e. don't stop further execution steps)
+# @       ...stops makefile from printing command that was executed
+# &amp;&gt;      ...redirects stdout/stderr to /dev/null (as command can sometimes error)
+# || true ...prevents Make from printing 'error ignored'
+</code></pre>
 
 <h2 id="custom-hooks-pre-commit">.custom-hooks pre-commit</h2>
 
@@ -72,40 +98,6 @@ fi
 # -i, --generate_index  Generate an index.html document with sitemap content
 #
 # https://realpython.com/blog/python/generating-code-documentation-with-pycco/
-</code></pre>
-
-<h2 id="makefile">Makefile</h2>
-
-<pre><code class="language-makefile">REPO := $(shell git rev-parse --show-toplevel)
-GIT := &quot;.git/hooks&quot;
-HOOK := &quot;.custom-hooks&quot;
-
-define copy_base_hooks
-	@cp &quot;$(REPO)/$(HOOK)/pre-commit&quot; &quot;$(REPO)/$(GIT)/pre-commit&quot;
-endef
-
-define copy_template_hooks
-	@cp &quot;$(REPO)/$(HOOK)/pre-commit-pydoc&quot; &quot;$(REPO)/$(GIT)/pre-commit-pydoc&quot;
-endef
-
-check_hook_requirements:
-	@pycco -h 1&gt;/dev/null 2&gt;&amp;1 || (echo &quot;Looks like you don't have the pycco executable, we need that to auto generate documentation&quot; &amp;&amp; exit 1)
-
-clean_hooks:
-	-@rm $(REPO)/$(GIT)/pre-commit.sample &amp;&gt; /dev/null || true
-	-@rm $(REPO)/$(GIT)/pre-commit &amp;&gt; /dev/null || true
-	-@rm $(REPO)/$(GIT)/pre-commit-* &amp;&gt; /dev/null || true
-
-hooks: check_hook_requirements clean_hooks
-	$(call copy_base_hooks)
-	$(call copy_template_hooks)
-
-# Explanation of clean_precommits syntax:
-#
-# -       ...allows errors to be ignored (i.e. don't stop further execution steps)
-# @       ...stops makefile from printing command that was executed
-# &amp;&gt;      ...redirects stdout/stderr to /dev/null (as command can sometimes error)
-# || true ...prevents Make from printing 'error ignored'
 </code></pre>
 
 </div>

@@ -3,25 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>Basic Vim config for when ssh'ed onto an EC2 instance (yum install vim -y)</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="basic-vim-config-for-when-ssh-ed-onto-an-ec2-instance-yum-install-vim-y">Basic Vim config for when ssh&rsquo;ed onto an EC2 instance (yum install vim -y)</h1>
-
-<h2 id="1-alias-bash">1. alias.bash</h2>
-
-<pre><code class="language-shell">alias vi='vi -c &quot;set nocompatible&quot; -c &quot;set number&quot; -c &quot;set cursorline&quot; -c &quot;set expandtab&quot; -c &quot;set hlsearch&quot; -c &quot;set visualbell&quot; -c &quot;set tabstop=2&quot; -c &quot;set shiftwidth=2&quot; -c &quot;syntax on&quot;'
-</code></pre>
 
 <h2 id="basic-vim-vim">basic-vim.vim</h2>
 
@@ -44,6 +31,11 @@ syntax on
 <pre><code class="language-shell"># You can also do the following:
 echo set nocompatible number cursorline expandtab hlsearch visualbell tabstop=2 shiftwidth=2 &gt;&gt; ~/.vimrc
 echo syntax on &gt;&gt; ~/.vimrc
+</code></pre>
+
+<h2 id="1-alias-bash">1. alias.bash</h2>
+
+<pre><code class="language-shell">alias vi='vi -c &quot;set nocompatible&quot; -c &quot;set number&quot; -c &quot;set cursorline&quot; -c &quot;set expandtab&quot; -c &quot;set hlsearch&quot; -c &quot;set visualbell&quot; -c &quot;set tabstop=2&quot; -c &quot;set shiftwidth=2&quot; -c &quot;syntax on&quot;'
 </code></pre>
 
 </div>

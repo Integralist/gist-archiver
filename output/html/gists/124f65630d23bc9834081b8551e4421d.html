@@ -3,45 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>[Python timestamp handling] #python #date #time</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="python-timestamp-handling-python-date-time">[Python timestamp handling] #python #date #time</h1>
-
-<h2 id="python-timestamp-handling-py">Python timestamp handling.py</h2>
-
-<pre><code class="language-python"># https://docs.python.org/3.6/library/time.html#time.strftime
-  
-from datetime import datetime
-
-released_at = &quot;2017-05-30T20:54:37.228197Z&quot;
-
-then = datetime.strptime(released_at, &quot;%Y-%m-%dT%H:%M:%S.%fZ&quot;)
-# datetime.datetime(2017, 5, 30, 20, 54, 37, 228197)
-
-now = datetime.now()
-# datetime.datetime(2017, 5, 31, 16, 31, 36, 507198)
-
-difference = then - now
-# datetime.timedelta(-1, 15780, 720999)
-
-difference.days
-# -1
-
-latest = max((then, now))
-# now was the latest of the two...
-# datetime.datetime(2017, 5, 31, 16, 31, 36, 507198)
-</code></pre>
 
 <h2 id="python-1-hour-ago-py">Python 1 hour ago.py</h2>
 
@@ -69,6 +36,31 @@ now = datetime(2018, 11, 25, 00, 00, 00, 00)
 delta = now - then
 delta.days  # 24
 delta.days &gt;= 30  # False
+</code></pre>
+
+<h2 id="python-timestamp-handling-py">Python timestamp handling.py</h2>
+
+<pre><code class="language-python"># https://docs.python.org/3.6/library/time.html#time.strftime
+  
+from datetime import datetime
+
+released_at = &quot;2017-05-30T20:54:37.228197Z&quot;
+
+then = datetime.strptime(released_at, &quot;%Y-%m-%dT%H:%M:%S.%fZ&quot;)
+# datetime.datetime(2017, 5, 30, 20, 54, 37, 228197)
+
+now = datetime.now()
+# datetime.datetime(2017, 5, 31, 16, 31, 36, 507198)
+
+difference = then - now
+# datetime.timedelta(-1, 15780, 720999)
+
+difference.days
+# -1
+
+latest = max((then, now))
+# now was the latest of the two...
+# datetime.datetime(2017, 5, 31, 16, 31, 36, 507198)
 </code></pre>
 
 </div>

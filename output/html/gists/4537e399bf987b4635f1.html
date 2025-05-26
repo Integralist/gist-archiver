@@ -3,20 +3,27 @@
 <head>
 <meta charset="utf-8">
 <title>Executing the Clojure STM within JRuby (code modified from "Programming Concurrency on the JVM")</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="executing-the-clojure-stm-within-jruby-code-modified-from-programming-concurrency-on-the-jvm">Executing the Clojure STM within JRuby (code modified from &ldquo;Programming Concurrency on the JVM&rdquo;)</h1>
+
+<h2 id="output-zsh">output.zsh</h2>
+
+<pre><code class="language-shell">&quot;account1 balance is $2000&quot;
+&quot;account2 balance is $100&quot;
+&quot;---&quot;
+&quot;Deposited $500 into account 2&quot;
+&quot;Balance of 'from' account (1) is $1500&quot;
+&quot;Balance of 'to' account (2) is $600&quot;
+&quot;---&quot;
+&quot;Deposited $5000 into account 2&quot;
+&quot;Transfer failed: Can't withdraw $5000; balance is $1500&quot;
+&quot;Balance of 'from' account (1) is $1500&quot;
+&quot;Balance of 'to' account (2) is $600&quot;
+</code></pre>
 
 <h2 id="account-rb">account.rb</h2>
 
@@ -88,21 +95,6 @@ p &quot;---&quot;
 transfer_and_print account1, account2, 500
 p &quot;---&quot;
 transfer_and_print account1, account2, 5000
-</code></pre>
-
-<h2 id="output-zsh">output.zsh</h2>
-
-<pre><code class="language-shell">&quot;account1 balance is $2000&quot;
-&quot;account2 balance is $100&quot;
-&quot;---&quot;
-&quot;Deposited $500 into account 2&quot;
-&quot;Balance of 'from' account (1) is $1500&quot;
-&quot;Balance of 'to' account (2) is $600&quot;
-&quot;---&quot;
-&quot;Deposited $5000 into account 2&quot;
-&quot;Transfer failed: Can't withdraw $5000; balance is $1500&quot;
-&quot;Balance of 'from' account (1) is $1500&quot;
-&quot;Balance of 'to' account (2) is $600&quot;
 </code></pre>
 
 </div>

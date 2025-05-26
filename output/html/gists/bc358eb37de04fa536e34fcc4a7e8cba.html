@@ -3,24 +3,31 @@
 <head>
 <meta charset="utf-8">
 <title>[Perl add language to markdown code block] #perl #regex #codeblock #markdown</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="perl-add-language-to-markdown-code-block-perl-regex-codeblock-markdown">[Perl add language to markdown code block] #perl #regex #codeblock #markdown</h1>
 
-<h2 id="file-mdx">file.mdx</h2>
+<h2 id="cli-md">cli.md</h2>
 
-<pre><code class="language-mdx">Example: https://regex101.com/r/6wcYU9/1
+<pre><code class="language-markdown">```bash
+# Ensure all code blocks without a language get 'plain' appended.
+# NOTE: constraint is that there needs to be an empty line preceding the code block.
+cat file.mdx | perl -pe 'BEGIN { undef $/ }; s/(?&lt;=^\n)(```)(\n.+?```)/\1plain\2/s'
+</code></pre>
+
+<blockquote>
+<p><strong>NOTE</strong>: The Perl variable <code>$/</code> stores the line ending, used for processing files line-by-line. By calling <code>undef</code> on it, we cause Perl to slurp the entire file all in one string at once for us to process.</p>
+
+<p><strong>WARNING</strong>: If the code block has a non-empty preceding line, and the contents of the code block has an empty line before the closing code fence, then the current pattern will accidentally match. So if that&rsquo;s the case, we need to ensure all code blocks don&rsquo;t have an unnecessary empty line at the bottom of them.</p>
+
+<pre><code>
+## file.mdx
+
+```mdx
+Example: https://regex101.com/r/6wcYU9/1
 
 The following block will get `plain` appended:
 
@@ -51,28 +58,14 @@ Here is a code block that has a language already:
 ```http
 some text here
 </code></pre>
+</blockquote>
 
 <p>One more time, let&rsquo;s see an expected code block match:</p>
 
 <pre><code>some stuff
 </code></pre>
 
-<pre><code>
-## cli.md
-
-```markdown
-```bash
-# Ensure all code blocks without a language get 'plain' appended.
-# NOTE: constraint is that there needs to be an empty line preceding the code block.
-cat file.mdx | perl -pe 'BEGIN { undef $/ }; s/(?&lt;=^\n)(```)(\n.+?```)/\1plain\2/s'
-</code></pre>
-
-<blockquote>
-<p><strong>NOTE</strong>: The Perl variable <code>$/</code> stores the line ending, used for processing files line-by-line. By calling <code>undef</code> on it, we cause Perl to slurp the entire file all in one string at once for us to process.</p>
-
-<p><strong>WARNING</strong>: If the code block has a non-empty preceding line, and the contents of the code block has an empty line before the closing code fence, then the current pattern will accidentally match. So if that&rsquo;s the case, we need to ensure all code blocks don&rsquo;t have an unnecessary empty line at the bottom of them.
-&ldquo;`</p>
-</blockquote>
+<p>&rdquo;`</p>
 
 </div>
 </body>

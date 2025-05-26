@@ -3,20 +3,63 @@
 <head>
 <meta charset="utf-8">
 <title>[Golang mocking multiple stdin prompts] #go #golang #stdin #mock</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="golang-mocking-multiple-stdin-prompts-go-golang-stdin-mock">[Golang mocking multiple stdin prompts] #go #golang #stdin #mock</h1>
+
+<h2 id="2-alternatives-that-ignore-the-constraint-of-input-function-go">2. alternatives that ignore the constraint of input function.go</h2>
+
+<pre><code class="language-go">// https://play.golang.org/p/fO6yo1r77ym
+
+package main
+
+import (
+	&quot;bufio&quot;
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;strings&quot;
+)
+
+func input(r io.Reader) (string, error) {
+	s := bufio.NewScanner(r)
+	for {
+		if ok := s.Scan(); !ok {
+			return &quot;&quot;, s.Err()
+		}
+		line := strings.TrimSpace(s.Text())
+		return line, nil
+	}
+}
+
+type inputWrapper struct {
+	*bufio.Scanner
+	reused *strings.Reader
+}
+
+func (i inputWrapper) More() (string, error) {
+	if !i.Scanner.Scan() {
+		return &quot;&quot;, i.Scanner.Err()
+	}
+	line := i.Scanner.Text()
+	if i.reused == nil {
+		i.reused = strings.NewReader(line)
+	}
+	i.reused.Reset(line)
+	return input(i.reused)
+}
+
+func main() {
+
+	r := strings.NewReader(&quot;example.com\ngoogle.com&quot;)
+	input := inputWrapper{Scanner: bufio.NewScanner(r)}.More
+
+	fmt.Println(input())
+	fmt.Println(input())
+}
+</code></pre>
 
 <h2 id="1-mocking-multiple-stdin-prompts-go">1. mocking multiple stdin prompts.go</h2>
 
@@ -108,57 +151,6 @@ func main() {
 
 	// Inspect stdout
 	fmt.Printf(&quot;\nstdout:\n%+v\n&quot;, stdout.String())
-}
-</code></pre>
-
-<h2 id="2-alternatives-that-ignore-the-constraint-of-input-function-go">2. alternatives that ignore the constraint of input function.go</h2>
-
-<pre><code class="language-go">// https://play.golang.org/p/fO6yo1r77ym
-
-package main
-
-import (
-	&quot;bufio&quot;
-	&quot;fmt&quot;
-	&quot;io&quot;
-	&quot;strings&quot;
-)
-
-func input(r io.Reader) (string, error) {
-	s := bufio.NewScanner(r)
-	for {
-		if ok := s.Scan(); !ok {
-			return &quot;&quot;, s.Err()
-		}
-		line := strings.TrimSpace(s.Text())
-		return line, nil
-	}
-}
-
-type inputWrapper struct {
-	*bufio.Scanner
-	reused *strings.Reader
-}
-
-func (i inputWrapper) More() (string, error) {
-	if !i.Scanner.Scan() {
-		return &quot;&quot;, i.Scanner.Err()
-	}
-	line := i.Scanner.Text()
-	if i.reused == nil {
-		i.reused = strings.NewReader(line)
-	}
-	i.reused.Reset(line)
-	return input(i.reused)
-}
-
-func main() {
-
-	r := strings.NewReader(&quot;example.com\ngoogle.com&quot;)
-	input := inputWrapper{Scanner: bufio.NewScanner(r)}.More
-
-	fmt.Println(input())
-	fmt.Println(input())
 }
 </code></pre>
 

@@ -1,22 +1,5 @@
 # Clojure deftype, defrecord, defprotocol
 
-## 0. description.md
-
-```markdown
-- `defprotocol`: defines an interface
-- `deftype`: create a bare-bones object which implements a protocol
-- `defrecord`: creates an immutable persistent map which implements a protocol
-
-Typically you'll use `defrecord` (or even a basic `map`);  
-unless you need some specific Java inter-op,  
-where by you'll want to use `deftype` instead.
-
-> Note: `defprotocol` allows you to add new abstractions in a clean way
-Rather than (like OOP) having polymorphism on the class itself,
-polymorphic functions are created in namespaces.
-Meaning different namespaces can implement different functionality
-```
-
 ## 1. class.clj
 
 ```clojure
@@ -101,5 +84,22 @@ Meaning different namespaces can implement different functionality
 (prn (bar obj 1))     ; 4 (3 + )
 (prn (bar obj 1 2))   ; 6 (3 + 1 + 2)
 (prn (bar obj 1 2 3)) ; 9 (3 + 1 + 2 + 3)
+```
+
+## 0. description.md
+
+```markdown
+- `defprotocol`: defines an interface
+- `deftype`: create a bare-bones object which implements a protocol
+- `defrecord`: creates an immutable persistent map which implements a protocol
+
+Typically you'll use `defrecord` (or even a basic `map`);  
+unless you need some specific Java inter-op,  
+where by you'll want to use `deftype` instead.
+
+> Note: `defprotocol` allows you to add new abstractions in a clean way
+Rather than (like OOP) having polymorphism on the class itself,
+polymorphic functions are created in namespaces.
+Meaning different namespaces can implement different functionality
 ```
 

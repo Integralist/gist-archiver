@@ -3,75 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>[Terraform create backend definitions from a list of hostnames] #terraform #fastly #work</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="terraform-create-backend-definitions-from-a-list-of-hostnames-terraform-fastly-work">[Terraform create backend definitions from a list of hostnames] #terraform #fastly #work</h1>
-
-<h2 id="backend-template-vcl">backend_template.vcl</h2>
-
-<pre><code class="language-vcl">backend F_${backendname} {
-    .between_bytes_timeout = 10s;
-    .connect_timeout = 1s;
-    .dynamic = true;
-    .first_byte_timeout = 15s;
-    .host = &quot;${hostname}&quot;;
-    .max_connections = 200;
-    .port = &quot;443&quot;;
-    .share_key = &quot;...&quot;;
-    .ssl = true;
-    .ssl_cert_hostname = &quot;${hostname}&quot;;
-    .ssl_check_cert = always;
-    .ssl_sni_hostname = &quot;${hostname}&quot;;
-    .bypass_local_route_table = true;
-    .probe = {
-      .dummy = true;
-    }
-}
-</code></pre>
-
-<h2 id="main-tf">main.tf</h2>
-
-<pre><code class="language-hcl">terraform {
-  required_providers {
-    fastly = {
-      source  = &quot;fastly/fastly&quot;
-      version = &quot;&gt;= 1.0.0&quot;
-    }
-  }
-}
-
-locals {
-  backends = [&quot;b1.example.com&quot;, &quot;b2.example.com&quot;]
-}
-
-resource &quot;fastly_service_vcl&quot; &quot;myservice&quot; {
-  name = &quot;myservice&quot;
-
-  domain {
-    name = &quot;test.hkakehas.tokyo&quot;
-  }
-
-  snippet {
-    name = &quot;backends&quot;
-    type = &quot;init&quot;
-    content = join(&quot;\n&quot;, [for backend in local.backends : templatefile(&quot;${path.module}/backend_template.vcl&quot;,
-    { backendname : replace(backend, &quot;.&quot;, &quot;_&quot;), hostname : backend, })])
-  }
-
-  force_destroy = true
-}
-</code></pre>
 
 <h2 id="result-txt">result.txt</h2>
 
@@ -142,6 +79,61 @@ fastly_service_vcl.myservice: Still modifying... [id=..., 20s elapsed]
 fastly_service_vcl.myservice: Still modifying... [id=..., 30s elapsed]
 fastly_service_vcl.myservice: Modifications complete after 31s [id=...]
 
+</code></pre>
+
+<h2 id="backend-template-vcl">backend_template.vcl</h2>
+
+<pre><code class="language-vcl">backend F_${backendname} {
+    .between_bytes_timeout = 10s;
+    .connect_timeout = 1s;
+    .dynamic = true;
+    .first_byte_timeout = 15s;
+    .host = &quot;${hostname}&quot;;
+    .max_connections = 200;
+    .port = &quot;443&quot;;
+    .share_key = &quot;...&quot;;
+    .ssl = true;
+    .ssl_cert_hostname = &quot;${hostname}&quot;;
+    .ssl_check_cert = always;
+    .ssl_sni_hostname = &quot;${hostname}&quot;;
+    .bypass_local_route_table = true;
+    .probe = {
+      .dummy = true;
+    }
+}
+</code></pre>
+
+<h2 id="main-tf">main.tf</h2>
+
+<pre><code class="language-hcl">terraform {
+  required_providers {
+    fastly = {
+      source  = &quot;fastly/fastly&quot;
+      version = &quot;&gt;= 1.0.0&quot;
+    }
+  }
+}
+
+locals {
+  backends = [&quot;b1.example.com&quot;, &quot;b2.example.com&quot;]
+}
+
+resource &quot;fastly_service_vcl&quot; &quot;myservice&quot; {
+  name = &quot;myservice&quot;
+
+  domain {
+    name = &quot;test.hkakehas.tokyo&quot;
+  }
+
+  snippet {
+    name = &quot;backends&quot;
+    type = &quot;init&quot;
+    content = join(&quot;\n&quot;, [for backend in local.backends : templatefile(&quot;${path.module}/backend_template.vcl&quot;,
+    { backendname : replace(backend, &quot;.&quot;, &quot;_&quot;), hostname : backend, })])
+  }
+
+  force_destroy = true
+}
 </code></pre>
 
 </div>

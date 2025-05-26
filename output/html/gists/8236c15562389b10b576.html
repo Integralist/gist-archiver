@@ -3,31 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>Demonstrates how to use Sumo Logic query language</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="demonstrates-how-to-use-sumo-logic-query-language">Demonstrates how to use Sumo Logic query language</h1>
-
-<h2 id="sumo-logic-xq">Sumo Logic.xq</h2>
-
-<pre><code class="language-xquery">_collector=Newsbeat AND read_feed | where environment = &quot;live&quot; | where component = &quot;newsbeat-most-popular-renderer&quot;
-
-_collector=Mozart | where component=&quot;mozart-composition&quot; | where environment=&quot;int&quot; | parse &quot;*&quot; as jsonobj | json field=jsonobj &quot;event&quot; | where event=&quot;ComponentLoaded&quot;
-
-_collector= Newsbeat | parse &quot;*&quot; as jsonobj | json field=jsonobj &quot;event&quot;, &quot;url&quot; as event, url | where component=&quot;newsbeat-article-renderer&quot; | parse regex field=url &quot;cps/asset/(?&lt;asset_id&gt;[^?]+)&quot;
-
-_collector= Newsbeat | parse &quot;*&quot; as jsonobj | json field=jsonobj &quot;event&quot;, &quot;url&quot; as event, url | where component=&quot;newsbeat-article-renderer&quot; | parse regex field=event &quot;(?&lt;a_match&gt;(?i)topics)&quot;
-</code></pre>
 
 <h2 id="1-sumo-filter-explanation-md">1. Sumo Filter Explanation.md</h2>
 
@@ -72,7 +53,18 @@ parse &quot;*&quot; as jsonobj
 <pre><code class="language-bash">(_collector=Mozart) environment = &quot;live&quot; component = &quot;mozart-composition&quot;
 </code></pre>
 
-<p>&rdquo;`</p>
+<pre><code>
+## Sumo Logic.xq
+
+```xquery
+_collector=Newsbeat AND read_feed | where environment = &quot;live&quot; | where component = &quot;newsbeat-most-popular-renderer&quot;
+
+_collector=Mozart | where component=&quot;mozart-composition&quot; | where environment=&quot;int&quot; | parse &quot;*&quot; as jsonobj | json field=jsonobj &quot;event&quot; | where event=&quot;ComponentLoaded&quot;
+
+_collector= Newsbeat | parse &quot;*&quot; as jsonobj | json field=jsonobj &quot;event&quot;, &quot;url&quot; as event, url | where component=&quot;newsbeat-article-renderer&quot; | parse regex field=url &quot;cps/asset/(?&lt;asset_id&gt;[^?]+)&quot;
+
+_collector= Newsbeat | parse &quot;*&quot; as jsonobj | json field=jsonobj &quot;event&quot;, &quot;url&quot; as event, url | where component=&quot;newsbeat-article-renderer&quot; | parse regex field=event &quot;(?&lt;a_match&gt;(?i)topics)&quot;
+</code></pre>
 
 </div>
 </body>

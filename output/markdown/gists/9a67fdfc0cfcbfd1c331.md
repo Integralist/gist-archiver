@@ -1,82 +1,5 @@
 # Debug
 
-## example.rb
-
-```ruby
-# https://minhajuddin.com/2016/03/03/put-this-in-your-code-to-debug-anything
-require 'rouge'
-require 'method_source'
-require 'pp'
-
-class Dbg
-  def initialize(object, to:)
-    @object, @stream = object, to
-  end
-
-  def call
-    stream.puts bannerize highlight object.pretty_inspect.chomp
-  end
-
-  def bannerize(text)
-    color = rand 8
-    "\e[3#{color}m>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\e[39m\n" +
-    text.chomp + "\n" +
-    "\e[3#{color}m<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\e[39m\n"
-  end
-
-  private
-
-  attr_reader :object, :stream
-
-  def highlight(raw_code)
-    formatter = Rouge::Formatters::Terminal256.new theme: 'base16.solarized.dark'
-    lexer     = Rouge::Lexers::Ruby.new
-    tokens    = lexer.lex raw_code.chomp
-    formatter.format(tokens)
-  end
-end
-
-class BlockDbg < Dbg
-  alias block object
-  def to_proc
-    Proc.new do |*arguments, &b|
-      stream.puts bannerize highlight(formatted_locals + block.source)
-      block.call(*arguments, &b)
-    end
-  end
-
-  private def formatted_locals
-    binding = block.binding
-    locals  = binding.local_variables.map do |name|
-      [name, binding.local_variable_get(name)]
-    end
-    width      = locals.map { |k, v| k.length }.max
-    format_str = "%-#{width}s = %p\n"
-    locals.map { |name, value| sprintf format_str, name, value }.join
-  end
-end
-
-class Object
-  def dbg(&block)
-    block and return BlockDbg.new block, to: $stderr
-    Dbg.new(self, to: $stderr).call
-    self
-  end
-end
-
-def self.get_csv
-  [ {user_id: 100, name: 'Josh'},
-    {user_id: 200, name: 'Jan' },
-    {user_id: 300, name: 'Jill'},
-  ]
-end
-
-row_id    = 200
-id_column = :user_id
-get_csv.dbg.find(&dbg { |row| row[id_column] == row_id }).dbg
-
-```
-
 ## ss.png
 
 ```text
@@ -1122,6 +1045,83 @@ XXWRkmXNVDAI389q/LeNiEAAAkAACACBvkyA3v+qlVVdjera5QprjpWq3pZw
 PS1HAMgJBIBAfyXArOMK+qtuoBcQAAJAYCATgPmZgdz7oDsQAAL9mQDY9/7c
 u6AbEAACA5kA2PeB3PugOxAAAv2ZQOf+V/uz9qAbEAACQKD/EujQ/2r/VRs0
 AwJAAAj0ewL/H6MYG5fIql9mAAAAAElFTkSuQmCC
+
+```
+
+## example.rb
+
+```ruby
+# https://minhajuddin.com/2016/03/03/put-this-in-your-code-to-debug-anything
+require 'rouge'
+require 'method_source'
+require 'pp'
+
+class Dbg
+  def initialize(object, to:)
+    @object, @stream = object, to
+  end
+
+  def call
+    stream.puts bannerize highlight object.pretty_inspect.chomp
+  end
+
+  def bannerize(text)
+    color = rand 8
+    "\e[3#{color}m>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\e[39m\n" +
+    text.chomp + "\n" +
+    "\e[3#{color}m<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\e[39m\n"
+  end
+
+  private
+
+  attr_reader :object, :stream
+
+  def highlight(raw_code)
+    formatter = Rouge::Formatters::Terminal256.new theme: 'base16.solarized.dark'
+    lexer     = Rouge::Lexers::Ruby.new
+    tokens    = lexer.lex raw_code.chomp
+    formatter.format(tokens)
+  end
+end
+
+class BlockDbg < Dbg
+  alias block object
+  def to_proc
+    Proc.new do |*arguments, &b|
+      stream.puts bannerize highlight(formatted_locals + block.source)
+      block.call(*arguments, &b)
+    end
+  end
+
+  private def formatted_locals
+    binding = block.binding
+    locals  = binding.local_variables.map do |name|
+      [name, binding.local_variable_get(name)]
+    end
+    width      = locals.map { |k, v| k.length }.max
+    format_str = "%-#{width}s = %p\n"
+    locals.map { |name, value| sprintf format_str, name, value }.join
+  end
+end
+
+class Object
+  def dbg(&block)
+    block and return BlockDbg.new block, to: $stderr
+    Dbg.new(self, to: $stderr).call
+    self
+  end
+end
+
+def self.get_csv
+  [ {user_id: 100, name: 'Josh'},
+    {user_id: 200, name: 'Jan' },
+    {user_id: 300, name: 'Jill'},
+  ]
+end
+
+row_id    = 200
+id_column = :user_id
+get_csv.dbg.find(&dbg { |row| row[id_column] == row_id }).dbg
 
 ```
 

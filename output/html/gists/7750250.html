@@ -3,36 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>[Cucumber Gherkin Template Feature File] #gherkin #cucumber #userstory #story #feature #scenario</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="cucumber-gherkin-template-feature-file-gherkin-cucumber-userstory-story-feature-scenario">[Cucumber Gherkin Template Feature File] #gherkin #cucumber #userstory #story #feature #scenario</h1>
-
-<h2 id="3-advanced-table-lookup-feature">3. Advanced Table Lookup.feature</h2>
-
-<pre><code class="language-gherkin">Feature: Restaurant
-
-  Scenario Outline: eating
-
-    Given there are &lt;start&gt; cucumbers
-    When I eat &lt;eat&gt; cucumbers
-    Then I should have &lt;left&gt; cucumbers
-
-    Examples:
-      | start | eat | left |
-      |    12 |   5 |    7 |
-      |    20 |   5 |   15 |
-</code></pre>
 
 <h2 id="1-template-feature">1. Template.feature</h2>
 
@@ -91,6 +67,22 @@ a.back-link:hover { text-decoration: underline; }
       Why: We want to reduce the amount of unfamilar code.
       Impact: Will make migrating to an alternative CDN provider easier as there is less logic coupling.
 
+</code></pre>
+
+<h2 id="3-advanced-table-lookup-feature">3. Advanced Table Lookup.feature</h2>
+
+<pre><code class="language-gherkin">Feature: Restaurant
+
+  Scenario Outline: eating
+
+    Given there are &lt;start&gt; cucumbers
+    When I eat &lt;eat&gt; cucumbers
+    Then I should have &lt;left&gt; cucumbers
+
+    Examples:
+      | start | eat | left |
+      |    12 |   5 |    7 |
+      |    20 |   5 |   15 |
 </code></pre>
 
 </div>

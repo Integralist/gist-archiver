@@ -3,117 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>[Go Standard Lib HTTP Routing] #go #golang #http #routing #mux #http</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="go-standard-lib-http-routing-go-golang-http-routing-mux-http">[Go Standard Lib HTTP Routing] #go #golang #http #routing #mux #http</h1>
-
-<h2 id="1-simple-and-non-confusing-go">1. Simple and Non-Confusing.go</h2>
-
-<pre><code class="language-go">package main
-
-type App struct {
-    // We could use http.Handler as a type here; using the specific type has
-    // the advantage that static analysis tools can link directly from
-    // h.UserHandler.ServeHTTP to the correct definition. The disadvantage is
-    // that we have slightly stronger coupling. Do the tradeoff yourself.
-    UserHandler *UserHandler
-}
-
-func (h *App) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-    var head string
-    head, req.URL.Path = ShiftPath(req.URL.Path)
-    if head == &quot;user&quot; {
-        h.UserHandler.ServeHTTP(res, req)
-        return
-    }
-    http.Error(res, &quot;Not Found&quot;, http.StatusNotFound)
-}
-
-type UserHandler struct {
-}
-
-func (h *UserHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-    var head string
-    head, req.URL.Path = ShiftPath(req.URL.Path)
-  
-    id, err := strconv.Atoi(head)
-    if err != nil {
-        http.Error(res, fmt.Sprintf(&quot;Invalid user id %q&quot;, head), http.StatusBadRequest)
-        return
-    }
-  
-    switch req.Method {
-    case &quot;GET&quot;:
-        h.handleGet(id)
-    case &quot;PUT&quot;:
-        h.handlePut(id)
-    default:
-        http.Error(res, &quot;Only GET and PUT are allowed&quot;, http.StatusMethodNotAllowed)
-    }
-}
-
-func main() {
-    a := &amp;App{
-        UserHandler: new(UserHandler),
-    }
-    http.ListenAndServe(&quot;:8000&quot;, a)
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-// ADDITIONAL MODIFICATION FOR NESTED HANDLERS
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-type UserHandler struct{
-    ProfileHandler *ProfileHandler
-}
-
-func (h *UserHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-    var head string
-    head, req.URL.Path = ShiftPath(req.URL.Path)
-    id, err := strconv.Atoi(head)
-    if err != nil {
-        http.Error(res, fmt.Sprintf(&quot;Invalid user id %q&quot;, head), http.StatusBadRequest)
-        return
-    }
-
-    if req.URL.Path != &quot;/&quot; {
-        head, tail := ShiftPath(req.URL.Path)
-        switch head {
-        case &quot;profile&quot;:
-            // We can't just make ProfileHandler an http.Handler; it needs the
-            // user id. Let's instead…
-            h.ProfileHandler.Handler(id).ServeHTTP(res, req)
-        case &quot;account&quot;:
-            // Left as an exercise to the reader.
-        default:
-            http.Error(res, &quot;Not Found&quot;, http.StatusNotFound)
-        }
-        return
-    }
-    // As before
-    ...
-}
-
-type ProfileHandler struct {
-}
-
-func (h *ProfileHandler) Handler(id int) http.Handler {
-    return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-        // Do whatever
-    })
-}
-</code></pre>
 
 <h2 id="2-go-standard-lib-http-routing-go">2. Go Standard Lib HTTP Routing.go</h2>
 
@@ -229,6 +124,103 @@ e.g. a function that accepts the arguments `(w http.ResponseWriter, r *http.Requ
 http.HandlerFunc = func type used internally by http.HandleFunc
 e.g. it adapts the given function to the http.HandlerFunc type and that has a ServeHTTP method which then calls your given function
 */
+</code></pre>
+
+<h2 id="1-simple-and-non-confusing-go">1. Simple and Non-Confusing.go</h2>
+
+<pre><code class="language-go">package main
+
+type App struct {
+    // We could use http.Handler as a type here; using the specific type has
+    // the advantage that static analysis tools can link directly from
+    // h.UserHandler.ServeHTTP to the correct definition. The disadvantage is
+    // that we have slightly stronger coupling. Do the tradeoff yourself.
+    UserHandler *UserHandler
+}
+
+func (h *App) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+    var head string
+    head, req.URL.Path = ShiftPath(req.URL.Path)
+    if head == &quot;user&quot; {
+        h.UserHandler.ServeHTTP(res, req)
+        return
+    }
+    http.Error(res, &quot;Not Found&quot;, http.StatusNotFound)
+}
+
+type UserHandler struct {
+}
+
+func (h *UserHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+    var head string
+    head, req.URL.Path = ShiftPath(req.URL.Path)
+  
+    id, err := strconv.Atoi(head)
+    if err != nil {
+        http.Error(res, fmt.Sprintf(&quot;Invalid user id %q&quot;, head), http.StatusBadRequest)
+        return
+    }
+  
+    switch req.Method {
+    case &quot;GET&quot;:
+        h.handleGet(id)
+    case &quot;PUT&quot;:
+        h.handlePut(id)
+    default:
+        http.Error(res, &quot;Only GET and PUT are allowed&quot;, http.StatusMethodNotAllowed)
+    }
+}
+
+func main() {
+    a := &amp;App{
+        UserHandler: new(UserHandler),
+    }
+    http.ListenAndServe(&quot;:8000&quot;, a)
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// ADDITIONAL MODIFICATION FOR NESTED HANDLERS
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+type UserHandler struct{
+    ProfileHandler *ProfileHandler
+}
+
+func (h *UserHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+    var head string
+    head, req.URL.Path = ShiftPath(req.URL.Path)
+    id, err := strconv.Atoi(head)
+    if err != nil {
+        http.Error(res, fmt.Sprintf(&quot;Invalid user id %q&quot;, head), http.StatusBadRequest)
+        return
+    }
+
+    if req.URL.Path != &quot;/&quot; {
+        head, tail := ShiftPath(req.URL.Path)
+        switch head {
+        case &quot;profile&quot;:
+            // We can't just make ProfileHandler an http.Handler; it needs the
+            // user id. Let's instead…
+            h.ProfileHandler.Handler(id).ServeHTTP(res, req)
+        case &quot;account&quot;:
+            // Left as an exercise to the reader.
+        default:
+            http.Error(res, &quot;Not Found&quot;, http.StatusNotFound)
+        }
+        return
+    }
+    // As before
+    ...
+}
+
+type ProfileHandler struct {
+}
+
+func (h *ProfileHandler) Handler(id int) http.Handler {
+    return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+        // Do whatever
+    })
+}
 </code></pre>
 
 </div>

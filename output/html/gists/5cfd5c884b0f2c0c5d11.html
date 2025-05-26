@@ -3,15 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>nginx and ruby</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
@@ -26,38 +18,32 @@ COPY public /static
 EXPOSE 80
 </code></pre>
 
-<h2 id="front-end-dockerfile">front-end Dockerfile</h2>
+<h2 id="proxy-public-index-html">proxy public index.html</h2>
 
-<pre><code class="language-text">FROM ruby
-RUN mkdir -p /app
-WORKDIR /app
-COPY Gemfile /app/
-RUN bundle install --quiet
-COPY . /app
-EXPOSE 5000
-ENTRYPOINT [&quot;rackup&quot;]
-CMD [&quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;-p&quot;, &quot;5000&quot;]
+<pre><code class="language-html">&lt;p&gt;This is &lt;i&gt;static&lt;/i&gt; content served via nginx: abc123&lt;/p&gt;
 </code></pre>
 
-<h2 id="front-end-gemfile">front-end Gemfile</h2>
+<h2 id="docker-compose-yml">docker-compose.yml</h2>
 
-<pre><code class="language-text">source &quot;https://rubygems.org/&quot;
+<pre><code class="language-yaml">frontend:
+  image: ./front-end
+  ports:
+    - &quot;8080:5000&quot;
 
-gem &quot;puma&quot;
-gem &quot;sinatra&quot;
+proxy:
+  image: ./proxy
+  ports:
+    - &quot;80:80&quot;
+  links:
+    - frontend
 </code></pre>
 
-<h2 id="front-end-app-rb">front-end app.rb</h2>
+<h2 id="front-end-config-ru">front-end config.ru</h2>
 
-<pre><code class="language-ruby">require &quot;sinatra/base&quot;
+<pre><code class="language-ruby">require &quot;sinatra&quot;
+require &quot;./app.rb&quot;
 
-class App &lt; Sinatra::Base
-  set :bind, &quot;0.0.0.0&quot;
-
-  get &quot;/&quot; do
-    &quot;&lt;p&gt;This is &lt;i&gt;dynamic&lt;/i&gt; content served via puma: #{rand(36**6).to_s(36)}&quot;
-  end
-end
+run App
 </code></pre>
 
 <h2 id="proxy-nginx-conf">proxy nginx.conf</h2>
@@ -118,32 +104,38 @@ end
 <pre><code class="language-html">&lt;h1&gt;500 Error Page!?!&lt;/h1&gt;
 </code></pre>
 
-<h2 id="proxy-public-index-html">proxy public index.html</h2>
+<h2 id="front-end-dockerfile">front-end Dockerfile</h2>
 
-<pre><code class="language-html">&lt;p&gt;This is &lt;i&gt;static&lt;/i&gt; content served via nginx: abc123&lt;/p&gt;
+<pre><code class="language-text">FROM ruby
+RUN mkdir -p /app
+WORKDIR /app
+COPY Gemfile /app/
+RUN bundle install --quiet
+COPY . /app
+EXPOSE 5000
+ENTRYPOINT [&quot;rackup&quot;]
+CMD [&quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;-p&quot;, &quot;5000&quot;]
 </code></pre>
 
-<h2 id="docker-compose-yml">docker-compose.yml</h2>
+<h2 id="front-end-gemfile">front-end Gemfile</h2>
 
-<pre><code class="language-yaml">frontend:
-  image: ./front-end
-  ports:
-    - &quot;8080:5000&quot;
+<pre><code class="language-text">source &quot;https://rubygems.org/&quot;
 
-proxy:
-  image: ./proxy
-  ports:
-    - &quot;80:80&quot;
-  links:
-    - frontend
+gem &quot;puma&quot;
+gem &quot;sinatra&quot;
 </code></pre>
 
-<h2 id="front-end-config-ru">front-end config.ru</h2>
+<h2 id="front-end-app-rb">front-end app.rb</h2>
 
-<pre><code class="language-ruby">require &quot;sinatra&quot;
-require &quot;./app.rb&quot;
+<pre><code class="language-ruby">require &quot;sinatra/base&quot;
 
-run App
+class App &lt; Sinatra::Base
+  set :bind, &quot;0.0.0.0&quot;
+
+  get &quot;/&quot; do
+    &quot;&lt;p&gt;This is &lt;i&gt;dynamic&lt;/i&gt; content served via puma: #{rand(36**6).to_s(36)}&quot;
+  end
+end
 </code></pre>
 
 </div>

@@ -3,47 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>[Convert synchronous external Python code into asynchronous code] #python #tornado #sync #async #requests #urllib</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="convert-synchronous-external-python-code-into-asynchronous-code-python-tornado-sync-async-requests-urllib">[Convert synchronous external Python code into asynchronous code] #python #tornado #sync #async #requests #urllib</h1>
-
-<h2 id="threadpool-py">Threadpool.py</h2>
-
-<pre><code class="language-python">from concurrent.futures import ThreadPoolExecutor
-
-from tornado import gen
-from bf_rig import settings
-
-
-THREAD_POOL = ThreadPoolExecutor(settings.get(&quot;pool_max_workers&quot;))
-
-&quot;&quot;&quot;
-Using the ProcessPoolExecutor can be useful, in cases where memory usage 
-per request is very high (large response) and cycling the interpretor 
-is required to release memory back to OS.
-&quot;&quot;&quot;
-
-
-@gen.coroutine
-def run_on_executor(*args, **kwargs):
-    &quot;&quot;&quot;
-    ThreadPoolExecutor doesn't work with native coroutines unfortunately.
-    It will require asyncio.wrap_future which is not much better than using tornado's decorators.
-    &quot;&quot;&quot;
-    result = yield THREAD_POOL.submit(*args, **kwargs)
-    raise gen.Return(result)
-</code></pre>
 
 <h2 id="1-quicker-implementation-py">1. Quicker Implementation.py</h2>
 
@@ -156,6 +121,33 @@ for uri in requests:
 
 for thread in threads:
     thread.join()
+</code></pre>
+
+<h2 id="threadpool-py">Threadpool.py</h2>
+
+<pre><code class="language-python">from concurrent.futures import ThreadPoolExecutor
+
+from tornado import gen
+from bf_rig import settings
+
+
+THREAD_POOL = ThreadPoolExecutor(settings.get(&quot;pool_max_workers&quot;))
+
+&quot;&quot;&quot;
+Using the ProcessPoolExecutor can be useful, in cases where memory usage 
+per request is very high (large response) and cycling the interpretor 
+is required to release memory back to OS.
+&quot;&quot;&quot;
+
+
+@gen.coroutine
+def run_on_executor(*args, **kwargs):
+    &quot;&quot;&quot;
+    ThreadPoolExecutor doesn't work with native coroutines unfortunately.
+    It will require asyncio.wrap_future which is not much better than using tornado's decorators.
+    &quot;&quot;&quot;
+    result = yield THREAD_POOL.submit(*args, **kwargs)
+    raise gen.Return(result)
 </code></pre>
 
 </div>

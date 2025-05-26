@@ -3,20 +3,41 @@
 <head>
 <meta charset="utf-8">
 <title>Extending placeholder selectors within media queries</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="extending-placeholder-selectors-within-media-queries">Extending placeholder selectors within media queries</h1>
+
+<h2 id="output-css">output.css</h2>
+
+<pre><code class="language-css">.class3 {
+  color: blue;
+}
+@media (min-width: 600px) {
+  .class1, .class3 {
+    background: red;
+  }
+}
+@media (min-width: 800px) {
+  .class2, .class3 {
+    font-size: 28px;
+  }
+}
+
+</code></pre>
+
+<h2 id="readme-md">readme.md</h2>
+
+<pre><code class="language-markdown"># Extending placeholder selectors within @media queries
+
+By [blackfalcon](https://github.com/blackfalcon)
+
+Recent updates to Sass 3.2.3 has me thinking. And thanks to @micahgodbolt and @ScottKellum, I think we got to the bottom of this. Special thanks to [Sass Meister](http://sassmeister.com/) for providing the test bed.
+
+The following example illustrates how a placeholder selector can be extended within a @media query, functionality that previously threw an error in Sass. In the previous versions of Sass, the extended rule needed to be in direct context with the @media query. The functionality that this example illustrates is that if there is a common @media query between the new rule and the extended placeholder, this relationship will inherit.
+</code></pre>
 
 <h2 id="input-scss">input.scss</h2>
 
@@ -47,35 +68,6 @@ a.back-link:hover { text-decoration: underline; }
   @extend %myclass;
 }
 
-</code></pre>
-
-<h2 id="output-css">output.css</h2>
-
-<pre><code class="language-css">.class3 {
-  color: blue;
-}
-@media (min-width: 600px) {
-  .class1, .class3 {
-    background: red;
-  }
-}
-@media (min-width: 800px) {
-  .class2, .class3 {
-    font-size: 28px;
-  }
-}
-
-</code></pre>
-
-<h2 id="readme-md">readme.md</h2>
-
-<pre><code class="language-markdown"># Extending placeholder selectors within @media queries
-
-By [blackfalcon](https://github.com/blackfalcon)
-
-Recent updates to Sass 3.2.3 has me thinking. And thanks to @micahgodbolt and @ScottKellum, I think we got to the bottom of this. Special thanks to [Sass Meister](http://sassmeister.com/) for providing the test bed.
-
-The following example illustrates how a placeholder selector can be extended within a @media query, functionality that previously threw an error in Sass. In the previous versions of Sass, the extended rule needed to be in direct context with the @media query. The functionality that this example illustrates is that if there is a common @media query between the new rule and the extended placeholder, this relationship will inherit.
 </code></pre>
 
 </div>

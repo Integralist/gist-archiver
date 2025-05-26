@@ -3,86 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>[Validate README format with Python] #python</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="validate-readme-format-with-python-python">[Validate README format with Python] #python</h1>
-
-<h2 id="1-validate-readme-format-with-python-py">1. Validate README format with Python.py</h2>
-
-<pre><code class="language-python">&quot;&quot;&quot;
-Usage:
-
-    python ./scripts/validate_readmes.py
-        validate every README (~1min)
-
-    python ./scripts/validate_readmes.py --debug
-        validate every README with details on what headers are missing (~1min)
-
-    python ./scripts/validate_readmes.py --debug --service bpager
-        validate specific service README (time varies by service directory structure)
-&quot;&quot;&quot;
-
-import argparse
-import glob
-import re
-import unicodedata
-
-parser = argparse.ArgumentParser(description=&quot;Validate READMEs&quot;)
-parser.add_argument(&quot;-d&quot;, &quot;--debug&quot;,
-                    help=&quot;Show failure details&quot;, action=&quot;store_true&quot;)
-parser.add_argument(&quot;-s&quot;, &quot;--service&quot;, help=&quot;Validate specific service&quot;,
-                    default=&quot;**&quot;)
-parser.set_defaults(debug=False)
-args = parser.parse_args()
-
-valid_headers = set([
-    &quot;## Point of Contact and Slack channel&quot;,
-    &quot;## Running the service&quot;,
-    &quot;## System&quot;,
-    &quot;## Runbook&quot;,
-    &quot;## Monitoring&quot;,
-    &quot;## Documentation&quot;,
-])
-
-title = re.compile(&quot;^\s*(#.+$)&quot;, re.MULTILINE)
-invalid = re.compile(&quot;node_modules&quot;)
-service = args.service
-path = f&quot;../buzzfeed/mono/{service}/README.md&quot;
-
-
-for filename in glob.iglob(path, recursive=True):
-    with open(filename, &quot;r&quot;) as f:
-        if not (invalid.search(filename)):
-            print(filename, &quot;\n\n&quot;)
-
-            contents = f.read()
-            contents = unicodedata.normalize(&quot;NFKD&quot;, contents)
-            matches = title.findall(contents)
-            missing_headers = valid_headers - set(matches)
-            is_valid = valid_headers.issubset(set(matches))
-
-            if matches:
-                if args.debug:
-                    print(&quot;Found headers:\n&quot;, matches, &quot;\n\n&quot;)
-                    print(&quot;Expected headers:\n&quot;, valid_headers, &quot;\n\n&quot;)
-                    print(&quot;Missing headers:\n&quot;, missing_headers, &quot;\n\n&quot;)
-                print(&quot;Is README valid?\n&quot;, is_valid)
-            else:
-                print(&quot;no matching headers found? so will presume this README is invalid&quot;)
-
-            print(&quot;\n\n---\n\n&quot;)
-</code></pre>
 
 <h2 id="2-python-3-4-compatible-version-for-rig-vm-mono-repo-result-csv-options-missing-etc-py">2. Python 3.4 compatible version for Rig VM (Mono Repo) + RESULT &amp; CSV OPTIONS + Missing etc.py</h2>
 
@@ -382,6 +308,72 @@ with multiprocessing.Pool(48) as Pool: # pool of 48 processes
                                            for root, dirs, files in walk)
 
     results_of_work = Pool.map(worker, fn_gen) # this does the parallel processing
+</code></pre>
+
+<h2 id="1-validate-readme-format-with-python-py">1. Validate README format with Python.py</h2>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+Usage:
+
+    python ./scripts/validate_readmes.py
+        validate every README (~1min)
+
+    python ./scripts/validate_readmes.py --debug
+        validate every README with details on what headers are missing (~1min)
+
+    python ./scripts/validate_readmes.py --debug --service bpager
+        validate specific service README (time varies by service directory structure)
+&quot;&quot;&quot;
+
+import argparse
+import glob
+import re
+import unicodedata
+
+parser = argparse.ArgumentParser(description=&quot;Validate READMEs&quot;)
+parser.add_argument(&quot;-d&quot;, &quot;--debug&quot;,
+                    help=&quot;Show failure details&quot;, action=&quot;store_true&quot;)
+parser.add_argument(&quot;-s&quot;, &quot;--service&quot;, help=&quot;Validate specific service&quot;,
+                    default=&quot;**&quot;)
+parser.set_defaults(debug=False)
+args = parser.parse_args()
+
+valid_headers = set([
+    &quot;## Point of Contact and Slack channel&quot;,
+    &quot;## Running the service&quot;,
+    &quot;## System&quot;,
+    &quot;## Runbook&quot;,
+    &quot;## Monitoring&quot;,
+    &quot;## Documentation&quot;,
+])
+
+title = re.compile(&quot;^\s*(#.+$)&quot;, re.MULTILINE)
+invalid = re.compile(&quot;node_modules&quot;)
+service = args.service
+path = f&quot;../buzzfeed/mono/{service}/README.md&quot;
+
+
+for filename in glob.iglob(path, recursive=True):
+    with open(filename, &quot;r&quot;) as f:
+        if not (invalid.search(filename)):
+            print(filename, &quot;\n\n&quot;)
+
+            contents = f.read()
+            contents = unicodedata.normalize(&quot;NFKD&quot;, contents)
+            matches = title.findall(contents)
+            missing_headers = valid_headers - set(matches)
+            is_valid = valid_headers.issubset(set(matches))
+
+            if matches:
+                if args.debug:
+                    print(&quot;Found headers:\n&quot;, matches, &quot;\n\n&quot;)
+                    print(&quot;Expected headers:\n&quot;, valid_headers, &quot;\n\n&quot;)
+                    print(&quot;Missing headers:\n&quot;, missing_headers, &quot;\n\n&quot;)
+                print(&quot;Is README valid?\n&quot;, is_valid)
+            else:
+                print(&quot;no matching headers found? so will presume this README is invalid&quot;)
+
+            print(&quot;\n\n---\n\n&quot;)
 </code></pre>
 
 </div>

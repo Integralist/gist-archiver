@@ -3,20 +3,91 @@
 <head>
 <meta charset="utf-8">
 <title>[Python Context and ContextVars] #python #python3 #context #contextvars</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="python-context-and-contextvars-python-python3-context-contextvars">[Python Context and ContextVars] #python #python3 #context #contextvars</h1>
+
+<h2 id="3-server-example-py">3. Server Example.py</h2>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+I wanted to try and mimick something like golang's context.Context 
+which is built-in to their http server by default.
+
+I'm sort of surprised Python hasn't tried to copy that approach?
+
+We've got three files in this example...
+
+1. ctx.py: abstraction for contextvars module
+2. foo.py: random module for generating an ID
+3. app.py: web server module using asyncio
+&quot;&quot;&quot;
+
+# ctx.py
+#
+import contextvars
+from typing import Optional
+
+
+def lookup(ctx: contextvars.Context, key: str) -&gt; Optional[str]:
+    for i, v in list(ctx.items()):
+        if i.name == key:
+            return v
+    return None
+
+
+def new() -&gt; contextvars.Context:
+    return contextvars.Context()
+
+
+# foo.py
+#
+import asyncio
+import contextvars
+import os
+import random
+
+id: contextvars.ContextVar = contextvars.ContextVar('id')
+
+
+def gen_id():
+    uid = str(os.urandom(15))
+    print(&quot;uid:&quot;, uid)
+    id.set(uid)
+
+
+async def bar(ctx: contextvars.Context):
+    ctx.run(gen_id)
+    r = random.randint(5, 10)
+    print(f&quot;sleep for: {r} seconds&quot;)
+    await asyncio.sleep(r)
+
+
+# app.py
+#
+import asyncio
+
+import ctx
+import foo
+
+
+async def handle_request(reader, writer):
+    c = ctx.new()
+    await foo.bar(c)
+    writer.write(f&quot;result: {ctx.lookup(c, 'id')}&quot;.encode())
+    writer.close()
+
+
+async def main():
+    srv = await asyncio.start_server(handle_request, '127.0.0.1', 8081)
+
+    async with srv:
+        await srv.serve_forever()
+
+asyncio.run(main())
+</code></pre>
 
 <h2 id="0-readme-md">0. README.md</h2>
 
@@ -179,85 +250,6 @@ def lookup(ctx: contextvars.Context, key: str) -&gt; Optional[str]:
     return None
   
 lookup(ctx, &quot;foo&quot;)  # 'bar'
-</code></pre>
-
-<h2 id="3-server-example-py">3. Server Example.py</h2>
-
-<pre><code class="language-python">&quot;&quot;&quot;
-I wanted to try and mimick something like golang's context.Context 
-which is built-in to their http server by default.
-
-I'm sort of surprised Python hasn't tried to copy that approach?
-
-We've got three files in this example...
-
-1. ctx.py: abstraction for contextvars module
-2. foo.py: random module for generating an ID
-3. app.py: web server module using asyncio
-&quot;&quot;&quot;
-
-# ctx.py
-#
-import contextvars
-from typing import Optional
-
-
-def lookup(ctx: contextvars.Context, key: str) -&gt; Optional[str]:
-    for i, v in list(ctx.items()):
-        if i.name == key:
-            return v
-    return None
-
-
-def new() -&gt; contextvars.Context:
-    return contextvars.Context()
-
-
-# foo.py
-#
-import asyncio
-import contextvars
-import os
-import random
-
-id: contextvars.ContextVar = contextvars.ContextVar('id')
-
-
-def gen_id():
-    uid = str(os.urandom(15))
-    print(&quot;uid:&quot;, uid)
-    id.set(uid)
-
-
-async def bar(ctx: contextvars.Context):
-    ctx.run(gen_id)
-    r = random.randint(5, 10)
-    print(f&quot;sleep for: {r} seconds&quot;)
-    await asyncio.sleep(r)
-
-
-# app.py
-#
-import asyncio
-
-import ctx
-import foo
-
-
-async def handle_request(reader, writer):
-    c = ctx.new()
-    await foo.bar(c)
-    writer.write(f&quot;result: {ctx.lookup(c, 'id')}&quot;.encode())
-    writer.close()
-
-
-async def main():
-    srv = await asyncio.start_server(handle_request, '127.0.0.1', 8081)
-
-    async with srv:
-        await srv.serve_forever()
-
-asyncio.run(main())
 </code></pre>
 
 </div>

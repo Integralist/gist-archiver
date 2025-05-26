@@ -3,121 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>My mammoth View file (this needs refactoring for sure - maybe into sub views?)</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="my-mammoth-view-file-this-needs-refactoring-for-sure-maybe-into-sub-views">My mammoth View file (this needs refactoring for sure - maybe into sub views?)</h1>
-
-<h2 id="model-js">Model.js</h2>
-
-<pre><code class="language-javascript">define(['Backbone'], function(){
-
-    var min = 50;
-    var max = 400;
-
-    return Backbone.Model.extend({
-        defaults: {
-            amount: 0,
-            code: null,
-            date: (new Date())
-        },
-
-        initialize: function(){
-            this.on('error', this.handle_errors);
-        },  
-                      
-        validate: function (attributes) {
-            var errors = [];
-            var amount = parseInt(attributes.amount, 10);
-
-            /*
-                We first parse the amount (as it comes through as a String)
-                Once it's converted to a number we check that the value is NaN.
-                We also check if the amount entered fits within the allowed range.
-             */
-            if (_.isNaN(amount) || amount &lt; min || amount &gt; max) {
-                errors.push({
-                    field: 'amount',
-                    error: 'The amount was invalid'
-                });
-            } 
-            // If there were no errors validating this particular attribute...
-            else {
-                /*
-                   We use the following attribute 'event_type' to decide whether the user means to process the application or not.
-
-                   What happens is: regardless of whether the user changes the loan amount, or if they click on the 'apply' button, 
-                   the amount is validated before proceeding.
-
-                   So if the user is changing the amount within the popup then the keyup event will fire, 
-                   and so although the amount may be valid we don't want to suddenly automatically start processing the application!
-                   We only want that to happen if a click on the 'apply' button was made.
-
-                   So to work-around this we need to set a View property so the receiving method knows what's happening.
-                 */
-                
-                if (attributes.event_type === 'keyup') {
-                    this.view.allow_app_process = false; // don't allow application to be processed (because they've changed the amount, NOT pressed 'apply')
-                } 
-                /*
-                    Noticed an issue with setting this value to true when it shouldn't have been
-                    It was getting set to true by the focus event of the amount input (outside the popup)
-                    So we worked around that by ignoring the focus event (could have set 'click' but not sure if that would be valid on mobile device?)
-                 */
-                else if (attributes.event_type !== 'focusin') {
-                    this.view.allow_app_process = true; // allow application to be processed
-                }
-
-                /*
-                    OK I can imagine this manual trigger of the custom event 'amount:changed' might seem strange at first 
-                    (as Model's accept event listeners on their initialize method), but there apparently was no other work-around.
-
-                    Talking to the Backbone.js maintainers they suggested that I manually trigger the custom event like this.
-                    Which was instead of having: this.on('change:amount', this.amount_change); =&gt; which itself then ran: this.trigger('amount:changed');
-
-                    The problem was/is as follows:
-                    
-                    If a user enters a valid amount `123` and then enters an invalid amount like zero then the attribute value isn't changed.
-                    But if the user then enters the correct amount `123` again the change event can't be fired because nothing has actually changed.
-                    So we relying on the change event firing, to tell if the application should go through, but this logic was flawed here.
-                    
-                    This meant we needed to manually trigger the 'amount:changed' event after successfully validating the data, 
-                    rather than relying on the Model to trigger a change event.
-                 */
-                this.trigger('amount:changed');
-            }
-
-            if (errors.length) {
-                // We pass some info through to the View so it knows that the validation failed
-                this.view.validation_pass = false;
-                this.view.allow_app_process = false;
-                
-                return errors
-            }
-        },
-
-        handle_errors: function (model, error) {
-            // Context of &quot;this&quot; gets lost within _.each()
-            var self = this;
-            
-            _.each(error, function (item, iterator) {
-                self.trigger('item:invalid', item);
-            });
-        }
-    });
-
-});
-</code></pre>
 
 <h2 id="view-js">View.js</h2>
 
@@ -458,6 +349,107 @@ a.back-link:hover { text-decoration: underline; }
             this.loan_details.innerHTML = this.template_content;
         }
 
+    });
+
+});
+</code></pre>
+
+<h2 id="model-js">Model.js</h2>
+
+<pre><code class="language-javascript">define(['Backbone'], function(){
+
+    var min = 50;
+    var max = 400;
+
+    return Backbone.Model.extend({
+        defaults: {
+            amount: 0,
+            code: null,
+            date: (new Date())
+        },
+
+        initialize: function(){
+            this.on('error', this.handle_errors);
+        },  
+                      
+        validate: function (attributes) {
+            var errors = [];
+            var amount = parseInt(attributes.amount, 10);
+
+            /*
+                We first parse the amount (as it comes through as a String)
+                Once it's converted to a number we check that the value is NaN.
+                We also check if the amount entered fits within the allowed range.
+             */
+            if (_.isNaN(amount) || amount &lt; min || amount &gt; max) {
+                errors.push({
+                    field: 'amount',
+                    error: 'The amount was invalid'
+                });
+            } 
+            // If there were no errors validating this particular attribute...
+            else {
+                /*
+                   We use the following attribute 'event_type' to decide whether the user means to process the application or not.
+
+                   What happens is: regardless of whether the user changes the loan amount, or if they click on the 'apply' button, 
+                   the amount is validated before proceeding.
+
+                   So if the user is changing the amount within the popup then the keyup event will fire, 
+                   and so although the amount may be valid we don't want to suddenly automatically start processing the application!
+                   We only want that to happen if a click on the 'apply' button was made.
+
+                   So to work-around this we need to set a View property so the receiving method knows what's happening.
+                 */
+                
+                if (attributes.event_type === 'keyup') {
+                    this.view.allow_app_process = false; // don't allow application to be processed (because they've changed the amount, NOT pressed 'apply')
+                } 
+                /*
+                    Noticed an issue with setting this value to true when it shouldn't have been
+                    It was getting set to true by the focus event of the amount input (outside the popup)
+                    So we worked around that by ignoring the focus event (could have set 'click' but not sure if that would be valid on mobile device?)
+                 */
+                else if (attributes.event_type !== 'focusin') {
+                    this.view.allow_app_process = true; // allow application to be processed
+                }
+
+                /*
+                    OK I can imagine this manual trigger of the custom event 'amount:changed' might seem strange at first 
+                    (as Model's accept event listeners on their initialize method), but there apparently was no other work-around.
+
+                    Talking to the Backbone.js maintainers they suggested that I manually trigger the custom event like this.
+                    Which was instead of having: this.on('change:amount', this.amount_change); =&gt; which itself then ran: this.trigger('amount:changed');
+
+                    The problem was/is as follows:
+                    
+                    If a user enters a valid amount `123` and then enters an invalid amount like zero then the attribute value isn't changed.
+                    But if the user then enters the correct amount `123` again the change event can't be fired because nothing has actually changed.
+                    So we relying on the change event firing, to tell if the application should go through, but this logic was flawed here.
+                    
+                    This meant we needed to manually trigger the 'amount:changed' event after successfully validating the data, 
+                    rather than relying on the Model to trigger a change event.
+                 */
+                this.trigger('amount:changed');
+            }
+
+            if (errors.length) {
+                // We pass some info through to the View so it knows that the validation failed
+                this.view.validation_pass = false;
+                this.view.allow_app_process = false;
+                
+                return errors
+            }
+        },
+
+        handle_errors: function (model, error) {
+            // Context of &quot;this&quot; gets lost within _.each()
+            var self = this;
+            
+            _.each(error, function (item, iterator) {
+                self.trigger('item:invalid', item);
+            });
+        }
     });
 
 });

@@ -3,20 +3,236 @@
 <head>
 <meta charset="utf-8">
 <title>[Golang GitHub API Client] #go #golang #github #api</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="golang-github-api-client-go-golang-github-api">[Golang GitHub API Client] #go #golang #github #api</h1>
+
+<h2 id="4-golang-github-api-client-added-concurrency-go">4. Golang GitHub API Client (added concurrency).go</h2>
+
+<pre><code class="language-go">// NOTE: GitHub API rate limit is 5,000 requests per hour for 'user-to-server'.
+package main
+
+import (
+	&quot;context&quot;
+	&quot;flag&quot;
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;os&quot;
+	&quot;strings&quot;
+	&quot;sync&quot;
+	&quot;sync/atomic&quot;
+
+	&quot;github.com/fatih/color&quot;
+	&quot;github.com/google/go-github/v42/github&quot;
+	&quot;golang.org/x/oauth2&quot;
+)
+
+// perPage is the number of items per page to be loaded from the API.
+const perPage = 100
+
+var (
+	bold  = color.New(color.FgHiYellow).Add(color.Bold).SprintFunc()
+	title = color.New(color.FgHiRed).Add(color.Underline).Add(color.Bold).SprintFunc()
+)
+
+func main() {
+	md := flag.Bool(&quot;missing&quot;, false, &quot;Display repos missing descriptions&quot;)
+	ds := flag.Bool(&quot;squatters&quot;, false, &quot;Display repos that are domain squatting&quot;)
+	flag.Parse()
+
+	client := NewGitHubClient()
+	org := &quot;fastly&quot;
+
+	if !*md &amp;&amp; !*ds {
+		flag.PrintDefaults()
+	}
+
+	pages := numOfPages(client, org)
+	repos := fetchRepos(client, org, pages)
+
+	var wg sync.WaitGroup
+	if *md {
+		wg.Add(1)
+		go DisplayReposMissingDescription(repos, &amp;wg)
+	}
+	if *ds {
+		wg.Add(1)
+		go DisplayDomainSquatters(repos, client, org, &amp;wg)
+	}
+	wg.Wait()
+}
+
+// NewGitHubClient returns a client for making API requests to GitHub.
+//
+// NOTE:
+// Ensure you have an API token exposed via the environment variable:
+// GITHUB_TOKEN_TERMINAL_TOOL
+func NewGitHubClient() *github.Client {
+	sts := oauth2.StaticTokenSource(
+		&amp;oauth2.Token{
+			AccessToken: os.Getenv(&quot;GITHUB_TOKEN_TERMINAL_TOOL&quot;),
+		},
+	)
+	c := oauth2.NewClient(context.Background(), sts)
+
+	return github.NewClient(c)
+}
+
+// numOfPages calculates the number of pages that need to be paginated based on
+// the total public and private repos across the `perPage` constant.
+func numOfPages(client *github.Client, org string) int {
+	o, _, err := client.Organizations.Get(context.Background(), org)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return (o.GetPublicRepos() + o.GetOwnedPrivateRepos()) / perPage
+}
+
+// fetchRepos makes multiple concurrent API requests for repositories.
+func fetchRepos(client *github.Client, org string, numOfPages int) []*github.Repository {
+	var m sync.Mutex
+	repos := []*github.Repository{}
+
+	process := func(page int, wg *sync.WaitGroup) {
+		opts := NewOptions()
+		opts.Page = page
+
+		repositories, _, err := client.Repositories.ListByOrg(context.Background(), org, opts)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, r := range repositories {
+			m.Lock()
+			repos = append(repos, r)
+			m.Unlock()
+		}
+		wg.Done()
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(numOfPages)
+	for i := 1; i &lt;= numOfPages; i++ {
+		go process(i, &amp;wg)
+	}
+	wg.Wait()
+
+	return repos
+}
+
+// NewOptions configures the ListByOrg API endpoint.
+func NewOptions() *github.RepositoryListByOrgOptions {
+	return &amp;github.RepositoryListByOrgOptions{
+		ListOptions: github.ListOptions{
+			PerPage: perPage,
+		},
+	}
+}
+
+// DisplayReposMissingDescription prints all the repos that have no
+// description, including whether the repo is private or public.
+//
+// NOTE:
+// This function is run concurrently with DisplayDomainSquatters.
+// To prevent interweaving of printed output we write data to a buffer which is
+// then flushed once the search operation is finished.
+//
+// TODO:
+// The two Display* functions both need to paginate over the same amount of
+// pages, so only do it once and then store off the data to pass into both
+// functions instead of repeating the operations.
+func DisplayReposMissingDescription(repos []*github.Repository, wg *sync.WaitGroup) {
+	var (
+		b     strings.Builder
+		count int
+	)
+
+	fmt.Fprintf(&amp;b, &quot;%s\n\n&quot;, title(&quot;Repos with no description...&quot;))
+
+	for _, r := range repos {
+		if r.GetDescription() == &quot;&quot; {
+			count += 1
+			fmt.Fprintf(&amp;b, &quot;%s: %s\n%s %t\n\n&quot;, bold(&quot;URL&quot;), r.GetHTMLURL(), bold(&quot;Private?&quot;), r.GetPrivate())
+		}
+	}
+
+	fmt.Fprintf(&amp;b, &quot;Total repos without a description: %d\n\n&quot;, count)
+	fmt.Println(b.String())
+
+	wg.Done()
+}
+
+// DisplayDomainSquatters prints all the repos that contain only a single
+// README.md file, including whether the repo is private or public.
+//
+// NOTE:
+// This function is run concurrently with DisplayReposMissingDescription.
+// To prevent interweaving of printed output we write data to a buffer which is
+// then flushed once the search operation is finished.
+//
+// Additionally we execute the API requests for repo file contents
+// concurrently, and we use a semaphore pattern to batch those requests
+// otherwise the GitHub API will issue us a secondary rate limit message.
+//
+// TODO:
+// Some repos have content in non-default branches. This suggests the repo
+// might be WIP (Work in Progress). We should update the script to inspect the
+// last modified date for the branch. If modified recently (e.g. within the
+// last month), then it's probably safe to keep the repo. Otherwise we should
+// reach out to the team/person responsible for the repo about removing it.
+func DisplayDomainSquatters(repos []*github.Repository, client *github.Client, org string, wg *sync.WaitGroup) {
+	var (
+		b     strings.Builder
+		count uint64
+		m     sync.Mutex
+	)
+
+	fmt.Fprintf(&amp;b, &quot;%s\n\n&quot;, title(&quot;Repos that are domain squatting...&quot;))
+
+	semaphore := make(chan struct{}, 50) // 50 is the maximum number of concurrent processes that may run at any time
+
+	process := func(r *github.Repository, wg2 *sync.WaitGroup) {
+		// Will block once more than 100 instances of `process` are called.
+		semaphore &lt;- struct{}{}
+
+		// Empty buffered channel by one so the next call to `process` can begin.
+		defer func() { &lt;-semaphore }()
+
+		// Done must be called before pulling from the semaphore channel.
+		defer wg2.Done()
+
+		_, directoryContent, _, err := client.Repositories.GetContents(context.Background(), org, r.GetName(), &quot;/&quot;, nil)
+		if err != nil {
+			if !strings.Contains(err.Error(), &quot;This repository is empty&quot;) {
+				log.Fatal(err)
+			}
+		}
+		if len(directoryContent) == 1 &amp;&amp; strings.ToLower(directoryContent[0].GetName()) == &quot;readme.md&quot; {
+			atomic.AddUint64(&amp;count, 1)
+
+			// The strings.Builder type is not thread-safe.
+			m.Lock()
+			fmt.Fprintf(&amp;b, &quot;%s: %s\n%s %t\n\n&quot;, bold(&quot;URL&quot;), r.GetHTMLURL(), bold(&quot;Private?&quot;), r.GetPrivate())
+			m.Unlock()
+		}
+	}
+
+	var wg2 sync.WaitGroup
+	wg2.Add(len(repos))
+	for _, r := range repos {
+		go process(r, &amp;wg2)
+	}
+	wg2.Wait()
+	close(semaphore)
+
+	fmt.Fprintf(&amp;b, &quot;Total repos that are domain squatting: %d&quot;, count)
+	fmt.Println(b.String())
+
+	wg.Done()
+}
+</code></pre>
 
 <h2 id="1-golang-github-api-client-simple-inlined-proof-of-concept-go">1. Golang GitHub API Client (simple inlined proof-of-concept).go</h2>
 
@@ -448,230 +664,6 @@ func DisplayDomainSquatters(client *github.Client, org string, wg *sync.WaitGrou
 		}
 		opts.Page = resp.NextPage
 	}
-
-	fmt.Fprintf(&amp;b, &quot;Total repos that are domain squatting: %d&quot;, count)
-	fmt.Println(b.String())
-
-	wg.Done()
-}
-</code></pre>
-
-<h2 id="4-golang-github-api-client-added-concurrency-go">4. Golang GitHub API Client (added concurrency).go</h2>
-
-<pre><code class="language-go">// NOTE: GitHub API rate limit is 5,000 requests per hour for 'user-to-server'.
-package main
-
-import (
-	&quot;context&quot;
-	&quot;flag&quot;
-	&quot;fmt&quot;
-	&quot;log&quot;
-	&quot;os&quot;
-	&quot;strings&quot;
-	&quot;sync&quot;
-	&quot;sync/atomic&quot;
-
-	&quot;github.com/fatih/color&quot;
-	&quot;github.com/google/go-github/v42/github&quot;
-	&quot;golang.org/x/oauth2&quot;
-)
-
-// perPage is the number of items per page to be loaded from the API.
-const perPage = 100
-
-var (
-	bold  = color.New(color.FgHiYellow).Add(color.Bold).SprintFunc()
-	title = color.New(color.FgHiRed).Add(color.Underline).Add(color.Bold).SprintFunc()
-)
-
-func main() {
-	md := flag.Bool(&quot;missing&quot;, false, &quot;Display repos missing descriptions&quot;)
-	ds := flag.Bool(&quot;squatters&quot;, false, &quot;Display repos that are domain squatting&quot;)
-	flag.Parse()
-
-	client := NewGitHubClient()
-	org := &quot;fastly&quot;
-
-	if !*md &amp;&amp; !*ds {
-		flag.PrintDefaults()
-	}
-
-	pages := numOfPages(client, org)
-	repos := fetchRepos(client, org, pages)
-
-	var wg sync.WaitGroup
-	if *md {
-		wg.Add(1)
-		go DisplayReposMissingDescription(repos, &amp;wg)
-	}
-	if *ds {
-		wg.Add(1)
-		go DisplayDomainSquatters(repos, client, org, &amp;wg)
-	}
-	wg.Wait()
-}
-
-// NewGitHubClient returns a client for making API requests to GitHub.
-//
-// NOTE:
-// Ensure you have an API token exposed via the environment variable:
-// GITHUB_TOKEN_TERMINAL_TOOL
-func NewGitHubClient() *github.Client {
-	sts := oauth2.StaticTokenSource(
-		&amp;oauth2.Token{
-			AccessToken: os.Getenv(&quot;GITHUB_TOKEN_TERMINAL_TOOL&quot;),
-		},
-	)
-	c := oauth2.NewClient(context.Background(), sts)
-
-	return github.NewClient(c)
-}
-
-// numOfPages calculates the number of pages that need to be paginated based on
-// the total public and private repos across the `perPage` constant.
-func numOfPages(client *github.Client, org string) int {
-	o, _, err := client.Organizations.Get(context.Background(), org)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return (o.GetPublicRepos() + o.GetOwnedPrivateRepos()) / perPage
-}
-
-// fetchRepos makes multiple concurrent API requests for repositories.
-func fetchRepos(client *github.Client, org string, numOfPages int) []*github.Repository {
-	var m sync.Mutex
-	repos := []*github.Repository{}
-
-	process := func(page int, wg *sync.WaitGroup) {
-		opts := NewOptions()
-		opts.Page = page
-
-		repositories, _, err := client.Repositories.ListByOrg(context.Background(), org, opts)
-		if err != nil {
-			log.Fatal(err)
-		}
-		for _, r := range repositories {
-			m.Lock()
-			repos = append(repos, r)
-			m.Unlock()
-		}
-		wg.Done()
-	}
-
-	var wg sync.WaitGroup
-	wg.Add(numOfPages)
-	for i := 1; i &lt;= numOfPages; i++ {
-		go process(i, &amp;wg)
-	}
-	wg.Wait()
-
-	return repos
-}
-
-// NewOptions configures the ListByOrg API endpoint.
-func NewOptions() *github.RepositoryListByOrgOptions {
-	return &amp;github.RepositoryListByOrgOptions{
-		ListOptions: github.ListOptions{
-			PerPage: perPage,
-		},
-	}
-}
-
-// DisplayReposMissingDescription prints all the repos that have no
-// description, including whether the repo is private or public.
-//
-// NOTE:
-// This function is run concurrently with DisplayDomainSquatters.
-// To prevent interweaving of printed output we write data to a buffer which is
-// then flushed once the search operation is finished.
-//
-// TODO:
-// The two Display* functions both need to paginate over the same amount of
-// pages, so only do it once and then store off the data to pass into both
-// functions instead of repeating the operations.
-func DisplayReposMissingDescription(repos []*github.Repository, wg *sync.WaitGroup) {
-	var (
-		b     strings.Builder
-		count int
-	)
-
-	fmt.Fprintf(&amp;b, &quot;%s\n\n&quot;, title(&quot;Repos with no description...&quot;))
-
-	for _, r := range repos {
-		if r.GetDescription() == &quot;&quot; {
-			count += 1
-			fmt.Fprintf(&amp;b, &quot;%s: %s\n%s %t\n\n&quot;, bold(&quot;URL&quot;), r.GetHTMLURL(), bold(&quot;Private?&quot;), r.GetPrivate())
-		}
-	}
-
-	fmt.Fprintf(&amp;b, &quot;Total repos without a description: %d\n\n&quot;, count)
-	fmt.Println(b.String())
-
-	wg.Done()
-}
-
-// DisplayDomainSquatters prints all the repos that contain only a single
-// README.md file, including whether the repo is private or public.
-//
-// NOTE:
-// This function is run concurrently with DisplayReposMissingDescription.
-// To prevent interweaving of printed output we write data to a buffer which is
-// then flushed once the search operation is finished.
-//
-// Additionally we execute the API requests for repo file contents
-// concurrently, and we use a semaphore pattern to batch those requests
-// otherwise the GitHub API will issue us a secondary rate limit message.
-//
-// TODO:
-// Some repos have content in non-default branches. This suggests the repo
-// might be WIP (Work in Progress). We should update the script to inspect the
-// last modified date for the branch. If modified recently (e.g. within the
-// last month), then it's probably safe to keep the repo. Otherwise we should
-// reach out to the team/person responsible for the repo about removing it.
-func DisplayDomainSquatters(repos []*github.Repository, client *github.Client, org string, wg *sync.WaitGroup) {
-	var (
-		b     strings.Builder
-		count uint64
-		m     sync.Mutex
-	)
-
-	fmt.Fprintf(&amp;b, &quot;%s\n\n&quot;, title(&quot;Repos that are domain squatting...&quot;))
-
-	semaphore := make(chan struct{}, 50) // 50 is the maximum number of concurrent processes that may run at any time
-
-	process := func(r *github.Repository, wg2 *sync.WaitGroup) {
-		// Will block once more than 100 instances of `process` are called.
-		semaphore &lt;- struct{}{}
-
-		// Empty buffered channel by one so the next call to `process` can begin.
-		defer func() { &lt;-semaphore }()
-
-		// Done must be called before pulling from the semaphore channel.
-		defer wg2.Done()
-
-		_, directoryContent, _, err := client.Repositories.GetContents(context.Background(), org, r.GetName(), &quot;/&quot;, nil)
-		if err != nil {
-			if !strings.Contains(err.Error(), &quot;This repository is empty&quot;) {
-				log.Fatal(err)
-			}
-		}
-		if len(directoryContent) == 1 &amp;&amp; strings.ToLower(directoryContent[0].GetName()) == &quot;readme.md&quot; {
-			atomic.AddUint64(&amp;count, 1)
-
-			// The strings.Builder type is not thread-safe.
-			m.Lock()
-			fmt.Fprintf(&amp;b, &quot;%s: %s\n%s %t\n\n&quot;, bold(&quot;URL&quot;), r.GetHTMLURL(), bold(&quot;Private?&quot;), r.GetPrivate())
-			m.Unlock()
-		}
-	}
-
-	var wg2 sync.WaitGroup
-	wg2.Add(len(repos))
-	for _, r := range repos {
-		go process(r, &amp;wg2)
-	}
-	wg2.Wait()
-	close(semaphore)
 
 	fmt.Fprintf(&amp;b, &quot;Total repos that are domain squatting: %d&quot;, count)
 	fmt.Println(b.String())

@@ -1,16 +1,5 @@
 # Ruby OOP vs FP (examples are from ThoughtBot's Weekly Iteration -> you should subscribe!)
 
-## 1. API.rb
-
-```ruby
-# Examples taken from ThoughtBot's Weekly Iteration
-# We need to implement a solution that allows us to cleanly use two separate APIs
-
-# Our fake APIs
-PayPal.charge!(auth_code, 25)
-Stripe::CreditCard.new(credit_card_token).charge(25)
-```
-
 ## 2. OOP.rb
 
 ```ruby
@@ -62,5 +51,16 @@ Payment.new(
   25, 
   PayPal.method(:charge!).curry(:auth_code)
 ).charge
+```
+
+## 1. API.rb
+
+```ruby
+# Examples taken from ThoughtBot's Weekly Iteration
+# We need to implement a solution that allows us to cleanly use two separate APIs
+
+# Our fake APIs
+PayPal.charge!(auth_code, 25)
+Stripe::CreditCard.new(credit_card_token).charge(25)
 ```
 

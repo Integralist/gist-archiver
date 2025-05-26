@@ -3,108 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>[Github Action Workflow Example] #github #git #actions #workflows</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="github-action-workflow-example-github-git-actions-workflows">[Github Action Workflow Example] #github #git #actions #workflows</h1>
-
-<h2 id="2-evolved-version-with-c-cross-compilation-required-yaml">2. Evolved version with C cross-compilation required.yaml</h2>
-
-<pre><code class="language-yaml"># .github/workflows/release.yaml 
-name: Main
-
-on:
-  push:
-    tags:
-      - &quot;v*.*.*&quot;
-
-jobs:
-  build:
-    strategy:
-      matrix:
-        rust-toolchain: [stable]
-        os: [ubuntu-latest, macos-11, windows-latest]
-        arch: [amd64, arm64]
-        exclude:
-          - os: windows-latest
-            arch: arm64
-        include:
-          - os: ubuntu-latest
-            name: linux
-            rust_abi: unknown-linux-gnu
-          - os: macos-11
-            name: darwin
-            rust_abi: apple-darwin
-          - os: windows-latest
-            name: windows
-            rust_abi: pc-windows-msvc
-            extension: .exe
-          - arch: arm64
-            rust_arch: aarch64
-          - arch: amd64
-            rust_arch: x86_64
-
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - name: Install latest Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.rust-toolchain }}
-          target: ${{ matrix.rust_arch }}-${{ matrix.rust_abi }}
-          default: true
-          override: true
-
-      - name: Install C cross-compilation toolchain
-        if: ${{ matrix.name == 'linux' &amp;&amp; matrix.arch != 'amd64' }}
-        run: |
-          sudo apt install -f -y gcc-${{ matrix.rust_arch }}-linux-gnu
-          echo CC=${{ matrix.rust_arch }}-linux-gnu-gcc &gt;&gt; $GITHUB_ENV
-          echo RUSTFLAGS='-C linker=${{ matrix.rust_arch }}-linux-gnu-gcc' &gt;&gt; $GITHUB_ENV
-      - name: Extract tag name
-        uses: olegtarasov/get-tag@v2.1
-        id: tagName
-
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --all --locked --target=${{ matrix.rust_arch }}-${{ matrix.rust_abi }}
-
-      - name: Strip symbols (linux)
-        if: ${{ matrix.name == 'linux' }}
-        run: |
-          ${{ matrix.rust_arch }}-linux-gnu-strip target/${{ matrix.rust_arch }}-${{ matrix.rust_abi }}/release/viceroy${{ matrix.extension }}
-      - name: Strip symbols (non-linux)
-        if: ${{ matrix.name != 'linux' }}
-        run: |
-          strip target/${{ matrix.rust_arch }}-${{ matrix.rust_abi }}/release/viceroy${{ matrix.extension }}
-      - name: Package
-        run: |
-          cd target/${{ matrix.rust_arch }}-${{ matrix.rust_abi }}/release
-          tar czf viceroy_${{ steps.tagName.outputs.tag }}_${{ matrix.name }}-${{ matrix.arch }}.tar.gz viceroy${{ matrix.extension }}
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            target/${{ matrix.rust_arch }}-${{ matrix.rust_abi }}/release/viceroy_${{ steps.tagName.outputs.tag }}_${{ matrix.name }}-${{ matrix.arch }}.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-</code></pre>
 
 <h2 id="1-github-action-workflow-example-md">1. Github Action Workflow Example.md</h2>
 
@@ -192,7 +96,95 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 </code></pre>
 
-<p>&rdquo;`</p>
+<pre><code>
+## 2. Evolved version with C cross-compilation required.yaml
+
+```yaml
+# .github/workflows/release.yaml 
+name: Main
+
+on:
+  push:
+    tags:
+      - &quot;v*.*.*&quot;
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        rust-toolchain: [stable]
+        os: [ubuntu-latest, macos-11, windows-latest]
+        arch: [amd64, arm64]
+        exclude:
+          - os: windows-latest
+            arch: arm64
+        include:
+          - os: ubuntu-latest
+            name: linux
+            rust_abi: unknown-linux-gnu
+          - os: macos-11
+            name: darwin
+            rust_abi: apple-darwin
+          - os: windows-latest
+            name: windows
+            rust_abi: pc-windows-msvc
+            extension: .exe
+          - arch: arm64
+            rust_arch: aarch64
+          - arch: amd64
+            rust_arch: x86_64
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install latest Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust-toolchain }}
+          target: ${{ matrix.rust_arch }}-${{ matrix.rust_abi }}
+          default: true
+          override: true
+
+      - name: Install C cross-compilation toolchain
+        if: ${{ matrix.name == 'linux' &amp;&amp; matrix.arch != 'amd64' }}
+        run: |
+          sudo apt install -f -y gcc-${{ matrix.rust_arch }}-linux-gnu
+          echo CC=${{ matrix.rust_arch }}-linux-gnu-gcc &gt;&gt; $GITHUB_ENV
+          echo RUSTFLAGS='-C linker=${{ matrix.rust_arch }}-linux-gnu-gcc' &gt;&gt; $GITHUB_ENV
+      - name: Extract tag name
+        uses: olegtarasov/get-tag@v2.1
+        id: tagName
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --all --locked --target=${{ matrix.rust_arch }}-${{ matrix.rust_abi }}
+
+      - name: Strip symbols (linux)
+        if: ${{ matrix.name == 'linux' }}
+        run: |
+          ${{ matrix.rust_arch }}-linux-gnu-strip target/${{ matrix.rust_arch }}-${{ matrix.rust_abi }}/release/viceroy${{ matrix.extension }}
+      - name: Strip symbols (non-linux)
+        if: ${{ matrix.name != 'linux' }}
+        run: |
+          strip target/${{ matrix.rust_arch }}-${{ matrix.rust_abi }}/release/viceroy${{ matrix.extension }}
+      - name: Package
+        run: |
+          cd target/${{ matrix.rust_arch }}-${{ matrix.rust_abi }}/release
+          tar czf viceroy_${{ steps.tagName.outputs.tag }}_${{ matrix.name }}-${{ matrix.arch }}.tar.gz viceroy${{ matrix.extension }}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            target/${{ matrix.rust_arch }}-${{ matrix.rust_abi }}/release/viceroy_${{ steps.tagName.outputs.tag }}_${{ matrix.name }}-${{ matrix.arch }}.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+</code></pre>
 
 </div>
 </body>

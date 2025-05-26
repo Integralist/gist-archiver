@@ -3,82 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>[Golang Gzip] #golang #go #gzip #proxy</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="golang-gzip-golang-go-gzip-proxy">[Golang Gzip] #golang #go #gzip #proxy</h1>
-
-<h2 id="golang-fake-repeat-bytes-and-convert-byte-to-reader-go">Golang fake repeat bytes and convert []byte to reader.go</h2>
-
-<pre><code class="language-go">package main
-
-import (
-	&quot;bytes&quot;
-	&quot;compress/gzip&quot;
-  	&quot;encoding/base64&quot;
-	&quot;fmt&quot;
-	&quot;io/ioutil&quot;
-    &quot;math/rand&quot;
-)
-
-func main() {
-	var b bytes.Buffer
-	w := gzip.NewWriter(&amp;b)
-	w.Write(bytes.Repeat([]byte(&quot;x&quot;), 800))
-	w.Flush()
-	w.Close()
-
-	b1 := bytes.NewReader(b.Bytes())
-	fmt.Printf(&quot;%+v (%T)\n&quot;, b1, b1)
-
-	r, _ := gzip.NewReader(&amp;b)
-	defer r.Close()
-	rawData, err := ioutil.ReadAll(r)
-	println(string(rawData))
-	if err != nil {
-		panic(err.Error())
-	}
-
-  	// use &quot;math/rand&quot;'s rand.Read to populate []byte with random data of specified length
-  	genBytes := make([]byte, 800)
-	rand.Read(genBytes) // generally won't be readable so might _look_ compressed even when decompressed
-						// so maybe write encoded data to the gzip writer (see below for example).
-
-	var mockWriter bytes.Buffer
-	w := gzip.NewWriter(&amp;mockWriter)
-	w.Write(genBytes)
-	w.Flush()
-	w.Close()
-	
-  	debugReadCloser := ioutil.NopCloser(bytes.NewReader(mockWriter.Bytes()))
-  
-  	// encoded example
-  
-  	genBytes := make([]byte, 406715)
-	rand.Read(genBytes)
-
-	encoded := make([]byte, 542288)
-	base64.StdEncoding.Encode(encoded, genBytes)
-
-	var mockWriter bytes.Buffer
-	w := gzip.NewWriter(&amp;mockWriter)
-	w.Write(encoded)
-	w.Flush()
-	w.Close()
-
-	debugReadCloser := ioutil.NopCloser(bytes.NewReader(mockWriter.Bytes()))
-}
-</code></pre>
 
 <h2 id="golang-a-basic-gzip-read-using-data-from-httpbin-go">Golang A basic Gzip read using data from HTTPBin.go</h2>
 
@@ -306,6 +236,68 @@ func main() {
 
     fmt.Printf(&quot;Server err: %v\n&quot;, get(server))
     fmt.Printf(&quot;Proxy server err: %v\n&quot;, get(proxyServer))
+}
+</code></pre>
+
+<h2 id="golang-fake-repeat-bytes-and-convert-byte-to-reader-go">Golang fake repeat bytes and convert []byte to reader.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;bytes&quot;
+	&quot;compress/gzip&quot;
+  	&quot;encoding/base64&quot;
+	&quot;fmt&quot;
+	&quot;io/ioutil&quot;
+    &quot;math/rand&quot;
+)
+
+func main() {
+	var b bytes.Buffer
+	w := gzip.NewWriter(&amp;b)
+	w.Write(bytes.Repeat([]byte(&quot;x&quot;), 800))
+	w.Flush()
+	w.Close()
+
+	b1 := bytes.NewReader(b.Bytes())
+	fmt.Printf(&quot;%+v (%T)\n&quot;, b1, b1)
+
+	r, _ := gzip.NewReader(&amp;b)
+	defer r.Close()
+	rawData, err := ioutil.ReadAll(r)
+	println(string(rawData))
+	if err != nil {
+		panic(err.Error())
+	}
+
+  	// use &quot;math/rand&quot;'s rand.Read to populate []byte with random data of specified length
+  	genBytes := make([]byte, 800)
+	rand.Read(genBytes) // generally won't be readable so might _look_ compressed even when decompressed
+						// so maybe write encoded data to the gzip writer (see below for example).
+
+	var mockWriter bytes.Buffer
+	w := gzip.NewWriter(&amp;mockWriter)
+	w.Write(genBytes)
+	w.Flush()
+	w.Close()
+	
+  	debugReadCloser := ioutil.NopCloser(bytes.NewReader(mockWriter.Bytes()))
+  
+  	// encoded example
+  
+  	genBytes := make([]byte, 406715)
+	rand.Read(genBytes)
+
+	encoded := make([]byte, 542288)
+	base64.StdEncoding.Encode(encoded, genBytes)
+
+	var mockWriter bytes.Buffer
+	w := gzip.NewWriter(&amp;mockWriter)
+	w.Write(encoded)
+	w.Flush()
+	w.Close()
+
+	debugReadCloser := ioutil.NopCloser(bytes.NewReader(mockWriter.Bytes()))
 }
 </code></pre>
 

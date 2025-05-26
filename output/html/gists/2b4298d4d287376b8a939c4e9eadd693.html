@@ -3,20 +3,31 @@
 <head>
 <meta charset="utf-8">
 <title>[Fastly Terraform Import] #fastly #terraform #go #import</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="fastly-terraform-import-fastly-terraform-go-import">[Fastly Terraform Import] #fastly #terraform #go #import</h1>
+
+<h2 id="terraform-custom-diff-script-bash">Terraform Custom Diff Script.bash</h2>
+
+<pre><code class="language-shell">#!/usr/bin/env bash
+#
+# Explanation:
+# I use this to help me identify when newlines are causing diff conflicts.
+
+# Get plan
+terraform plan -out=tfplan &gt; /dev/null 2&gt;&amp;1
+
+# Convert plan to json
+CHANGES=$(terraform show -json tfplan | jq '.resource_changes[].change')
+
+# Diff before and after with newlines expanded
+diff -u \
+  &lt;(echo &quot;$CHANGES&quot; | jq '.before' | sed 's/\\n/\//g') \
+  &lt;(echo &quot;$CHANGES&quot; | jq '.after' | sed 's/\\n/\//g')
+</code></pre>
 
 <h2 id="import-steps-md">Import Steps.md</h2>
 
@@ -130,26 +141,7 @@ provider &quot;fastly&quot; {
 <pre><code>No changes. Infrastructure is up-to-date.
 </code></pre>
 
-<pre><code>
-## Terraform Custom Diff Script.bash
-
-```shell
-#!/usr/bin/env bash
-#
-# Explanation:
-# I use this to help me identify when newlines are causing diff conflicts.
-
-# Get plan
-terraform plan -out=tfplan &gt; /dev/null 2&gt;&amp;1
-
-# Convert plan to json
-CHANGES=$(terraform show -json tfplan | jq '.resource_changes[].change')
-
-# Diff before and after with newlines expanded
-diff -u \
-  &lt;(echo &quot;$CHANGES&quot; | jq '.before' | sed 's/\\n/\//g') \
-  &lt;(echo &quot;$CHANGES&quot; | jq '.after' | sed 's/\\n/\//g')
-</code></pre>
+<p>&rdquo;`</p>
 
 </div>
 </body>

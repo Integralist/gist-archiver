@@ -3,20 +3,46 @@
 <head>
 <meta charset="utf-8">
 <title>S.O.L.I.D - (D)ependency Inversion. In the bad example, yes we're injecting our dependency but the Button class is now no longer reusable as it is too tightly coupled to the Lamp class. In the better example, we're still injecting our dependency but we now inverse the control via the use of an Interface. So now any `SwitchableDevice` can be used with the Button class.</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="s-o-l-i-d-d-ependency-inversion-in-the-bad-example-yes-we-re-injecting-our-dependency-but-the-button-class-is-now-no-longer-reusable-as-it-is-too-tightly-coupled-to-the-lamp-class-in-the-better-example-we-re-still-injecting-our-dependency-but-we-now-inverse-the-control-via-the-use-of-an-interface-so-now-any-switchabledevice-can-be-used-with-the-button-class">S.O.L.I.D - (D)ependency Inversion. In the bad example, yes we&rsquo;re injecting our dependency but the Button class is now no longer reusable as it is too tightly coupled to the Lamp class. In the better example, we&rsquo;re still injecting our dependency but we now inverse the control via the use of an Interface. So now any <code>SwitchableDevice</code> can be used with the Button class.</h1>
+
+<h2 id="1-bad-example-php">1. Bad Example.php</h2>
+
+<pre><code class="language-php">&lt;?php
+class Lamp
+{
+    public function turnOn()
+    {
+        // code
+    }
+    
+    public function turnOff()
+    {
+        // code
+    }
+}
+
+class Button
+{
+    private $lamp;
+    
+    public function __construct(Lamp $lamp)
+    {
+        $this-&gt;lamp = $lamp;
+    }
+    
+    public function doSomething()
+    {
+        if (x) {
+            $this-&gt;lamp-&gt;turnOn();
+        }
+    }
+}
+</code></pre>
 
 <h2 id="2-better-example-php">2. Better Example.php</h2>
 
@@ -53,40 +79,6 @@ class Button
     {
         if (x) {
             $this-&gt;switchableDevice-&gt;turnOn();
-        }
-    }
-}
-</code></pre>
-
-<h2 id="1-bad-example-php">1. Bad Example.php</h2>
-
-<pre><code class="language-php">&lt;?php
-class Lamp
-{
-    public function turnOn()
-    {
-        // code
-    }
-    
-    public function turnOff()
-    {
-        // code
-    }
-}
-
-class Button
-{
-    private $lamp;
-    
-    public function __construct(Lamp $lamp)
-    {
-        $this-&gt;lamp = $lamp;
-    }
-    
-    public function doSomething()
-    {
-        if (x) {
-            $this-&gt;lamp-&gt;turnOn();
         }
     }
 }

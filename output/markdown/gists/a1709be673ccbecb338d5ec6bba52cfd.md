@@ -1,62 +1,5 @@
 # [Terraform create backend definitions from a list of hostnames] #terraform #fastly #work
 
-## backend_template.vcl
-
-```vcl
-backend F_${backendname} {
-    .between_bytes_timeout = 10s;
-    .connect_timeout = 1s;
-    .dynamic = true;
-    .first_byte_timeout = 15s;
-    .host = "${hostname}";
-    .max_connections = 200;
-    .port = "443";
-    .share_key = "...";
-    .ssl = true;
-    .ssl_cert_hostname = "${hostname}";
-    .ssl_check_cert = always;
-    .ssl_sni_hostname = "${hostname}";
-    .bypass_local_route_table = true;
-    .probe = {
-      .dummy = true;
-    }
-}
-```
-
-## main.tf
-
-```hcl
-terraform {
-  required_providers {
-    fastly = {
-      source  = "fastly/fastly"
-      version = ">= 1.0.0"
-    }
-  }
-}
-
-locals {
-  backends = ["b1.example.com", "b2.example.com"]
-}
-
-resource "fastly_service_vcl" "myservice" {
-  name = "myservice"
-
-  domain {
-    name = "test.hkakehas.tokyo"
-  }
-
-  snippet {
-    name = "backends"
-    type = "init"
-    content = join("\n", [for backend in local.backends : templatefile("${path.module}/backend_template.vcl",
-    { backendname : replace(backend, ".", "_"), hostname : backend, })])
-  }
-
-  force_destroy = true
-}
-```
-
 ## result.txt
 
 ```text
@@ -127,5 +70,62 @@ fastly_service_vcl.myservice: Still modifying... [id=..., 20s elapsed]
 fastly_service_vcl.myservice: Still modifying... [id=..., 30s elapsed]
 fastly_service_vcl.myservice: Modifications complete after 31s [id=...]
 
+```
+
+## backend_template.vcl
+
+```vcl
+backend F_${backendname} {
+    .between_bytes_timeout = 10s;
+    .connect_timeout = 1s;
+    .dynamic = true;
+    .first_byte_timeout = 15s;
+    .host = "${hostname}";
+    .max_connections = 200;
+    .port = "443";
+    .share_key = "...";
+    .ssl = true;
+    .ssl_cert_hostname = "${hostname}";
+    .ssl_check_cert = always;
+    .ssl_sni_hostname = "${hostname}";
+    .bypass_local_route_table = true;
+    .probe = {
+      .dummy = true;
+    }
+}
+```
+
+## main.tf
+
+```hcl
+terraform {
+  required_providers {
+    fastly = {
+      source  = "fastly/fastly"
+      version = ">= 1.0.0"
+    }
+  }
+}
+
+locals {
+  backends = ["b1.example.com", "b2.example.com"]
+}
+
+resource "fastly_service_vcl" "myservice" {
+  name = "myservice"
+
+  domain {
+    name = "test.hkakehas.tokyo"
+  }
+
+  snippet {
+    name = "backends"
+    type = "init"
+    content = join("\n", [for backend in local.backends : templatefile("${path.module}/backend_template.vcl",
+    { backendname : replace(backend, ".", "_"), hostname : backend, })])
+  }
+
+  force_destroy = true
+}
 ```
 

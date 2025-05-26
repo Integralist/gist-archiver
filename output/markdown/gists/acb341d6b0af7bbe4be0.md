@@ -1,72 +1,5 @@
 # 00_destructuring.md
 
-## 01_compojure.md
-
-```markdown
-Compojure Destructuring
-=======================
-
-[Official docs][compojure]
-
-The basic syntax of a Compojure route is as follows:
-
-```
-(REQUEST-METHOD "/path" request-data (handler-fn request-data))
-```
-
-The simplest form is to pass the entire [Ring request map][ring-request-map] to your handler function.
-
-Here, the request map will be bound to the `request` var and when `my-handler` is called it is passed as an argument. You can then extract/manipulate whatever data you want in the `request` map:
-
-
-```clojure
-(defn my-handler [request] ...)
-;;                   ___________________
-;;                  |                   V
-(GET "/some/path" request (my-handler request))
-```
-
-Since the request is just a regular Clojure map, Compojure allows you to destructure that map using the same map destructuring methods above. This is useful if you only want specific values from the map for the handler function to work with:
-
-```clojure
-(defn my-handler [uri query-string]
-  (println uri)
-  ;; note that query-string is raw. e.g. "foo=bar&fizz=buzz"
-  (println query-string))
-
-(GET "/some/path" {uri :uri, query-string :query-string} (my-handler uri query-string))
-;; or with the shortcuts
-(GET "/some/path" {:keys [uri query-string]} (my-handler uri query-string))
-```
-
-If you want to pass the entire request map as well:
-
-```clojure
-(defn my-handler [uri query-string request]
-  (println request)
-  (println uri)
-  (println query-string))
-
-(GET "/some/path" {:keys [uri query-string] :as request} (my-handler uri query-string request))
-```
-
-Compojure-specific Destructuring
---------------------------------
-
-Since regular destructuring can be quite verbose, Compojure offers a more specialised form of destructuring. If you supply a vector, Compojure will use this custom destructuring syntax [1][compojure].
-
-**Note:** This only works for routes wrapped with the [`wrap-params` middleware][wrap-params]. This is because by default, a [Ring request map][ring-request-map] doesn't include the `:params` entry (which contains the parsed value of `:query-string`).
-The `wrap-params` middleware parses the value of `:query-string` and inserts it into the request map as `:params`, which Compojure's special destructuring syntax targets. (TODO: Ring wiki is old. Is this still true?)
-
-From here, assume that all handlers are wrapped with `wrap-params`.
-
-(I got sleepy)
-
-[compojure]: https://github.com/weavejester/compojure/wiki/Destructuring-Syntax
-[ring-request-map]: https://github.com/ring-clojure/ring/wiki/Concepts#requests
-[wrap-params]: https://github.com/ring-clojure/ring/wiki/Parameters
-```
-
 ## 00_destructuring.md
 
 ```markdown
@@ -285,5 +218,72 @@ Here be dragons.
 **TODO**
 
 
+```
+
+## 01_compojure.md
+
+```markdown
+Compojure Destructuring
+=======================
+
+[Official docs][compojure]
+
+The basic syntax of a Compojure route is as follows:
+
+```
+(REQUEST-METHOD "/path" request-data (handler-fn request-data))
+```
+
+The simplest form is to pass the entire [Ring request map][ring-request-map] to your handler function.
+
+Here, the request map will be bound to the `request` var and when `my-handler` is called it is passed as an argument. You can then extract/manipulate whatever data you want in the `request` map:
+
+
+```clojure
+(defn my-handler [request] ...)
+;;                   ___________________
+;;                  |                   V
+(GET "/some/path" request (my-handler request))
+```
+
+Since the request is just a regular Clojure map, Compojure allows you to destructure that map using the same map destructuring methods above. This is useful if you only want specific values from the map for the handler function to work with:
+
+```clojure
+(defn my-handler [uri query-string]
+  (println uri)
+  ;; note that query-string is raw. e.g. "foo=bar&fizz=buzz"
+  (println query-string))
+
+(GET "/some/path" {uri :uri, query-string :query-string} (my-handler uri query-string))
+;; or with the shortcuts
+(GET "/some/path" {:keys [uri query-string]} (my-handler uri query-string))
+```
+
+If you want to pass the entire request map as well:
+
+```clojure
+(defn my-handler [uri query-string request]
+  (println request)
+  (println uri)
+  (println query-string))
+
+(GET "/some/path" {:keys [uri query-string] :as request} (my-handler uri query-string request))
+```
+
+Compojure-specific Destructuring
+--------------------------------
+
+Since regular destructuring can be quite verbose, Compojure offers a more specialised form of destructuring. If you supply a vector, Compojure will use this custom destructuring syntax [1][compojure].
+
+**Note:** This only works for routes wrapped with the [`wrap-params` middleware][wrap-params]. This is because by default, a [Ring request map][ring-request-map] doesn't include the `:params` entry (which contains the parsed value of `:query-string`).
+The `wrap-params` middleware parses the value of `:query-string` and inserts it into the request map as `:params`, which Compojure's special destructuring syntax targets. (TODO: Ring wiki is old. Is this still true?)
+
+From here, assume that all handlers are wrapped with `wrap-params`.
+
+(I got sleepy)
+
+[compojure]: https://github.com/weavejester/compojure/wiki/Destructuring-Syntax
+[ring-request-map]: https://github.com/ring-clojure/ring/wiki/Concepts#requests
+[wrap-params]: https://github.com/ring-clojure/ring/wiki/Parameters
 ```
 

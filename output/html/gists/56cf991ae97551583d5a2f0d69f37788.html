@@ -3,35 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>[Fastly's Custom VCL] #fastly #cdn #varnish #vcl</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="fastly-s-custom-vcl-fastly-cdn-varnish-vcl">[Fastly&rsquo;s Custom VCL] #fastly #cdn #varnish #vcl</h1>
-
-<h2 id="1-files-md">1. Files.md</h2>
-
-<pre><code class="language-markdown">See https://docs.fastly.com/guides/vcl/mixing-and-matching-fastly-vcl-with-custom-vcl for details.
-
-- [`vcl_deliver`](#file-fastly_vcl_deliver-vcl)
-- [`vcl_error`](#file-fastly_vcl_error-vcl)
-- [`vcl_fetch`](#file-fastly_vcl_fetch-vcl)
-- [`vcl_hash`](#file-fastly_vcl_hash-vcl)
-- [`vcl_hit`](#file-fastly_vcl_hit-vcl)
-- [`vcl_miss`](#file-fastly_vcl_miss-vcl)
-- [`vcl_pass`](#file-fastly_vcl_pass-vcl)
-- [`vcl_pipe`](#file-fastly_vcl_pipe-vcl)
-- [`vcl_recv`](#file-fastly_vcl_recv-vcl)
-</code></pre>
 
 <h2 id="fastly-vcl-deliver-vcl">fastly_vcl_deliver.vcl</h2>
 
@@ -92,49 +69,6 @@ a.back-link:hover { text-decoration: underline; }
 #--FASTLY DELIVER END
 </code></pre>
 
-<h2 id="fastly-vcl-fetch-vcl">fastly_vcl_fetch.vcl</h2>
-
-<pre><code class="language-vcl">#--FASTLY FETCH BEGIN
-# record which cache ran vcl_fetch for this object and when
-  set beresp.http.Fastly-Debug-Path = &quot;(F &quot; server.identity &quot; &quot; now.sec &quot;) &quot; if(beresp.http.Fastly-Debug-Path, beresp.http.Fastly-Debug-Path, &quot;&quot;);
-# generic mechanism to vary on something
-  if (req.http.Fastly-Vary-String) {
-    if (beresp.http.Vary) {
-      set beresp.http.Vary = &quot;Fastly-Vary-String, &quot;  beresp.http.Vary;
-    } else {
-      set beresp.http.Vary = &quot;Fastly-Vary-String, &quot;;
-    }
-  }
- # priority: 0
-  # Gzip basic GZIP rules
-  if ((beresp.status == 200 || beresp.status == 404) &amp;&amp; (beresp.http.content-type ~ &quot;^(text\/html|application\/x\-javascript|text\/css|application\/javascript|text\/javascript|application\/json|application\/vnd\.ms\-fontobject|application\/x\-font\-opentype|application\/x\-font\-truetype|application\/x\-font\-ttf|application\/xml|font\/eot|font\/opentype|font\/otf|image\/svg\+xml|image\/vnd\.microsoft\.icon|text\/plain|text\/xml)\s*($|;)&quot; || req.url ~ &quot;\.(css|js|html|eot|ico|otf|ttf|json)($|\?)&quot; ) ) {
-    # always set vary to make sure uncompressed versions dont always win
-    if (!beresp.http.Vary ~ &quot;Accept-Encoding&quot;) {
-      if (beresp.http.Vary) {
-        set beresp.http.Vary = beresp.http.Vary &quot;, Accept-Encoding&quot;;
-      } else {
-         set beresp.http.Vary = &quot;Accept-Encoding&quot;;
-      }
-    }
-    if (req.http.Accept-Encoding == &quot;gzip&quot;) {
-      set beresp.gzip = true;
-    }
-  }
-#--FASTLY FETCH END
-</code></pre>
-
-<h2 id="fastly-vcl-hit-vcl">fastly_vcl_hit.vcl</h2>
-
-<pre><code class="language-vcl">#--FASTLY HIT BEGIN
-# we cannot reach obj.ttl and obj.grace in deliver, save them when we can in vcl_hit
-  set req.http.Fastly-Tmp-Obj-TTL = obj.ttl;
-  set req.http.Fastly-Tmp-Obj-Grace = obj.grace;
-  {
-    set req.http.Fastly-Cachetype = &quot;HIT&quot;;
-  }
-#--FASTLY HIT END
-</code></pre>
-
 <h2 id="fastly-vcl-error-vcl">fastly_vcl_error.vcl</h2>
 
 <pre><code class="language-vcl">#--FASTLY ERROR BEGIN
@@ -158,12 +92,16 @@ a.back-link:hover { text-decoration: underline; }
 #--FASTLY ERROR END
 </code></pre>
 
-<h2 id="fastly-vcl-hash-vcl">fastly_vcl_hash.vcl</h2>
+<h2 id="fastly-vcl-hit-vcl">fastly_vcl_hit.vcl</h2>
 
-<pre><code class="language-vcl">#--FASTLY HASH BEGIN
-# support purge all
-  set req.hash += &quot;#####GENERATION#####&quot;;
-#--FASTLY HASH END
+<pre><code class="language-vcl">#--FASTLY HIT BEGIN
+# we cannot reach obj.ttl and obj.grace in deliver, save them when we can in vcl_hit
+  set req.http.Fastly-Tmp-Obj-TTL = obj.ttl;
+  set req.http.Fastly-Tmp-Obj-Grace = obj.grace;
+  {
+    set req.http.Fastly-Cachetype = &quot;HIT&quot;;
+  }
+#--FASTLY HIT END
 </code></pre>
 
 <h2 id="fastly-vcl-miss-vcl">fastly_vcl_miss.vcl</h2>
@@ -210,6 +148,76 @@ a.back-link:hover { text-decoration: underline; }
     set req.http.Fastly-Cachetype = &quot;MISS&quot;;
   }
 #--FASTLY MISS END
+</code></pre>
+
+<h2 id="fastly-vcl-recv-vcl">fastly_vcl_recv.vcl</h2>
+
+<pre><code class="language-vcl">#--FASTLY RECV BEGIN
+  if (req.restarts == 0) {
+    if (!req.http.X-Timer) {
+      set req.http.X-Timer = &quot;S&quot; time.start.sec &quot;.&quot; time.start.usec_frac;
+    }
+    set req.http.X-Timer = req.http.X-Timer &quot;,VS0&quot;;
+  }
+            set req.backend = autodirector_;
+  # default conditions
+  set req.backend = autodirector_;
+    # end default conditions
+#--FASTLY RECV END
+</code></pre>
+
+<h2 id="1-files-md">1. Files.md</h2>
+
+<pre><code class="language-markdown">See https://docs.fastly.com/guides/vcl/mixing-and-matching-fastly-vcl-with-custom-vcl for details.
+
+- [`vcl_deliver`](#file-fastly_vcl_deliver-vcl)
+- [`vcl_error`](#file-fastly_vcl_error-vcl)
+- [`vcl_fetch`](#file-fastly_vcl_fetch-vcl)
+- [`vcl_hash`](#file-fastly_vcl_hash-vcl)
+- [`vcl_hit`](#file-fastly_vcl_hit-vcl)
+- [`vcl_miss`](#file-fastly_vcl_miss-vcl)
+- [`vcl_pass`](#file-fastly_vcl_pass-vcl)
+- [`vcl_pipe`](#file-fastly_vcl_pipe-vcl)
+- [`vcl_recv`](#file-fastly_vcl_recv-vcl)
+</code></pre>
+
+<h2 id="fastly-vcl-fetch-vcl">fastly_vcl_fetch.vcl</h2>
+
+<pre><code class="language-vcl">#--FASTLY FETCH BEGIN
+# record which cache ran vcl_fetch for this object and when
+  set beresp.http.Fastly-Debug-Path = &quot;(F &quot; server.identity &quot; &quot; now.sec &quot;) &quot; if(beresp.http.Fastly-Debug-Path, beresp.http.Fastly-Debug-Path, &quot;&quot;);
+# generic mechanism to vary on something
+  if (req.http.Fastly-Vary-String) {
+    if (beresp.http.Vary) {
+      set beresp.http.Vary = &quot;Fastly-Vary-String, &quot;  beresp.http.Vary;
+    } else {
+      set beresp.http.Vary = &quot;Fastly-Vary-String, &quot;;
+    }
+  }
+ # priority: 0
+  # Gzip basic GZIP rules
+  if ((beresp.status == 200 || beresp.status == 404) &amp;&amp; (beresp.http.content-type ~ &quot;^(text\/html|application\/x\-javascript|text\/css|application\/javascript|text\/javascript|application\/json|application\/vnd\.ms\-fontobject|application\/x\-font\-opentype|application\/x\-font\-truetype|application\/x\-font\-ttf|application\/xml|font\/eot|font\/opentype|font\/otf|image\/svg\+xml|image\/vnd\.microsoft\.icon|text\/plain|text\/xml)\s*($|;)&quot; || req.url ~ &quot;\.(css|js|html|eot|ico|otf|ttf|json)($|\?)&quot; ) ) {
+    # always set vary to make sure uncompressed versions dont always win
+    if (!beresp.http.Vary ~ &quot;Accept-Encoding&quot;) {
+      if (beresp.http.Vary) {
+        set beresp.http.Vary = beresp.http.Vary &quot;, Accept-Encoding&quot;;
+      } else {
+         set beresp.http.Vary = &quot;Accept-Encoding&quot;;
+      }
+    }
+    if (req.http.Accept-Encoding == &quot;gzip&quot;) {
+      set beresp.gzip = true;
+    }
+  }
+#--FASTLY FETCH END
+</code></pre>
+
+<h2 id="fastly-vcl-hash-vcl">fastly_vcl_hash.vcl</h2>
+
+<pre><code class="language-vcl">#--FASTLY HASH BEGIN
+# support purge all
+  set req.hash += &quot;#####GENERATION#####&quot;;
+#--FASTLY HASH END
 </code></pre>
 
 <h2 id="fastly-vcl-pass-vcl">fastly_vcl_pass.vcl</h2>
@@ -291,22 +299,6 @@ a.back-link:hover { text-decoration: underline; }
     set bereq.http.connection = &quot;close&quot;;
   }
 #--FASTLY PIPE END
-</code></pre>
-
-<h2 id="fastly-vcl-recv-vcl">fastly_vcl_recv.vcl</h2>
-
-<pre><code class="language-vcl">#--FASTLY RECV BEGIN
-  if (req.restarts == 0) {
-    if (!req.http.X-Timer) {
-      set req.http.X-Timer = &quot;S&quot; time.start.sec &quot;.&quot; time.start.usec_frac;
-    }
-    set req.http.X-Timer = req.http.X-Timer &quot;,VS0&quot;;
-  }
-            set req.backend = autodirector_;
-  # default conditions
-  set req.backend = autodirector_;
-    # end default conditions
-#--FASTLY RECV END
 </code></pre>
 
 </div>

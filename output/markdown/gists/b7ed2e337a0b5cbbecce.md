@@ -1,5 +1,182 @@
 # JavaScript Function Programming (scratch pad) -> Most of the code here is modified from the excellent O'Reilly book "Functional JavaScript".
 
+## 0. JavaScript Function Programming TOC.md
+
+```markdown
+This code is modified from the excellent O'Reilly book "Functional JavaScript". You should buy it, I highly recommend it! Don't kid yourself into thinking this gist even remotely covers the great content from a 200+ page technical book on the subject; it doesn't. Buy the book and get the in-depth knowledge for yourself. It's worth it.
+
+- [Composability through higher order functions](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-01-composability-js)
+- [Parsing CSV (ES5 version)](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce/#file-02-es5-js)
+- [Parsing CSV (LoDash version)](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce/#file-03-lodash-js)
+- [Abstract away conditionals](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce/#file-04-conditionals-js)
+- [Data construction](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce/#file-05-construction-js)
+- [Currying and Partial Application](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce/#file-06-currying-and-partial-application-js)
+- [Null Object pattern](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce/#file-07-null-object-pattern-js)
+- [Checking and Validating data](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-08-checking-and-validating-data-js)
+- [Rules of Recursion](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-09-rules-of-recursion-md)
+- [Recursive Checking and Validating](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-10-recursive-checking-and-validating-js)
+- [Definition of Purity](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-11-definition-of-purity-md)
+- [Composition can help avoid mutation](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-12-composition-can-help-avoid-mutation-js)
+- [If statements in Functional form](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-13-if-statements-in-functional-form-js)
+- [Pipeline](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-14-pipeline-js)
+```
+
+## 07. Null object pattern.js
+
+```javascript
+var _ = {
+    reduce: require('lodash.reduce'), // npm install lodash.reduce
+    rest:   require('lodash.rest'),   // npm install lodash.rest
+    map:    require('lodash.map')     // npm install lodash.map
+};
+
+function exists(value) {
+    return value !== undefined && value !== null
+}
+
+function fnull(fn) {
+    var defaults = _.rest(arguments); // default values to use in case a null value is passed in
+
+    return function() {
+        /*
+            Modify arguments so null values are replaced with default values
+            e.g. args passed in our example below:
+                 1, 2 (1 * 2 == 2)
+                 2, 3 (2 * 3 == 6)
+                 6, null (null replaced with 1 and so this becomes 6 * 1 == 6)
+                 6, 5 (6 * 5 == 30)
+        */
+        var args = _.map(arguments, function(item, index) {
+            return exists(item) ? item : defaults[index];
+        });
+
+        return fn.apply(null, args);
+    };
+}
+
+var data = [1, 2, 3, null, 5];
+var multiplier   = function(total, n) { return total * n }; 
+var safeMultiply = fnull(multiplier, 1, 1);
+
+_.reduce(data, multiplier);   // => 0
+_.reduce(data, safeMultiply); // => 30
+```
+
+## 14.Pipeline.js
+
+```javascript
+var _ = require('lodash');
+
+function rev(arr) {
+    return _.chain(arr)
+            .reverse()
+            .value();
+}
+
+function pipeline(seed) {
+    return _.reduce(_.rest(arguments), function(l, r) {
+        return r(l);
+    }, seed);
+}
+
+var data = [2, 3, null, 1, 42, false];
+
+console.log(
+    pipeline(data,
+            _.compact,
+            _.initial,
+            _.rest,
+            rev)
+); // => [1, 3]
+
+// Evaluates to...
+
+/*
+rev(
+    _.rest(
+        _.initial(
+            _.compact(data))))
+*/
+```
+
+## 11. Definition of Purity.md
+
+```markdown
+A pure function adheres to the following properties:
+
+- Its result is calculated only from the values of its arguments
+- It cannot rely on data that changes external to its control
+- It cannot change the state of something external to its body
+```
+
+## 02. ES5.js
+
+```javascript
+var csv = 'name,age,hair\nmark,32,brown\ncat,27,red';
+
+function parseCSV(csv) {
+    var data = csv.split('\n');
+        data.unshift([]); // accumulator
+
+    // ES5's `reduce` method isn't as nice to use as found in Underscore/Lo-Dash
+    // This is because it uses the first item in the collection as the accumulator 
+    // So really the `current` argument starts at index 1 and `previous` is index 0
+    // Underscore/Lo-Dash works the same but also allows you to pass in an accumulator
+    // So to make things easier/clearer I decided to inject my own accumulator into the collection
+    return data.reduce(
+        function(previous, current, index, collection) {
+            previous.push(current.split(',').map(function(item) {
+                return item.trim();
+            })); // `push` returns the new length of the array rather than the array itself...
+
+            return previous; // ...hence we need to explicitly return the array
+        }
+    );
+}
+
+parseCSV(csv) // => [ [ 'name', 'age', 'hair' ],
+              //    [ 'mark', '32', 'brown' ],
+              //    [ 'cat', '27', 'red' ] ]
+```
+
+## 04. conditionals.js
+
+```javascript
+var _ = require('lodash'); // lodash.tap wasn't available on npm as separate modules (update: there is a Lo-Dash npm module that allows for pulling in specific functions)
+
+function exists(value) {
+    return value !== undefined && value !== null
+}
+
+function truthy(value) {
+    return value !== false && exists(value)
+}
+
+// The following code abstracts away the ugliness of using conditionals to say:
+// "do this thing, only if this other thing exists"
+// The use of `if (!!condition)` would be more concise than having two separate functions
+// like we use above (`exists` and `truthy`) but we're abiding by FP principle of:
+// "replace values with functions"
+
+function doWhen(condition, action) {
+    if (truthy(condition))
+        return action()
+    else
+        return
+}
+
+function executeIfFieldExists(target, field) {
+    return doWhen(target[field], function() {
+        return _(target).tap(function(target) {
+            console.log('The result is', _.result(target, field))
+        })
+    })
+}
+
+executeIfFieldExists({ foo: 'bar' }, 'foo');   // => 'bar'
+executeIfFieldExists([1, 2, 3, 4], 'reverse'); // => [4, 3, 2, 1]
+```
+
 ## 05. construction.js
 
 ```javascript
@@ -243,122 +420,6 @@ console.log(
 ); // => []
 ```
 
-## 09. Rules of Recursion.md
-
-```markdown
-- Know when to stop
-- Decide how to take one step
-- Break the problem down into a smaller problem
-
-```js
-function myLength(arr) {
-    if (_.isEmpty(arr)) {
-        return 0;
-    } else {
-        return 1 + myLength(_.rest(arr));
-    }
-}
-
-myLength(_.range(10));     // 10
-myLength(_.range(1000));   // 1000
-myLength(_.range(10000));  // 10000
-myLength(_.range(100000)); // FATAL ERROR: JS Allocation failed - process out of memory
-
-// See http://www.integralist.co.uk/posts/understanding-recursion-in-functional-javascript-programming/
-// to understand tail-call optimisation
-```
-
-- Know when to stop (`if (_.isEmpty(arr)) {`)
-- Decide how to take one step (`1 + myLength(...)`)
-- Break the problem down into a smaller problem (`myLength(_.rest(arr)`)
-```
-
-## 12. Composition can help avoid mutation.js
-
-```javascript
-var _ = require('lodash');
-
-// Make an Array out of the provided arguments
-function construct() {
-    return _.reduce(_.toArray(arguments), function(accumulator, value) {
-        return _.chain(accumulator)
-                .push(value)
-                .value();
-    }, []);
-}
-
-function merge() {
-    return _.extend.apply(null,
-                          construct.apply(
-                              construct, _.flatten([{}, arguments])
-                          )
-                         );
-}
-
-var person = { name: "Mark" };
-
-// We return an object that is a combination of the provided objects
-console.log(
-    merge(person, { age: 32 }, { location: "London" })
-); // => { name: "Mark", age: 32, location: "London" }
-
-// But we don't mutate the original object
-console.log(
-    person
-); // => { name: "Mark" }
-```
-
-## 01. composability.js
-
-```javascript
-// Higher order function (takes in a function and returns a function)
-function comparator(predicate) {
-    return function(x, y) {
-        if (predicate(x, y)) {
-            return -1;
-        } else if (predicate(y, x)) {
-            return 1;
-        } else {
-            return 0;
-        }
-    };
-}
-
-function lessOrEqual(x, y) {
-    return x <= y;
-}
-
-// Composability
-[2, 3, -1, -6, 0, -108, 42, 10].sort(comparator(lessOrEqual)) // => [-108, -6, -1, 0, 2, 3, 10, 42]
-```
-
-## 03. LoDash.js
-
-```javascript
-// Note: using Lo-Dash/Underscore's `_.reduce` is a lot cleaner and easier code to use
-// By that I mean we don't need to manipulate our data structure to allow for an accumulator to be injected
-
-var _ = {
-    reduce: require('lodash.reduce'), // npm install lodash.reduce
-    map:    require('lodash.map')     // npm install lodash.map
-};
-
-function _parseCSV(csv) {
-    return _.reduce(csv.split('\n'), function(accumulator, item) {
-            accumulator.push(_.map(item.split(','), function(item) {
-                return item.trim();
-            }));
-
-            return accumulator;
-        }, []);
-}
-
-_parseCSV(csv) // => [ [ 'name', 'age', 'hair' ],
-               //    [ 'mark', '32', 'brown' ],
-               //    [ 'cat', '27', 'red' ] ]
-
-```
-
 ## 10. Recursive Checking and Validating.js
 
 ```javascript
@@ -460,76 +521,66 @@ console.log(
 ); // => true
 ```
 
-## 0. JavaScript Function Programming TOC.md
-
-```markdown
-This code is modified from the excellent O'Reilly book "Functional JavaScript". You should buy it, I highly recommend it! Don't kid yourself into thinking this gist even remotely covers the great content from a 200+ page technical book on the subject; it doesn't. Buy the book and get the in-depth knowledge for yourself. It's worth it.
-
-- [Composability through higher order functions](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-01-composability-js)
-- [Parsing CSV (ES5 version)](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce/#file-02-es5-js)
-- [Parsing CSV (LoDash version)](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce/#file-03-lodash-js)
-- [Abstract away conditionals](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce/#file-04-conditionals-js)
-- [Data construction](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce/#file-05-construction-js)
-- [Currying and Partial Application](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce/#file-06-currying-and-partial-application-js)
-- [Null Object pattern](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce/#file-07-null-object-pattern-js)
-- [Checking and Validating data](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-08-checking-and-validating-data-js)
-- [Rules of Recursion](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-09-rules-of-recursion-md)
-- [Recursive Checking and Validating](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-10-recursive-checking-and-validating-js)
-- [Definition of Purity](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-11-definition-of-purity-md)
-- [Composition can help avoid mutation](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-12-composition-can-help-avoid-mutation-js)
-- [If statements in Functional form](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-13-if-statements-in-functional-form-js)
-- [Pipeline](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce#file-14-pipeline-js)
-```
-
-## 07. Null object pattern.js
+## 03. LoDash.js
 
 ```javascript
+// Note: using Lo-Dash/Underscore's `_.reduce` is a lot cleaner and easier code to use
+// By that I mean we don't need to manipulate our data structure to allow for an accumulator to be injected
+
 var _ = {
     reduce: require('lodash.reduce'), // npm install lodash.reduce
-    rest:   require('lodash.rest'),   // npm install lodash.rest
     map:    require('lodash.map')     // npm install lodash.map
 };
 
-function exists(value) {
-    return value !== undefined && value !== null
+function _parseCSV(csv) {
+    return _.reduce(csv.split('\n'), function(accumulator, item) {
+            accumulator.push(_.map(item.split(','), function(item) {
+                return item.trim();
+            }));
+
+            return accumulator;
+        }, []);
 }
 
-function fnull(fn) {
-    var defaults = _.rest(arguments); // default values to use in case a null value is passed in
+_parseCSV(csv) // => [ [ 'name', 'age', 'hair' ],
+               //    [ 'mark', '32', 'brown' ],
+               //    [ 'cat', '27', 'red' ] ]
 
-    return function() {
-        /*
-            Modify arguments so null values are replaced with default values
-            e.g. args passed in our example below:
-                 1, 2 (1 * 2 == 2)
-                 2, 3 (2 * 3 == 6)
-                 6, null (null replaced with 1 and so this becomes 6 * 1 == 6)
-                 6, 5 (6 * 5 == 30)
-        */
-        var args = _.map(arguments, function(item, index) {
-            return exists(item) ? item : defaults[index];
-        });
-
-        return fn.apply(null, args);
-    };
-}
-
-var data = [1, 2, 3, null, 5];
-var multiplier   = function(total, n) { return total * n }; 
-var safeMultiply = fnull(multiplier, 1, 1);
-
-_.reduce(data, multiplier);   // => 0
-_.reduce(data, safeMultiply); // => 30
 ```
 
-## 11. Definition of Purity.md
+## 12. Composition can help avoid mutation.js
 
-```markdown
-A pure function adheres to the following properties:
+```javascript
+var _ = require('lodash');
 
-- Its result is calculated only from the values of its arguments
-- It cannot rely on data that changes external to its control
-- It cannot change the state of something external to its body
+// Make an Array out of the provided arguments
+function construct() {
+    return _.reduce(_.toArray(arguments), function(accumulator, value) {
+        return _.chain(accumulator)
+                .push(value)
+                .value();
+    }, []);
+}
+
+function merge() {
+    return _.extend.apply(null,
+                          construct.apply(
+                              construct, _.flatten([{}, arguments])
+                          )
+                         );
+}
+
+var person = { name: "Mark" };
+
+// We return an object that is a combination of the provided objects
+console.log(
+    merge(person, { age: 32 }, { location: "London" })
+); // => { name: "Mark", age: 32, location: "London" }
+
+// But we don't mutate the original object
+console.log(
+    person
+); // => { name: "Mark" }
 ```
 
 ## 13. If statements in Functional form.js
@@ -582,108 +633,57 @@ console.log(
 );
 ```
 
-## 14.Pipeline.js
+## 01. composability.js
 
 ```javascript
-var _ = require('lodash');
-
-function rev(arr) {
-    return _.chain(arr)
-            .reverse()
-            .value();
-}
-
-function pipeline(seed) {
-    return _.reduce(_.rest(arguments), function(l, r) {
-        return r(l);
-    }, seed);
-}
-
-var data = [2, 3, null, 1, 42, false];
-
-console.log(
-    pipeline(data,
-            _.compact,
-            _.initial,
-            _.rest,
-            rev)
-); // => [1, 3]
-
-// Evaluates to...
-
-/*
-rev(
-    _.rest(
-        _.initial(
-            _.compact(data))))
-*/
-```
-
-## 02. ES5.js
-
-```javascript
-var csv = 'name,age,hair\nmark,32,brown\ncat,27,red';
-
-function parseCSV(csv) {
-    var data = csv.split('\n');
-        data.unshift([]); // accumulator
-
-    // ES5's `reduce` method isn't as nice to use as found in Underscore/Lo-Dash
-    // This is because it uses the first item in the collection as the accumulator 
-    // So really the `current` argument starts at index 1 and `previous` is index 0
-    // Underscore/Lo-Dash works the same but also allows you to pass in an accumulator
-    // So to make things easier/clearer I decided to inject my own accumulator into the collection
-    return data.reduce(
-        function(previous, current, index, collection) {
-            previous.push(current.split(',').map(function(item) {
-                return item.trim();
-            })); // `push` returns the new length of the array rather than the array itself...
-
-            return previous; // ...hence we need to explicitly return the array
+// Higher order function (takes in a function and returns a function)
+function comparator(predicate) {
+    return function(x, y) {
+        if (predicate(x, y)) {
+            return -1;
+        } else if (predicate(y, x)) {
+            return 1;
+        } else {
+            return 0;
         }
-    );
+    };
 }
 
-parseCSV(csv) // => [ [ 'name', 'age', 'hair' ],
-              //    [ 'mark', '32', 'brown' ],
-              //    [ 'cat', '27', 'red' ] ]
+function lessOrEqual(x, y) {
+    return x <= y;
+}
+
+// Composability
+[2, 3, -1, -6, 0, -108, 42, 10].sort(comparator(lessOrEqual)) // => [-108, -6, -1, 0, 2, 3, 10, 42]
 ```
 
-## 04. conditionals.js
+## 09. Rules of Recursion.md
 
-```javascript
-var _ = require('lodash'); // lodash.tap wasn't available on npm as separate modules (update: there is a Lo-Dash npm module that allows for pulling in specific functions)
+```markdown
+- Know when to stop
+- Decide how to take one step
+- Break the problem down into a smaller problem
 
-function exists(value) {
-    return value !== undefined && value !== null
+```js
+function myLength(arr) {
+    if (_.isEmpty(arr)) {
+        return 0;
+    } else {
+        return 1 + myLength(_.rest(arr));
+    }
 }
 
-function truthy(value) {
-    return value !== false && exists(value)
-}
+myLength(_.range(10));     // 10
+myLength(_.range(1000));   // 1000
+myLength(_.range(10000));  // 10000
+myLength(_.range(100000)); // FATAL ERROR: JS Allocation failed - process out of memory
 
-// The following code abstracts away the ugliness of using conditionals to say:
-// "do this thing, only if this other thing exists"
-// The use of `if (!!condition)` would be more concise than having two separate functions
-// like we use above (`exists` and `truthy`) but we're abiding by FP principle of:
-// "replace values with functions"
+// See http://www.integralist.co.uk/posts/understanding-recursion-in-functional-javascript-programming/
+// to understand tail-call optimisation
+```
 
-function doWhen(condition, action) {
-    if (truthy(condition))
-        return action()
-    else
-        return
-}
-
-function executeIfFieldExists(target, field) {
-    return doWhen(target[field], function() {
-        return _(target).tap(function(target) {
-            console.log('The result is', _.result(target, field))
-        })
-    })
-}
-
-executeIfFieldExists({ foo: 'bar' }, 'foo');   // => 'bar'
-executeIfFieldExists([1, 2, 3, 4], 'reverse'); // => [4, 3, 2, 1]
+- Know when to stop (`if (_.isEmpty(arr)) {`)
+- Decide how to take one step (`1 + myLength(...)`)
+- Break the problem down into a smaller problem (`myLength(_.rest(arr)`)
 ```
 

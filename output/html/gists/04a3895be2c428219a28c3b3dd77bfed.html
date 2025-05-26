@@ -3,20 +3,41 @@
 <head>
 <meta charset="utf-8">
 <title>[Golang context] #go #golang #context</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="golang-context-go-golang-context">[Golang context] #go #golang #context</h1>
+
+<h2 id="golang-cancel-context-go">golang cancel context.go</h2>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;context&quot;
+	&quot;fmt&quot;
+	&quot;time&quot;
+)
+
+func slow(ctx context.Context) {
+	go func() {
+		&lt;-ctx.Done()
+		fmt.Println(&quot;CONTEXT CANCELLED!&quot;, time.Now())
+	}()
+	time.Sleep(10 * time.Second)
+	fmt.Println(&quot;FINISHED&quot;, time.Now())
+}
+
+func main() {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5)*time.Second)
+	defer cancel()
+
+	slow(ctx)
+
+	fmt.Println(&quot;DONE&quot;, time.Now())
+}
+</code></pre>
 
 <h2 id="golang-parent-and-child-contexts-go">golang parent and child contexts.go</h2>
 
@@ -62,35 +83,6 @@ func useChildContext(childCtx, parentCtx context.Context) {
 	default:
 		fmt.Printf(&quot;using child context: %#v\n&quot;, childCtx)
 	}
-}
-</code></pre>
-
-<h2 id="golang-cancel-context-go">golang cancel context.go</h2>
-
-<pre><code class="language-go">package main
-
-import (
-	&quot;context&quot;
-	&quot;fmt&quot;
-	&quot;time&quot;
-)
-
-func slow(ctx context.Context) {
-	go func() {
-		&lt;-ctx.Done()
-		fmt.Println(&quot;CONTEXT CANCELLED!&quot;, time.Now())
-	}()
-	time.Sleep(10 * time.Second)
-	fmt.Println(&quot;FINISHED&quot;, time.Now())
-}
-
-func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5)*time.Second)
-	defer cancel()
-
-	slow(ctx)
-
-	fmt.Println(&quot;DONE&quot;, time.Now())
 }
 </code></pre>
 

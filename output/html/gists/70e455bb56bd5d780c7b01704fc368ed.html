@@ -3,20 +3,85 @@
 <head>
 <meta charset="utf-8">
 <title>[AWS CloudFront Signed-Cookie Access] #aws #cloudfront #cookie #planz</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="aws-cloudfront-signed-cookie-access-aws-cloudfront-cookie-planz">[AWS CloudFront Signed-Cookie Access] #aws #cloudfront #cookie #planz</h1>
+
+<h2 id="policy-json">policy.json</h2>
+
+<pre><code class="language-json">{
+   &quot;Statement&quot;:[
+      {
+         &quot;Resource&quot;:&quot;https://your.domain.com/*&quot;,
+         &quot;Condition&quot;:{
+            &quot;DateLessThan&quot;:{
+               &quot;AWS:EpochTime&quot;: 1504357200 // some future timestamp
+            }
+         }
+      }
+   ]
+}
+</code></pre>
+
+<h2 id="signed-cookies-rb">signed-cookies.rb</h2>
+
+<pre><code class="language-ruby">require &quot;base64&quot;
+require &quot;json&quot;
+require &quot;openssl&quot;
+
+def cookie_data(resource, expiry)
+  raw_policy = policy(resource, expiry)
+
+  {
+    &quot;CloudFront-Policy&quot; =&gt; safe_base64(raw_policy),
+    &quot;CloudFront-Signature&quot; =&gt; sign(raw_policy),
+    &quot;CloudFront-Key-Pair-Id&quot; =&gt; ENV[&quot;CLOUDFRONT_KEY_PAIR_ID&quot;]
+  }
+end
+
+def policy(url, expiry)
+  {
+     &quot;Statement&quot;=&gt; [
+        {
+           &quot;Resource&quot; =&gt; url,
+           &quot;Condition&quot;=&gt;{
+              &quot;DateLessThan&quot; =&gt;{&quot;AWS:EpochTime&quot;=&gt; expiry.utc.to_i}
+           }
+        }
+     ]
+  }.to_json.gsub(/\s+/,'')
+end
+
+def safe_base64(data)
+  # equivalent to:
+  # cat policy.json | tr -d &quot; \t\n\r&quot; | base64 | tr '+=/' '-_~'
+  # remove all linebreaks/whitespace, base64 encode, strip invalid characters
+
+  Base64.strict_encode64(data).tr(&quot;+=/&quot;, &quot;-_~&quot;)
+end
+
+def sign(data)
+  # equivalent to:
+  # cat policy.json | openssl sha1 -sign ./pk-APKAIT3GGGOSP434T2JQ.pem | base64 | tr '+=/' '-_~'
+
+  digest = OpenSSL::Digest::SHA1.new
+  key    = OpenSSL::PKey::RSA.new File.read(ENV[&quot;CLOUDFRONT_PRIVATE_KEY&quot;])
+  result = key.sign digest, data
+  safe_base64(result)
+end
+
+printf &quot;curl -v -o /dev/null &quot;
+cookie_data(&quot;https://your.domain.com/*&quot;, Time.now + (60*60)).each do |k,v|
+  # printf &quot;Set-Cookie: Domain=domain.com; Path=/; Secure; HttpOnly; %s=%s\n\n&quot;, k, v
+  printf &quot;-H 'Cookie: %s=%s' &quot;, k, v
+end
+
+# execute with:
+# eval $(ruby signed-cookies.rb) https://your.domain.com/robots.txt
+</code></pre>
 
 <h2 id="1-automated-script-sh">1. Automated Script.sh</h2>
 
@@ -148,79 +213,6 @@ curl -v -o /dev/null \
   -H &quot;Cookie: CloudFront-Signature=$SIGNATURE&quot; \
   -H &quot;Cookie: CloudFront-Key-Pair-Id=$CLOUDFRONT_KEY_PAIR_ID&quot; \
   https://plan-z.buzzfeed.com/robots.txt
-</code></pre>
-
-<h2 id="policy-json">policy.json</h2>
-
-<pre><code class="language-json">{
-   &quot;Statement&quot;:[
-      {
-         &quot;Resource&quot;:&quot;https://your.domain.com/*&quot;,
-         &quot;Condition&quot;:{
-            &quot;DateLessThan&quot;:{
-               &quot;AWS:EpochTime&quot;: 1504357200 // some future timestamp
-            }
-         }
-      }
-   ]
-}
-</code></pre>
-
-<h2 id="signed-cookies-rb">signed-cookies.rb</h2>
-
-<pre><code class="language-ruby">require &quot;base64&quot;
-require &quot;json&quot;
-require &quot;openssl&quot;
-
-def cookie_data(resource, expiry)
-  raw_policy = policy(resource, expiry)
-
-  {
-    &quot;CloudFront-Policy&quot; =&gt; safe_base64(raw_policy),
-    &quot;CloudFront-Signature&quot; =&gt; sign(raw_policy),
-    &quot;CloudFront-Key-Pair-Id&quot; =&gt; ENV[&quot;CLOUDFRONT_KEY_PAIR_ID&quot;]
-  }
-end
-
-def policy(url, expiry)
-  {
-     &quot;Statement&quot;=&gt; [
-        {
-           &quot;Resource&quot; =&gt; url,
-           &quot;Condition&quot;=&gt;{
-              &quot;DateLessThan&quot; =&gt;{&quot;AWS:EpochTime&quot;=&gt; expiry.utc.to_i}
-           }
-        }
-     ]
-  }.to_json.gsub(/\s+/,'')
-end
-
-def safe_base64(data)
-  # equivalent to:
-  # cat policy.json | tr -d &quot; \t\n\r&quot; | base64 | tr '+=/' '-_~'
-  # remove all linebreaks/whitespace, base64 encode, strip invalid characters
-
-  Base64.strict_encode64(data).tr(&quot;+=/&quot;, &quot;-_~&quot;)
-end
-
-def sign(data)
-  # equivalent to:
-  # cat policy.json | openssl sha1 -sign ./pk-APKAIT3GGGOSP434T2JQ.pem | base64 | tr '+=/' '-_~'
-
-  digest = OpenSSL::Digest::SHA1.new
-  key    = OpenSSL::PKey::RSA.new File.read(ENV[&quot;CLOUDFRONT_PRIVATE_KEY&quot;])
-  result = key.sign digest, data
-  safe_base64(result)
-end
-
-printf &quot;curl -v -o /dev/null &quot;
-cookie_data(&quot;https://your.domain.com/*&quot;, Time.now + (60*60)).each do |k,v|
-  # printf &quot;Set-Cookie: Domain=domain.com; Path=/; Secure; HttpOnly; %s=%s\n\n&quot;, k, v
-  printf &quot;-H 'Cookie: %s=%s' &quot;, k, v
-end
-
-# execute with:
-# eval $(ruby signed-cookies.rb) https://your.domain.com/robots.txt
 </code></pre>
 
 </div>

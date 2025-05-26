@@ -3,37 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>Web Scraping with NodeJS (copied from http://www.storminthecastle.com/2013/08/25/use-node-js-to-extract-data-from-the-web-for-fun-and-profit/)</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="web-scraping-with-nodejs-copied-from-http-www-storminthecastle-com-2013-08-25-use-node-js-to-extract-data-from-the-web-for-fun-and-profit">Web Scraping with NodeJS (copied from <a href="http://www.storminthecastle.com/2013/08/25/use-node-js-to-extract-data-from-the-web-for-fun-and-profit/" target="_blank">http://www.storminthecastle.com/2013/08/25/use-node-js-to-extract-data-from-the-web-for-fun-and-profit/</a>)</h1>
-
-<h2 id="3-download-js">3.download.js</h2>
-
-<pre><code class="language-javascript">var cheerio  = require('cheerio'); // converts string into dom tree and provides querying (and other) methods
-var download = require('./scrap.js');
-
-download('http://www.integralist.co.uk/', function(data) {
-    if (data) {
-        var $ = cheerio.load(data)
-
-        $('h2').each(function(index, item) {
-            console.log($(item).text());
-        });
-    }
-    else console.log('error');
-});
-</code></pre>
 
 <h2 id="1-package-json">1. package.json</h2>
 
@@ -67,6 +42,23 @@ function download(url, callback) {
 }
 
 module.exports = download;
+</code></pre>
+
+<h2 id="3-download-js">3.download.js</h2>
+
+<pre><code class="language-javascript">var cheerio  = require('cheerio'); // converts string into dom tree and provides querying (and other) methods
+var download = require('./scrap.js');
+
+download('http://www.integralist.co.uk/', function(data) {
+    if (data) {
+        var $ = cheerio.load(data)
+
+        $('h2').each(function(index, item) {
+            console.log($(item).text());
+        });
+    }
+    else console.log('error');
+});
 </code></pre>
 
 </div>

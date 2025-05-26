@@ -3,33 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>[Python Auto-Formatter] #autopep8 #black #python #format</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="python-auto-formatter-autopep8-black-python-format">[Python Auto-Formatter] #autopep8 #black #python #format</h1>
-
-<h2 id="autopep8-tox-ini">autopep8 tox.ini</h2>
-
-<pre><code class="language-ini">[pep8]
-max_line_length = 80
-</code></pre>
-
-<h2 id="autopep8-usage-bash">autopep8 usage.bash</h2>
-
-<pre><code class="language-shell">autopep8 --experimental --verbose --aggressive --aggressive --recursive --diff .
-
-# replace --diff with --in-place to actually apply the changes
-</code></pre>
 
 <h2 id="black-pyproject-toml">black pyproject.toml</h2>
 
@@ -70,6 +49,19 @@ ipython = &quot;^7.5&quot;
 [build-system]
 requires = [&quot;poetry&gt;=0.12&quot;]
 build-backend = &quot;poetry.masonry.api&quot;
+</code></pre>
+
+<h2 id="autopep8-tox-ini">autopep8 tox.ini</h2>
+
+<pre><code class="language-ini">[pep8]
+max_line_length = 80
+</code></pre>
+
+<h2 id="autopep8-usage-bash">autopep8 usage.bash</h2>
+
+<pre><code class="language-shell">autopep8 --experimental --verbose --aggressive --aggressive --recursive --diff .
+
+# replace --diff with --in-place to actually apply the changes
 </code></pre>
 
 </div>

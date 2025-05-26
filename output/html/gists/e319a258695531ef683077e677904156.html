@@ -3,20 +3,61 @@
 <head>
 <meta charset="utf-8">
 <title>[Fastly Terraform CLI with Terraform] #fastly #cli #terraform #wasm</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="fastly-terraform-cli-with-terraform-fastly-cli-terraform-wasm">[Fastly Terraform CLI with Terraform] #fastly #cli #terraform #wasm</h1>
+
+<h2 id="main-tf">main.tf</h2>
+
+<pre><code class="language-hcl">locals {
+  pkg = regex(&quot;name = \&quot;(?P&lt;name&gt;[^\&quot;]+)&quot;, file(&quot;../fastly.toml&quot;))
+}
+
+resource &quot;fastly_service_compute&quot; &quot;test_service&quot; {
+  name = var.name
+
+  domain {
+    name    = &quot;${var.name}.edgecompute.app&quot;
+    comment = &quot;test domain&quot;
+  }
+
+  package {
+    filename         = &quot;../pkg/${local.pkg.name}.tar.gz&quot;
+    source_code_hash = filesha512(&quot;../pkg/${local.pkg.name}.tar.gz&quot;)
+  }
+
+  backend {
+    name    = &quot;originless&quot;
+    address = &quot;127.0.0.1&quot;
+    port    = 80
+  }
+
+  force_destroy = true
+}
+</code></pre>
+
+<h2 id="provider-tf">provider.tf</h2>
+
+<pre><code class="language-hcl">terraform {
+  required_providers {
+    fastly = {
+      source  = &quot;fastly/fastly&quot;
+      version = &quot;0.29.1&quot;
+    }
+  }
+}
+</code></pre>
+
+<h2 id="variables-tf">variables.tf</h2>
+
+<pre><code class="language-hcl">variable &quot;name&quot; {
+  type    = string
+  default = &quot;testing-cli-to-tf-compute&quot;
+}
+</code></pre>
 
 <h2 id="1-readme-md">1. README.md</h2>
 
@@ -123,59 +164,9 @@ resource &quot;fastly_service_compute&quot; &quot;testing-fastly-tf-cli-deploys&
 </code></pre>
 
 <blockquote>
-<p><strong>NOTE</strong>: For testing purposes of the CLI logic I had to keep re-initialising my CLI project, which meant having to rebuild the rust dependency tree each time (very slow). To avoid doing that, don&rsquo;t <code>rm -rf *</code> but instead only <code>rm -r bin/ pkg/ src/ fastly.toml</code> and so long as you&rsquo;re going to use the same rust starter kit, then you&rsquo;ll get a much quicker build step.</p>
-
-<pre><code>
-## main.tf
-
-```hcl
-locals {
-  pkg = regex(&quot;name = \&quot;(?P&lt;name&gt;[^\&quot;]+)&quot;, file(&quot;../fastly.toml&quot;))
-}
-
-resource &quot;fastly_service_compute&quot; &quot;test_service&quot; {
-  name = var.name
-
-  domain {
-    name    = &quot;${var.name}.edgecompute.app&quot;
-    comment = &quot;test domain&quot;
-  }
-
-  package {
-    filename         = &quot;../pkg/${local.pkg.name}.tar.gz&quot;
-    source_code_hash = filesha512(&quot;../pkg/${local.pkg.name}.tar.gz&quot;)
-  }
-
-  backend {
-    name    = &quot;originless&quot;
-    address = &quot;127.0.0.1&quot;
-    port    = 80
-  }
-
-  force_destroy = true
-}
-</code></pre>
+<p><strong>NOTE</strong>: For testing purposes of the CLI logic I had to keep re-initialising my CLI project, which meant having to rebuild the rust dependency tree each time (very slow). To avoid doing that, don&rsquo;t <code>rm -rf *</code> but instead only <code>rm -r bin/ pkg/ src/ fastly.toml</code> and so long as you&rsquo;re going to use the same rust starter kit, then you&rsquo;ll get a much quicker build step.
+&ldquo;`</p>
 </blockquote>
-
-<h2 id="provider-tf">provider.tf</h2>
-
-<pre><code class="language-hcl">terraform {
-  required_providers {
-    fastly = {
-      source  = &quot;fastly/fastly&quot;
-      version = &quot;0.29.1&quot;
-    }
-  }
-}
-</code></pre>
-
-<h2 id="variables-tf">variables.tf</h2>
-
-<pre><code class="language-hcl">variable &quot;name&quot; {
-  type    = string
-  default = &quot;testing-cli-to-tf-compute&quot;
-}
-</code></pre>
 
 </div>
 </body>

@@ -3,86 +3,16 @@
 <head>
 <meta charset="utf-8">
 <title>[S3 backend for Terraform] #terraform #s3</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="s3-backend-for-terraform-terraform-s3">[S3 backend for Terraform] #terraform #s3</h1>
 
-<h2 id="outputs-tf">outputs.tf</h2>
+<h2 id="readme-md">README.md</h2>
 
-<pre><code class="language-hcl">output &quot;s3_bucket_name&quot; {
-  value       = aws_s3_bucket.terraform_state.id
-  description = &quot;The NAME of the S3 bucket&quot;
-}
-
-output &quot;s3_bucket_arn&quot; {
-  value       = aws_s3_bucket.terraform_state.arn
-  description = &quot;The ARN of the S3 bucket&quot;
-}
-
-output &quot;s3_bucket_region&quot; {
-  value       = aws_s3_bucket.terraform_state.region
-  description = &quot;The REGION of the S3 bucket&quot;
-}
-
-output &quot;dynamodb_table_name&quot; {
-  value       = aws_dynamodb_table.terraform_lock.name
-  description = &quot;The ARN of the DynamoDB table&quot;
-}
-
-output &quot;dynamodb_table_arn&quot; {
-  value       = aws_dynamodb_table.terraform_lock.arn
-  description = &quot;The ARN of the DynamoDB table&quot;
-}
-</code></pre>
-
-<h2 id="s3-md">s3.md</h2>
-
-<pre><code class="language-markdown">```terraform
-# main.tf
-terraform {
-  backend &quot;s3&quot; {
-    encrypt = true
-  }
-}
-
-# example of 'partial configuration':
-# https://www.terraform.io/docs/backends/config.html#partial-configuration
-#
-# cat config/backend-dev.conf
-bucket  = &quot;&lt;account_id&gt;-terraform-states&quot;
-key     = &quot;development/service-name.tfstate&quot;
-encrypt = true
-region  = &quot;ap-southeast-2&quot;
-dynamodb_table = &quot;terraform-lock&quot;
-</code></pre>
-
-<blockquote>
-<p><strong>NOTE</strong>: you&rsquo;ll need a config/dev.tfvars too to set your other environment values.</p>
-</blockquote>
-
-<pre><code class="language-bash">env=dev
-terraform get -update=true
-terraform init -backend-config=config/backend-${env}.conf
-terraform plan -var-file=config/${env}.tfvars
-terraform apply -var-file=config/${env}.tfvars
-</code></pre>
-
-<pre><code>
-## README.md
-
-```markdown
-# S3 backend for Terraform
+<pre><code class="language-markdown"># S3 backend for Terraform
 
 &gt; Copied verbatim from https://github.com/ozbillwang/terraform-best-practices
 
@@ -183,6 +113,68 @@ resource &quot;aws_dynamodb_table&quot; &quot;terraform_lock&quot; {
   }
 }
 </code></pre>
+
+<h2 id="outputs-tf">outputs.tf</h2>
+
+<pre><code class="language-hcl">output &quot;s3_bucket_name&quot; {
+  value       = aws_s3_bucket.terraform_state.id
+  description = &quot;The NAME of the S3 bucket&quot;
+}
+
+output &quot;s3_bucket_arn&quot; {
+  value       = aws_s3_bucket.terraform_state.arn
+  description = &quot;The ARN of the S3 bucket&quot;
+}
+
+output &quot;s3_bucket_region&quot; {
+  value       = aws_s3_bucket.terraform_state.region
+  description = &quot;The REGION of the S3 bucket&quot;
+}
+
+output &quot;dynamodb_table_name&quot; {
+  value       = aws_dynamodb_table.terraform_lock.name
+  description = &quot;The ARN of the DynamoDB table&quot;
+}
+
+output &quot;dynamodb_table_arn&quot; {
+  value       = aws_dynamodb_table.terraform_lock.arn
+  description = &quot;The ARN of the DynamoDB table&quot;
+}
+</code></pre>
+
+<h2 id="s3-md">s3.md</h2>
+
+<pre><code class="language-markdown">```terraform
+# main.tf
+terraform {
+  backend &quot;s3&quot; {
+    encrypt = true
+  }
+}
+
+# example of 'partial configuration':
+# https://www.terraform.io/docs/backends/config.html#partial-configuration
+#
+# cat config/backend-dev.conf
+bucket  = &quot;&lt;account_id&gt;-terraform-states&quot;
+key     = &quot;development/service-name.tfstate&quot;
+encrypt = true
+region  = &quot;ap-southeast-2&quot;
+dynamodb_table = &quot;terraform-lock&quot;
+</code></pre>
+
+<blockquote>
+<p><strong>NOTE</strong>: you&rsquo;ll need a config/dev.tfvars too to set your other environment values.</p>
+</blockquote>
+
+<pre><code class="language-bash">env=dev
+terraform get -update=true
+terraform init -backend-config=config/backend-${env}.conf
+terraform plan -var-file=config/${env}.tfvars
+terraform apply -var-file=config/${env}.tfvars
+</code></pre>
+
+<p>&rdquo;`</p>
 
 </div>
 </body>

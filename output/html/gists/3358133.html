@@ -3,51 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>140byt.es -- addObserverMethods</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="140byt-es-addobservermethods">140byt.es &ndash; addObserverMethods</h1>
-
-<h2 id="annotated-js">annotated.js</h2>
-
-<pre><code class="language-javascript">function(
-  a // an object / instance
-) {
-  a.l = {};                 // eventName - listeners - map
-  a.on = function(          // the observer method
-    b,                      // the event name
-    c                       // the callback
-  ) {
-    a.l[b] = a.l[b] || [];  // init array for current event name
-    a.l[b].push(c)          // save callback for the event name
-  };
-  a.fire = function(        // the trigger method
-    b                       // the event name
-  ) {
-    // iterate over the event name's callbacks and exec them
-    (a.l[b] || []).forEach(function(a) {
-      a()
-    })
-  }
-}
-
-</code></pre>
-
-<h2 id="index-js">index.js</h2>
-
-<pre><code class="language-javascript">function(a){a.l={};a.on=function(b,c){a.l[b]=a.l[b]||[];a.l[b].push(c)};a.fire=function(b){(a.l[b]||[]).forEach(function(a){a()})}}
-
-</code></pre>
 
 <h2 id="package-json">package.json</h2>
 
@@ -153,7 +114,38 @@ Usage
   player.walk()
 </code></pre>
 
-<p>&rdquo;`</p>
+<pre><code>
+## annotated.js
+
+```javascript
+function(
+  a // an object / instance
+) {
+  a.l = {};                 // eventName - listeners - map
+  a.on = function(          // the observer method
+    b,                      // the event name
+    c                       // the callback
+  ) {
+    a.l[b] = a.l[b] || [];  // init array for current event name
+    a.l[b].push(c)          // save callback for the event name
+  };
+  a.fire = function(        // the trigger method
+    b                       // the event name
+  ) {
+    // iterate over the event name's callbacks and exec them
+    (a.l[b] || []).forEach(function(a) {
+      a()
+    })
+  }
+}
+
+</code></pre>
+
+<h2 id="index-js">index.js</h2>
+
+<pre><code class="language-javascript">function(a){a.l={};a.on=function(b,c){a.l[b]=a.l[b]||[];a.l[b].push(c)};a.fire=function(b){(a.l[b]||[]).forEach(function(a){a()})}}
+
+</code></pre>
 
 </div>
 </body>

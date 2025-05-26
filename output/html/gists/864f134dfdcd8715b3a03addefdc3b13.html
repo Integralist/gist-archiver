@@ -3,15 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>[Fastly Terraform Multiple Environments using Modules] #terraform #environments #hcl #fastly</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
@@ -48,43 +40,11 @@ a.back-link:hover { text-decoration: underline; }
 <pre><code class="language-hcl">subdomain = &quot;staging&quot;
 </code></pre>
 
-<h2 id="6-stage-main-tf">6. stage - main.tf</h2>
-
-<pre><code class="language-hcl">module &quot;www&quot; {
-  source    = &quot;../modules/service-vcl&quot;
-  subdomain = var.subdomain
-}
-
-module &quot;compute&quot; {
-  source    = &quot;../modules/service-compute&quot;
-  subdomain = var.subdomain
-}
-</code></pre>
-
 <h2 id="8-stage-variables-tf">8. stage - variables.tf</h2>
 
 <pre><code class="language-hcl">variable &quot;subdomain&quot; {
   type    = string
   default = &quot;stage&quot;
-}
-</code></pre>
-
-<h2 id="3-modules-service-compute-service-vcl-variables-tf">3. modules - service-compute,service-vcl - variables.tf</h2>
-
-<pre><code class="language-hcl">variable &quot;subdomain&quot; {
-  type = string
-}
-</code></pre>
-
-<h2 id="7-stage-provider-tf">7. stage - provider.tf</h2>
-
-<pre><code class="language-hcl">terraform {
-  required_providers {
-    fastly = {
-      source  = &quot;fastly/fastly&quot;
-      version = &quot;0.27.0&quot;
-    }
-  }
 }
 </code></pre>
 
@@ -156,6 +116,38 @@ Then inside each directory run `terraform plan -var-file=&quot;inputs.tfvars&quo
   }
 
   force_destroy = true
+}
+</code></pre>
+
+<h2 id="6-stage-main-tf">6. stage - main.tf</h2>
+
+<pre><code class="language-hcl">module &quot;www&quot; {
+  source    = &quot;../modules/service-vcl&quot;
+  subdomain = var.subdomain
+}
+
+module &quot;compute&quot; {
+  source    = &quot;../modules/service-compute&quot;
+  subdomain = var.subdomain
+}
+</code></pre>
+
+<h2 id="7-stage-provider-tf">7. stage - provider.tf</h2>
+
+<pre><code class="language-hcl">terraform {
+  required_providers {
+    fastly = {
+      source  = &quot;fastly/fastly&quot;
+      version = &quot;0.27.0&quot;
+    }
+  }
+}
+</code></pre>
+
+<h2 id="3-modules-service-compute-service-vcl-variables-tf">3. modules - service-compute,service-vcl - variables.tf</h2>
+
+<pre><code class="language-hcl">variable &quot;subdomain&quot; {
+  type = string
 }
 </code></pre>
 

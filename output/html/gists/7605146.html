@@ -3,67 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>Sass REM</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="sass-rem">Sass REM</h1>
-
-<h2 id="font-mixin-scss">font-mixin.scss</h2>
-
-<pre><code class="language-scss">// Transform a value into rem
-// Assuming baseline is set to 10px on :root/html
-@function rem($value, $baseline: 10px) {
-    @if type-of($value) == list {
-        $result: ();
-        @each $e in $value {
-            $result: append($result, rem($e));
-        }
-        @return $result;
-    } @else {
-        @if $value == 0 { @return 0; } // 0px =&gt; 0
-        @return if(unit($value) == px, $value / $baseline * 1rem, $value);
-    }
-}
-
-// Output rem units with px fallback
-// Expects $properties to be a Sass map
-// Usage: see font-size mixin below
-// or http://sassmeister.com/gist/7451284
-@mixin rem($properties) {
-    @each $property, $value in $properties {
-        @if (type-of($value) == number and $value != 0) {
-            // Turn any value into pixels
-            $value: if(unitless($value), $value * 1px, $value);
-        }
-
-        #{$property}: $value;
-        #{$property}: rem($value);
-    }
-}
-
-@mixin font-size($size, $line-height: $size) {
-    @include rem((
-        font-size: $size,
-        line-height: $line-height
-    ));
-}
-
-@mixin font($family, $weight, $size, $line-height: $size) {
-    font-family: $family;
-    font-weight: $weight;
-    @include font-size($size, $line-height);
-}
-</code></pre>
 
 <h2 id="example-scss">example.scss</h2>
 
@@ -109,6 +54,53 @@ a.back-link:hover { text-decoration: underline; }
         height: 350px,
         line-height: 20px
     ));
+}
+</code></pre>
+
+<h2 id="font-mixin-scss">font-mixin.scss</h2>
+
+<pre><code class="language-scss">// Transform a value into rem
+// Assuming baseline is set to 10px on :root/html
+@function rem($value, $baseline: 10px) {
+    @if type-of($value) == list {
+        $result: ();
+        @each $e in $value {
+            $result: append($result, rem($e));
+        }
+        @return $result;
+    } @else {
+        @if $value == 0 { @return 0; } // 0px =&gt; 0
+        @return if(unit($value) == px, $value / $baseline * 1rem, $value);
+    }
+}
+
+// Output rem units with px fallback
+// Expects $properties to be a Sass map
+// Usage: see font-size mixin below
+// or http://sassmeister.com/gist/7451284
+@mixin rem($properties) {
+    @each $property, $value in $properties {
+        @if (type-of($value) == number and $value != 0) {
+            // Turn any value into pixels
+            $value: if(unitless($value), $value * 1px, $value);
+        }
+
+        #{$property}: $value;
+        #{$property}: rem($value);
+    }
+}
+
+@mixin font-size($size, $line-height: $size) {
+    @include rem((
+        font-size: $size,
+        line-height: $line-height
+    ));
+}
+
+@mixin font($family, $weight, $size, $line-height: $size) {
+    font-family: $family;
+    font-weight: $weight;
+    @include font-size($size, $line-height);
 }
 </code></pre>
 

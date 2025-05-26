@@ -3,51 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>[Golang Memory Allocation] #go #golang #memory #allocation</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="golang-memory-allocation-go-golang-memory-allocation">[Golang Memory Allocation] #go #golang #memory #allocation</h1>
-
-<h2 id="golang-memory-allocation-go">Golang Memory Allocation.go</h2>
-
-<pre><code class="language-go">package main
-
-import &quot;fmt&quot;
-
-func main() {
-        x := 42
-        fmt.Println(x)
-}
-</code></pre>
-
-<h2 id="golang-memory-allocation-sh">Golang Memory Allocation.sh</h2>
-
-<pre><code class="language-shell">$ go build -gcflags '-m' ./main.go
-
-./main.go:7: x escapes to heap
-./main.go:7: main ... argument does not escape
-
-$ go build -gcflags '-m -m' ./main.go # extra -m's to increase verbosity (alternatively use &quot;-m=N&quot;)
-
-./main.go:5: cannot inline main: non-leaf function
-./main.go:7: x escapes to heap
-./main.go:7:         from ... argument (arg to ...) at ./main.go:7
-./main.go:7:         from *(... argument) (indirection) at ./main.go:7
-./main.go:7:         from ... argument (passed to call[argument content escapes]) at ./main.go:7
-./main.go:7: main ... argument does not escape
-
-# This ^^ shows that x escapes because it is passed to a function argument which escapes itself (I take this to mean it's because it accepts the argument type as interface{} and so at runtime the type has to be determined).
-</code></pre>
 
 <h2 id="1-memory-allocation-summary-md">1. Memory Allocation Summary.md</h2>
 
@@ -234,8 +195,40 @@ Baz at offset 3, size=1, align=1
 
 <p>Notice that the offsets are what we would expect, offset zero for Bar, then Foo is offset straight after it at 2 and only 1 byte is reserved so Baz is offset straight after it at 3.</p>
 
-<p>Also notice that because of this the total struct size is now smaller.
-&ldquo;`</p>
+<p>Also notice that because of this the total struct size is now smaller.</p>
+
+<pre><code>
+## Golang Memory Allocation.go
+
+```go
+package main
+
+import &quot;fmt&quot;
+
+func main() {
+        x := 42
+        fmt.Println(x)
+}
+</code></pre>
+
+<h2 id="golang-memory-allocation-sh">Golang Memory Allocation.sh</h2>
+
+<pre><code class="language-shell">$ go build -gcflags '-m' ./main.go
+
+./main.go:7: x escapes to heap
+./main.go:7: main ... argument does not escape
+
+$ go build -gcflags '-m -m' ./main.go # extra -m's to increase verbosity (alternatively use &quot;-m=N&quot;)
+
+./main.go:5: cannot inline main: non-leaf function
+./main.go:7: x escapes to heap
+./main.go:7:         from ... argument (arg to ...) at ./main.go:7
+./main.go:7:         from *(... argument) (indirection) at ./main.go:7
+./main.go:7:         from ... argument (passed to call[argument content escapes]) at ./main.go:7
+./main.go:7: main ... argument does not escape
+
+# This ^^ shows that x escapes because it is passed to a function argument which escapes itself (I take this to mean it's because it accepts the argument type as interface{} and so at runtime the type has to be determined).
+</code></pre>
 
 </div>
 </body>

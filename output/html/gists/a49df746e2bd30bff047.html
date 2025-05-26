@@ -3,113 +3,16 @@
 <head>
 <meta charset="utf-8">
 <title>Different Linux utility commands (e.g. top, ps, strace, lsof, netstat, ifconfig, iftop, iptraf, tcpdump, wireshark)</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="different-linux-utility-commands-e-g-top-ps-strace-lsof-netstat-ifconfig-iftop-iptraf-tcpdump-wireshark">Different Linux utility commands (e.g. top, ps, strace, lsof, netstat, ifconfig, iftop, iptraf, tcpdump, wireshark)</h1>
 
-<h2 id="1-linux-utilities-md">1. linux utilities.md</h2>
+<h2 id="ifconfig-md">ifconfig.md</h2>
 
-<pre><code class="language-markdown">Start up a container (whichever Linux flavour takes your fancy):
-
-```bash
-docker run -it ubuntu /bin/bash
-docker run -it centos /bin/bash
-</code></pre>
-
-<ul>
-<li><a href="#top"><code>top</code></a>: check what CPU and Memory running processes are utilising</li>
-<li><a href="#ps"><code>ps</code></a>: see what processes are running</li>
-<li><a href="#strace"><code>strace</code></a>: monitor interactions between processes</li>
-<li><a href="#lsof"><code>lsof</code></a>: list of open files</li>
-<li><a href="#netstat"><code>netstat</code></a>: monitoring network traffic</li>
-<li><a href="#ifconfig"><code>ifconfig</code></a>: configure or review your network interfaces</li>
-<li><a href="#iftop"><code>iftop</code></a>: monitors network traffic and displays table of bandwidth usage</li>
-<li><a href="#iptraf"><code>iptraf</code></a>: monitoring network traffic (more visual than <code>netstat</code>, but not as detailed)</li>
-<li><a href="#tcpdump"><code>tcpdump</code></a>: network packet sniffer</li>
-<li><a href="#wireshark"><code>wireshark/tshark</code></a>: network packet sniffer and analyser (create pcaps with <code>tcpdump</code> and analyse with <code>tshark</code>)</li>
-<li><a href="#telnet"><code>telnet</code></a>: utility for communicating with another host</li>
-</ul>
-
-<h2 id="osi-model">OSI Model</h2>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th align="left">Layer</th>
-<th align="left">Protocols</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td>7.</td>
-<td align="left">Application</td>
-<td align="left"><code>HTTP</code>, <code>FTP</code>, <code>SMTP</code></td>
-<td align="left">Window for user app processes</td>
-</tr>
-
-<tr>
-<td>6.</td>
-<td align="left">Presentation</td>
-<td align="left"><code>JPEG</code>, <code>GIF</code>, <code>MPEG</code></td>
-<td align="left">Format the data to be presented to the Application layer (network translator)</td>
-</tr>
-
-<tr>
-<td>5.</td>
-<td align="left">Session</td>
-<td align="left"><code>RPC</code>, <code>SQL</code>, <code>NFS</code></td>
-<td align="left">Allow session establishment between processes running on different stations</td>
-</tr>
-
-<tr>
-<td>4.</td>
-<td align="left">Transport</td>
-<td align="left"><code>TCP</code>, <code>UDP</code>, <code>SPX</code></td>
-<td align="left">Flow control, ensures all messages are delivered error-free, in sequence, no losses or duplications</td>
-</tr>
-
-<tr>
-<td>3.</td>
-<td align="left">Network</td>
-<td align="left"><code>IP</code>, <code>IPX</code>, <code>ICMP</code></td>
-<td align="left">Routers control operation of subnet, deciding physical path data takes</td>
-</tr>
-
-<tr>
-<td>2.</td>
-<td align="left">Data Link</td>
-<td align="left"><code>PPP/SLIP</code></td>
-<td align="left">Provides error-free transfer of data over physical layer</td>
-</tr>
-
-<tr>
-<td>1.</td>
-<td align="left">Physical</td>
-<td align="left"><code>Hub</code></td>
-<td align="left">Physical structure (cables, hubs etc)</td>
-</tr>
-</tbody>
-</table>
-
-<pre><code>
-## ifconfig.md
-
-```markdown
-## ifconfig
+<pre><code class="language-markdown">## ifconfig
 
 The `ifconfig` command is used to configure a network interface. 
 
@@ -145,6 +48,25 @@ lo        Link encap:Local Loopback
 </blockquote>
 
 <p>For more information on Network ips and how they&rsquo;re created then read: <a href="https://gist.github.com/Integralist/cff468ba808fbca09602" target="_blank">https://gist.github.com/Integralist/cff468ba808fbca09602</a></p>
+
+<pre><code>
+## iptraf.md
+
+```markdown
+## iptraf
+
+The `iptraf` tool monitors Inbound and Outbound network traffic passing through a network interface. 
+
+We can monitor various connections like TCP, UDP, ICMP, non-IP counts and also Ethernet load information.
+
+To install:
+
+```bash
+yum install iptraf     # CentOS
+apt-get install iptraf # Ubuntu
+</code></pre>
+
+<p>Of particular interest is the menu <code>Statistical breakdowns... &gt; By TCP/UDP port &gt; eth0</code> which shows packets for all TCP and UDP ports such as <code>22</code> for SSH and <code>443</code> for HTTPS.</p>
 
 <pre><code>
 ## lsof.md
@@ -206,65 +128,77 @@ default         ip-xx-x-x-x.eu- 0.0.0.0         UG        0 0          0 eth0
 </code></pre>
 
 <pre><code>
-## tcpdump.md
+## strace.md
 
 ```markdown
-## tcpdump
+## strace
 
-`tcpdump` is a powerful and widely used command-line packets sniffer or package analyzer tool which is used to capture or filter TCP/IP packets that received or transferred over a network on a specific interface
+strace monitors interactions between processes, such as: system calls, signal deliveries, and changes of process state
 
-We can save the output into a pcap file format, that can be viewed by either tcpdump itself or via an open source GUI based tool called Wireshark (Network Protocol Analyzier) that reads tcpdump pcap format files
-
-To install:
+Install `strace` (Ubuntu):
 
 ```bash
-yum install tcpdump -y     # CentOS
-apt-get install tcpdump -y # Ubuntu
+apt-get install man -y
+apt-get install strace
+man strace
 </code></pre>
 
-<h3 id="usage">Usage</h3>
+<p>Install <code>strace</code> (CentOS):</p>
 
-<ul>
-<li><code>tcpdump -D</code>: show available network interfaces</li>
-<li><code>tcpdump -i eth0 -c 5</code>: capture packets from specific network interface (and only set number of packets)</li>
-<li><code>tcpdump -i eth0 -c 5 -w 0001.pcap</code>: send output to pcap file</li>
-<li><code>tcpdump -r 0001.pcap</code>: read back out the pcap file content</li>
-<li><code>tcpdump -n -i eth0 -c 1</code>: converts dns hostnames into ip addresses instead</li>
-<li><code>tcpdump -n -i eth0 -c 10 tcp</code>: capture only tcp packets</li>
-<li><code>tcpdump -n -i eth0 -c 10 port 22</code>: capture packets from specific port (e.g. <code>22</code>)</li>
-<li><code>tcpdump -i eth0 src &lt;ip&gt;</code>: capture packets from a specific source ip</li>
-<li><code>tcpdump -i eth0 dst &lt;ip&gt;</code>: capture packets for a specific destination ip</li>
-<li><code>tcpdump -i eth0 src port 80 or dst port 80</code>: filter all HTTP traffic to or from port 80</li>
-<li><code>tcpdump -i eth0 -s 0</code>: include contents of each packet (not just the packet header)</li>
-<li><code>tcpdump -vvv -s 0 -l -n port 53 -XX</code>: watch all DNS traffic (which happens on port 53)</li>
-</ul>
+<pre><code class="language-bash">yum install strace -y
+</code></pre>
 
 <blockquote>
-<p>SCP file from AWS remote to local (run on local machine)<br />
-<code>scp -v -r &lt;user_name&gt;@&lt;ip&gt;,eu-west-1:&lt;remote_path&gt; &lt;local_path&gt;</code><br />
-Make sure the local directory exists</p>
+<p>With Docker:<br />
+<code>--privileged</code> required for <code>ptrace</code> to be allowed<br />
+<code>--security-opt seccomp:unconfined</code> is an alternative</p>
 </blockquote>
 
-<h3 id="flags">Flags</h3>
+<pre><code class="language-bash">strace &lt;binary_executable&gt;
+</code></pre>
 
-<ul>
-<li><code>URGENT pointer</code>: used to identify incoming data as &lsquo;urgent&rsquo;. Such incoming segments do not have to wait until the previous segments are consumed by the receiving end but are sent directly and processed immediately</li>
-<li><code>ACK</code>: used to acknowledge the successful receipt of packets</li>
-<li><code>Push</code>: exists to ensure that the data is given the priority (used quite frequently at the beginning and end of a data transfer, affecting the way the data is handled at both ends)</li>
-<li><code>RST</code>: used when a segment arrives that is not intended for the current connection (remote host rejects packet and resets connection)</li>
-<li><code>SYN</code>: initially sent when establishing the classic 3-way handshake between two hosts (one sent by Host A and one sent back with ACK by Host B)</li>
-<li><code>FIN</code>: used to tear down the virtual connections created using the previous flag (SYN)</li>
-</ul>
+<p>The end of the <code>strace</code> output will be the output of the specified binary executable.</p>
 
-<p>Note: <code>FIN</code> wont necessarily be the last packet sent. For example&hellip;</p>
+<p>Filter results using an &lsquo;expression&rsquo;:</p>
 
-<ul>
-<li>Host A receives what it believes to be the last data packet</li>
-<li>So Host A sends a <code>FIN</code> to tell Host B it&rsquo;s closing it&rsquo;s connection, along with an <code>ACK</code> to acknowledge Host B&rsquo;s last data packet</li>
-<li>Host B sends an <code>ACK</code> to acknowledge receipt of Host A&rsquo;s <code>FIN</code></li>
-<li>Host B then sends its own <code>FIN</code> and <code>ACK</code> to close its connection down</li>
-<li>Host A sends a final <code>ACK</code> to acknowledge Host B&rsquo;s last communication was received</li>
-</ul>
+<pre><code class="language-bash">strace -e trace=open ls
+</code></pre>
+
+<blockquote>
+<p>specify multiple system calls with comma-separated list<br />
+<code>-e trace=open,read</code></p>
+</blockquote>
+
+<p>Attach <code>strace</code> to a running process:</p>
+
+<pre><code class="language-bash">strace -p &lt;process_id&gt;
+</code></pre>
+
+<blockquote>
+<p><code>ps aux</code> to locate process id</p>
+</blockquote>
+
+<p>Be careful with backgrounded processes. If you attach to a backgrounded process running in the same shell instance as your <code>strace</code> execution, then you&rsquo;ll be locked up.</p>
+
+<p>With Docker you can fix this by executing the following within a new shell:</p>
+
+<pre><code class="language-bash">docker exec -it &lt;container_id&gt; /bin/bash
+</code></pre>
+
+<p>Then <code>kill -9 &lt;strace_pid|application_pid&gt;</code></p>
+
+<p>Add a timestamp to your output using <code>-t</code></p>
+
+<p>Statistical summary <code>-c</code> displays output in a graphical table:</p>
+
+<blockquote>
+<p>output with <code>-c</code> comes <em>after</em> the binary&rsquo;s output</p>
+</blockquote>
+
+<p>Redirect and pipe output:</p>
+
+<pre><code class="language-bash">strace php 2&gt;&amp;1 | grep php.ini
+</code></pre>
 
 <pre><code>
 ## top.md
@@ -403,25 +337,6 @@ rpm -ivh iftop-0.17-1.el6.rf.x86_64.rpm
 </ul>
 
 <pre><code>
-## iptraf.md
-
-```markdown
-## iptraf
-
-The `iptraf` tool monitors Inbound and Outbound network traffic passing through a network interface. 
-
-We can monitor various connections like TCP, UDP, ICMP, non-IP counts and also Ethernet load information.
-
-To install:
-
-```bash
-yum install iptraf     # CentOS
-apt-get install iptraf # Ubuntu
-</code></pre>
-
-<p>Of particular interest is the menu <code>Statistical breakdowns... &gt; By TCP/UDP port &gt; eth0</code> which shows packets for all TCP and UDP ports such as <code>22</code> for SSH and <code>443</code> for HTTPS.</p>
-
-<pre><code>
 ## ps.md
 
 ```markdown
@@ -436,76 +351,64 @@ apt-get install iptraf # Ubuntu
 &gt; so `axu` would be more accurate, but I'm more used to `aux`
 </code></pre>
 
-<h2 id="strace-md">strace.md</h2>
+<h2 id="tcpdump-md">tcpdump.md</h2>
 
-<pre><code class="language-markdown">## strace
+<pre><code class="language-markdown">## tcpdump
 
-strace monitors interactions between processes, such as: system calls, signal deliveries, and changes of process state
+`tcpdump` is a powerful and widely used command-line packets sniffer or package analyzer tool which is used to capture or filter TCP/IP packets that received or transferred over a network on a specific interface
 
-Install `strace` (Ubuntu):
+We can save the output into a pcap file format, that can be viewed by either tcpdump itself or via an open source GUI based tool called Wireshark (Network Protocol Analyzier) that reads tcpdump pcap format files
+
+To install:
 
 ```bash
-apt-get install man -y
-apt-get install strace
-man strace
+yum install tcpdump -y     # CentOS
+apt-get install tcpdump -y # Ubuntu
 </code></pre>
 
-<p>Install <code>strace</code> (CentOS):</p>
+<h3 id="usage">Usage</h3>
 
-<pre><code class="language-bash">yum install strace -y
-</code></pre>
+<ul>
+<li><code>tcpdump -D</code>: show available network interfaces</li>
+<li><code>tcpdump -i eth0 -c 5</code>: capture packets from specific network interface (and only set number of packets)</li>
+<li><code>tcpdump -i eth0 -c 5 -w 0001.pcap</code>: send output to pcap file</li>
+<li><code>tcpdump -r 0001.pcap</code>: read back out the pcap file content</li>
+<li><code>tcpdump -n -i eth0 -c 1</code>: converts dns hostnames into ip addresses instead</li>
+<li><code>tcpdump -n -i eth0 -c 10 tcp</code>: capture only tcp packets</li>
+<li><code>tcpdump -n -i eth0 -c 10 port 22</code>: capture packets from specific port (e.g. <code>22</code>)</li>
+<li><code>tcpdump -i eth0 src &lt;ip&gt;</code>: capture packets from a specific source ip</li>
+<li><code>tcpdump -i eth0 dst &lt;ip&gt;</code>: capture packets for a specific destination ip</li>
+<li><code>tcpdump -i eth0 src port 80 or dst port 80</code>: filter all HTTP traffic to or from port 80</li>
+<li><code>tcpdump -i eth0 -s 0</code>: include contents of each packet (not just the packet header)</li>
+<li><code>tcpdump -vvv -s 0 -l -n port 53 -XX</code>: watch all DNS traffic (which happens on port 53)</li>
+</ul>
 
 <blockquote>
-<p>With Docker:<br />
-<code>--privileged</code> required for <code>ptrace</code> to be allowed<br />
-<code>--security-opt seccomp:unconfined</code> is an alternative</p>
+<p>SCP file from AWS remote to local (run on local machine)<br />
+<code>scp -v -r &lt;user_name&gt;@&lt;ip&gt;,eu-west-1:&lt;remote_path&gt; &lt;local_path&gt;</code><br />
+Make sure the local directory exists</p>
 </blockquote>
 
-<pre><code class="language-bash">strace &lt;binary_executable&gt;
-</code></pre>
+<h3 id="flags">Flags</h3>
 
-<p>The end of the <code>strace</code> output will be the output of the specified binary executable.</p>
+<ul>
+<li><code>URGENT pointer</code>: used to identify incoming data as &lsquo;urgent&rsquo;. Such incoming segments do not have to wait until the previous segments are consumed by the receiving end but are sent directly and processed immediately</li>
+<li><code>ACK</code>: used to acknowledge the successful receipt of packets</li>
+<li><code>Push</code>: exists to ensure that the data is given the priority (used quite frequently at the beginning and end of a data transfer, affecting the way the data is handled at both ends)</li>
+<li><code>RST</code>: used when a segment arrives that is not intended for the current connection (remote host rejects packet and resets connection)</li>
+<li><code>SYN</code>: initially sent when establishing the classic 3-way handshake between two hosts (one sent by Host A and one sent back with ACK by Host B)</li>
+<li><code>FIN</code>: used to tear down the virtual connections created using the previous flag (SYN)</li>
+</ul>
 
-<p>Filter results using an &lsquo;expression&rsquo;:</p>
+<p>Note: <code>FIN</code> wont necessarily be the last packet sent. For example&hellip;</p>
 
-<pre><code class="language-bash">strace -e trace=open ls
-</code></pre>
-
-<blockquote>
-<p>specify multiple system calls with comma-separated list<br />
-<code>-e trace=open,read</code></p>
-</blockquote>
-
-<p>Attach <code>strace</code> to a running process:</p>
-
-<pre><code class="language-bash">strace -p &lt;process_id&gt;
-</code></pre>
-
-<blockquote>
-<p><code>ps aux</code> to locate process id</p>
-</blockquote>
-
-<p>Be careful with backgrounded processes. If you attach to a backgrounded process running in the same shell instance as your <code>strace</code> execution, then you&rsquo;ll be locked up.</p>
-
-<p>With Docker you can fix this by executing the following within a new shell:</p>
-
-<pre><code class="language-bash">docker exec -it &lt;container_id&gt; /bin/bash
-</code></pre>
-
-<p>Then <code>kill -9 &lt;strace_pid|application_pid&gt;</code></p>
-
-<p>Add a timestamp to your output using <code>-t</code></p>
-
-<p>Statistical summary <code>-c</code> displays output in a graphical table:</p>
-
-<blockquote>
-<p>output with <code>-c</code> comes <em>after</em> the binary&rsquo;s output</p>
-</blockquote>
-
-<p>Redirect and pipe output:</p>
-
-<pre><code class="language-bash">strace php 2&gt;&amp;1 | grep php.ini
-</code></pre>
+<ul>
+<li>Host A receives what it believes to be the last data packet</li>
+<li>So Host A sends a <code>FIN</code> to tell Host B it&rsquo;s closing it&rsquo;s connection, along with an <code>ACK</code> to acknowledge Host B&rsquo;s last data packet</li>
+<li>Host B sends an <code>ACK</code> to acknowledge receipt of Host A&rsquo;s <code>FIN</code></li>
+<li>Host B then sends its own <code>FIN</code> and <code>ACK</code> to close its connection down</li>
+<li>Host A sends a final <code>ACK</code> to acknowledge Host B&rsquo;s last communication was received</li>
+</ul>
 
 <pre><code>
 ## telnet.md
@@ -562,6 +465,94 @@ Connection: Keep-Alive
 Content-Length: 50591
 </code></pre>
 
+<pre><code>
+## 1. linux utilities.md
+
+```markdown
+Start up a container (whichever Linux flavour takes your fancy):
+
+```bash
+docker run -it ubuntu /bin/bash
+docker run -it centos /bin/bash
+</code></pre>
+
+<ul>
+<li><a href="#top"><code>top</code></a>: check what CPU and Memory running processes are utilising</li>
+<li><a href="#ps"><code>ps</code></a>: see what processes are running</li>
+<li><a href="#strace"><code>strace</code></a>: monitor interactions between processes</li>
+<li><a href="#lsof"><code>lsof</code></a>: list of open files</li>
+<li><a href="#netstat"><code>netstat</code></a>: monitoring network traffic</li>
+<li><a href="#ifconfig"><code>ifconfig</code></a>: configure or review your network interfaces</li>
+<li><a href="#iftop"><code>iftop</code></a>: monitors network traffic and displays table of bandwidth usage</li>
+<li><a href="#iptraf"><code>iptraf</code></a>: monitoring network traffic (more visual than <code>netstat</code>, but not as detailed)</li>
+<li><a href="#tcpdump"><code>tcpdump</code></a>: network packet sniffer</li>
+<li><a href="#wireshark"><code>wireshark/tshark</code></a>: network packet sniffer and analyser (create pcaps with <code>tcpdump</code> and analyse with <code>tshark</code>)</li>
+<li><a href="#telnet"><code>telnet</code></a>: utility for communicating with another host</li>
+</ul>
+
+<h2 id="osi-model">OSI Model</h2>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="left">Layer</th>
+<th align="left">Protocols</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>7.</td>
+<td align="left">Application</td>
+<td align="left"><code>HTTP</code>, <code>FTP</code>, <code>SMTP</code></td>
+<td align="left">Window for user app processes</td>
+</tr>
+
+<tr>
+<td>6.</td>
+<td align="left">Presentation</td>
+<td align="left"><code>JPEG</code>, <code>GIF</code>, <code>MPEG</code></td>
+<td align="left">Format the data to be presented to the Application layer (network translator)</td>
+</tr>
+
+<tr>
+<td>5.</td>
+<td align="left">Session</td>
+<td align="left"><code>RPC</code>, <code>SQL</code>, <code>NFS</code></td>
+<td align="left">Allow session establishment between processes running on different stations</td>
+</tr>
+
+<tr>
+<td>4.</td>
+<td align="left">Transport</td>
+<td align="left"><code>TCP</code>, <code>UDP</code>, <code>SPX</code></td>
+<td align="left">Flow control, ensures all messages are delivered error-free, in sequence, no losses or duplications</td>
+</tr>
+
+<tr>
+<td>3.</td>
+<td align="left">Network</td>
+<td align="left"><code>IP</code>, <code>IPX</code>, <code>ICMP</code></td>
+<td align="left">Routers control operation of subnet, deciding physical path data takes</td>
+</tr>
+
+<tr>
+<td>2.</td>
+<td align="left">Data Link</td>
+<td align="left"><code>PPP/SLIP</code></td>
+<td align="left">Provides error-free transfer of data over physical layer</td>
+</tr>
+
+<tr>
+<td>1.</td>
+<td align="left">Physical</td>
+<td align="left"><code>Hub</code></td>
+<td align="left">Physical structure (cables, hubs etc)</td>
+</tr>
+</tbody>
+</table>
 <p>&rdquo;`</p>
 
 </div>

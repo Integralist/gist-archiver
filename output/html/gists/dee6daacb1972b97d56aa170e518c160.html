@@ -3,68 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>[Terraform Modules for structuring your resources] #terraform #modules #fastly</title>
-<style>
-body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
-.container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-pre { background: #f0f0f0; padding: 1em; border-radius: 5px; overflow-x: auto; border: 1px solid #ddd; }
-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em;}
-h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
-a.back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-a.back-link:hover { text-decoration: underline; }
-</style>
+<link rel="stylesheet" type="text/css" href="../../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="terraform-modules-for-structuring-your-resources-terraform-modules-fastly">[Terraform Modules for structuring your resources] #terraform #modules #fastly</h1>
-
-<h2 id="main-tf">main.tf</h2>
-
-<pre><code class="language-hcl">module &quot;www&quot; {
-  source = &quot;./modules/www.example.com&quot;
-}
-
-module &quot;compute&quot; {
-  source = &quot;./modules/compute.example.com&quot;
-}
-</code></pre>
-
-<h2 id="provider-tf">provider.tf</h2>
-
-<pre><code class="language-hcl">terraform {
-  required_providers {
-    fastly = {
-      source  = &quot;fastly/fastly&quot;
-      version = &quot;0.27.0&quot;
-    }
-  }
-}
-</code></pre>
-
-<h2 id="www-main-tf">www-main.tf</h2>
-
-<pre><code class="language-hcl">resource &quot;fastly_service_v1&quot; &quot;service&quot; {
-  name = &quot;Example Service&quot;
-
-  domain {
-    name = &quot;www.example.com&quot;
-  }
-
-  backend {
-    address = &quot;httpbin.org&quot;
-    name    = &quot;httpbin&quot;
-  }
-
-  vcl {
-    content = file(&quot;${path.module}/vcl/main.vcl&quot;)
-    main    = true
-    name    = &quot;custom_vcl&quot;
-  }
-
-  force_destroy = true
-}
-
-</code></pre>
 
 <h2 id="terraform-modules-for-structuring-your-resources-md">Terraform Modules for structuring your resources.md</h2>
 
@@ -119,6 +63,54 @@ HashiCorp also provides their own [guidelines](https://www.terraform.io/docs/lan
 
   force_destroy = true
 }
+</code></pre>
+
+<h2 id="main-tf">main.tf</h2>
+
+<pre><code class="language-hcl">module &quot;www&quot; {
+  source = &quot;./modules/www.example.com&quot;
+}
+
+module &quot;compute&quot; {
+  source = &quot;./modules/compute.example.com&quot;
+}
+</code></pre>
+
+<h2 id="provider-tf">provider.tf</h2>
+
+<pre><code class="language-hcl">terraform {
+  required_providers {
+    fastly = {
+      source  = &quot;fastly/fastly&quot;
+      version = &quot;0.27.0&quot;
+    }
+  }
+}
+</code></pre>
+
+<h2 id="www-main-tf">www-main.tf</h2>
+
+<pre><code class="language-hcl">resource &quot;fastly_service_v1&quot; &quot;service&quot; {
+  name = &quot;Example Service&quot;
+
+  domain {
+    name = &quot;www.example.com&quot;
+  }
+
+  backend {
+    address = &quot;httpbin.org&quot;
+    name    = &quot;httpbin&quot;
+  }
+
+  vcl {
+    content = file(&quot;${path.module}/vcl/main.vcl&quot;)
+    main    = true
+    name    = &quot;custom_vcl&quot;
+  }
+
+  force_destroy = true
+}
+
 </code></pre>
 
 </div>
