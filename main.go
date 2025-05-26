@@ -520,7 +520,7 @@ func processSingleGist(gist GistDetail, indexEntryChan chan<- IndexEntry) {
 func generateIndexFiles(entries []IndexEntry) {
 	// Generate Index Markdown
 	var mdContent strings.Builder
-	mdContent.WriteString("# My Gists Archive\n\n")
+	mdContent.WriteString("# Gists Archive\n\n")
 	if len(entries) == 0 {
 		mdContent.WriteString("No gists found or processed.\n")
 	} else {
@@ -540,11 +540,11 @@ func generateIndexFiles(entries []IndexEntry) {
 	// Generate Index HTML
 	var htmlIndexContent strings.Builder
 	htmlIndexContent.WriteString("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n")
-	htmlIndexContent.WriteString("<title>My Gists Archive</title>\n")
+	htmlIndexContent.WriteString("<title>Gists Archive</title>\n")
 	htmlIndexContent.WriteString(fmt.Sprintf("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s/%s/%s\">\n",
 		assetsSubDir, cssSubDir, cssFileName))
 	htmlIndexContent.WriteString("</head>\n<body>\n<div class=\"container\">\n")
-	htmlIndexContent.WriteString("<h1>My Gists Archive</h1>\n<ul>\n")
+	htmlIndexContent.WriteString("<h1>Gists Archive</h1>\n<ul>\n")
 
 	if len(entries) == 0 {
 		htmlIndexContent.WriteString("<li>No gists found or processed.</li>\n")
