@@ -12,6 +12,35 @@
 
 <p><a href="https://gist.github.com/Integralist/c528f499d892cb0d74f7e037d5856358" target="_blank">View original Gist on GitHub</a></p>
 
+<h2 id="1-readme-md">1. README.md</h2>
+
+<p>Here is some problematic code&hellip;</p>
+
+<pre><code class="language-go">func WriteJSON(l *slog.Logger, w http.ResponseWriter, r *http.Request, code int, v any) {
+	ctx := r.Context()
+	w.Header().Set(&quot;Content-Type&quot;, &quot;application/json&quot;)
+        w.WriteHeader(code)
+
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		l.LogAttrs(ctx, slog.LevelError, &quot;encode_json_response&quot;, slog.Any(&quot;err&quot;, err))
+		w.WriteHeader(http.StatusInternalServerError)
+		// w.Write([]byte(&quot;some response data&quot;))
+		fmt.Fprintf(w, `{&quot;error&quot;: %q}`, err)
+		return
+	}
+}
+</code></pre>
+
+<p>It&rsquo;s problematic because an error encoding the JSON response will result in a 2xx status code but an error JSON message.</p>
+
+<p>This is because of how <code>http.ResponseWriter.Write</code> works:</p>
+
+<ul>
+<li>If <code>w.WriteHeader</code> hasn&rsquo;t been called, then call it with <code>http.StatusOK</code>.</li>
+<li>If <code>w.WriteHeader</code> has been called, then the status has already been sent to the client and it can&rsquo;t now be changed.</li>
+<li>This means repeated calls to <code>w.WriteHeader</code> have no effect. Whatever was first set, is what will be seen by the client.</li>
+</ul>
+
 <h2 id="internal-httpx-write-go">internal-httpx-write.go</h2>
 
 <pre><code class="language-go">// EXAMPLES
@@ -67,6 +96,56 @@ func WriteJSON(l *slog.Logger, w http.ResponseWriter, r *http.Request, code int,
 		l.LogAttrs(ctx, slog.LevelError, &quot;write_buffered_response&quot;, slog.Any(&quot;err&quot;, err))
 		fmt.Fprintf(w, `{&quot;error&quot;: %q}`, err)
 		return
+		// Alternatively, instead of writing the error and returning...
+		// panic(http.ErrAbortHandler)
+		// ...but you should probably have some Panic Recovery middleware in your stack.
+	}
+}
+</code></pre>
+
+<h2 id="middleware-go">middleware.go</h2>
+
+<pre><code class="language-go">// PanicRecovery recovers from panics in an HTTP handler.
+// It specifically handles [http.ErrAbortHandler] and re-panics other errors.
+func PanicRecovery(l *slog.Logger, m *metrics.Metrics) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// IMPORTANT: Create a scoped logger to avoid memory leaks.
+			sl := l.With(
+				slog.Group(&quot;request&quot;,
+					slog.String(&quot;method&quot;, r.Method),
+					slog.String(&quot;path&quot;, r.URL.Path),
+				),
+			)
+			ctx := r.Context()
+
+			defer func() {
+				if rec := recover(); rec != nil {
+					// The net/http server itself has a recovery mechanism that
+					// specifically looks for [http.ErrAbortHandler].
+					// When it catches this particular panic, it knows to abort
+					// the current request handler and close the connection.
+					if rec == http.ErrAbortHandler {
+						// Log that the handler aborted, but the server will handle the connection closure.
+						sl.LogAttrs(ctx, slog.LevelInfo, &quot;panic_recovered&quot;, slog.String(&quot;panic&quot;, &quot;ErrAbortHandler&quot;))
+						m.Count(&quot;api_panic_countervecs_total&quot;, &quot;panic=ErrAbortHandler&quot;)
+					} else {
+						// For any other panic, log it and re-panic.
+						// The net/http server's default recovery mechanism will then handle it,
+						// usually by sending a 500 Internal Server Error and logging the panic.
+						sl.LogAttrs(ctx, slog.LevelInfo, &quot;panic_recovered&quot;,
+							slog.Any(&quot;panic&quot;, rec),
+							slog.String(&quot;stack_trace&quot;, string(debug.Stack())),
+						)
+						m.Count(&quot;api_panic_countervecs_total&quot;, &quot;panic=Unknown&quot;)
+						// We re-raise the panic so that the net/http server's default panic handler can take over.
+						// This ensures the server logs it and potentially terminates the request gracefully.
+						panic(rec)
+					}
+				}
+			}()
+			next.ServeHTTP(w, r)
+		})
 	}
 }
 </code></pre>
