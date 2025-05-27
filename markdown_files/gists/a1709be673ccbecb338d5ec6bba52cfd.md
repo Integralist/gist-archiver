@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/a1709be673ccbecb338d5ec6bba52cfd)
 
+**Tags:** #terraform #fastly #work
+
 ## backend_template.vcl
 
 ```vcl

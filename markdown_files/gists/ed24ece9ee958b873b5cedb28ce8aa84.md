@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/ed24ece9ee958b873b5cedb28ce8aa84)
 
+**Tags:** #terminal #colors
+
 ## Terminal Colors.md
 
 # Problem

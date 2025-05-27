@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/bc358eb37de04fa536e34fcc4a7e8cba)
 
+**Tags:** #perl #regex #codeblock #markdown
+
 ## cli.md
 
 ```bash

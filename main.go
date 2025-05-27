@@ -249,6 +249,7 @@ type GistDetail struct {
 	Files       map[string]GistFile `json:"files"`
 	CreatedAt   string              `json:"created_at"`
 	UpdatedAt   string              `json:"updated_at"`
+	Tags        string              // custom for how I typically add #tag1 #tag2 to my gist description
 }
 
 type GistFile struct {
@@ -270,6 +271,7 @@ type IndexEntry struct {
 	MarkdownPath string
 	HTMLPath     string
 	Date         time.Time
+	Tags         string
 }
 
 // API fetching functions (makeAPIRequest, makeAPIRequestForGistList, fetchAndProcessGistDetails, convertListFilesToDetailFiles)
@@ -441,6 +443,9 @@ func generateGistMarkdownFile(gist GistDetail) (string, error) {
 	if gist.HTMLURL != "" {
 		mdPageContent.WriteString(fmt.Sprintf("[View original Gist on GitHub](%s)\n\n", gist.HTMLURL))
 	}
+	if gist.Tags != "" {
+		mdPageContent.WriteString(fmt.Sprintf("**Tags:** %s\n\n", gist.Tags))
+	}
 
 	if len(gist.Files) == 0 {
 		mdPageContent.WriteString("This gist has no files.\n\n")
@@ -511,6 +516,11 @@ func generateGistMarkdownFile(gist GistDetail) (string, error) {
 // processSingleGist - Ensure parser settings are as you had them (without the non-existent flags)
 func processSingleGist(gist GistDetail, indexEntryChan chan<- IndexEntry) {
 	title := getGistTitle(gist)
+	tagsStart := strings.Index(title, "#")
+	if tagsStart >= 0 {
+		gist.Tags = title[tagsStart:]
+		title = title[:tagsStart]
+	}
 	relativeMdPath, err := generateGistMarkdownFile(gist) // This now generates a composite MD for the whole page
 	if err != nil {
 		log.Printf("Error generating composite markdown for gist %s (%s): %v. Skipping.", gist.ID, title, err)
@@ -580,6 +590,7 @@ func processSingleGist(gist GistDetail, indexEntryChan chan<- IndexEntry) {
 		MarkdownPath: filepath.ToSlash(relativeMdPath),
 		HTMLPath:     filepath.ToSlash(relativeHtmlPath),
 		Date:         gistDate,
+		Tags:         gist.Tags,
 	}
 }
 
@@ -621,12 +632,15 @@ func generateIndexFiles(entries []IndexEntry) {
 		htmlIndexContent.WriteString("<li>No gists found or processed.</li>\n")
 	} else {
 		for _, entry := range entries {
-			dateStr := ""
+			dateAndTags := ""
 			if !entry.Date.IsZero() {
-				dateStr = fmt.Sprintf("<br><small class=\"date\">Created: %s</small>", entry.Date.Format("January 2, 2006"))
+				dateAndTags += fmt.Sprintf("<br><small class=\"date\"><b>Created:</b> %s</small>", entry.Date.Format("January 2, 2006"))
+			}
+			if entry.Tags != "" {
+				dateAndTags += fmt.Sprintf("<small class=\"date\"><b>Tags:</b> %s</small>", entry.Tags)
 			}
 			// Ensure list items have a common class for easier selection if needed, though direct children works
-			htmlIndexContent.WriteString(fmt.Sprintf("<li><a href=\"%s\">%s</a>%s</li>\n", entry.HTMLPath, entry.Title, dateStr))
+			htmlIndexContent.WriteString(fmt.Sprintf("<li><a href=\"%s\">%s</a>%s</li>\n", entry.HTMLPath, entry.Title, dateAndTags))
 		}
 	}
 	htmlIndexContent.WriteString("</ul>\n")

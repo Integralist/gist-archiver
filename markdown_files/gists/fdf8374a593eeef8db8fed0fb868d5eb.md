@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/fdf8374a593eeef8db8fed0fb868d5eb)
 
+**Tags:** #make #shell
+
 ## Makefile
 
 ```makefile

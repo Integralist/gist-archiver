@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/bfcad74c66dfa1e8eb5e2c07b13811df)
 
+**Tags:** #project #architecture #design #planning
+
 ## Project Planning.md
 
 There are three types of documents you should write, in this specific order:

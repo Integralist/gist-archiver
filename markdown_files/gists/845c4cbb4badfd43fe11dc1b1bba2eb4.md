@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/845c4cbb4badfd43fe11dc1b1bba2eb4)
 
+**Tags:** #go #golang #unzip #chunk #tar #gz
+
 ## Golang untar contents of tar.gz archive to specified destination.go
 
 ```go

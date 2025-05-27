@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/abbffe4c06712f46db1bcffdd82ef652)
 
+**Tags:** #ruby #shell #script
+
 ## main.rb
 
 ```ruby

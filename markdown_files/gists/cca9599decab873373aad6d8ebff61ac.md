@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/cca9599decab873373aad6d8ebff61ac)
 
+**Tags:** #vim #search #replace #args #case #lower #upper
+
 ## Vim arg list and Search Replacement.md
 
 Imagine we have a file containing...

@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/f04b2ac395bd6ded45efcfb4fceec5a4)
 
+**Tags:** #aws #amplify #cognito #js #javascript
+
 ## AWS Amplify Tips.md
 
 ## Enable debug log

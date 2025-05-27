@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/c86d2fba3cceddb3afb7b51ebe6a95d5)
 
+**Tags:** #sso #singlesignon #auth #multipledomains #aws
+
 ## Single Sign-On SSO].md
 
 > These are all suggestions from AWS Technical Support

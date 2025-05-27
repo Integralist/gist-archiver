@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/7ddef5afaeeff601fc72)
 
+**Tags:** #REST #API #PUT #POST #DELETE #GET #methods #http
+
 ## rest-design-put-vs-post.md
 
 **UPDATE Dec 2020**

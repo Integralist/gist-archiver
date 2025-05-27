@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/bb73c04c2764cdf40cdcb0eabe845eba)
 
+**Tags:** #vim #bash #automation #ex #mode
+
 ## Simple Vim Ex Automation via Bash Trigger.bash
 
 ```shell

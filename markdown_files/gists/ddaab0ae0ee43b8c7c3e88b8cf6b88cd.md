@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/ddaab0ae0ee43b8c7c3e88b8cf6b88cd)
 
+**Tags:** #js #javascript #react
+
 ## React JS.md
 
 - [Beginners Guide](https://www.sitepoint.com/getting-started-react-beginners-guide/)

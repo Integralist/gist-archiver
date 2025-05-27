@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/9975d87f2aef9bd1f3e6fcfdf23f75dd)
 
+**Tags:** #vim #python
+
 ## Install Python package directly for the interpreter Vim is using.md
 
 Sometimes Vim's Python binary can't find a package you've installed.

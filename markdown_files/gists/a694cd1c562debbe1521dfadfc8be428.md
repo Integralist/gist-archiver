@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/a694cd1c562debbe1521dfadfc8be428)
 
+**Tags:** #go #golang #pkg #tag #semver
+
 ## Deleting go package tagged versions from pkg.go.dev.md
 
 There are various issues open about this:

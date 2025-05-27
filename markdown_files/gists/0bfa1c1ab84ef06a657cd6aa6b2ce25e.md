@@ -2,6 +2,8 @@
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/0bfa1c1ab84ef06a657cd6aa6b2ce25e)
 
+**Tags:** #go #golang #embed #struct #interface #empty #reflect
+
 ## embed empty interface{} into explicit struct and then reflect the containing struct.go
 
 ```go
