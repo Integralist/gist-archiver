@@ -1,4 +1,6 @@
-# [Terraform create backend definitions from a list of hostnames] #terraform #fastly #work
+# Terraform: create backend definitions from a list of hostnames #terraform #fastly #work
+
+[View original Gist on GitHub](https://gist.github.com/Integralist/a1709be673ccbecb338d5ec6bba52cfd)
 
 ## backend_template.vcl
 

@@ -10,6 +10,8 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="netcat-web-server">Netcat web server</h1>
 
+<p><a href="https://gist.github.com/Integralist/310fa87e707a0d54962545b1d2aeb6ea" target="_blank">View original Gist on GitHub</a></p>
+
 <h2 id="netcat-web-server-sh">Netcat web server.sh</h2>
 
 <pre><code class="language-shell">{ echo -ne &quot;HTTP/1.0 200 OK\r\nContent-Length: $(wc -c &lt;some.file)\r\n\r\n&quot;; cat some.file; } | nc -l 8080

@@ -1,5 +1,7 @@
 # Functional Programming: Polling XHR
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/d84d65c909eeafe4dfca)
+
 ## fp polling xhr.js
 
 ```javascript

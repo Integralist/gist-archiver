@@ -1,5 +1,7 @@
 # Local Memcache and ElastiCache
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/5480428f4edcb49ba0fba6dde2c3e9ff)
+
 ## Local Memcache and ElastiCache.md
 
 ## Single Node

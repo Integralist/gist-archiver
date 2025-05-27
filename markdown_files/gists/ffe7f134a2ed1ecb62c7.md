@@ -1,5 +1,7 @@
 # Auto Currying JavaScript Function
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/ffe7f134a2ed1ecb62c7)
+
 ## Auto Currying JavaScript Function.js
 
 ```javascript

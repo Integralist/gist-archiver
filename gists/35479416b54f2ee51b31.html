@@ -10,6 +10,8 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="search-for-files-and-pipe-into-vim">Search for files and pipe into Vim</h1>
 
+<p><a href="https://gist.github.com/Integralist/35479416b54f2ee51b31" target="_blank">View original Gist on GitHub</a></p>
+
 <h2 id="search-files-pipe-to-vim-bash">search-files-pipe-to-vim.bash</h2>
 
 <pre><code class="language-shell">nvim $(sift -n SomePattern | awk -F : '{ print $1 &quot; +:&quot; $2 }')

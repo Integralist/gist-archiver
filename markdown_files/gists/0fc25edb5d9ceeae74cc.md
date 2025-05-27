@@ -1,5 +1,7 @@
 # Bash Strict Mode (http://redsymbol.net/articles/unofficial-bash-strict-mode/)
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/0fc25edb5d9ceeae74cc)
+
 ## Bash Strict Mode.sh
 
 ```shell

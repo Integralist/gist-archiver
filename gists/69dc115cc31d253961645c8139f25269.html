@@ -10,6 +10,8 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="search-and-filter-and-cut-and-sort-and-get-uniques-while-tee-contents-bash-shell-tee-search-cut-filter-grep-sort-uniq">[search and filter and cut and sort and get uniques while tee contents] #bash #shell #tee #search #cut #filter #grep #sort #uniq</h1>
 
+<p><a href="https://gist.github.com/Integralist/69dc115cc31d253961645c8139f25269" target="_blank">View original Gist on GitHub</a></p>
+
 <h2 id="search-and-filter-and-cut-and-sort-and-get-uniques-while-tee-contents-bash">search and filter and cut and sort and get uniques while tee contents.bash</h2>
 
 <pre><code class="language-shell">$ search -- &quot;bf[_-]metrics&quot; ./ | cut -d ':' -f 1 | tee /tmp/original_files_list.txt | cut -d '/' -f 1 | sort | uniq &gt; /tmp/services.txt &amp;&amp; cat /tmp/original_files_list.txt | grep -iE '^packages' | cut -d '/' -f 3 | sort | uniq &gt; /tmp/packages.txt &amp;&amp; rm /tmp/original_files_list.txt

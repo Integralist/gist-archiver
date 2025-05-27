@@ -1,5 +1,7 @@
 # [Brew switch to custom versions of software] #homebrew #brew #install #versions #switch
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/cbbbb95b571bd08bb5aa)
+
 ## 1. [CURRENT] Brew switch.md
 
 If you wish to switch your `python` command to use a different Python interpreter (and it's a Python version you previously had installed using Homebrew):

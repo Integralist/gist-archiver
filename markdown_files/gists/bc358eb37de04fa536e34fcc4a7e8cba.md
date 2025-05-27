@@ -1,4 +1,6 @@
-# [Perl add language to markdown code block] #perl #regex #codeblock #markdown
+# Perl: add language to markdown code block #perl #regex #codeblock #markdown
+
+[View original Gist on GitHub](https://gist.github.com/Integralist/bc358eb37de04fa536e34fcc4a7e8cba)
 
 ## cli.md
 

@@ -10,6 +10,8 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="awk-insert-before-and-after-regex-match">Awk insert before and after regex match</h1>
 
+<p><a href="https://gist.github.com/Integralist/0d108466742b952398383f331a7a3784" target="_blank">View original Gist on GitHub</a></p>
+
 <h2 id="awk-insert-before-and-after-regex-match-sh">Awk insert before and after regex match.sh</h2>
 
 <pre><code class="language-shell">echo -e &quot;foo\nbar\nbaz&quot; | awk '/bar/ &amp;&amp; found == 0 {found = 1; print &quot;---&quot;; print; print &quot;---&quot;} {print}'

@@ -1,5 +1,7 @@
 # Python access the stack trace failed functions
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/dcf09ce0bdd58c527bc6fa63737dbd4e)
+
 ## Python access the stack trace failed functions.py
 
 ```python

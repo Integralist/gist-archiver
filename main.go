@@ -38,6 +38,9 @@ const (
 
 	cssFileName          = "styles.css"
 	maxConcurrentFetches = 10
+
+	jsSubDir         = "js"
+	jsFilterFileName = "filter.js"
 )
 
 const cssContent = `
@@ -180,6 +183,43 @@ code {
 
 `
 
+const jsFilterContent = `
+document.addEventListener('DOMContentLoaded', function() {
+    const filterInput = document.getElementById('filterInput');
+    const gistList = document.getElementById('gistList');
+
+    // Check if essential elements exist to prevent errors
+    if (!filterInput || !gistList) {
+        console.error("Filter input or gist list not found on the page.");
+        return;
+    }
+
+    const listItems = gistList.getElementsByTagName('li');
+
+    filterInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            const filterText = filterInput.value.toLowerCase().trim();
+
+            for (let i = 0; i < listItems.length; i++) {
+                const item = listItems[i];
+                const itemText = item.textContent || item.innerText || '';
+
+                if (filterText === '') {
+                    item.classList.remove('hidden');
+                } else {
+                    if (itemText.toLowerCase().includes(filterText)) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                }
+            }
+        }
+    });
+});
+`
+
 var (
 	httpClient = &http.Client{Timeout: 30 * time.Second}
 	linkRegex  = regexp.MustCompile(`<([^>]+)>;\s*rel="next"`)
@@ -202,6 +242,7 @@ type GistListFile struct {
 type GistDetail struct {
 	ID          string              `json:"id"`
 	Description string              `json:"description"`
+	HTMLURL     string              `json:"html_url"`
 	Public      bool                `json:"public"`
 	Owner       GistOwner           `json:"owner"`
 	Files       map[string]GistFile `json:"files"`
@@ -396,6 +437,10 @@ func generateGistMarkdownFile(gist GistDetail) (string, error) {
 	pageTitle := getGistTitle(gist)
 	mdPageContent.WriteString(fmt.Sprintf("# %s\n\n", pageTitle)) // Main title for the Gist (becomes <h1>)
 
+	if gist.HTMLURL != "" {
+		mdPageContent.WriteString(fmt.Sprintf("[View original Gist on GitHub](%s)\n\n", gist.HTMLURL))
+	}
+
 	if len(gist.Files) == 0 {
 		mdPageContent.WriteString("This gist has no files.\n\n")
 	} else {
@@ -580,35 +625,7 @@ func generateIndexFiles(entries []IndexEntry) {
 	htmlIndexContent.WriteString("</ul>\n")
 
 	// --- ADDED JAVASCRIPT ---
-	htmlIndexContent.WriteString("<script>\n")
-	htmlIndexContent.WriteString("document.addEventListener('DOMContentLoaded', function() {\n")
-	htmlIndexContent.WriteString("    const filterInput = document.getElementById('filterInput');\n")
-	htmlIndexContent.WriteString("    const gistList = document.getElementById('gistList');\n")
-	htmlIndexContent.WriteString("    const listItems = gistList.getElementsByTagName('li');\n")
-	htmlIndexContent.WriteString("\n")
-	htmlIndexContent.WriteString("    filterInput.addEventListener('keydown', function(event) {\n")
-	htmlIndexContent.WriteString("        if (event.key === 'Enter') {\n")
-	htmlIndexContent.WriteString("            event.preventDefault(); // Prevent form submission if it were in a form\n")
-	htmlIndexContent.WriteString("            const filterText = filterInput.value.toLowerCase().trim();\n")
-	htmlIndexContent.WriteString("\n")
-	htmlIndexContent.WriteString("            for (let i = 0; i < listItems.length; i++) {\n")
-	htmlIndexContent.WriteString("                const item = listItems[i];\n")
-	htmlIndexContent.WriteString("                const itemText = item.textContent || item.innerText || '';\n") // Get all text content of the LI
-	htmlIndexContent.WriteString("\n")
-	htmlIndexContent.WriteString("                if (filterText === '') {\n")
-	htmlIndexContent.WriteString("                    item.classList.remove('hidden');\n")
-	htmlIndexContent.WriteString("                } else {\n")
-	htmlIndexContent.WriteString("                    if (itemText.toLowerCase().includes(filterText)) {\n")
-	htmlIndexContent.WriteString("                        item.classList.remove('hidden');\n")
-	htmlIndexContent.WriteString("                    } else {\n")
-	htmlIndexContent.WriteString("                        item.classList.add('hidden');\n")
-	htmlIndexContent.WriteString("                    }\n")
-	htmlIndexContent.WriteString("                }\n")
-	htmlIndexContent.WriteString("            }\n")
-	htmlIndexContent.WriteString("        }\n")
-	htmlIndexContent.WriteString("    });\n")
-	htmlIndexContent.WriteString("});\n")
-	htmlIndexContent.WriteString("</script>\n")
+	htmlIndexContent.WriteString(fmt.Sprintf("<script src=\"%s/%s/%s\" defer></script>\n", assetsSubDir, jsSubDir, jsFilterFileName))
 
 	htmlIndexContent.WriteString("</div>\n</body>\n</html>")
 
@@ -642,6 +659,16 @@ func main() {
 		log.Fatalf("Failed to write CSS file %s: %v", cssFilePath, err)
 	}
 	log.Printf("Generated CSS file: %s", cssFilePath)
+
+	jsDirPath := filepath.Join(webDeployDir, assetsSubDir, jsSubDir) // e.g., ./assets/js/
+	if err := os.MkdirAll(jsDirPath, 0755); err != nil {
+		log.Fatalf("Failed to create JS assets directory %s: %v", jsDirPath, err)
+	}
+	jsFilePath := filepath.Join(jsDirPath, jsFilterFileName) // e.g., ./assets/js/filter.js
+	if err := os.WriteFile(jsFilePath, []byte(strings.TrimSpace(jsFilterContent)), 0644); err != nil {
+		log.Fatalf("Failed to write JS file %s: %v", jsFilePath, err)
+	}
+	log.Printf("Generated JS file: %s", jsFilePath)
 
 	gistDetailChan := make(chan GistDetail, maxConcurrentFetches)
 	indexEntryChan := make(chan IndexEntry, runtime.NumCPU()*2)
@@ -704,7 +731,7 @@ func main() {
 	log.Printf("Web content (HTML, assets) in: current directory (./)")
 	log.Printf("  - Index: ./index.html")
 	log.Printf("  - Gists: ./%s/", gistsHtmlSubDir)
-	log.Printf("  - Assets: ./%s/", assetsSubDir)
+	log.Printf("  - Assets: ./%s/ (includes ./%s/%s/ and ./%s/%s/)", assetsSubDir, cssSubDir, cssFileName, jsSubDir, jsFilterFileName)
 	log.Printf("Markdown files (source for HTML) in: ./%s", markdownOutputDir) // Clarified this line
 	log.Printf("Open ./index.html in your browser to view the archive.")
 	log.Println("-----------------------------------------------------")

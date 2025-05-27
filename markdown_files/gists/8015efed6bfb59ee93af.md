@@ -1,5 +1,7 @@
 # Ruby: Check Balanced Params
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/8015efed6bfb59ee93af)
+
 ## Check Balanced Params.rb
 
 ```ruby

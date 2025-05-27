@@ -1,5 +1,7 @@
 # JavaScript Function Programming (scratch pad) -> Most of the code here is modified from the excellent O'Reilly book "Functional JavaScript".
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/b7ed2e337a0b5cbbecce)
+
 ## 0. JavaScript Function Programming TOC.md
 
 This code is modified from the excellent O'Reilly book "Functional JavaScript". You should buy it, I highly recommend it! Don't kid yourself into thinking this gist even remotely covers the great content from a 200+ page technical book on the subject; it doesn't. Buy the book and get the in-depth knowledge for yourself. It's worth it.

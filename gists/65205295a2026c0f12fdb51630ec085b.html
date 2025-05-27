@@ -10,6 +10,8 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="bash-column-sort-and-sum-bash-sort-sum-column">[Bash Column Sort and Sum] #bash #sort #sum #column</h1>
 
+<p><a href="https://gist.github.com/Integralist/65205295a2026c0f12fdb51630ec085b" target="_blank">View original Gist on GitHub</a></p>
+
 <h2 id="bash-column-sort-and-sum-sh">Bash Column Sort and Sum.sh</h2>
 
 <pre><code class="language-shell">cat /tmp/foo | column -t 2&gt;/dev/null | sort -k 4 -n -r | awk '{print $4}' | paste -sd+ - | bc

@@ -1,5 +1,7 @@
 # SCP Remote Logs to Local Machine
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/ae6ec15da52edf9efb50)
+
 ## SCP Remote Logs to Local Machine.sh
 
 ```shell

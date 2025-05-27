@@ -1,5 +1,7 @@
 # [Calculating BigO] #bigo #algorithms #analysis
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/fb0f19802a7021fbdefae39c6de9fc3b)
+
 ## Calculating BigO.md
 
 > This is condensed information gleened from the excellent [interactivepython.org](http://interactivepython.org/runestone/static/pythonds/AlgorithmAnalysis/BigONotation.html)

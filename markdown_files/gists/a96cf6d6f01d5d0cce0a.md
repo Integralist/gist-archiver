@@ -1,5 +1,7 @@
 # Ruby OOP vs FP (examples are from ThoughtBot's Weekly Iteration -> you should subscribe!)
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/a96cf6d6f01d5d0cce0a)
+
 ## 1. API.rb
 
 ```ruby

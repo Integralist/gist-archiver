@@ -1,5 +1,7 @@
 # Python Class Decorator (AOP)
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/d9b00fc9deafc80f845193deb43f1edf)
+
 ## Python Class Decorator (AOP).py
 
 ```python

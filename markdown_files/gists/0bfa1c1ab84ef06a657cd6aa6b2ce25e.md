@@ -1,5 +1,7 @@
 # [embed empty interface{} into explicit struct and then reflect the containing struct] #go #golang #embed #struct #interface #empty #reflect
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/0bfa1c1ab84ef06a657cd6aa6b2ce25e)
+
 ## embed empty interface{} into explicit struct and then reflect the containing struct.go
 
 ```go

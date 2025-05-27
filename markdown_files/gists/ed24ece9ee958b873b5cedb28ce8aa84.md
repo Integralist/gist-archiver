@@ -1,5 +1,7 @@
 # [Terminal Colors] #terminal #colors
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/ed24ece9ee958b873b5cedb28ce8aa84)
+
 ## Terminal Colors.md
 
 # Problem

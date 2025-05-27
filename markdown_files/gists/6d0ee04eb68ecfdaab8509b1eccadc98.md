@@ -1,5 +1,7 @@
 # [Memory Sharing] #python #rss #resident #virtual #memory
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/6d0ee04eb68ecfdaab8509b1eccadc98)
+
 ## Memory Sharing.md
 
 ECS Task has memory allocation of 500mb.

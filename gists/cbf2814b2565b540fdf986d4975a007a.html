@@ -10,6 +10,8 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="golang-panic-vs-os-exit-go-golang-panic">[Golang: panic vs os.Exit] #go #golang #panic</h1>
 
+<p><a href="https://gist.github.com/Integralist/cbf2814b2565b540fdf986d4975a007a" target="_blank">View original Gist on GitHub</a></p>
+
 <h2 id="panic-vs-os-exit-md">Panic vs os.Exit.md</h2>
 
 <p><code>panic</code> signals &ldquo;the programmer has made a fundamental mistake and execution cannot continue safely&rdquo;, whereas <code>os.Exit</code> signals &ldquo;the programmer has decided that the process should terminate here&rdquo; — different meanings. Also, important difference in behavior: <code>panic</code> will unwind the callstack, which means it will call any pending <code>defer</code> statements; <code>os.Exit</code> will just do a hard kill, so it won&rsquo;t.</p>

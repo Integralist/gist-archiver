@@ -1,5 +1,7 @@
 # Semantic Versioning Explanation
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/c5f3bfa368cb1dc7ce51)
+
 ## Semantic Versioning Explanation.md
 
 ```

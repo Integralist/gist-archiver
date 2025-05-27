@@ -10,6 +10,8 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="curl-via-us-proxy-curl-proxy">[curl via US proxy] #curl #proxy</h1>
 
+<p><a href="https://gist.github.com/Integralist/3829b02d798a7668d662cdf54ec74d2a" target="_blank">View original Gist on GitHub</a></p>
+
 <h2 id="curl-via-us-proxy-sh">curl via US proxy.sh</h2>
 
 <pre><code class="language-shell">curl -s &quot;https://gimmeproxy.com/api/getProxy?protocol=socks5&amp;country=US&quot; | jq '.curl' | xargs -I {} curl -sv -o /dev/null -H &quot;Fastly-Debug:1&quot; --socks5 {} &quot;https://www.buzzfeed.com/amphtml/robinedds/can-you-score-full-marks-in-this-capital-city-minefield-quiz&quot;

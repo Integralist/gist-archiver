@@ -1,5 +1,7 @@
 # [Python Exception Handling Guidelines] #python #exceptions #design #guidelines
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/fee3c008296cb3e0a16ec8fdfcdc371b)
+
 ## Python Exception Handling Guidelines.md
 
 It's best to raise your exceptions at the point in the code where errors are going to occur.

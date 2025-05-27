@@ -1,5 +1,7 @@
 # Debug
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/9a67fdfc0cfcbfd1c331)
+
 ## example.rb
 
 ```ruby

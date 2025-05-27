@@ -1,5 +1,7 @@
 # [Continuous Integration vs Delivery] #ci #cd #continous #integration #delivery
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/f5bd41c0bfeaf9d4e37e434d3a6af5c4)
+
 ## Continuous Integration vs Delivery.md
 
 - **Continuous Integration**: testing every commit

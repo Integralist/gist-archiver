@@ -1,5 +1,7 @@
 # Shell: Shell Scripting Best Practices #shell #bash
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/49b7bdafaee71adcd5aef282f47509d2)
+
 ## shell-script-best-practices.md
 
 # Shell Script Best Practices

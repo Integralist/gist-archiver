@@ -1,5 +1,7 @@
 # Algorithms in Python (modified from the excellent: Grokking Algorithms) - see also http://www.integralist.co.uk/posts/bigo.html for details on understanding Big O notation
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/9763bded76e7d826535a3caeafc3bdff)
+
 ## 0. Algorithms in Python.md
 
 - [Binary Search](#file-1-binary-search-py)

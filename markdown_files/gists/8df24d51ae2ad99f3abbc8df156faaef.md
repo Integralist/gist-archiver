@@ -1,5 +1,7 @@
 # [Golang GitHub API Client] #go #golang #github #api
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/8df24d51ae2ad99f3abbc8df156faaef)
+
 ## 1. Golang GitHub API Client (simple inlined proof-of-concept).go
 
 ```go

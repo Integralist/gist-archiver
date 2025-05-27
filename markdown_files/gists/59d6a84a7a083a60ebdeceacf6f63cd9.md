@@ -1,5 +1,7 @@
 # Python Singleton
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/59d6a84a7a083a60ebdeceacf6f63cd9)
+
 ## Python Singleton.py
 
 ```python

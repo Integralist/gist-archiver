@@ -10,6 +10,8 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="curl-redirect-output-and-grep-curl-redirect-stdout-grep">[Curl Redirect Output and Grep] #curl #redirect #stdout #grep</h1>
 
+<p><a href="https://gist.github.com/Integralist/8719fed37c7e1ac27d5f739926bac584" target="_blank">View original Gist on GitHub</a></p>
+
 <h2 id="curl-redirect-output-and-grep-bash">Curl Redirect Output and Grep.bash</h2>
 
 <pre><code class="language-shell">curl -svo /dev/null -H 'Fastly-Debug:1' https://www.buzzfeednews.com/article/johnpaczkowski/apple-arcade-iphone-pro-appletv 2&gt;&amp;1 | sort | grep -iE '^&lt; ((cache|surrogate)-control|surrogate-key|cache|fastly)'

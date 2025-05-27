@@ -10,6 +10,8 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="configure-wrk-https-github-com-wg-wrk-brew-install-wrk-with-lua-to-execute-against-multiple-urls">Configure Wrk <a href="https://github.com/wg/wrk" target="_blank">https://github.com/wg/wrk</a> (brew install wrk) with Lua to execute against multiple URLs</h1>
 
+<p><a href="https://gist.github.com/Integralist/1017c8df0c3be2e0fd979fffa3fb80ff" target="_blank">View original Gist on GitHub</a></p>
+
 <h2 id="1-usage-sh">1. Usage.sh</h2>
 
 <pre><code class="language-shell">$ docker run --rm -v &quot;$(pwd)/multi-request-json.lua&quot;:/multi-request-json.lua -v &quot;$(pwd)/requests.json&quot;:/requests.json czerasz/wrk-json wrk -c1 -t1 -d5s -s /multi-request-json.lua https://www.example.com

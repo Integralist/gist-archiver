@@ -1,5 +1,7 @@
 # Configure Wrk https://github.com/wg/wrk (brew install wrk) with Lua to execute against multiple URLs
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/1017c8df0c3be2e0fd979fffa3fb80ff)
+
 ## 1. Usage.sh
 
 ```shell

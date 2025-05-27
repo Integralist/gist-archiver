@@ -1,5 +1,7 @@
 # [Short Bash if else statement] #bash #shell #if #conditional
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/c9c14aea7f6aed97840eaea2b5c14fdd)
+
 ## Short if else statement.bash
 
 ```shell

@@ -1,5 +1,7 @@
 # Mori.js ClojureScript Data Structures in plain vanilla JavaScript -> http://swannodette.github.io/mori/ and https://github.com/swannodette/mori
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/e8b0adc5bb96a4162aea)
+
 ## mori.js
 
 ```javascript

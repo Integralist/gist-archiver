@@ -1,5 +1,7 @@
 # Setup DNSMASQ
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/c8f3bb0bca3ed23ae4b4a2780b05dc7a)
+
 ## Setup DNSMASQ.sh
 
 ```shell

@@ -1,5 +1,7 @@
 # Sort an Array according to another Array
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/ca3e89497f57eb47a2df2e4cece3f5ac)
+
 ## Sort an Array according to another Array.rb
 
 ```ruby

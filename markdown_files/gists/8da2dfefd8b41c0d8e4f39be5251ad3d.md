@@ -1,5 +1,7 @@
 # [Compile NGINX from source, including its dependencies] #nginx #open-source #compile #build
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/8da2dfefd8b41c0d8e4f39be5251ad3d)
+
 ## 1. Compile NGINX from source, with pre-built dependencies.Dockerfile
 
 ```dockerfile

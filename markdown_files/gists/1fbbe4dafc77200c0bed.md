@@ -1,5 +1,7 @@
 # Ruby: override `new` constructor method using meta programming
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/1fbbe4dafc77200c0bed)
+
 ## ruby_override_new.rb
 
 ```ruby

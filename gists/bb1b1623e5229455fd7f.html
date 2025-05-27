@@ -10,6 +10,8 @@
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <h1 id="multiline-curl-put-ing-of-data-with-no-extra-processing-thanks-to-data-binary-flag-we-also-use-with-a-hyphen-so-the-hyphen-indicates-input-from-stdin">Multiline Curl PUT&rsquo;ing of data with no extra processing (thanks to &ndash;data-binary flag). We also use @ with a hyphen, so @- (the hyphen indicates input from stdin)</h1>
 
+<p><a href="https://gist.github.com/Integralist/bb1b1623e5229455fd7f" target="_blank">View original Gist on GitHub</a></p>
+
 <h2 id="multiline-curl-put-ing-of-data-with-no-extra-processing-sh">Multiline Curl PUT&rsquo;ing of data with no extra processing.sh</h2>
 
 <pre><code class="language-shell">curl -E $DEV_CERT_PEM https://api.our-service.com/component/component-name/configuration --header 'Content-Type: application/json' --request PUT --data-binary @- &lt;&lt;BODY

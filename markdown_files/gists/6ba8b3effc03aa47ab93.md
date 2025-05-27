@@ -1,5 +1,7 @@
 # Clojure deftype, defrecord, defprotocol
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/6ba8b3effc03aa47ab93)
+
 ## 0. description.md
 
 - `defprotocol`: defines an interface

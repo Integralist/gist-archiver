@@ -1,5 +1,7 @@
 # [Python CPU and Memory Profiling Tools] #tags: python, profiling, perf
 
+[View original Gist on GitHub](https://gist.github.com/Integralist/dfae68eccb8c4cdbd0e405fe6bc808cf)
+
 ## 0. README.md
 
 It is worth considering the variation in load that you get on a normal computer. 
