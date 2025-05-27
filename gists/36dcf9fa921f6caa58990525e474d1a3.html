@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Homebrew: custom version install</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<h1 id="homebrew-custom-version-install">Homebrew: custom version install</h1>
+
+<p><a href="https://gist.github.com/Integralist/36dcf9fa921f6caa58990525e474d1a3" target="_blank">View original Gist on GitHub</a></p>
+
+<h2 id="readme-md">README.md</h2>
+
+<p>You can&rsquo;t install specific package versions using <a href="https://brew.sh/" target="_blank">Homebrew</a>.</p>
+
+<p>If you have a version installed you can <em>pin</em> it:</p>
+
+<pre><code>brew pin &lt;package&gt;
+</code></pre>
+
+<p>That will prevent a <code>brew upgrade</code> from updating the package.</p>
+
+<p>But this doesn&rsquo;t help if you&rsquo;ve already upgraded a package and then discovered that you need an older version.</p>
+
+<p>To do that:</p>
+
+<ol>
+<li>Download the older Brew script, e.g. <code>helm</code> version <code>3.17.3</code>: <a href="https://github.com/Homebrew/homebrew-core/blob/14e5c24f9bb081fe3cd5ad595f518edc28955473/Formula/h/helm.rb" target="_blank">https://github.com/Homebrew/homebrew-core/blob/14e5c24f9bb081fe3cd5ad595f518edc28955473/Formula/h/helm.rb</a></li>
+<li><code>HOMEBREW_NO_AUTO_UPDATE=1 brew install /tmp/helm.rb</code></li>
+</ol>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+
+</div>
+</body>
+</html>
