@@ -64,6 +64,9 @@ _collector= Newsbeat | parse &quot;*&quot; as jsonobj | json field=jsonobj &quot
 
 _collector= Newsbeat | parse &quot;*&quot; as jsonobj | json field=jsonobj &quot;event&quot;, &quot;url&quot; as event, url | where component=&quot;newsbeat-article-renderer&quot; | parse regex field=event &quot;(?&lt;a_match&gt;(?i)topics)&quot;
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

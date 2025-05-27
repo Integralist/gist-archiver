@@ -23,6 +23,9 @@
 <p>Ingress needs to be told where things are coming from, even if they&rsquo;re coming from the service, because they are entering the &ldquo;in&rdquo; door, which faces an open street. Specifying the source on these rules is like having an ID badge that lets you through that in door, instead of having to send you to the desk. Even if the request comes from &ldquo;inside the service&rdquo;, to the perspective of the service it&rsquo;s coming in the in door and so explicitly needs to know whether it has a badge (i.e. is from the &lsquo;source&rsquo; security group).</p>
 
 <p>Egress on the other hand is an out door. The service already knows who is &ldquo;inside&rdquo; the building, and it&rsquo;s just trying to send them out the door and to the correct place. Since it knows who is in the building (what traffic is coming from itself towards the &ldquo;out&rdquo; door) it only needs rules about where that door should lead, so it&rsquo;s not dumping VIPs into a dark alley where they&rsquo;ll be mugged.</p>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

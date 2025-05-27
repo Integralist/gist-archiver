@@ -27,6 +27,9 @@ echo '&quot;foo&quot;: &quot;{{date}}&quot;' &gt; foo.txt
 cat foo.txt | sed &quot;s/{{date}}/$(date -u -v +1H +%s)/&quot;
 sed -i &quot;.backup&quot; &quot;s/{{date}}/$(date -u -v +1H +%s)/&quot; foo.txt
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

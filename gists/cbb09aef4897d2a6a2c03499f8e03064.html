@@ -97,6 +97,9 @@ RUN go mod download
 RUN mkdir bin/
 RUN tinygo build -target=wasi -wasm-abi=generic -gc=conservative -scheduler=asyncify -o bin/main.wasm ./src
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

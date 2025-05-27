@@ -34,6 +34,9 @@ Populating resources with data externally from Terraform is very dangerous, as y
 <blockquote>
 <p><strong>NOTE</strong>: if you manage data in terraform, and only add <code>ignore_changes</code> until <em>much</em> later (e.g. after adding 50k ACL records you finally add <code>ignore_changes</code>), then you&rsquo;ll discover that terraform&rsquo;s tfstate file will still know about the data and try to move it around (e.g. <code>terraform plan</code> will attempt to pull down 50k records and pass it internally to its &lsquo;core&rsquo; process, thus triggering the gRPC 4mb limit error). The only way to solve the issue from the point is to remove the data from the tfstate file using <code>terraform rm</code>.</p>
 </blockquote>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

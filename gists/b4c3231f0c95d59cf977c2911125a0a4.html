@@ -72,6 +72,9 @@
 <p>However, sometimes this isn&rsquo;t obvious or the user doesn&rsquo;t understand this suggestion until it is too late, and data ends up getting lost. This happens because the user makes changes elsewhere and doesn&rsquo;t use <code>ignore_changes</code>, so Terraform takes action to remove the state drift and deletes their changes. This data is then unrecoverable.</p>
 
 <p>In 1.0.0 the default behaviour of these resources has changed. Terraform now ignores any changes, and only allows the &ldquo;dangerous&rdquo; behaviour by explicitly opting in with a <code>manage_*</code> option (e.g. <code>manage_entries</code>, <code>manage_items</code>, <code>manage_snippets</code> depending on the versionless resource).</p>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

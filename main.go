@@ -39,8 +39,9 @@ const (
 	cssFileName          = "styles.css"
 	maxConcurrentFetches = 10
 
-	jsSubDir         = "js"
-	jsFilterFileName = "filter.js"
+	jsSubDir            = "js"
+	jsFilterFileName    = "filter.js"
+	jsHighlightFileName = "highlight.min.js"
 )
 
 const cssContent = `
@@ -546,6 +547,12 @@ func processSingleGist(gist GistDetail, indexEntryChan chan<- IndexEntry) {
 	renderedMarkdown := md.Render(p.Parse(mdInput), renderer) // mdInput is the composite Markdown
 
 	gistHtmlBuffer.Write(renderedMarkdown) // This now contains rendered HTML from all files
+
+	// JAVASCRIPT
+	gistHtmlBuffer.WriteString(fmt.Sprintf("<link rel=\"stylesheet\" href=\"../%s/%s/highlights/github.min.css\">\n", assetsSubDir, cssSubDir))
+	gistHtmlBuffer.WriteString(fmt.Sprintf("<script src=\"../%s/%s/%s\"></script>\n", assetsSubDir, jsSubDir, jsHighlightFileName))
+	gistHtmlBuffer.WriteString("<script>hljs.highlightAll();</script>\n")
+
 	gistHtmlBuffer.WriteString("\n</div>\n</body>\n</html>")
 
 	if err := os.MkdirAll(filepath.Dir(fullGistHtmlPath), 0755); err != nil {
@@ -624,7 +631,7 @@ func generateIndexFiles(entries []IndexEntry) {
 	}
 	htmlIndexContent.WriteString("</ul>\n")
 
-	// --- ADDED JAVASCRIPT ---
+	// --- JAVASCRIPT ---
 	htmlIndexContent.WriteString(fmt.Sprintf("<script src=\"%s/%s/%s\" defer></script>\n", assetsSubDir, jsSubDir, jsFilterFileName))
 
 	htmlIndexContent.WriteString("</div>\n</body>\n</html>")

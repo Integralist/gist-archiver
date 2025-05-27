@@ -23,6 +23,9 @@ bin-viceroy: # Download latest version of Viceroy to ./bin/ directory
 	curl -sLO $$url &amp;&amp; mkdir -p bin &amp;&amp; tar -xzvf $$filename --directory ./bin/ &amp;&amp; \
 	./bin/viceroy --version &amp;&amp; rm $$filename &amp;&amp; sudo cp ./bin/viceroy /usr/local/bin/viceroy # NOTE: sudo is a no-op in GitHub Actions
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

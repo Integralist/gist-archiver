@@ -32,6 +32,9 @@
 <p>It then redirects <code>stderr</code> (2) to wherever <code>stdout</code> is pointing.</p>
 
 <p>At first, <code>2&gt;1</code> may look like a good way to redirect <code>stderr</code> to <code>stdout</code>. However, it will actually be interpreted as &ldquo;redirect stderr to a file named 1&rdquo;. <code>&amp;</code> indicates that what follows is a file descriptor and not a filename. So the construct becomes: <code>2&gt;&amp;1</code>.</p>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

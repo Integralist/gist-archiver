@@ -67,6 +67,9 @@
 <blockquote>
 <p>Note: there must always be a body param passed to the server when executing a POST or a PUT operation. Meaning you only pass enough information in the URL to identify the resource and not including any data for that resource. For example, this is bad: <code>/user/&lt;id&gt;/username/&lt;new_username&gt;</code> but this is ok: <code>/user/&lt;id&gt;/username</code> upon which you&rsquo;ll then pass the new username as the body param: <code>curl --method PUT --header 'Content-Type: application/json' --data '{&quot;username&quot;: &quot;foobar&quot;}' https://api.example.com/user/id/123/username</code>.</p>
 </blockquote>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

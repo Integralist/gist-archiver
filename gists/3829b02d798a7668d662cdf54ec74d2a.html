@@ -16,6 +16,9 @@
 
 <pre><code class="language-shell">curl -s &quot;https://gimmeproxy.com/api/getProxy?protocol=socks5&amp;country=US&quot; | jq '.curl' | xargs -I {} curl -sv -o /dev/null -H &quot;Fastly-Debug:1&quot; --socks5 {} &quot;https://www.buzzfeed.com/amphtml/robinedds/can-you-score-full-marks-in-this-capital-city-minefield-quiz&quot;
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

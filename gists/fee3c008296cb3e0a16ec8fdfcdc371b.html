@@ -19,6 +19,9 @@
 <p>When you have deeply nested code modules, then don&rsquo;t try to handle exceptions in-between, just raise the exception (instrument there too) and then let a <em>top level</em> handler catch generalized exceptions to do its own instrumentation (if necessary).</p>
 
 <p>This means it&rsquo;s a good idea for the top level handler to catch a generalized parent exception class type, and have your internal code raise subclass exceptions from that parent class.</p>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

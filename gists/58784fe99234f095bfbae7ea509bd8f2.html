@@ -51,6 +51,9 @@
 <p>When the user installs <code>foo</code> and <code>bar</code>, they get <code>foo</code> version 1 and <code>bar</code> version 2. This means their rust program breaks because the interactions between the <code>foo</code> crate and <code>bar</code> are broken.</p>
 
 <p>Subsequently the user would need to install an updated version of <code>foo</code> which was compatible with <code>bar</code>. This meant when releasing changes to <code>bar</code> we had to ensure that our environment setup scripts would ensure that the correct version of <code>foo</code> would be installed alongside the appropriate version of <code>bar</code>. The user still knew nothing about this, as they only cared about <code>foo</code>.</p>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

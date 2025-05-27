@@ -24,6 +24,9 @@
 <pre><code class="language-vim">&quot; Use git alias inside ~/.gitconfig to open current file line in GitHub
 nnoremap &lt;leader&gt;f :!echo `git url`/blob/`git rev-parse --abbrev-ref HEAD`/%\#L&lt;C-R&gt;=line('.')&lt;CR&gt; \| xargs open&lt;CR&gt;&lt;CR&gt;
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

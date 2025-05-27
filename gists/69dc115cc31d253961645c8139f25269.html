@@ -16,6 +16,9 @@
 
 <pre><code class="language-shell">$ search -- &quot;bf[_-]metrics&quot; ./ | cut -d ':' -f 1 | tee /tmp/original_files_list.txt | cut -d '/' -f 1 | sort | uniq &gt; /tmp/services.txt &amp;&amp; cat /tmp/original_files_list.txt | grep -iE '^packages' | cut -d '/' -f 3 | sort | uniq &gt; /tmp/packages.txt &amp;&amp; rm /tmp/original_files_list.txt
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

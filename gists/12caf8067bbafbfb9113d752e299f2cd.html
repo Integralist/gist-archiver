@@ -16,6 +16,9 @@
 
 <pre><code class="language-shell">egrep -roh 'port: \d{5}' **/service.yml | sort | tail -n 1 | egrep -o '\d{5}' | xargs -I {} bash -c 'echo $((&quot;$@&quot; + 1))' _ {}
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

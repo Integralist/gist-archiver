@@ -183,6 +183,9 @@ note over CDN: cached object updated with fresh max-age\nand stale-while-revalid
 <li>Disable CDN Caching: <code>Cache-Control: private</code> (<a href="https://docs.fastly.com/guides/tutorials/cache-control-tutorial#do-not-cache" target="_blank">docs</a>)</li>
 <li>Disable ALL Caching: <code>Cache-Control: no-cache, no-store, private, must-revalidate, max-age=0, max-stale=0, post-check=0, pre-check=0</code> + <code>Pragma: no-cache</code> + <code>Expires: 0</code> (<a href="https://docs.fastly.com/guides/debugging/temporarily-disabling-caching" target="_blank">docs</a>)</li>
 </ul>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

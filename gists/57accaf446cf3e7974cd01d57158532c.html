@@ -52,6 +52,9 @@
 <p>Awk works by reading the input &lsquo;line by line&rsquo;. Our script checks if the conditional pattern <code>^##</code>  matches, which is the start of the changelog entry, and if so it increments the variable <code>block</code>. Next, it checks the variable value and prints each line as long as the variable is equal to <code>1</code>.</p>
 
 <p>The moment we reach the next changelog entry, the <code>block</code> variable will be incremented to <code>2</code> and so the block that prints each line will not execute.</p>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

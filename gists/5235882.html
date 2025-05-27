@@ -60,6 +60,9 @@
 javascript:(function(w,d){var columns=12,css=&quot;.bbcnews-debug-grid{position:fixed;left:0;top:0;right:0;bottom:0;z-index:9999;display:block;pointer-events:none;}.bbcnews-debug-grid__inner{margin:0 auto;padding:0 4px;height:100%}.bbcnews-debug-column{float:left;width:8.333333333%;height:100%}.bbcnews-debug-column__inner{margin-left:4px;margin-right:4px;height:100%;background-color:rgba(0,171,236,0.2)}@media(min-width:400px){.bbcnews-debug-grid__inner{padding:0 12px}}@media(min-width:600px){.bbcnews-debug-grid__inner{padding:0 24px}.bbcnews-debug-column__inner{margin-left:8px;margin-right:8px}}@media(min-width:1008px){.bbcnews-debug-grid__inner{padding:0;width:992px;max-width:992px}}&quot;;function createColumn(i){var column=d.createElement(&quot;div&quot;),inner=d.createElement(&quot;div&quot;);column.className=&quot;bbcnews-debug-column bbcnews-debug-column--&quot;+i;inner.className=&quot;bbcnews-debug-column__inner&quot;;column.appendChild(inner);return column}function createGrid(){var grid=d.createElement(&quot;div&quot;),inner=d.createElement(&quot;div&quot;);grid.className=&quot;bbcnews-debug-grid&quot;;inner.className=&quot;bbcnews-debug-grid__inner&quot;;for(var i=1;i&lt;=columns;i++){inner.appendChild(createColumn(i))}grid.appendChild(inner);d.body.appendChild(grid)}function insertCSS(){var style=d.createElement(&quot;style&quot;);style.setAttribute(&quot;type&quot;,&quot;text/css&quot;);style.innerHTML=css;d.body.appendChild(style)}createGrid();insertCSS()})(window,window.document);
 */
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

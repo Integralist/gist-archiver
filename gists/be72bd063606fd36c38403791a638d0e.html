@@ -93,6 +93,9 @@
 <p>Many shared smart pointer types, including <code>Rc&lt;T&gt;</code> and <code>Arc&lt;T&gt;</code>, provide containers that can be cloned and shared between multiple parties. The contained values can only be borrowed with <code>&amp;</code>, not <code>&amp;mut</code>. Without cells it would be impossible to mutate data inside of these smart pointers at all.</p>
 
 <p>It’s very common then to put a <code>RefCell&lt;T&gt;</code> inside shared pointer types to reintroduce mutability. But as <code>RefCell&lt;T&gt;</code>s are for single-threaded scenarios, consider using <code>RwLock&lt;T&gt;</code> or <code>Mutex&lt;T&gt;</code> instead of <code>RefCell&lt;T&gt;</code> if you need shared mutability in a multi-threaded situation.</p>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

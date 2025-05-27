@@ -35,6 +35,9 @@
 <p>Originally, the first line was set to <code>fastly</code> but it turns out if you do that, the second line will no longer work because the first line is matched anywhere in the path, and that means gitignore cannot negate files inside an an already ignored directory (which this would do, i.e. <code>fastly</code> isn&rsquo;t ignoring the root <code>fastly</code> file, it&rsquo;s ignoring <em>anything</em> that contains <code>fastly</code>).</p>
 
 <p>The reason <code>**/fastly</code> didn&rsquo;t immediately spring to mind for me is because I read it as matching any subdirectory containing <code>fastly</code> (e.g. it would match <code>cmd/fastly</code>), when in fact the <code>**/</code> is misleading because it will match either <code>./</code> or <code>&lt;some-directory-name&gt;/</code> and that&rsquo;s why it works to match <code>./fastly</code> and <code>./cmd/fastly</code> and thus we can safely negate the second line of our gitignore, because we&rsquo;ve not just blanket ignored every possible folder containing <code>fastly</code>, we have this time in fact constrained our match to include the root file.</p>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

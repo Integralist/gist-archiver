@@ -29,6 +29,9 @@ replacement_patterns &quot;$@&quot;
 
 find &quot;/Users/integralist/Code/path/to/directory&quot; -type f -print0 | xargs -0 -P &quot;$(nproc)&quot; -n 1 bash -c './async.sh &quot;$@&quot;' _
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

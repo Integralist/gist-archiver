@@ -50,6 +50,9 @@ ONBUILD ADD . /usr/src/app
 <p>Then when that image is pushed up they tag it <code>1.7-onbuild</code> (as they utilise the <code>ONBUILD</code> feature).</p>
 
 <p>We then base our own Docker image off of <code>FROM jruby:1.7-onbuild</code>. Using <code>jruby:1.7-onbuild</code> means when we build our own image the gems are already installed, and it avoids the issue of installing the Gems every time you execute <code>docker run</code> an image to start up a container.</p>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

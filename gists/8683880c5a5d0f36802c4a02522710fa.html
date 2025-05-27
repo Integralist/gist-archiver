@@ -70,6 +70,9 @@ $ find -E . -iregex '.+(pipfile|requirements).+' -print -exec egrep 'bf[_-]torna
 # the output will be paths like './webapp_waf/nginx.conf.j2' so we use the cut command to extract the service name (e.g. webapp_waf)
 $ time find . -type f ! -path '*.git/*' ! -path '*.venv*' ! -path '* *' ! -name '*.md' ! -name '*.json' ! -name '*.yml' | xargs grep -l -i nginx | sort | uniq | sort | cut -d / -f 2 | uniq | sort
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

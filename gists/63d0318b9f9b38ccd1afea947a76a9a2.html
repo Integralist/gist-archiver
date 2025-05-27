@@ -26,6 +26,9 @@ dri() { docker rmi -f $(docker images -q); }
 # remove all &lt;none&gt; images
 drn() { docker rmi -f $(docker images --filter &quot;dangling=true&quot; -q); }
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

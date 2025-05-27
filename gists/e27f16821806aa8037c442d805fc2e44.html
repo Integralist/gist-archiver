@@ -33,6 +33,9 @@ changes=$(git log --pretty=&quot;- %s&quot; &quot;$latest_tag&quot;...&quot;$sec
 printf &quot;# \`v$release_version\`\n\n## CHANGES (commits: $(echo &quot;$changes&quot; | wc -l | xargs))\n\n$changes\n&quot; &gt; release_notes.md
 
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

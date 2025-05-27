@@ -54,6 +54,9 @@ At this point, your bank’s website finally appears in your browser and any com
 <p>Using the brief description of PKI above, imagine if there was a malicious user somewhere on the internet, or more likely somewhere locally, placed directly between your computer and the server. When the initial key exchange takes place the attacker can intercept your public key, and send you theirs instead of the server’s of which you are trying to talk to. His public key will most likely not be digitally signed with the same domain name as the site you are visiting, although if this was a targeted attack on a particular server it could be possible.</p>
 
 <p>Since the attacker likely wants to steal data, he will then proxy a connection to the server your originally wanted to go to, but instead of your public key going to the server it would be the attacker’s. This places the attackers computer directly between you and the server and will be able to capture and view any data sent between both machines. Well, that is if the user has been trained to simply ignore the warning they got from their web browser.</p>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

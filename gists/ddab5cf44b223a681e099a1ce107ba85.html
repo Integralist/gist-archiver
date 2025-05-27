@@ -81,6 +81,9 @@
 
 <pre><code class="language-bash">search &quot;-G Dockerfile -l&quot; &quot;FROM go&quot; | cut -d '/' -f 1 | tee /tmp/goservices | xargs -I {} grep -r --include service.yml launch_type {}
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>

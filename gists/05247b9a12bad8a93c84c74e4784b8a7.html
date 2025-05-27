@@ -22,6 +22,9 @@ re.sub('src=&quot;([^&quot;]+)', lambda o: 'src=&quot;{}&amp;platform=mobile_app
 # Alternative that uses f string formatting
 re.sub('src=&quot;([^&quot;]+)', lambda o: f'src=&quot;{o.groups(0)[0]}&amp;platform=mobile_app', html)
 </code></pre>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 
 </div>
 </body>
