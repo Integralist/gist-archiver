@@ -20,3 +20,8 @@ open index.html
 ```shell
 make build
 ```
+
+## CI
+
+I have a [GitHub Actions workflow](.github/workflows/daily-build.yml) that pulls
+the latest public gists daily.
