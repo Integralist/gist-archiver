@@ -23,9 +23,10 @@
 				log.Println(&quot;Handler aborted with http.ErrAbortHandler. Connection will be closed by server.&quot;)
 			} else {
 				log.Printf(&quot;Unhandled panic: %v.&quot;, rec)
-				// We re-raise the panic so that the net/http server's default panic handler can take over.
-				panic(rec)
 			}
+			// Now that we've implemented our own custom logging for this panic,
+			// we re-raise the panic so that the net/http server's default panic handler can take over.
+			panic(rec)
 		}
 	}()
 
@@ -33,8 +34,12 @@
 
     _, err := w.Write([]byte(&quot;This is a successful response.\n&quot;))
     if err != nil {
+	// The client has already received the 200 OK header but will now get an incomplete response body.
         log.Printf(&quot;Error writing successful response body: %v. Panicking with ErrAbortHandler.&quot;, err)
-        // The client has already received the 200 OK header but will get an incomplete body.
+	    
+        // ErrAbortHandler is a sentinel panic value to abort a handler. 
+	// While any panic from ServeHTTP aborts the response to the client, 
+	// panicking with ErrAbortHandler also suppresses logging of a stack trace to the server's error log.
         panic(http.ErrAbortHandler)
     }
     log.Println(&quot;Successfully wrote response body.&quot;)
