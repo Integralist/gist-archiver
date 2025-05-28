@@ -1,4 +1,4 @@
-# [Golang Cross Compile Binary] 
+# Go: Cross Compile Binary 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/f21d57a8fcada8d4c2ac79bece4337b4)
 

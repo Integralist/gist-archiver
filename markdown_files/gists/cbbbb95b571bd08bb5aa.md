@@ -1,4 +1,4 @@
-# [Brew switch to custom versions of software] 
+# Homebrew: switch to custom versions of software 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/cbbbb95b571bd08bb5aa)
 
