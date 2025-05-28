@@ -21,6 +21,8 @@ jobs:
           go-version-file: go.mod
 
       - name: Run Go program
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         run: go run ./main.go
 
       - name: Commit and push changes
