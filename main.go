@@ -440,8 +440,12 @@ func getGistTitle(gist GistDetail) string {
 
 func generateGistMarkdownFile(gist GistDetail) (string, error) {
 	var mdPageContent strings.Builder // This will be the content for the *entire Gist page*
-	pageTitle := getGistTitle(gist)
-	mdPageContent.WriteString(fmt.Sprintf("# %s\n\n", pageTitle)) // Main title for the Gist (becomes <h1>)
+	title := getGistTitle(gist)
+	tagsStart := strings.Index(title, "#")
+	if tagsStart >= 0 {
+		title = title[:tagsStart]
+	}
+	mdPageContent.WriteString(fmt.Sprintf("# %s\n\n", title)) // Main title for the Gist (becomes <h1>)
 
 	if gist.HTMLURL != "" {
 		mdPageContent.WriteString(fmt.Sprintf("[View original Gist on GitHub](%s)\n\n", gist.HTMLURL))
