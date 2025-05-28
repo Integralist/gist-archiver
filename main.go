@@ -286,7 +286,10 @@ func makeAPIRequest(url string, target any) error {
 
 	token := os.Getenv("API_TOKEN_GITHUB")
 	if token != "" {
+		log.Printf("🎉 Using GitHub API Token")
 		req.Header.Set("Authorization", "Bearer "+token)
+	} else {
+		log.Printf("⚠️ No GitHub API Token found")
 	}
 
 	resp, err := httpClient.Do(req)
