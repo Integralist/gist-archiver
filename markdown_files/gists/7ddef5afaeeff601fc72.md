@@ -1,4 +1,4 @@
-# [REST design: PUT vs POST] #REST #API #PUT #POST #DELETE #GET #methods #http
+# [REST design: PUT vs POST] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/7ddef5afaeeff601fc72)
 

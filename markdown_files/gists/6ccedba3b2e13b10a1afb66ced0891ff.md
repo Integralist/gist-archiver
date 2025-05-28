@@ -1,4 +1,4 @@
-# [Check Python Tornado version] #python3 #tornado #version
+# [Check Python Tornado version] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/6ccedba3b2e13b10a1afb66ced0891ff)
 

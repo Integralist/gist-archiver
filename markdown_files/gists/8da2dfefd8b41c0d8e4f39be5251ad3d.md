@@ -1,4 +1,4 @@
-# [Compile NGINX from source, including its dependencies] #nginx #open-source #compile #build
+# [Compile NGINX from source, including its dependencies] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/8da2dfefd8b41c0d8e4f39be5251ad3d)
 

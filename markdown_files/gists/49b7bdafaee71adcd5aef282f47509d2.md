@@ -1,4 +1,4 @@
-# Shell: Shell Scripting Best Practices #shell #bash
+# Shell: Shell Scripting Best Practices 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/49b7bdafaee71adcd5aef282f47509d2)
 

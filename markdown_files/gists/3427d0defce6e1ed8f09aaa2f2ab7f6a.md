@@ -1,4 +1,4 @@
-# [The Stack and the Heap] #stack #heap #memory
+# [The Stack and the Heap] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/3427d0defce6e1ed8f09aaa2f2ab7f6a)
 

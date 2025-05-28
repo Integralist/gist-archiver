@@ -1,4 +1,4 @@
-# [Python coroutine comparison functions] #python #python3 #asyncio #async #coroutine #concurrency
+# [Python coroutine comparison functions] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/1efc8dcfc0b1e9e8e8b89a4b2019f3af)
 

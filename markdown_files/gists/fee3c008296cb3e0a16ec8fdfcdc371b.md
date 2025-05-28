@@ -1,4 +1,4 @@
-# [Python Exception Handling Guidelines] #python #exceptions #design #guidelines
+# [Python Exception Handling Guidelines] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/fee3c008296cb3e0a16ec8fdfcdc371b)
 

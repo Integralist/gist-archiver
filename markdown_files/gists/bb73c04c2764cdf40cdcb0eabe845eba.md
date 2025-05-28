@@ -1,4 +1,4 @@
-# [Vim Ex Automation via Bash Trigger] #vim #bash #automation #ex #mode
+# [Vim Ex Automation via Bash Trigger] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/bb73c04c2764cdf40cdcb0eabe845eba)
 

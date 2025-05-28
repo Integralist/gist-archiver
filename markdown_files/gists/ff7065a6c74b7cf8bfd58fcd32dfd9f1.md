@@ -1,4 +1,4 @@
-# [Sed Replace Pattern with File Contents] #sed #bash #replace
+# [Sed Replace Pattern with File Contents] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/ff7065a6c74b7cf8bfd58fcd32dfd9f1)
 

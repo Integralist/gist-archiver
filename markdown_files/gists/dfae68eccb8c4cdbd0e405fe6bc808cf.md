@@ -1,4 +1,4 @@
-# [Python CPU and Memory Profiling Tools] #tags: python, profiling, perf
+# [Python CPU and Memory Profiling Tools] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/dfae68eccb8c4cdbd0e405fe6bc808cf)
 

@@ -1,4 +1,4 @@
-# [React JS] #js #javascript #react
+# [React JS] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/ddaab0ae0ee43b8c7c3e88b8cf6b88cd)
 

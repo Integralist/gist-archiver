@@ -1,4 +1,4 @@
-# [Single Sign-On SSO] #sso #singlesignon #auth #multipledomains #aws
+# [Single Sign-On SSO] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/c86d2fba3cceddb3afb7b51ebe6a95d5)
 

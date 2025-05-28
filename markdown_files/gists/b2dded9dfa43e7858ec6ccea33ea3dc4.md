@@ -1,4 +1,4 @@
-# [Business Success] #business #product #focus #priority #success
+# [Business Success] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/b2dded9dfa43e7858ec6ccea33ea3dc4)
 

@@ -1,4 +1,4 @@
-# [Vim arg list and Search Replacement] #vim #search #replace #args #case #lower #upper
+# [Vim arg list and Search Replacement] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/cca9599decab873373aad6d8ebff61ac)
 

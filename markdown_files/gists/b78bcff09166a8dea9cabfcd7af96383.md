@@ -1,4 +1,4 @@
-# [Golang sharing behaviours between individual structs and a base struct] #go #golang #struct #embedding #polymorphism
+# [Golang sharing behaviours between individual structs and a base struct] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/b78bcff09166a8dea9cabfcd7af96383)
 

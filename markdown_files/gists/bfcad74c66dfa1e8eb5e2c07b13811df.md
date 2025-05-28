@@ -1,4 +1,4 @@
-# Project Planning #project #architecture #design #planning
+# Project Planning 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/bfcad74c66dfa1e8eb5e2c07b13811df)
 

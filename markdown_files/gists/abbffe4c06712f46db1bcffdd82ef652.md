@@ -1,4 +1,4 @@
-# Shell: single line Ruby script in shell #ruby #shell #script
+# Shell: single line Ruby script in shell 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/abbffe4c06712f46db1bcffdd82ef652)
 

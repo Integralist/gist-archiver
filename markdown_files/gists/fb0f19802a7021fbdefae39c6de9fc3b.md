@@ -1,4 +1,4 @@
-# [Calculating BigO] #bigo #algorithms #analysis
+# [Calculating BigO] 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/fb0f19802a7021fbdefae39c6de9fc3b)
 
