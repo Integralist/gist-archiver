@@ -284,7 +284,7 @@ func makeAPIRequest(url string, target any) error {
 	req.Header.Set("User-Agent", "go-gist-archiver/1.6") // Version bump
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 
-	token := os.Getenv("GITHUB_TOKEN")
+	token := os.Getenv("API_TOKEN_GITHUB")
 	if token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
 	}
@@ -321,7 +321,7 @@ func makeAPIRequestForGistList(url string, target any) (string, error) {
 	req.Header.Set("User-Agent", "go-gist-archiver/1.6")
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 
-	token := os.Getenv("GITHUB_TOKEN")
+	token := os.Getenv("API_TOKEN_GITHUB")
 	if token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
 	}
