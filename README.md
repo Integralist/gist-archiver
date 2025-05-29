@@ -29,3 +29,22 @@ make build
 
 I have a [GitHub Actions workflow](.github/workflows/daily-build.yml) that pulls
 the latest public gists daily.
+
+## Gist Struture
+
+Write and structure your gists however you like.
+
+But if you want the "tag" feature that this UI provides then you'll need to
+ensure the "Gist description..." field contains twitter-like hash tags.
+
+For example...
+
+```
+<description> #<tag1> #<tag2>
+```
+
+So a real example might be gist whose description looks like this:
+
+```
+structured logging #go #logs
+```
