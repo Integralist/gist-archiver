@@ -43,7 +43,7 @@ For example...
 <description> #<tag1> #<tag2>
 ```
 
-So a real example might be gist whose description looks like this:
+So a real example might be a gist whose description looks like this:
 
 ```
 structured logging #go #logs
