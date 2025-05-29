@@ -41,185 +41,9 @@ const (
 
 	jsSubDir            = "js"
 	jsFilterFileName    = "filter.js"
+	jsTagsFileName      = "tags.js"
 	jsHighlightFileName = "highlight.min.js"
 )
-
-const cssContent = `
-/* General body and container styles */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    margin: 20px;
-    line-height: 1.6;
-    background-color: #f4f4f4;
-    color: #333;
-}
-
-.container {
-    max-width: 800px;
-    margin: auto;
-    background: #fff;
-    padding: 20px 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-}
-
-/* Headings */
-h1, h2 {
-    color: #333;
-    border-bottom: 1px solid #eaecef;
-    padding-bottom: 0.3em;
-    margin-top: 24px;
-    margin-bottom: 16px;
-}
-
-/* Specific styling for H2 when used as a file section header */
-.gist-file-header {
-    margin-top: 30px; /* More space before a new file section */
-    font-size: 1.3em; /* Slightly smaller than primary H2 if needed */
-    color: #1f2328;
-}
-
-
-h1:first-child, h2.gist-file-header:first-child { /* Adjust if .gist-file-header is the first */
-    margin-top: 0;
-}
-
-h1 { /* Page title / Gist title */
-    font-size: 2em;
-}
-
-
-/* Links */
-a {
-    color: #0366d6;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* Index Page List */
-.container > ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.container > ul > li {
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
-}
-.container > ul > li:last-child {
-    border-bottom: none;
-}
-.container > ul > li > small.date { /* Style for the date */
-    display: block;
-    font-size: 0.8em;
-    color: #666;
-    margin-top: 4px;
-}
-
-
-/* Gist page specific "back to index" link */
-a.back-link {
-    display: inline-block;
-    margin-bottom: 20px;
-    font-size: 0.9em;
-}
-
-/* Code blocks */
-pre {
-    background-color: #f6f8fa;
-    padding: 16px;
-    overflow: auto;
-    font-size: 85%;
-    line-height: 1.45;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    margin-bottom: 16px;
-    margin-top: 8px; /* Add some space above pre if it follows a heading */
-}
-
-code {
-    font-family: 'SFMono-Regular', Consolas, "Liberation Mono", Menlo, Courier, monospace;
-    font-size: inherit;
-}
-
-:not(pre) > code {
-  padding: .2em .4em;
-  margin: 0 2px;
-  font-size: 85%;
-  background-color: rgba(27,31,35,0.07);
-  border-radius: 3px;
-}
-
-/* Styles for rendered Markdown content within a gist page */
-.markdown-content {
-    margin-top: 8px; /* Space between file header and rendered markdown */
-}
-.markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4, .markdown-content h5, .markdown-content h6 {
-    /* Reset gist-file-header specific margins if needed or add specific styling */
-    /* For example, make them less prominent than the file header */
-    margin-top: 1em;
-    margin-bottom: 0.5em;
-    border-bottom: none; /* Remove double border if h2 is used in MD */
-}
-.markdown-content h1 { font-size: 1.6em; }
-.markdown-content h2 { font-size: 1.4em; }
-.markdown-content h3 { font-size: 1.2em; }
-
-.hidden {
-    display: none !important;
-}
-
-#filterInput {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box; /* Ensures padding doesn't add to width */
-    font-size: 1em;
-}
-
-`
-
-const jsFilterContent = `
-document.addEventListener('DOMContentLoaded', function() {
-    const filterInput = document.getElementById('filterInput');
-    const gistList = document.getElementById('gistList');
-
-    // Check if essential elements exist to prevent errors
-    if (!filterInput || !gistList) {
-        console.error("Filter input or gist list not found on the page.");
-        return;
-    }
-
-    const listItems = gistList.getElementsByTagName('li');
-
-    filterInput.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            const filterText = filterInput.value.toLowerCase().trim();
-
-            for (let i = 0; i < listItems.length; i++) {
-                const item = listItems[i];
-                const itemText = item.textContent || item.innerText || '';
-
-                if (filterText === '') {
-                    item.classList.remove('hidden');
-                } else {
-                    if (itemText.toLowerCase().includes(filterText)) {
-                        item.classList.remove('hidden');
-                    } else {
-                        item.classList.add('hidden');
-                    }
-                }
-            }
-        }
-    });
-});
-`
 
 var (
 	httpClient = &http.Client{Timeout: 30 * time.Second}
@@ -654,6 +478,7 @@ func generateIndexFiles(entries []IndexEntry) {
 
 	// --- JAVASCRIPT ---
 	htmlIndexContent.WriteString(fmt.Sprintf("<script src=\"%s/%s/%s\" defer></script>\n", assetsSubDir, jsSubDir, jsFilterFileName))
+	htmlIndexContent.WriteString(fmt.Sprintf("<script src=\"%s/%s/%s\" defer></script>\n", assetsSubDir, jsSubDir, jsTagsFileName))
 
 	htmlIndexContent.WriteString("</div>\n</body>\n</html>")
 
@@ -677,26 +502,6 @@ func main() {
 	if err := os.MkdirAll(filepath.Join(webDeployDir, gistsHtmlSubDir), 0755); err != nil {
 		log.Fatalf("Failed to create HTML gists directory: %v", err)
 	}
-
-	cssDirPath := filepath.Join(webDeployDir, assetsSubDir, cssSubDir)
-	if err := os.MkdirAll(cssDirPath, 0755); err != nil {
-		log.Fatalf("Failed to create CSS assets directory %s: %v", cssDirPath, err)
-	}
-	cssFilePath := filepath.Join(cssDirPath, cssFileName)
-	if err := os.WriteFile(cssFilePath, []byte(strings.TrimSpace(cssContent)), 0644); err != nil {
-		log.Fatalf("Failed to write CSS file %s: %v", cssFilePath, err)
-	}
-	log.Printf("Generated CSS file: %s", cssFilePath)
-
-	jsDirPath := filepath.Join(webDeployDir, assetsSubDir, jsSubDir) // e.g., ./assets/js/
-	if err := os.MkdirAll(jsDirPath, 0755); err != nil {
-		log.Fatalf("Failed to create JS assets directory %s: %v", jsDirPath, err)
-	}
-	jsFilePath := filepath.Join(jsDirPath, jsFilterFileName) // e.g., ./assets/js/filter.js
-	if err := os.WriteFile(jsFilePath, []byte(strings.TrimSpace(jsFilterContent)), 0644); err != nil {
-		log.Fatalf("Failed to write JS file %s: %v", jsFilePath, err)
-	}
-	log.Printf("Generated JS file: %s", jsFilePath)
 
 	gistDetailChan := make(chan GistDetail, maxConcurrentFetches)
 	indexEntryChan := make(chan IndexEntry, runtime.NumCPU()*2)
@@ -759,7 +564,7 @@ func main() {
 	log.Printf("Web content (HTML, assets) in: current directory (./)")
 	log.Printf("  - Index: ./index.html")
 	log.Printf("  - Gists: ./%s/", gistsHtmlSubDir)
-	log.Printf("  - Assets: ./%s/ (includes ./%s/%s/ and ./%s/%s/)", assetsSubDir, cssSubDir, cssFileName, jsSubDir, jsFilterFileName)
+	log.Printf("  - Assets: ./%s/ (includes ./%s/%s/, ./%s/%s/ and ./%s/%s)", assetsSubDir, cssSubDir, cssFileName, jsSubDir, jsFilterFileName, jsSubDir, jsTagsFileName)
 	log.Printf("Markdown files (source for HTML) in: ./%s", markdownOutputDir) // Clarified this line
 	log.Printf("Open ./index.html in your browser to view the archive.")
 	log.Println("-----------------------------------------------------")
