@@ -5,7 +5,7 @@
 > This includes Go, JavaScript, CSS and HTML.\
 > It was done as part of a "vibe coding" session.\
 > I've made _slight_ code tweaks to make it easier to maintain, but not much.\
-> The code is still very much an AI `:dumpster-fire:`,\\
+> The code is still very much an AI `:dumpster-fire:`,\
 > But I am still surprised at how well it works,\
 > and also how quickly AI got me to a working product.
 
