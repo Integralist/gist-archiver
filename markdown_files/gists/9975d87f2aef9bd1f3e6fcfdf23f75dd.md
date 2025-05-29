@@ -1,4 +1,4 @@
-# [Install Python package directly for the interpreter Vim is using] 
+# Python: install package directly for the interpreter Vim is using 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/9975d87f2aef9bd1f3e6fcfdf23f75dd)
 
