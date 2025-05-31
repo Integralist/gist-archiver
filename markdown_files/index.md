@@ -4,7 +4,7 @@
 - [Go: httpx.WriteJSON ](./gists/c528f499d892cb0d74f7e037d5856358.md)
 - [Go: 1.23 iter.Seq/iter.Seq2 iterators ](./gists/38ade4cd75f1efe01acd0738d01470cd.md)
 - [Go: JSON omitempty vs omitzero ](./gists/91d0757344d1b37ff5f40df6c2869b4e.md)
-- [Go HTTP handler Write error after WriteHeader](./gists/fc7a7bb75e2951ffe4310a2620b73e8f.md)
+- [Go: HTTP handler Write error after WriteHeader ](./gists/fc7a7bb75e2951ffe4310a2620b73e8f.md)
 - [TLS, Certificate, and ACME Glossary ](./gists/d2a575ff3fbda36c08e31408110adbb6.md)
 - [Go: Why choose tailscale.com/util/ctxkey over Go standard context package ](./gists/bcdd25e27bf1aed9437f8d67b14b6e9f.md)
 - [DNS Delegation ](./gists/b50604c682e5ba91208f650147280596.md)
