@@ -373,6 +373,7 @@ func processSingleGist(gist GistDetail, indexEntryChan chan<- IndexEntry) {
 	var gistHtmlBuffer bytes.Buffer
 	gistHtmlBuffer.WriteString("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n")
 	gistHtmlBuffer.WriteString(fmt.Sprintf("<title>%s</title>\n", title))
+	gistHtmlBuffer.WriteString(`<meta name="viewport" content="width=device-width, initial-scale=1.0">`) // ensure css media queries work
 	gistHtmlBuffer.WriteString(fmt.Sprintf("<link rel=\"stylesheet\" type=\"text/css\" href=\"../%s/%s/%s\">\n",
 		assetsSubDir, cssSubDir, cssFileName))
 	gistHtmlBuffer.WriteString("</head>\n<body>\n<div class=\"container\">\n")
@@ -449,6 +450,7 @@ func generateIndexFiles(entries []IndexEntry) {
 	var htmlIndexContent strings.Builder
 	htmlIndexContent.WriteString("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n")
 	htmlIndexContent.WriteString("<title>Gists Archive</title>\n")
+	htmlIndexContent.WriteString(`<meta name="viewport" content="width=device-width, initial-scale=1.0">`) // ensure css media queries work
 	htmlIndexContent.WriteString(fmt.Sprintf("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s/%s/%s\">\n",
 		assetsSubDir, cssSubDir, cssFileName))
 	htmlIndexContent.WriteString("</head>\n<body>\n<div class=\"container\">\n")

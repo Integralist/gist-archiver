@@ -2,19 +2,22 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>A extremely basic selector engine for mobiles that support querySelectorAll /via @WebReflection (Andrea Giammarchi)</title>
-<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+<title>Mobile Selector Engine </title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
-<h1 id="a-extremely-basic-selector-engine-for-mobiles-that-support-queryselectorall-via-webreflection-andrea-giammarchi">A extremely basic selector engine for mobiles that support querySelectorAll /via @WebReflection (Andrea Giammarchi)</h1>
+<h1 id="mobile-selector-engine">Mobile Selector Engine</h1>
 
 <p><a href="https://gist.github.com/Integralist/884830" target="_blank">View original Gist on GitHub</a></p>
 
-<h2 id="mobile-selector-engine">Mobile Selector Engine</h2>
+<p><strong>Tags:</strong> #js</p>
 
-<pre><code class="language-text">var $ = (function (s) {
+<h2 id="mobile-selector-engine-js">Mobile Selector Engine.js</h2>
+
+<pre><code class="language-javascript">// A extremely basic selector engine for mobiles that support querySelectorAll /via @WebReflection (Andrea Giammarchi)
+var $ = (function (s) {
     return function $(q) {
         return s.call(document.querySelectorAll(q))
     }

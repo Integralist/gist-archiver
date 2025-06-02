@@ -2,27 +2,30 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Analyze the viewport size with JavaScript</title>
-<link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+<title>Analyze the viewport size </title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
-<h1 id="analyze-the-viewport-size-with-javascript">Analyze the viewport size with JavaScript</h1>
+<h1 id="analyze-the-viewport-size">Analyze the viewport size</h1>
 
 <p><a href="https://gist.github.com/Integralist/1303355" target="_blank">View original Gist on GitHub</a></p>
 
-<h2 id="viewport-txt">viewport.txt</h2>
+<p><strong>Tags:</strong> #js</p>
 
-<pre><code class="language-text">It’s possible to analyze the viewport size in JavaScript but it’s a little messy:
+<h2 id="viewport-md">viewport.md</h2>
 
-  - Most browsers support `window.innerWidth` and `window.innerHeight`.
+<p>It’s possible to analyze the viewport size in JavaScript but it’s a little messy:</p>
 
-  - But IE6, 7, 8 and 9 in quirks mode require `document.body.clientWidth` and `document.body.clientHeight`.
+<ul>
+<li><p>Most browsers support <code>window.innerWidth</code> and <code>window.innerHeight</code>.</p></li>
 
-  - All the main browsers support `document.documentElement.clientWidth` and `document.documentElement.clientHeight` but it’s inconsistent. 
-    Either the window or document dimensions will be returned depending on the browser and mode.
-</code></pre>
+<li><p>But IE6, 7, 8 and 9 in quirks mode require <code>document.body.clientWidth</code> and <code>document.body.clientHeight</code>.</p></li>
+
+<li><p>All the main browsers support <code>document.documentElement.clientWidth</code> and <code>document.documentElement.clientHeight</code> but it’s inconsistent.
+Either the window or document dimensions will be returned depending on the browser and mode.</p></li>
+</ul>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
 <script>hljs.highlightAll();</script>
