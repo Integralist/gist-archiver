@@ -37,7 +37,7 @@ sequenceDiagram
     cl-&gt;&gt;+avs: Initial Request
     avs-&gt;&gt;+dag: Proxy Request
     alt JWT Expired
-        dag&lt;&lt;--&gt;&gt;ag: Exchange Fastly Key for JWT 
+        dag&lt;&lt;--&gt;&gt;ag: Exchange API Key for JWT 
     end
     alt EntityID Not Found
         dag&lt;&lt;--&gt;&gt;er: Look up EntityId associated with CustomerId
@@ -325,6 +325,65 @@ graph LR
     UI--&gt;&gt;-Cust: Display success message / updated record list
 
     Note right of DS: DNSimple Servers (DS)&lt;br/&gt;now serve the&lt;br/&gt;new/updated record&lt;br/&gt;for future queries.
+</code></pre>
+
+<p>Example of complex architecture with <code>&lt;br&gt;</code> for line breaks:</p>
+
+<pre><code class="language-mermaid">graph TD
+    subgraph &quot;User Interaction&quot;
+        User[User/Customer]
+    end
+
+    subgraph &quot;Example DNS Platform&quot;
+        ManagementService[Example DNS Management Service API/UI]
+        CentralDB[(&quot;Central Database: stores zones with 'account' column for partition_id&quot;)]
+        
+        subgraph &quot;DNS Partition ..N&quot;
+            PDNSN[PowerDNS Instance for PN &lt;br&gt;&lt;br&gt; config: SELECT ... WHERE account='PN_id']
+            NS_PN_Set[NS Servers for P..N: &lt;br&gt;&lt;br&gt; nsn1.your-dns.com nsn2.your-dns.com]
+        end
+        subgraph &quot;DNS Partition 2&quot;
+            PDNS2[PowerDNS Instance for P2 &lt;br&gt;&lt;br&gt; config: SELECT ... WHERE account='P2_id']
+            NS_P2_Set[NS Servers for P2: &lt;br&gt;&lt;br&gt; nsb1.your-dns.com nsb2.your-dns.com]
+        end
+        subgraph &quot;DNS Partition 1&quot;
+            PDNS1[PowerDNS Instance for P1 &lt;br&gt;&lt;br&gt; config: SELECT ... WHERE account='P1_id']
+            NS_P1_Set[NS Servers for P1: &lt;br&gt;&lt;br&gt; nsa1.your-dns.com nsa2.your-dns.com]
+        end
+    end
+
+    subgraph &quot;External DNS Infrastructure&quot;
+        Registrar[Domain Registrar]
+        UserCurrentDNS[User's Current/External DNS; for verification if needed]
+    end
+
+    User -- Manages Zones via --&gt; ManagementService
+    ManagementService -- Reads/Writes Zone Config --&gt; CentralDB
+    
+    PDNS1 -- Reads Zone Data &lt;br&gt; (filtered for P1) --&gt; CentralDB
+    PDNS2 -- Reads Zone Data &lt;br&gt; (filtered for P2) --&gt; CentralDB
+    PDNSN -- Reads Zone Data &lt;br&gt; (filtered for PN) --&gt; CentralDB
+    
+    NS_P1_Set -- Served by --&gt; PDNS1
+    NS_P2_Set -- Served by --&gt; PDNS2
+    NS_PN_Set -- Served by --&gt; PDNSN
+
+    User -- Creates Verification Record --&gt; UserCurrentDNS
+    User -- Updates NS Records --&gt; Registrar
+
+    ManagementService -- Verification Check --&gt; UserCurrentDNS
+
+    style User fill:#aliceblue,stroke:#333,stroke-width:2px
+    style ManagementService fill:#lightcyan,stroke:#333,stroke-width:2px
+    style CentralDB fill:#honeydew,stroke:#333,stroke-width:2px
+    style PDNS1 fill:#mistyrose,stroke:#333,stroke-width:2px
+    style PDNS2 fill:#mistyrose,stroke:#333,stroke-width:2px
+    style PDNSN fill:#mistyrose,stroke:#333,stroke-width:2px
+    style NS_P1_Set fill:#lemonchiffon,stroke:#333,stroke-width:2px
+    style NS_P2_Set fill:#lemonchiffon,stroke:#333,stroke-width:2px
+    style NS_PN_Set fill:#lemonchiffon,stroke:#333,stroke-width:2px
+    style Registrar fill:#thistle,stroke:#333,stroke-width:2px
+    style UserCurrentDNS fill:#whitesmoke,stroke:#333,stroke-width:2px
 </code></pre>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>

@@ -1,8 +1,10 @@
-# 00_destructuring.md
+# Clojure Destructuring Tutorial and Cheat Sheet 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/acb341d6b0af7bbe4be0)
 
-## 00_destructuring.md
+**Tags:** #clojure
+
+## 1. destructuring.md
 
 Clojure Destructuring Tutorial and Cheat Sheet
 ==============================================
@@ -220,7 +222,7 @@ Here be dragons.
 
 
 
-## 01_compojure.md
+## 2. compojure.md
 
 Compojure Destructuring
 =======================

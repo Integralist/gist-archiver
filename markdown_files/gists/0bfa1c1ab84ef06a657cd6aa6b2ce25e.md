@@ -1,8 +1,8 @@
-# [embed empty interface{} into explicit struct and then reflect the containing struct] 
+# Embed empty interface{} into explicit struct and then reflect the containing struct 
 
 [View original Gist on GitHub](https://gist.github.com/Integralist/0bfa1c1ab84ef06a657cd6aa6b2ce25e)
 
-**Tags:** #go #golang #embed #struct #interface #empty #reflect
+**Tags:** #go
 
 ## embed empty interface{} into explicit struct and then reflect the containing struct.go
 
