@@ -307,7 +307,6 @@
 - [Simple Log Example with Configuration Overrides ](./gists/fb0f263c624280eb3bca291ee8f0ed6b.md)
 - [Valid URL Paths ](./gists/9537a46eea1b731dfa331f850ff8b8b0.md)
 - [Simple XHR function ](./gists/a66a29561f6544297a5ad41a8208193c.md)
-- [Check struct is of a specific type ](./gists/e54d77099dd99f53ed8761883277f066.md)
 - [Fuzz Testing ](./gists/2ecc27597cc609fcb7e4c13c8b9a1dae.md)
 - [Compile Curl ](./gists/1048649a5c00fae8d7f9841d07c728db.md)
 - [NSQ Questions ](./gists/c88f6dca57f3bc327403c9e042e11ff2.md)
