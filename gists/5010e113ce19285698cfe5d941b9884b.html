@@ -2,50 +2,68 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>1Password: CLI Usage </title>
+<title>1Password CLI </title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
-<h1 id="1password-cli-usage">1Password: CLI Usage</h1>
+<h1 id="1password-cli">1Password CLI</h1>
 
 <p><a href="https://gist.github.com/Integralist/5010e113ce19285698cfe5d941b9884b" target="_blank">View original Gist on GitHub</a></p>
 
-<p><strong>Tags:</strong> #1Password #op #cli</p>
+<p><strong>Tags:</strong> #shell</p>
 
-<h2 id="op-sh">op.sh</h2>
+<h2 id="1password-cli-md">1Password CLI.md</h2>
 
-<pre><code class="language-shell"># list all accounts
-op account list
+<h2 id="list-all-accounts">list all accounts</h2>
 
-# check which account we're using
-op whoami
+<pre><code class="language-shell">op account list
+</code></pre>
 
-# switch account
-op signin
+<h2 id="check-which-account-we-re-using">check which account we&rsquo;re using</h2>
+
+<pre><code class="language-shell">op whoami
+</code></pre>
+
+<h2 id="switch-account">switch account</h2>
+
+<pre><code class="language-shell">op signin
 op signin --account my # account flag must be passed subset of the URL from `op account list` (e.g. `my` matches `my.1password.com`)
+</code></pre>
 
-# list all vaults
-op vault list --format json
+<h2 id="list-all-vaults">list all vaults</h2>
 
-# list all items within the &quot;Private&quot; vault
-op item list --vault &quot;Private&quot; --format json
+<pre><code class="language-shell">op vault list --format json
+</code></pre>
 
-# get a specific item from the &quot;Private&quot; vault
-op item get &quot;Your Item Title&quot; --vault &quot;Private&quot; --format json
+<h2 id="list-all-items-within-the-private-vault">list all items within the &ldquo;Private&rdquo; vault</h2>
 
-# get the password from a specific item from the &quot;Private&quot; vault
-op item get &quot;Your Item Title&quot; --vault &quot;Private&quot; --fields password --reveal
+<pre><code class="language-shell">op item list --vault &quot;Private&quot; --format json
+</code></pre>
 
-# use 1Password &quot;secret reference&quot; wherever you need a secret to be used. 
-# e.g. an application config file or even an environment variable exported as part of a shell script.
-#
-# format:
-# op://&lt;VAULT_NAME&gt;/&lt;ITEM_NAME&gt;/&lt;FIELD&gt;
-#
-# you can easily get the reference to any field using the 1Password GUI.
-op read &quot;op://Private/Fastly API Tokens/Integralist-PersonalAllServices/Token&quot;
+<h2 id="get-a-specific-item-from-the-private-vault">get a specific item from the &ldquo;Private&rdquo; vault</h2>
+
+<pre><code class="language-shell">op item get &quot;Your Item Title&quot; --vault &quot;Private&quot; --format json
+</code></pre>
+
+<h2 id="get-the-password-from-a-specific-item-from-the-private-vault">get the password from a specific item from the &ldquo;Private&rdquo; vault</h2>
+
+<pre><code class="language-shell">op item get &quot;Your Item Title&quot; --vault &quot;Private&quot; --fields password --reveal
+</code></pre>
+
+<h2 id="use-1password-secret-reference-wherever-you-need-a-secret-to-be-used">use 1Password &ldquo;secret reference&rdquo; wherever you need a secret to be used.</h2>
+
+<p>e.g. an application config file or even an environment variable exported as part of a shell script.</p>
+
+<p>format:</p>
+
+<pre><code>op://&lt;VAULT_NAME&gt;/&lt;ITEM_NAME&gt;/&lt;FIELD&gt;
+</code></pre>
+
+<p>you can easily get the reference to any field using the 1Password GUI.</p>
+
+<pre><code class="language-shell">op read &quot;op://Private/Fastly API Tokens/Integralist-PersonalAllServices/Token&quot;
 op inject -i some_input_file.tpl -o the_output_file_with_secret
 
 export FASTLY_API_TOKEN=$(op read &quot;op://Private/Fastly API Tokens/Integralist-PersonalAllServices/Token&quot;)
@@ -53,8 +71,13 @@ export FASTLY_API_TOKEN=$(echo &quot;op://Private/Fastly API Tokens/Integralist-
 
 curl -sX GET &quot;https://api.cloudflare.com/client/v4/user/tokens/verify&quot; -H &quot;Authorization: Bearer $(op read 'op://Private/6bky6ykumav2wfpguwn4dokcku/API Token')&quot; -H &quot;Content-Type:application/json&quot; | jq
 curl -sX GET &quot;https://api.cloudflare.com/client/v4/user/tokens/verify&quot; -H &quot;Authorization: Bearer $(echo 'op://Private/6bky6ykumav2wfpguwn4dokcku/API Token' | op inject)&quot; -H &quot;Content-Type:application/json&quot; | jq
-
 </code></pre>
+
+<blockquote>
+<p>[!NOTE]
+When entering a title for a 1Password entry, the use of a <code>:</code> will cause the &ldquo;Copy Secret Reference&rdquo; feature to use a cryptic hash instead of a descriptive name.
+If you want to find the entry this secret reference is related to, then you can search in 1Password using the hash, but from a documentation perspective I much prefer the &ldquo;descriptive&rdquo; version.</p>
+</blockquote>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
 <script>hljs.highlightAll();</script>

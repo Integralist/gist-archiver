@@ -24,7 +24,7 @@
 - [xarg: parallel processing ](./gists/1391150b69eebcaac98984627ba26b7d.md)
 - [Make: Makefile syntax ](./gists/0320ea5b1fccd4b1ad6aa6c369b011e7.md)
 - [OpenAPI: feature flags use different schemas ](./gists/12a6f901da071120d3a45e41b3eb0f12.md)
-- [1Password: CLI Usage ](./gists/5010e113ce19285698cfe5d941b9884b.md)
+- [1Password CLI ](./gists/5010e113ce19285698cfe5d941b9884b.md)
 - [Go: errgroup ](./gists/5685562cd874cce18d5d00714fe0a2c7.md)
 - [macOS: automation with Hammerspoon ](./gists/1b5ee79a9d128407c7daabd72a1abf27.md)
 - [Image resize with ImageMagick ](./gists/a459a4951b5e9bca7d767d6d4f39dda2.md)
