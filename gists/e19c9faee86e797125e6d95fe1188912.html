@@ -98,8 +98,8 @@ tools.sum
 </code></pre>
 
 <blockquote>
-<p>[!IMPORTANT]
-If you give the <code>tools.mod</code> a unique module name, let&rsquo;s say <code>go.mod</code> uses <code>github.com/example/foo</code>, and so you make <code>tools.mod</code> use <code>github.com/example/foo/tools</code> then be aware that the use of <code>go mod</code> isn&rsquo;t going to make your <code>tools.mod</code> think it needs the module from <code>go.mod</code> and it&rsquo;ll add it as a dependency (this makes things weird in special cases), so it might be worth making the module name the same between <code>go.mod</code> and <code>tools.mod</code>.</p>
+<p>[!NOTE]
+If you give the <code>tools.mod</code> a unique module name, let&rsquo;s say <code>go.mod</code> uses <code>github.com/example/foo</code>, and so you make <code>tools.mod</code> use <code>github.com/example/foo/tools</code> then be aware that the use of <code>go mod</code> is going to make your <code>tools.mod</code> think it needs the module from <code>go.mod</code> and it&rsquo;ll add it as a dependency (this makes things weird in special cases), so it might be worth making the module name the same between <code>go.mod</code> and <code>tools.mod</code>.</p>
 </blockquote>
 
 <p>To install a new tool:</p>
@@ -125,7 +125,7 @@ $ go tool -modfile=tools.mod revive --version
 version 1.7.0
 </code></pre>
 
-<p>Having to specify the <code>-modfile</code> flag isn&rsquo;t a big issue as we already have <code>go tool</code> abstracted inside the various Makefile targets, so we should only ever be calling a Makefile target (or in the case of stringer have it codified in the go generate directive in the code itself).</p>
+<p>Having to specify the <code>-modfile</code> flag isn&rsquo;t a big issue for me as I typically have <code>go tool</code> abstracted inside various Makefile targets, so I&rsquo;m only ever calling a Makefile target (or in the case of stringer have it codified in the go generate directive in the code itself).</p>
 
 <p>As far as updating tools, you can either do it a dependency at a time or all of them at once:</p>
 
