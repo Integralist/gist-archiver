@@ -385,6 +385,199 @@ graph LR
     style Registrar fill:#thistle,stroke:#333,stroke-width:2px
     style UserCurrentDNS fill:#whitesmoke,stroke:#333,stroke-width:2px
 </code></pre>
+
+<p>Example of complex architecture using line colours <em>and</em> <code>~~~</code> to force a vertical rendering of the boxes within the &ldquo;DNS Data Plan&rdquo; subgraph:</p>
+
+<pre><code class="language-mermaid">flowchart TD
+    subgraph user[&quot;User Interaction&quot;]
+        APIUser[&quot;User/Customer&quot;]
+        DNSUser[&quot;User/Customer&quot;]
+    end
+
+    subgraph DNSControl[&quot;DNS Control Plane&quot;]
+        APIService[&quot;DNS API Service&quot;]
+        controlPlaneDB[(&quot;Control Plane Database: stores zone mappings, entityID information, partition mapping&quot;)]
+    end
+
+    subgraph pdnsInstance [&quot;PowerDNS instance&quot;]
+        pdnsAPIN[&quot;PowerDNS Primary/Secondary&quot;]
+        pdnsDBN[(&quot;PowerDNS Partition N MySQL Database: stores zones, records, etc&quot;)]
+        pdnsAPIN --&gt; pdnsDBN
+        pdnsDBNReplica[(&quot;PowerDNS Partition N MySQL Replica DB: stores zones, records, etc&quot;)]
+        pdnsDBN -- Replication --&gt; pdnsDBNReplica
+        Note[&quot;Note: PowerDNS will act as a primary/secondary for a given zone, depending on the configuration&quot;]
+    end
+    
+    subgraph DNSDataPlane [&quot;DNS Data Plane&quot;]
+        subgraph pdnsN[&quot;PDNS Partition..N&quot;]
+            origin_refN[&quot;origin instance&quot;]
+            control_refN[&quot;control instance&quot;]
+            transfer_refN[&quot;transfer instance&quot;]
+        end
+        subgraph pdns2[&quot;PDNS Partition 2&quot;]
+            origin_ref2[&quot;origin instance&quot;]
+            control_ref2[&quot;control instance&quot;]
+            transfer_ref2[&quot;transfer instance&quot;]
+        end
+        subgraph pdns1[&quot;PDNS Partition 1&quot;]
+            origin_ref1[&quot;origin instance&quot;]
+            control_ref1[&quot;control instance&quot;]
+            transfer_ref1[&quot;transfer instance&quot;]
+        end
+        
+        %% Vertical Layout Hint (i.e. force a vertical rendering of the boxes)
+        pdns1 ~~~ pdns2
+        pdns2 ~~~ pdnsN
+    end
+
+    subgraph externalDNSProvider[&quot;External DNS Platform&quot;]
+    end
+
+    subgraph EdgeDNS[&quot;DNS Edge&quot;]
+        subgraph cacheN[&quot;Cache Node ..N&quot;]
+            xdnsN[&quot;xdns (dns proxy): &lt;br&gt; Filters invalid packets&quot;]
+            dnsdistN[&quot;dnsdist: authoritative DNS cache/proxy&quot;]
+        end
+        subgraph cache2[&quot;Cache Node 2&quot;]
+            xdns2[&quot;xdns (dns proxy): &lt;br&gt; Filters invalid packets&quot;]
+            dnsdist2[&quot;dnsdist: authoritative DNS cache/proxy&quot;]
+        end
+        subgraph cache1[&quot;Cache Node 1&quot;]
+            xdns1[&quot;xdns (dns proxy): &lt;br&gt; Filters invalid packets&quot;]
+            dnsdist1[&quot;dnsdist: authoritative DNS cache/proxy&quot;]
+        end
+        xdns1 &lt;-- valid query --&gt; dnsdist1
+        dnsdist1 -- Cache misses &lt;br&gt; Xproxy encoded --&gt; origin_ref1
+        xdns2 &lt;-- valid query --&gt; dnsdist2
+        dnsdist2 &lt;-- Cache misses &lt;br&gt; Xproxy encoded ---&gt; origin_ref2
+        xdnsN &lt;-- valid query --&gt; dnsdistN
+        dnsdistN &lt;-- Cache misses &lt;br&gt; Xproxy encoded ---&gt; origin_refN
+    end
+    
+    %% Connections
+    APIUser -- Manages Zones via API --&gt; APIService
+    APIUser -- Manages Zones on External DNS Provider --&gt; externalDNSProvider
+    DNSUser -- Incoming DNS Queries --&gt; EdgeDNS
+    
+    APIService -- Route DNS request to PowerDNS control instance ---&gt; control_refN
+    APIService -- Route DNS request to PowerDNS control instance ---&gt; control_ref2
+    APIService -- Route DNS request to PowerDNS control instance ---&gt; control_ref1
+    APIService -- Check DB for customer information and mapping--&gt; controlPlaneDB
+    
+    externalDNSProvider -- Replicates records via XFR --&gt; transfer_ref1
+    externalDNSProvider -- Replicates records via XFR --&gt; transfer_ref2
+    externalDNSProvider -- Replicates records via XFR --&gt; transfer_refN
+    
+    %% Links to PowerDNS Instance
+    origin_refN -- &quot;is a&quot; --&gt; pdnsInstance
+    control_refN -- &quot;is a&quot; --&gt; pdnsInstance
+    transfer_refN -- &quot;is a&quot; --&gt; pdnsInstance
+    origin_ref1 -- &quot;is a&quot; --&gt; pdnsInstance
+    control_ref1 -- &quot;is a&quot; --&gt; pdnsInstance
+    transfer_ref1 -- &quot;is a&quot; --&gt; pdnsInstance
+    origin_ref2 -- &quot;is a&quot; --&gt; pdnsInstance
+    control_ref2 -- &quot;is a&quot; --&gt; pdnsInstance
+    transfer_ref2 -- &quot;is a&quot; --&gt; pdnsInstance
+
+    %% Links for origin instances
+    linkStyle 4 stroke:red,stroke-width:2px,color:grey;
+    linkStyle 5 stroke:red,stroke-width:2px,color:grey;
+    linkStyle 6 stroke:red,stroke-width:2px,color:grey;
+    linkStyle 7 stroke:red,stroke-width:2px,color:grey;
+    linkStyle 8 stroke:red,stroke-width:2px,color:grey;
+    linkStyle 9 stroke:red,stroke-width:2px,color:grey;
+    linkStyle 12 stroke:red,stroke-width:2px,color:grey;
+    linkStyle 20 stroke:red,stroke-width:2px,color:grey;
+    linkStyle 23 stroke:red,stroke-width:2px,color:grey;
+    linkStyle 26 stroke:red,stroke-width:2px,color:grey;
+
+    %% Links for control instances
+    linkStyle 10 stroke:blue,stroke-width:2px,color:grey;
+    linkStyle 13 stroke:blue,stroke-width:2px,color:grey;
+    linkStyle 14 stroke:blue,stroke-width:2px,color:grey;
+    linkStyle 15 stroke:blue,stroke-width:2px,color:grey;
+    linkStyle 16 stroke:blue,stroke-width:2px,color:grey;
+    linkStyle 21 stroke:blue,stroke-width:2px,color:grey;
+    linkStyle 24 stroke:blue,stroke-width:2px,color:grey;
+    linkStyle 27 stroke:blue,stroke-width:2px,color:grey;
+
+    %% Links for transfer instances
+    linkStyle 11 stroke:orange,stroke-width:2px,color:grey;
+    linkStyle 17 stroke:orange,stroke-width:2px,color:grey;
+    linkStyle 18 stroke:orange,stroke-width:2px,color:grey;
+    linkStyle 19 stroke:orange,stroke-width:2px,color:grey;
+    linkStyle 22 stroke:orange,stroke-width:2px,color:grey;
+    linkStyle 25 stroke:orange,stroke-width:2px,color:grey;
+    linkStyle 28 stroke:orange,stroke-width:2px,color:grey;
+</code></pre>
+
+<p>Here&rsquo;s a simplified version of the above:</p>
+
+<pre><code class="language-mermaid">flowchart TD
+    subgraph user[&quot;Customer Interaction&quot;]
+        APIUser[&quot;API User&quot;]
+        DNSUser[&quot;DNS User&quot;]
+        ExternalUser[&quot;External User&quot;]
+    end
+
+    subgraph DNSControl[&quot;DNS Control Plane&quot;]
+        APIService[&quot;DNS API Service&quot;]
+        controlPlaneDB[(&quot;Control Plane Database: stores zone mappings, entityID information, partition mapping&quot;)]
+    end
+    
+    subgraph DNSDataPlane [&quot;DNS Data Plane&quot;]
+        subgraph pdnsN[&quot;Partitions ..N&quot;]
+            origin[&quot;PowerDNS:&lt;br&gt;origin instance&quot;]
+            control[&quot;PowerDNS:&lt;br&gt;control instance&quot;]
+            transfer[&quot;PowerDNS:&lt;br&gt;transfer instance&quot;]
+
+            pdnsDBOrigin[(&quot;PowerDNS:&lt;br&gt;Database&quot;)]
+            pdnsDBControl[(&quot;PowerDNS:&lt;br&gt;Database&quot;)]
+            pdnsDBTransfer[(&quot;PowerDNS:&lt;br&gt;Database&quot;)]
+
+            origin --&gt; pdnsDBOrigin
+            control --&gt; pdnsDBControl
+            transfer --&gt; pdnsDBTransfer
+        end
+    end
+
+    DNSDataPlane --&gt; pdnsInstance
+
+    subgraph pdnsInstance [&quot;PowerDNS instance&quot;]
+        pdnsAPIN[&quot;PowerDNS Primary/Secondary&quot;]
+        pdnsDBN[(&quot;PowerDNS Partition N MySQL Database: stores zones, records, etc&quot;)]
+        pdnsAPIN --&gt; pdnsDBN
+        pdnsDBNReplica[(&quot;PowerDNS Partition N MySQL Replica DB: stores zones, records, etc&quot;)]
+        pdnsDBN -- Replication --&gt; pdnsDBNReplica
+        Note[&quot;Note: PowerDNS will act as a primary/secondary for a given zone, depending on the configuration&quot;]
+    end
+
+    subgraph externalDNSProvider[&quot;External DNS Platform&quot;]
+    end
+
+    subgraph EdgeDNS[&quot;DNS Edge&quot;]
+        subgraph cacheN[&quot;Cache Node ..N&quot;]
+            xdnsN[&quot;xdns (dns proxy):&lt;br&gt;filters invalid packets&quot;]
+            dnsdistN[&quot;dnsdist:&lt;br&gt;authoritative DNS cache/proxy&quot;]
+        end
+        xdnsN &lt;-- valid query --&gt; dnsdistN
+        dnsdistN &lt;-- cache miss&lt;br&gt;(xproxy encoded) ---&gt; pdnsN
+    end
+    
+    %% Connections
+    APIUser -- Manages Zones via API --&gt; APIService
+    ExternalUser -- Manages Zones on External DNS Provider --&gt; externalDNSProvider
+    DNSUser -- Incoming DNS Queries --&gt; EdgeDNS
+    
+    APIService -- Route DNS request to PowerDNS control instance ---&gt; control
+    APIService -- Route DNS request to PowerDNS control instance ---&gt; control
+    APIService -- Route DNS request to PowerDNS control instance ---&gt; control
+    APIService -- Check DB for customer information and mapping--&gt; controlPlaneDB
+    
+    externalDNSProvider -- Replicates records via XFR --&gt; transfer
+    externalDNSProvider -- Replicates records via XFR --&gt; transfer
+    externalDNSProvider -- Replicates records via XFR --&gt; transfer
+</code></pre>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
 <script>hljs.highlightAll();</script>

@@ -16,29 +16,83 @@
 
 <h2 id="vim-tips-md">Vim Tips.md</h2>
 
-<ul>
-<li><code>:windo set scrollbind</code> and <code>:windo set cursorbind</code> to make two windows scroll together.</li>
-<li><code>gf</code> takes you to the file referenced (e.g. <code>[Makefile](../Makefile)</code>) but if you add a <code>:</code> followed by a line number to the link (e.g. <code>[Makefile](../Makefile:123)</code>) then pressing <code>gF</code> will take you to the specific line number as well.</li>
-<li><code>:-d</code> and <code>:+d</code> delete the line above or below the current line, unlike <code>dj</code> or <code>dk</code> which would also delete the current line.</li>
-<li><code>:copy</code> allows you to copy a line to another location (e.g. <code>:10 copy 20</code> copies the range, in this case line 10, to <em>below</em> line 20), where I had always <code>:10y</code> then moved to the destination).</li>
-<li><code>:&lt;range&gt;put &lt;register&gt;</code> allows you to paste a register to a specific line.</li>
-<li><code>:packadd cfilter</code> enables filtering results from quickfix window (e.g. <code>:Cfilter /pattern/</code>, also has negated version <code>Cfilter!</code>).</li>
-<li>To &lsquo;append&rsquo; to multiple lines: <code>Ctrl+v</code> and select multiple lines, then <code>$</code>, then <code>Shift+a</code> and start typing (this is the opposite of &lsquo;insert&rsquo; with <code>Ctrl+v</code> and <code>Shift+i</code>).</li>
-<li>To autoformat text to a specific width (e.g. <code>set textwidth=80</code>), first select the text and then execute <code>gq</code>. This is super useful for when you have a code comment that you need to tweak/edit, and then it messes up the line breaks. You can just select the entire text and <code>gq</code> to have it fixed!</li>
-<li><code>:%!jq</code> will format the entire file</li>
-<li>modelines (<a href="https://vimhelp.org/options.txt.html#modeline" target="_blank">https://vimhelp.org/options.txt.html#modeline</a>)
+<h2 id="make-two-windows-scroll-together">Make two windows scroll together</h2>
+
+<p><code>:windo set scrollbind</code> and <code>:windo set cursorbind</code></p>
+
+<h2 id="go-to-file-and-line-number">Go to file and line number</h2>
+
+<p><code>gf</code> takes you to the file referenced (e.g. <code>[Makefile](../Makefile)</code>) but if you add a <code>:</code> followed by a line number to the link (e.g. <code>[Makefile](../Makefile:123)</code>) then pressing <code>gF</code> will take you to the specific line number as well.</p>
+
+<h2 id="delete-line-above-or-below-the-current-line">Delete line above or below the current line</h2>
+
+<p><code>:-d</code> and <code>:+d</code> delete the line above or below the current line, unlike <code>dj</code> or <code>dk</code> which would also delete the current line.</p>
+
+<h2 id="copy-line-to-another-location">Copy line to another location</h2>
+
+<p><code>:copy</code> allows you to copy a line to another location</p>
+
+<p>e.g. <code>:10 copy 20</code> copies the range, in this case line 10, to <em>below</em> line 20), where I had always <code>:10y</code> then moved to the destination.</p>
+
+<h2 id="paste-a-register">Paste a register</h2>
+
+<p><code>:&lt;range&gt;put &lt;register&gt;</code> allows you to paste a register to a specific line.</p>
+
+<h2 id="quickfix-window-filtering">QuickFix Window Filtering</h2>
+
+<p><code>:packadd cfilter</code> enables filtering results from quickfix window (e.g. <code>:Cfilter /pattern/</code>, also has negated version <code>Cfilter!</code>).</p>
+
+<h2 id="append-to-multiple-lines">Append to multiple lines</h2>
+
+<p>To &lsquo;append&rsquo; to multiple lines: <code>Ctrl+v</code> and select multiple lines, then <code>$</code>, then <code>Shift+a</code> and start typing (this is the opposite of &lsquo;insert&rsquo; with <code>Ctrl+v</code> and <code>Shift+i</code>).</p>
+
+<h2 id="format-text-width">Format text width</h2>
+
+<p>To autoformat text to a specific width (e.g. <code>set textwidth=80</code>), first select the text and then execute <code>gq</code>. This is super useful for when you have a code comment that you need to tweak/edit, and then it messes up the line breaks. You can just select the entire text and <code>gq</code> to have it fixed!</p>
+
+<h2 id="format-json-with-jq">Format JSON with jq</h2>
+
+<p><code>:%!jq</code> will format the entire file</p>
+
+<h2 id="modelines">Modelines</h2>
+
+<p><a href="https://vimhelp.org/options.txt.html#modeline" target="_blank">https://vimhelp.org/options.txt.html#modeline</a></p>
 
 <ul>
 <li>Markdown: <code>&lt;!-- vim: set colorcolumn=57,80: --&gt;</code></li>
 <li>Go: <code>// vim: foldmethod=indent foldlevel=0</code></li>
-</ul></li>
 </ul>
+
+<h2 id="edit-files-via-terminal">Edit files via terminal</h2>
 
 <pre><code class="language-shell">vim -E -s config.txt &lt;&lt;-EOF
 :%s/foo/bar/
 :update
 :quit
 EOF
+</code></pre>
+
+<h2 id="sort-all-arrays">Sort All Arrays</h2>
+
+<p>This uses <code>:g/regex1/,/regex2/command</code> syntax.</p>
+
+<p><code>:g/\[/+1,/\]/-1sort</code></p>
+
+<p>It will operate on all lines between the lines matching <code>/regex1/</code> and <code>/regex2/</code></p>
+
+<p>We use this to sort a bunch of arrays in a file that looked like:</p>
+
+<pre><code>some_var = [
+  one,
+  two,
+  three,
+]
+
+another_var = [
+  pineapple,
+  banana,
+  apple,
+]
 </code></pre>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
