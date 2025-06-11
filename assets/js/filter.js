@@ -14,15 +14,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (event.key === 'Enter') {
             event.preventDefault();
             const filterText = filterInput.value.toLowerCase().trim();
+						const filterWords = filterText.split(/\s+/); // split on one or more spaces
 
             for (let i = 0; i < listItems.length; i++) {
                 const item = listItems[i];
-                const itemText = item.textContent || item.innerText || '';
+								const itemText = (item.textContent || item.innerText || '').toLowerCase();
 
                 if (filterText === '') {
                     item.classList.remove('hidden');
                 } else {
-                    if (itemText.toLowerCase().includes(filterText)) {
+										const matches = filterWords.some(word => itemText.includes(word));
+                    if (matches) {
                         item.classList.remove('hidden');
                     } else {
                         item.classList.add('hidden');
