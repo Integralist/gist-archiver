@@ -1,5 +1,6 @@
 # Gists Archive
 
+- [Simple Fastly Terraform Subscription ](./gists/0c765162e5faf3c31a6378b087684d4f.md)
 - [Homebrew: custom version install ](./gists/36dcf9fa921f6caa58990525e474d1a3.md)
 - [Go: httpx.WriteJSON ](./gists/c528f499d892cb0d74f7e037d5856358.md)
 - [Go: 1.23 iter.Seq/iter.Seq2 iterators ](./gists/38ade4cd75f1efe01acd0738d01470cd.md)
