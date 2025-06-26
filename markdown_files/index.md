@@ -1,5 +1,6 @@
 # Gists Archive
 
+- [Using ETags in your API ](./gists/8061d6381b57d5316d2789feb4b829d1.md)
 - [Dependabot ](./gists/e3504366d1202c7e0af8a2518422a2fc.md)
 - [Simple Fastly Terraform Subscription ](./gists/0c765162e5faf3c31a6378b087684d4f.md)
 - [Homebrew: custom version install ](./gists/36dcf9fa921f6caa58990525e474d1a3.md)
