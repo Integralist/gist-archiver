@@ -9,8 +9,15 @@
 There are three types of documents you should write, in this specific order:
 
 1. **Project** document
-2. **Discovery** document
+2. **Discovery** document (inc. matrix** for possible solutions)
 3. **Design** document
+
+> [!TIP] 
+> ** Have "use cases" down the left side, and "approaches" across the top row.\
+> Then each cell describes how the approach affects the use case.\
+> Use cases should include how users want to work (UI, CLI, TF).\
+> Once you've had time refining the data, reorder the use cases and approaches.\
+> This is so the most relevant data is closest to the start/top.
 
 A "project" document is for planning the overarching/broader project work.\
 It's responsible for breaking down the project into smaller milestones.
@@ -37,7 +44,10 @@ It will be presented to lead engineers (and architects) to review and approve.
 
 ## Discovery Document
 
-This document presents an objective assessment of the existing system's requirements and deficiencies, and proposes a high-level approach that will inform the creation of a more detailed design document.
+This document presents an objective assessment of the existing system's requirements and deficiencies (for a specific milestone that was defined in the project document), and proposes a high-level approach that will inform the creation of a more detailed design document.
+
+> [!IMPORTANT]
+> No implementation details at this point!
 
 - **Glossary:** Make sure everyone is on the same page as to what certain words mean.
 - **Customer Abstraction:** What the customer perceives is happening. It’s what they buy/use/derive value from.

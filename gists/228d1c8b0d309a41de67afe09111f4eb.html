@@ -578,6 +578,44 @@ graph LR
     externalDNSProvider -- Replicates records via XFR --&gt; transfer
     externalDNSProvider -- Replicates records via XFR --&gt; transfer
 </code></pre>
+
+<p>Example of a Entity Relationship diagram (e.g. MySQL database visualisation)</p>
+
+<pre><code class="language-mermaid">erDiagram
+    %% https://mermaid.js.org/syntax/entityRelationshipDiagram.html
+    %% PK == Primary Key
+    %% UK == Unique Key
+    %% ||--o{ : One-to-Zero-or-More relationship
+
+    LEGEND {
+        _PK_ Primary_Key
+        _UK_ Unique_Key
+        _FK_ Foreign_Key
+    }
+
+    routing_configs {
+        BIGINT internal_id PK &quot;Internal Primary Key&quot;
+        VARCHAR(36) id UK &quot;Public Unique ID&quot;
+        VARCHAR(255) name UK &quot;Human-readable Name&quot;
+    }
+
+    rules {
+        BIGINT internal_id PK &quot;Internal Primary Key&quot;
+        VARCHAR(36) id UK &quot;Public Unique ID&quot;
+        VARCHAR(36) config_id &quot;Parent Config ID (Logical FK)&quot;
+        VARCHAR(255) sort_key &quot;Fractional Index for Ordering&quot;
+    }
+
+    conditions {
+        BIGINT internal_id PK &quot;Internal Primary Key&quot;
+        VARCHAR(36) id UK &quot;Public Unique ID&quot;
+        VARCHAR(36) rule_id &quot;Parent Rule ID (Logical FK)&quot;
+        INT sort_order &quot;Integer for Ordering&quot;
+    }
+
+    routing_configs ||--o{ rules : &quot;has&quot;
+    rules ||--o{ conditions : &quot;has&quot;
+</code></pre>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
 <script>hljs.highlightAll();</script>
