@@ -1,5 +1,6 @@
 # Gists Archive
 
+- [Base62 encoding and decoding ](./gists/a9d4c67d7c2c38d7a542306966fc5e23.md)
 - [Using ETags in your API ](./gists/8061d6381b57d5316d2789feb4b829d1.md)
 - [Dependabot ](./gists/e3504366d1202c7e0af8a2518422a2fc.md)
 - [Simple Fastly Terraform Subscription ](./gists/0c765162e5faf3c31a6378b087684d4f.md)
