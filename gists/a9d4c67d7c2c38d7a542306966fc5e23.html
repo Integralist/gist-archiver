@@ -55,6 +55,53 @@ func main() {
 	fmt.Println(&quot;Decoded UUID:&quot;, recovered)
 }
 </code></pre>
+
+<h2 id="main2-go">main2.go</h2>
+
+<pre><code class="language-go">// https://go.dev/play/p/9gbyOrXVUGt
+package main
+
+import (
+	&quot;errors&quot;
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;strings&quot;
+
+	&quot;github.com/jxskiss/base62&quot;
+)
+
+func main() {
+	encoded := EncodeCursor(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;G&quot;)
+	fmt.Println(encoded)
+	decoded, err := DecodeCursor(encoded)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(decoded)
+}
+
+func EncodeCursor(values ...string) string {
+	if len(values) == 0 {
+		return &quot;&quot;
+	}
+	cursorStr := strings.Join(values, &quot;,&quot;)
+	return base62.EncodeToString([]byte(cursorStr))
+}
+
+func DecodeCursor(encodedCursor string) ([]string, error) {
+	if encodedCursor == &quot;&quot; {
+		return nil, nil
+	}
+
+	decoded, err := base62.DecodeString(encodedCursor)
+	if err != nil {
+		return nil, errors.New(&quot;invalid cursor format&quot;)
+	}
+
+	return strings.Split(string(decoded), &quot;,&quot;), nil
+}
+
+</code></pre>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
 <script>hljs.highlightAll();</script>
