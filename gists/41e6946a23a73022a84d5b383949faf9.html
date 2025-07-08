@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="s3-backend-for-terraform">S3: backend for Terraform</h1>
 
 <p><a href="https://gist.github.com/Integralist/41e6946a23a73022a84d5b383949faf9" target="_blank">View original Gist on GitHub</a></p>
@@ -173,8 +174,10 @@ terraform init -backend-config=config/backend-${env}.conf
 terraform plan -var-file=config/${env}.tfvars
 terraform apply -var-file=config/${env}.tfvars
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

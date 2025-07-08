@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="bash-update-same-line-for-progress-bar-reporting">Bash: Update same line for progress bar reporting</h1>
 
 <p><a href="https://gist.github.com/Integralist/52f5787154bf516628c8777dc3455a99" target="_blank">View original Gist on GitHub</a></p>
@@ -25,8 +26,10 @@ echo -ne &quot;Getting the TLS entries from 1Password... ✅\n&quot;
 # \r moves the cursor back to the start of the line, so the next echo overwrites it.
 # The final \n ensures the cursor moves to a new line after displaying the ✅.
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

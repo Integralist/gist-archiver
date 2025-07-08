@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="mermaid-diagram-examples">Mermaid Diagram Examples</h1>
 
 <p><a href="https://gist.github.com/Integralist/228d1c8b0d309a41de67afe09111f4eb" target="_blank">View original Gist on GitHub</a></p>
@@ -578,8 +579,110 @@ graph LR
     externalDNSProvider -- Replicates records via XFR --&gt; transfer
     externalDNSProvider -- Replicates records via XFR --&gt; transfer
 </code></pre>
+
+<p>Example of a Entity Relationship diagram (e.g. MySQL database visualisation)</p>
+
+<pre><code class="language-mermaid">erDiagram
+    %% https://mermaid.js.org/syntax/entityRelationshipDiagram.html
+    %% PK == Primary Key
+    %% UK == Unique Key
+    %% ||--o{ : One-to-Zero-or-More relationship
+
+    LEGEND {
+        _PK_ Primary_Key
+        _UK_ Unique_Key
+        _FK_ Foreign_Key
+    }
+
+    routing_configs {
+        BIGINT internal_id PK &quot;Internal Primary Key&quot;
+        VARCHAR(36) id UK &quot;Public Unique ID&quot;
+        VARCHAR(255) name UK &quot;Human-readable Name&quot;
+    }
+
+    rules {
+        BIGINT internal_id PK &quot;Internal Primary Key&quot;
+        VARCHAR(36) id UK &quot;Public Unique ID&quot;
+        VARCHAR(36) config_id &quot;Parent Config ID (Logical FK)&quot;
+        VARCHAR(255) sort_key &quot;Fractional Index for Ordering&quot;
+    }
+
+    conditions {
+        BIGINT internal_id PK &quot;Internal Primary Key&quot;
+        VARCHAR(36) id UK &quot;Public Unique ID&quot;
+        VARCHAR(36) rule_id &quot;Parent Rule ID (Logical FK)&quot;
+        INT sort_order &quot;Integer for Ordering&quot;
+    }
+
+    routing_configs ||--o{ rules : &quot;has&quot;
+    rules ||--o{ conditions : &quot;has&quot;
+</code></pre>
+
+<p>Example of CDN Edge configuration loading (demonstrates how a file box looks different):</p>
+
+<pre><code class="language-mermaid">flowchart LR
+    client[Client of Customer] -- example.com/foo --&gt; h2o
+    customer[CDN Customer] -- routing config API requests --&gt; gateway
+    customer -- associate routing configuration with domain --&gt; ui
+
+    subgraph edge[Edge Node]
+        fetchly[Fetchly Daemon]
+        h2o[H2O Server]
+        file[/etc/cdn/h2o/route-config-ID.json/]
+        tlsconfig[/etc/cdn/h2o/tls-config.json/]
+        minerva[Minerva]
+
+        fetchly -- 2\. store config to disk --&gt; file
+        h2o &lt;-- 1\. read tls config data&lt;br&gt;and extract route config id --&gt; tlsconfig
+        h2o &lt;-- 2\. read route info from disk&lt;br&gt;using route config id --&gt; file
+    end
+
+    subgraph control_plane[Control Plane]
+        gateway[CDN API Gateway]
+
+    end
+
+    subgraph manage_ui[Manage UI]
+        ui[CDN UI]
+    end
+
+    subgraph elevation[Elevation]
+        route_controller_api[Route Controller API]
+        spotless[Spotless]
+        neptune[Neptune]
+    end
+
+    subgraph origin[Origin]
+        backend[Heroku]
+    end
+
+    subgraph async_pipeline[Asynchronous Pipeline]
+        nsq[Queue]
+        consumer[Consumer]
+    end
+
+    subgraph f[Data Plane]
+        db[MySQL]
+    end
+
+    fetchly &lt;-- 1\. fetch route info (periodically 🚨) --&gt; route_controller_api
+    h2o -- 3\. proxy request --&gt; backend
+    gateway -- proxy routing config API request --&gt; route_controller_api
+    route_controller_api -- if batch --&gt; nsq
+    route_controller_api -- store data --&gt; db
+    spotless -- associate routing config with CHO --&gt; neptune
+    consumer &lt;-- take message and process the operation --&gt; nsq
+    consumer -- store data --&gt; db
+    ui -- domain API requests (POST/PATCH domains, activations w/ routing config) --&gt; gateway
+    ui -- routing config API requests (GET list of routing configs) --&gt; gateway
+    gateway -- proxy domain API requests --&gt; spotless
+    minerva &lt;-- 1\. acquire TLS config data&lt;br&gt;every 30 seconds --&gt; neptune
+    minerva -- 2\. store data to disk --&gt; tlsconfig
+</code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

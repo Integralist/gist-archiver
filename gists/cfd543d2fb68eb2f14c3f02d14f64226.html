@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="sed-ignore-lines">[Sed Ignore Lines]</h1>
 
 <p><a href="https://gist.github.com/Integralist/cfd543d2fb68eb2f14c3f02d14f64226" target="_blank">View original Gist on GitHub</a></p>
@@ -28,8 +29,10 @@
 
 sed -i '/server 127.0.0.1/! s/server [^:]\+:[^;]\+/server 127.0.0.1:9000/g' /nginx.conf
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

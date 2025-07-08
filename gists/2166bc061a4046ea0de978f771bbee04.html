@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="go-pointers-guidelines">Go: Pointers - Guidelines</h1>
 
 <p><a href="https://gist.github.com/Integralist/2166bc061a4046ea0de978f771bbee04" target="_blank">View original Gist on GitHub</a></p>
@@ -86,8 +87,10 @@ func main() {
 	fmt.Printf(&quot;%+v\n&quot;, c.foo) // &lt;--- but they can't interact with it (compile time error: c.foo undefined (type Cache has no field or method foo))
 }
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

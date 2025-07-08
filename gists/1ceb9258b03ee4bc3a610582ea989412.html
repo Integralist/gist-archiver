@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="bgp-ip-hijack">[BGP IP Hijack]</h1>
 
 <p><a href="https://gist.github.com/Integralist/1ceb9258b03ee4bc3a610582ea989412" target="_blank">View original Gist on GitHub</a></p>
@@ -38,8 +39,10 @@
 <p>Pilosov&rsquo;s innovation is to forward the intercepted data silently to the actual destination, so that no outage occurs.</p>
 
 <p>Ordinarily, this shouldn&rsquo;t work – the data would boomerang back to the eavesdropper. But Pilosov and Kapela use a method called AS path prepending that causes a select number of BGP routers to reject their deceptive advertisement. They then use these ASes to forward the stolen data to its rightful recipients.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

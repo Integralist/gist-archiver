@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="yaml-merge-key-and-reference-pointer">Yaml: merge key and reference pointer</h1>
 
 <p><a href="https://gist.github.com/Integralist/5438adc0f4862c809264e1d151560563" target="_blank">View original Gist on GitHub</a></p>
@@ -147,8 +148,10 @@ beep: boop
 nested:
   &lt;&lt; : *ref   # but 'using' the ref in this way IS invalid
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

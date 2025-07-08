@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="git-restore-and-switch-to-replace-git-checkout">Git: restore and switch to replace git checkout</h1>
 
 <p><a href="https://gist.github.com/Integralist/38c5c64704649231515129743b1e4033" target="_blank">View original Gist on GitHub</a></p>
@@ -23,8 +24,10 @@ git switch -d/--detach &lt;commit|tag&gt;
 git restore -- test.txt               # restores uncommitted changes to indexed version in the current branch.
 git restore --source=main -- test.txt # restores committed changes to version from the specified source (branch, tag or commit).
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

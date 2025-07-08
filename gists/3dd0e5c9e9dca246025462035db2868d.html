@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="json-decoder-vs-json-unmarshal">json.Decoder vs json.Unmarshal</h1>
 
 <p><a href="https://gist.github.com/Integralist/3dd0e5c9e9dca246025462035db2868d" target="_blank">View original Gist on GitHub</a></p>
@@ -93,8 +94,10 @@ Field int `json:&quot;,omitempty&quot;`
 <p>This can slows down HTTP requests up to ~4x (although this is fixed by the time of Go 1.7).</p>
 
 <p>If the HTTP endpoint is responding with a single JSON object and you are calling <code>json.Decoder#Decode()</code> only once (in which case you should be using <code>json.Unmarshal()</code> instead!), it means you are not getting <code>io.EOF</code> returned yet. Therefore you are not terminating <code>json.Decoder</code> by seeing that <code>io.EOF</code> and the response body remains open and therefore the TCP connection (or another <code>Transport</code> used) cannot be returned to the connection pool even though you are done with it.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

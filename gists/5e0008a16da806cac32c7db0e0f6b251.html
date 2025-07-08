@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="golang-design-patterns">[Golang Design Patterns]</h1>
 
 <p><a href="https://gist.github.com/Integralist/5e0008a16da806cac32c7db0e0f6b251" target="_blank">View original Gist on GitHub</a></p>
@@ -79,8 +80,10 @@ func Thing(deps *Deps) {
 <blockquote>
 <p>Note: if you find you have functions that accept lots of arguments then you could also use variadic args to pass the logger and other generic dependencies, then loop over and type assert for them (but that&rsquo;s a lot of extra code for not a lot of gain). if you do have lots of function args, then try to reduce them by splitting up the code into separate functions and also reduce generic args into a struct so it&rsquo;s just one arg rather than multiple (e.g. a instrumentation struct).</p>
 </blockquote>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

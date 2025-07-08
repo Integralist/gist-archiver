@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="varnish-vcl-basic-authentication">[Varnish VCL Basic Authentication]</h1>
 
 <p><a href="https://gist.github.com/Integralist/e428e20a636b3a9ace3238d8412c7670" target="_blank">View original Gist on GitHub</a></p>
@@ -69,8 +70,10 @@ sub vcl_error {
 <pre><code class="language-bash">curl --user beep:boop https://www.example.com/auth-me
 curl -H &quot;Authorization: Basic YmVlcDpib29w&quot; https://www.example.com/auth-me
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

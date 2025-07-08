@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="is-there-a-more-elegant-way-in-ruby-to-filter-data-from-an-object-and-store-it-in-another-object-we-re-searching-for-a-key-which-can-appear-multiple-times-and-i-only-want-to-store-the-key-once-but-to-also-increment-that-key-s-value-every-time-the-key-is-found">Is there a more elegant way in Ruby to filter data from an object and store it in another object. We&rsquo;re searching for a key (which can appear multiple times) and I only want to store the key once, but to also increment that key&rsquo;s value every time the key is found.</h1>
 
 <p><a href="https://gist.github.com/Integralist/8035585" target="_blank">View original Gist on GitHub</a></p>
@@ -43,8 +44,10 @@ browsers = data.reduce({}) do | obj, item |
   obj
 end
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

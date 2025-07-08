@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-boto-exception-handling">[Python Boto Exception Handling]</h1>
 
 <p><a href="https://gist.github.com/Integralist/15e50d705424e41e1f4f035dc43fa7fc" target="_blank">View original Gist on GitHub</a></p>
@@ -163,8 +164,10 @@ def extract_status_code(exc):
     return exc.response['ResponseMetadata']['HTTPStatusCode'] if hasattr(exc, 'response') else 500
 &quot;&quot;&quot;
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

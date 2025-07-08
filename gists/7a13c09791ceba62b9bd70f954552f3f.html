@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="sed-date-insertion">[Sed Date Insertion]</h1>
 
 <p><a href="https://gist.github.com/Integralist/7a13c09791ceba62b9bd70f954552f3f" target="_blank">View original Gist on GitHub</a></p>
@@ -29,8 +30,10 @@ echo '&quot;foo&quot;: &quot;{{date}}&quot;' &gt; foo.txt
 cat foo.txt | sed &quot;s/{{date}}/$(date -u -v +1H +%s)/&quot;
 sed -i &quot;.backup&quot; &quot;s/{{date}}/$(date -u -v +1H +%s)/&quot; foo.txt
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

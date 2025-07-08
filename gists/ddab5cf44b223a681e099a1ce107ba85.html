@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="shell-multiple-searches-via-abstraction-and-grep">Shell: Multiple searches via abstraction and grep</h1>
 
 <p><a href="https://gist.github.com/Integralist/ddab5cf44b223a681e099a1ce107ba85" target="_blank">View original Gist on GitHub</a></p>
@@ -83,8 +84,10 @@
 
 <pre><code class="language-bash">search &quot;-G Dockerfile -l&quot; &quot;FROM go&quot; | cut -d '/' -f 1 | tee /tmp/goservices | xargs -I {} grep -r --include service.yml launch_type {}
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

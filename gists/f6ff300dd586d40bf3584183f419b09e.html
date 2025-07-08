@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python2-yaml-convert-to-ordereddict-http-stackoverflow-com-questions-5121931-in-python-how-can-you-load-yaml-mappings-as-ordereddicts-21912744">Python2: YAML convert to OrderedDict (<a href="http://stackoverflow.com/questions/5121931/in-python-how-can-you-load-yaml-mappings-as-ordereddicts/21912744" target="_blank">http://stackoverflow.com/questions/5121931/in-python-how-can-you-load-yaml-mappings-as-ordereddicts/21912744</a></h1>
 
 <p><a href="https://gist.github.com/Integralist/f6ff300dd586d40bf3584183f419b09e" target="_blank">View original Gist on GitHub</a></p>
@@ -52,8 +53,10 @@ def ordered_load(stream, loader=yaml.Loader, object_pairs_hook=OrderedDict):
 print ordered_load('foo: beep\nbar: 123\nbaz: 456', yaml.SafeLoader)
 # OrderedDict([('foo', 'beep'), ('bar', 123), ('baz', 456)])
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-extract-query-string-params-in-order-they-are-specified">Python extract query string params in order they are specified</h1>
 
 <p><a href="https://gist.github.com/Integralist/c125817c5409b5a4a5a5bc0a1d448da9" target="_blank">View original Gist on GitHub</a></p>
@@ -17,8 +18,10 @@
 <pre><code class="language-python"># use regex instead of urlparse as it was inconsistent ordering
 params = re.findall(r'[(\?|\&amp;)]([^=]+)', url) 
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

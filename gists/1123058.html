@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="lookbehind-implementations">lookbehind implementations</h1>
 
 <p><a href="https://gist.github.com/Integralist/1123058" target="_blank">View original Gist on GitHub</a></p>
@@ -29,8 +30,10 @@
 <p>Java takes things a step further by allowing finite repetition. You still cannot use the star or plus, but you can use the question mark and the curly braces with the max parameter specified. Java recognizes the fact that finite repetition can be rewritten as an alternation of strings with different, but fixed lengths. Unfortunately, the JDK 1.4 and 1.5 have some bugs when you use alternation inside lookbehind. These were fixed in JDK 1.6.</p>
 
 <p>The only regex engines that allow you to use a full regular expression inside lookbehind, including infinite repetition, are the JGsoft engine and the .NET framework RegEx classes&rdquo;</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

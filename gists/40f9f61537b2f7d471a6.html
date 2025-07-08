@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="terminal-go-back-up-one-line">Terminal go back up one line</h1>
 
 <p><a href="https://gist.github.com/Integralist/40f9f61537b2f7d471a6" target="_blank">View original Gist on GitHub</a></p>
@@ -24,8 +25,10 @@ Now how can I go up into the previous line to change that?</p>
 <p>The basic solution involves: <code>\x1B[1F</code> (which effectively is an <a href="http://en.wikipedia.org/wiki/ANSI_escape_code" target="_blank">ANSI Escape Code</a>: <code>Esc [ 1 F</code>)</p>
 
 <p>But in context of a Ruby CLI script: <code>print &quot;\r\x1B[1F\x1B[1F&quot;</code></p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -43,6 +43,7 @@ const (
 	jsFilterFileName    = "filter.js"
 	jsTagsFileName      = "tags.js"
 	jsHighlightFileName = "highlight.min.js"
+	jsNotesFileName     = "notes.js"
 )
 
 var (
@@ -388,11 +389,14 @@ func processSingleGist(gist GistDetail, indexEntryChan chan<- IndexEntry) {
 
 	renderedMarkdown := md.Render(p.Parse(mdInput), renderer) // mdInput is the composite Markdown
 
+	gistHtmlBuffer.WriteString("<div class=\"markdown-content\">\n")
 	gistHtmlBuffer.Write(renderedMarkdown) // This now contains rendered HTML from all files
+	gistHtmlBuffer.WriteString("</div>\n")
 
 	// JAVASCRIPT
 	gistHtmlBuffer.WriteString(fmt.Sprintf("<link rel=\"stylesheet\" href=\"../%s/%s/highlights/github.min.css\">\n", assetsSubDir, cssSubDir))
 	gistHtmlBuffer.WriteString(fmt.Sprintf("<script src=\"../%s/%s/%s\"></script>\n", assetsSubDir, jsSubDir, jsHighlightFileName))
+	gistHtmlBuffer.WriteString(fmt.Sprintf("<script src=\"../%s/%s/%s\" defer></script>\n", assetsSubDir, jsSubDir, jsNotesFileName))
 	gistHtmlBuffer.WriteString("<script>hljs.highlightAll();</script>\n")
 
 	gistHtmlBuffer.WriteString("\n</div>\n</body>\n</html>")
@@ -566,7 +570,7 @@ func main() {
 	log.Printf("Web content (HTML, assets) in: current directory (./)")
 	log.Printf("  - Index: ./index.html")
 	log.Printf("  - Gists: ./%s/", gistsHtmlSubDir)
-	log.Printf("  - Assets: ./%s/ (includes ./%s/%s/, ./%s/%s/ and ./%s/%s)", assetsSubDir, cssSubDir, cssFileName, jsSubDir, jsFilterFileName, jsSubDir, jsTagsFileName)
+	log.Printf("  - Assets: ./%s/ (css & js files)", assetsSubDir)
 	log.Printf("Markdown files (source for HTML) in: ./%s", markdownOutputDir) // Clarified this line
 	log.Printf("Open ./index.html in your browser to view the archive.")
 	log.Println("-----------------------------------------------------")

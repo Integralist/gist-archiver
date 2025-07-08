@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="simple-retry-logic-for-http-request">Simple retry logic for HTTP request</h1>
 
 <p><a href="https://gist.github.com/Integralist/e2be6c6cc8a2e23219e07682fc038bca" target="_blank">View original Gist on GitHub</a></p>
@@ -294,8 +295,10 @@ func retry(n int, metricWriter metrics.Writer, kind string, cb func() error) err
 	return err
 }
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

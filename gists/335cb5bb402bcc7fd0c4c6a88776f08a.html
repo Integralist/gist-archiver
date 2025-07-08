@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="terminal-resize-images-with-imagemagick">Terminal Resize Images with ImageMagick</h1>
 
 <p><a href="https://gist.github.com/Integralist/335cb5bb402bcc7fd0c4c6a88776f08a" target="_blank">View original Gist on GitHub</a></p>
@@ -83,8 +84,10 @@ for i in *.png; do convert &quot;$i&quot; &quot;Newimage/${i%.*}.jpg&quot;; done
 
 <pre><code class="language-bash">for i in *.png; do convert -resize &quot;790&gt;&quot; -border 1x1 -bordercolor &quot;#000000&quot; -quality 70 &quot;$i&quot; &quot;Newimage/${i%.*}.jpg&quot;; done
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

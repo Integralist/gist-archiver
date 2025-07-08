@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="go-panic-vs-os-exit">Go: panic vs os.Exit</h1>
 
 <p><a href="https://gist.github.com/Integralist/cbf2814b2565b540fdf986d4975a007a" target="_blank">View original Gist on GitHub</a></p>
@@ -17,8 +18,10 @@
 <h2 id="panic-vs-os-exit-md">Panic vs os.Exit.md</h2>
 
 <p><code>panic</code> signals &ldquo;the programmer has made a fundamental mistake and execution cannot continue safely&rdquo;, whereas <code>os.Exit</code> signals &ldquo;the programmer has decided that the process should terminate here&rdquo; — different meanings. Also, important difference in behavior: <code>panic</code> will unwind the callstack, which means it will call any pending <code>defer</code> statements; <code>os.Exit</code> will just do a hard kill, so it won&rsquo;t.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

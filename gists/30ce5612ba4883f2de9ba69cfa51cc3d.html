@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="bash-moreutils-examples">Bash: moreutils examples</h1>
 
 <p><a href="https://gist.github.com/Integralist/30ce5612ba4883f2de9ba69cfa51cc3d" target="_blank">View original Gist on GitHub</a></p>
@@ -51,8 +52,10 @@ $ cat file | pee cat 'sort -u &gt; sorted' 'sort -R &gt; unsorted' | wc -l
 $ cat file | pee 'sort -u &gt; sorted' 'sort -R &gt; unsorted' 'xargs' | wc -w
        5
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

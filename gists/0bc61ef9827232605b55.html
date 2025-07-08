@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="testing-a-ruby-gem">Testing a Ruby Gem</h1>
 
 <p><a href="https://gist.github.com/Integralist/0bc61ef9827232605b55" target="_blank">View original Gist on GitHub</a></p>
@@ -39,8 +40,10 @@ gem 'some_gem', :git =&gt; 'https://github.com/User/SomeGem.git', :branch =&gt; 
 <blockquote>
 <p>Note: if you point to a local gem &ldquo;A&rdquo; and that gem internally references/requires another local gem &ldquo;B&rdquo; which you wish to run locally, then you need to open the Gemfile for the top-level application and modify it to use the same Bundler trick again <code>gem &quot;b&quot;, :path =&gt; &quot;path/to/local/b/gem&quot;</code></p>
 </blockquote>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

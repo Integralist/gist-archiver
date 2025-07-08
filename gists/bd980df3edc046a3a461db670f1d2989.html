@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="docker-dockerised-fastly-cli">Docker: Dockerised Fastly CLI</h1>
 
 <p><a href="https://gist.github.com/Integralist/bd980df3edc046a3a461db670f1d2989" target="_blank">View original Gist on GitHub</a></p>
@@ -40,8 +41,10 @@ CMD [&quot;--help&quot;]
 # docker build -t fastly/cli/rust . -f ./Dockerfile-rust
 # docker run -v $PWD:/app -it -p 7676:7676 fastly/cli/rust compute serve --addr=&quot;0.0.0.0:7676&quot;
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

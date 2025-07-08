@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="run-sass-within-ruby">Run Sass within Ruby</h1>
 
 <p><a href="https://gist.github.com/Integralist/57ebb1ddc040ea813b64" target="_blank">View original Gist on GitHub</a></p>
@@ -25,8 +26,10 @@ options = {
 render = Sass::Engine.new(File.read(original_file_name), options).render
 File.write(output_file_name, render)
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

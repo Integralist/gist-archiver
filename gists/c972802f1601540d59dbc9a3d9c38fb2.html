@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="ls-command-behave-like-tree-command">ls command behave like tree command</h1>
 
 <p><a href="https://gist.github.com/Integralist/c972802f1601540d59dbc9a3d9c38fb2" target="_blank">View original Gist on GitHub</a></p>
@@ -35,8 +36,10 @@
 
 <pre><code class="language-shell">ls -R | grep &quot;:&quot; | sed -e 's/://' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

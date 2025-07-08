@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="caching-strategies-and-headers-see-also-http-fideloper-com-api-etag-conditional-get"><a href="see also http://fideloper.com/api-etag-conditional-get" target="_blank">Caching strategies and headers</a></h1>
 
 <p><a href="https://gist.github.com/Integralist/e69c50d02f0edf086dbd" target="_blank">View original Gist on GitHub</a></p>
@@ -185,8 +186,10 @@ note over CDN: cached object updated with fresh max-age\nand stale-while-revalid
 <li>Disable CDN Caching: <code>Cache-Control: private</code> (<a href="https://docs.fastly.com/guides/tutorials/cache-control-tutorial#do-not-cache" target="_blank">docs</a>)</li>
 <li>Disable ALL Caching: <code>Cache-Control: no-cache, no-store, private, must-revalidate, max-age=0, max-stale=0, post-check=0, pre-check=0</code> + <code>Pragma: no-cache</code> + <code>Expires: 0</code> (<a href="https://docs.fastly.com/guides/debugging/temporarily-disabling-caching" target="_blank">docs</a>)</li>
 </ul>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

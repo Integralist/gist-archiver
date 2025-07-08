@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="shell-curl-to-json">Shell: Curl to JSON</h1>
 
 <p><a href="https://gist.github.com/Integralist/d6e750eb89d4a3e97bed37b80abe6e4d" target="_blank">View original Gist on GitHub</a></p>
@@ -54,8 +55,10 @@ curl --write-out '%{json}' https://example.com -svo /dev/null | jq
     &quot;curl_version&quot;: &quot;libcurl/7.72.0 SecureTransport zlib/1.2.11&quot;
 }
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

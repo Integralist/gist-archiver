@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="docker-nginx-plus">[Docker NGINX Plus]</h1>
 
 <p><a href="https://gist.github.com/Integralist/7ec3f86d4929471151aba5f376b91187" target="_blank">View original Gist on GitHub</a></p>
@@ -46,8 +47,10 @@ ADD . /app
 
 CMD python3 /app/template.py nginx.conf.j2 /nginx.conf &amp;&amp; nginx -c /nginx.conf
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

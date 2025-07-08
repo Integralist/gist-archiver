@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-analyse-logs-and-report-top-n-common-matches">Python: Analyse Logs and report top N common matches</h1>
 
 <p><a href="https://gist.github.com/Integralist/76829e05ec57cc908d30fc6a7731688d" target="_blank">View original Gist on GitHub</a></p>
@@ -145,8 +146,10 @@ count = Counter(result_for_parse_log_urls)
 for item in count.most_common(10):
     print(f&quot;{item[0]}\ncount: {item[1]}\n&quot;)
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

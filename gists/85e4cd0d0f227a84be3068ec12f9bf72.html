@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="go-codesign-a-go-test-binary-that-listens-on-network-and-needs-to-accept-incoming-network-connections">Go: Codesign a Go test binary that listens on network and needs to accept incoming network connections</h1>
 
 <p><a href="https://gist.github.com/Integralist/85e4cd0d0f227a84be3068ec12f9bf72" target="_blank">View original Gist on GitHub</a></p>
@@ -128,8 +129,10 @@ test: codesigning ## Run project's test suite with race detection
 		go test -race -v -count=1 $(GO_BUILDARGS) $(GO_TESTARGS) $(APP_TESTARGS); \
 	fi
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

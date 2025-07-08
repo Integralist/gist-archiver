@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="golang-read-http-response-body-twice">[Golang Read HTTP Response Body TWICE!]</h1>
 
 <p><a href="https://gist.github.com/Integralist/0068812f12b4c72ee8e9d10ce38a1ed9" target="_blank">View original Gist on GitHub</a></p>
@@ -43,8 +44,10 @@ func ReadBody(r *http.Response) []byte {
 
 // PROBABLY BETTER TO USE bytes.NewReader instead of bytes.NewBuffer
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

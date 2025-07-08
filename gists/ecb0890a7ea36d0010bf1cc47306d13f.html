@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="vcl-logging-abstraction-vcl-abstraction-around-logging-to-make-calls-cleaner">[VCL Logging Abstraction] vcl abstraction around logging to make calls cleaner</h1>
 
 <p><a href="https://gist.github.com/Integralist/ecb0890a7ea36d0010bf1cc47306d13f" target="_blank">View original Gist on GitHub</a></p>
@@ -82,8 +83,10 @@ set var.defaults = if (var.logs_active, &quot;syslog &lt;service_id&gt; &lt;endp
   log var.defaults req.restarts &quot; [main.vcl] X-FOO HEADER VALUE: &quot; req.http.X-Foo;
 }
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

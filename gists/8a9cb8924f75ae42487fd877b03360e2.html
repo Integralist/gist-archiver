@@ -2,13 +2,14 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Go: custom http client </title>
+<title>Go: timeouts and custom http client </title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
-<h1 id="go-custom-http-client">Go: custom http client</h1>
+<div class="markdown-content">
+<h1 id="go-timeouts-and-custom-http-client">Go: timeouts and custom http client</h1>
 
 <p><a href="https://gist.github.com/Integralist/8a9cb8924f75ae42487fd877b03360e2" target="_blank">View original Gist on GitHub</a></p>
 
@@ -16,10 +17,25 @@
 
 <h2 id="readme-md">README.md</h2>
 
-<p><img src="https://user-images.githubusercontent.com/180050/120481192-c6f79080-c3a7-11eb-87de-a93b5de81ec8.png" alt="Go Network Timeouts" /></p>
+<p><strong>Server Timeouts</strong><br />
+<img src="https://gist.github.com/user-attachments/assets/38f12dd7-ced3-4707-a25a-6cb28401a915" alt="Go Server Timeouts" /></p>
 
 <blockquote>
-<p><strong>NOTE:</strong> <a href="https://blog.cloudflare.com/the-complete-guide-to-golang-net-http-timeouts/" target="_blank">Guide to <code>net/http</code> timeouts</a><br />
+<p>[!TIP]
+Use <code>context.WithTimeout</code> when you need to enforce timeouts on internal operations like database queries or HTTP calls, especially when you want to propagate cancellation signals through the call stack to prevent resource leaks or manage goroutines. It&rsquo;s ideal for fine-grained control within a handler. In contrast, use <code>http.TimeoutHandler</code> when you want a simple way to enforce a timeout on the entire HTTP handler response, particularly when you don’t control the handler logic or don’t need to cancel ongoing work—it only cuts off the response after the timeout but doesn’t stop the underlying processing.</p>
+
+<p>[!WARNING]
+Be careful when using <code>http.TimeoutHander</code>. If automatically applied to all handlers (as part of a middleware pipeline) then it will not work when it comes to a streaming endpoint (see the relevant Cloudflare article linked in the NOTE below).</p>
+</blockquote>
+
+<p><strong>Client Timeouts</strong><br />
+<img src="https://user-images.githubusercontent.com/180050/120481192-c6f79080-c3a7-11eb-87de-a93b5de81ec8.png" alt="Go Client Timeouts" /></p>
+
+<blockquote>
+<p>[!NOTE]
+Read the following articles:<br />
+<a href="https://ieftimov.com/posts/make-resilient-golang-net-http-servers-using-timeouts-deadlines-context-cancellation/" target="_blank">Resilient HTTP servers using timeouts</a><br />
+<a href="https://blog.cloudflare.com/the-complete-guide-to-golang-net-http-timeouts/" target="_blank">Guide to <code>net/http</code> timeouts</a><br />
 Also, <a href="https://github.com/hashicorp/go-cleanhttp/blob/master/cleanhttp.go#L22-L42" target="_blank">here</a> are some Transport settings you might want.</p>
 </blockquote>
 
@@ -323,8 +339,10 @@ func main() {
   log.Println(string(body))
 }
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

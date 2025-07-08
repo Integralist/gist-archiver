@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="github-download-latest-github-asset-release">GitHub: Download latest GitHub Asset Release</h1>
 
 <p><a href="https://gist.github.com/Integralist/0a685f3128597a18107ced7367b8a5bd" target="_blank">View original Gist on GitHub</a></p>
@@ -25,8 +26,10 @@ bin-viceroy: # Download latest version of Viceroy to ./bin/ directory
 	curl -sLO $$url &amp;&amp; mkdir -p bin &amp;&amp; tar -xzvf $$filename --directory ./bin/ &amp;&amp; \
 	./bin/viceroy --version &amp;&amp; rm $$filename &amp;&amp; sudo cp ./bin/viceroy /usr/local/bin/viceroy # NOTE: sudo is a no-op in GitHub Actions
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

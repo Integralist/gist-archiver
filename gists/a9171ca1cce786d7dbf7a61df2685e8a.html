@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="rollout-strategies-with-a-b-logic-via-varnish-and-vcl">[Rollout Strategies with A/B logic via Varnish and VCL]</h1>
 
 <p><a href="https://gist.github.com/Integralist/a9171ca1cce786d7dbf7a61df2685e8a" target="_blank">View original Gist on GitHub</a></p>
@@ -148,8 +149,10 @@ sub abtest_us_lift_feedranker_deliver {
 </code></pre>
 
 <p>For example, if a user randomly gets a number <code>&lt; 5</code> (let&rsquo;s say 3) then because we&rsquo;ve picked a number out of a 100 (to represent 100%) that means 3 is equal to 3%. Where as if the random number they got was 5, then that&rsquo;s not going to match <code>&lt; 5</code> so we move to the next comparison which is <code>&lt; 6</code>, so <em>that</em> matches the number 5 and it means the percentage for those users will be 1% because there is 1 number difference between <code>&lt; 5</code> and <code>&lt; 6</code>.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="vim-increment-numbers-across-blocks">Vim: increment numbers across blocks</h1>
 
 <p><a href="https://gist.github.com/Integralist/f55a601cf3ccdb7fc8a671c854383e3a" target="_blank">View original Gist on GitHub</a></p>
@@ -66,8 +67,10 @@
 <li>I then reset the first block to zero (so <code>&quot;testing0.testing-performance-domain.com&quot; = {</code>)</li>
 <li><code>:g/\v^\s\s\s\s&quot;testing\d/norm @q</code> find all relevant blocks and run the macro.</li>
 </ul>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

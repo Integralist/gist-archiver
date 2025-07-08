@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="curl-via-us-proxy">[curl via US proxy]</h1>
 
 <p><a href="https://gist.github.com/Integralist/3829b02d798a7668d662cdf54ec74d2a" target="_blank">View original Gist on GitHub</a></p>
@@ -18,8 +19,10 @@
 
 <pre><code class="language-shell">curl -s &quot;https://gimmeproxy.com/api/getProxy?protocol=socks5&amp;country=US&quot; | jq '.curl' | xargs -I {} curl -sv -o /dev/null -H &quot;Fastly-Debug:1&quot; --socks5 {} &quot;https://www.buzzfeed.com/amphtml/robinedds/can-you-score-full-marks-in-this-capital-city-minefield-quiz&quot;
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

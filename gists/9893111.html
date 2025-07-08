@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="messing-around-with-aws-and-dynamodb">Messing around with AWS and DynamoDB</h1>
 
 <p><a href="https://gist.github.com/Integralist/9893111" target="_blank">View original Gist on GitHub</a></p>
@@ -123,8 +124,10 @@ table.items.collect { |item| item.hash_value }.each_slice(25) { |arr| table.batc
 # Deleting items with both a range_value and hash_value in the SCHEMA e.g. [[&quot;a/b&quot;, 0], [&quot;c/d&quot;, 0]]
 table.items.collect { |item| [item.hash_value, item.range_value.to_i] }.each_slice(25) { |arr| table.batch_delete(arr) }
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="s-o-l-i-d-principles-in-ruby">S.O.L.I.D principles in Ruby</h1>
 
 <p><a href="https://gist.github.com/Integralist/9482527" target="_blank">View original Gist on GitHub</a></p>
@@ -259,8 +260,10 @@ end
 <p>This way the Report does not depend on the JSONFormatter and can use any type of formatter that has a method called format (this is known as duck typing).</p>
 
 <p>Another thing of note is that we&rsquo;ve used, once again, dependency injection to solve a problem. This technique is a very powerful one when our goal is decoupling objects, and even though it has the same initials as the dependency inversion principle (vs dependency injection pattern), they are completely different concepts.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

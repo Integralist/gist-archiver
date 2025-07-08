@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="nginx-rate-limiting-is-weird">[nginx rate limiting is weird]</h1>
 
 <p><a href="https://gist.github.com/Integralist/c13c30dcad137e93b38f7f8e0581945a" target="_blank">View original Gist on GitHub</a></p>
@@ -29,8 +30,10 @@
 <p>which means if you get 2 requests within 0.1 s, the second one will be rejected</p>
 
 <p>the best way to mitigate this is to allow a burst (this is what we do on webapp_waf) where you allow a burst of e.g. 10 reqs - meaning the first 10 requests wont be limited, but then if that rate is sustained future ones will be limited based on the tenth of a second bucketing</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

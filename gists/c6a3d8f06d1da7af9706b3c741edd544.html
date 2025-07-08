@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="go-useful-tools-to-run-over-your-project">Go: Useful tools to run over your project</h1>
 
 <p><a href="https://gist.github.com/Integralist/c6a3d8f06d1da7af9706b3c741edd544" target="_blank">View original Gist on GitHub</a></p>
@@ -23,8 +24,10 @@ staticcheck ./{cmd,pkg}/...
 golint ./{cmd,pkg}/...
 gosec -quiet -exclude=G104 ./{cmd,pkg}/...
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

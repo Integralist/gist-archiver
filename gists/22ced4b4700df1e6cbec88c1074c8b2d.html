@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="golang-memory-allocation">[Golang Memory Allocation]</h1>
 
 <p><a href="https://gist.github.com/Integralist/22ced4b4700df1e6cbec88c1074c8b2d" target="_blank">View original Gist on GitHub</a></p>
@@ -243,8 +244,10 @@ $ go build -gcflags '-m -m' ./main.go # extra -m's to increase verbosity (altern
 
 # This ^^ shows that x escapes because it is passed to a function argument which escapes itself (I take this to mean it's because it accepts the argument type as interface{} and so at runtime the type has to be determined).
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

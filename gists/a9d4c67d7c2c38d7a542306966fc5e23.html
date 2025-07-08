@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Base62 encoding and decoding </title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
+<h1 id="base62-encoding-and-decoding">Base62 encoding and decoding</h1>
+
+<p><a href="https://gist.github.com/Integralist/a9d4c67d7c2c38d7a542306966fc5e23" target="_blank">View original Gist on GitHub</a></p>
+
+<p><strong>Tags:</strong> #go #uuid #serialization</p>
+
+<h2 id="main-go">main.go</h2>
+
+<pre><code class="language-go">// https://go.dev/play/p/IwFfNFlIq_x
+package main
+
+import (
+	&quot;fmt&quot;
+	&quot;log&quot;
+
+	&quot;github.com/dromara/dongle&quot;
+	&quot;github.com/google/uuid&quot;
+)
+
+func main() {
+	id, err := uuid.NewV7()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(&quot;UUID:&quot;, id)
+
+	// Convert UUID to string from its raw bytes
+	encoded := dongle.Encode.
+		FromBytes(id[:]).
+		ByBase62().
+		ToString()
+	fmt.Println(&quot;Base62:&quot;, encoded)
+
+	// Decode Base62 string back to bytes
+	decoded := dongle.Decode.
+		FromString(encoded).
+		ByBase62().
+		ToBytes()
+
+	// Reconstruct UUID from bytes
+	recovered, err := uuid.FromBytes(decoded)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(&quot;Decoded UUID:&quot;, recovered)
+}
+</code></pre>
+
+<h2 id="main2-go">main2.go</h2>
+
+<pre><code class="language-go">// https://go.dev/play/p/9gbyOrXVUGt
+package main
+
+import (
+	&quot;errors&quot;
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;strings&quot;
+
+	&quot;github.com/jxskiss/base62&quot;
+)
+
+func main() {
+	encoded := EncodeCursor(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;G&quot;)
+	fmt.Println(encoded)
+	decoded, err := DecodeCursor(encoded)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(decoded)
+}
+
+func EncodeCursor(values ...string) string {
+	if len(values) == 0 {
+		return &quot;&quot;
+	}
+	cursorStr := strings.Join(values, &quot;,&quot;)
+	return base62.EncodeToString([]byte(cursorStr))
+}
+
+func DecodeCursor(encodedCursor string) ([]string, error) {
+	if encodedCursor == &quot;&quot; {
+		return nil, nil
+	}
+
+	decoded, err := base62.DecodeString(encodedCursor)
+	if err != nil {
+		return nil, errors.New(&quot;invalid cursor format&quot;)
+	}
+
+	return strings.Split(string(decoded), &quot;,&quot;), nil
+}
+
+</code></pre>
+</div>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
+<script>hljs.highlightAll();</script>
+
+</div>
+</body>
+</html>

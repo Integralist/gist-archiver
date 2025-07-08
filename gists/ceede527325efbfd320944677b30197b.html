@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="macos-find-files-asynchronously">macOS: find files asynchronously</h1>
 
 <p><a href="https://gist.github.com/Integralist/ceede527325efbfd320944677b30197b" target="_blank">View original Gist on GitHub</a></p>
@@ -31,8 +32,10 @@ replacement_patterns &quot;$@&quot;
 
 find &quot;/Users/integralist/Code/path/to/directory&quot; -type f -print0 | xargs -0 -P &quot;$(nproc)&quot; -n 1 bash -c './async.sh &quot;$@&quot;' _
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

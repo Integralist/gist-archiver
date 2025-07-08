@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="vim-open-current-line-in-github-ui">[Vim open current line in GitHub UI]</h1>
 
 <p><a href="https://gist.github.com/Integralist/4eb10817e06a69bd511f14d2370e2d45" target="_blank">View original Gist on GitHub</a></p>
@@ -26,8 +27,10 @@
 <pre><code class="language-vim">&quot; Use git alias inside ~/.gitconfig to open current file line in GitHub
 nnoremap &lt;leader&gt;f :!echo `git url`/blob/`git rev-parse --abbrev-ref HEAD`/%\#L&lt;C-R&gt;=line('.')&lt;CR&gt; \| xargs open&lt;CR&gt;&lt;CR&gt;
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="vimscript-custom-function-that-triggers-tmux-pane-to-open-specified-gem-contents-within-vim">VimScript custom function that triggers tmux pane to open specified gem contents within Vim</h1>
 
 <p><a href="https://gist.github.com/Integralist/e24848ee273fe4adab2c" target="_blank">View original Gist on GitHub</a></p>
@@ -24,8 +25,10 @@ endfun
 
 :command -nargs=1 OpenGem execute &quot;:!tmux splitw 'echo &quot; . GemPath(&lt;f-args&gt;) . &quot; | xargs vim'; tmux select-pane -U; tmux send-keys 'C-m'; tmux select-pane -D&quot;
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

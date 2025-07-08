@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="make-makefile-help-output">Make: Makefile help output</h1>
 
 <p><a href="https://gist.github.com/Integralist/4447885192c7e84e01ca7c9f2e08ef17" target="_blank">View original Gist on GitHub</a></p>
@@ -158,8 +159,10 @@ h:  ## Filtered version of `help` target from base.mk
 	@grep -h -E '^[0-9a-zA-Z_.-]+\s:=.*?## .*$$' $(MAKEFILE_LIST) || true | sort | awk 'BEGIN {FS = &quot;:.*?## &quot;}; {printf &quot;\033[36m%-25s\033[0m %s\n&quot;, $$1, $$2}'
 
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

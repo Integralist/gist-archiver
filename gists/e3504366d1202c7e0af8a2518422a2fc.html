@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Dependabot </title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
+<h1 id="dependabot">Dependabot</h1>
+
+<p><a href="https://gist.github.com/Integralist/e3504366d1202c7e0af8a2518422a2fc" target="_blank">View original Gist on GitHub</a></p>
+
+<p><strong>Tags:</strong> #dependencies</p>
+
+<h2 id="dependabot-yaml">dependabot.yaml</h2>
+
+<pre><code class="language-yaml"># Example configuration that's quite detailed in its approach.
+# .github/dependabot.yaml
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: &quot;/&quot;
+    schedule:
+      day: monday
+      interval: weekly
+      time: &quot;13:00&quot;
+    open-pull-requests-limit: 10
+    groups:
+      version-bumps:
+        applies-to: version-updates
+        update-types: [&quot;minor&quot;, &quot;patch&quot;]
+
+  - package-ecosystem: gomod
+    directory: &quot;/&quot;
+    schedule:
+      interval: weekly
+      time: &quot;12:00&quot;
+    open-pull-requests-limit: 10
+    groups:
+      # Always create a separate PR for zonedb updates
+      zonedb-only:
+        patterns:
+          - &quot;github.com/zonedb/zonedb&quot;
+      # Create a grouped PR specifically for fastly dependencies.
+      fastly-modules:
+        applies-to: version-updates
+        patterns:
+          - &quot;github.com/fastly&quot;
+      # Create a grouped PR for all go.mod dependencies that have a minor or
+      # patch version updates. All major updates will be separate PRs.
+      external-modules:
+        applies-to: version-updates
+        update-types: [&quot;minor&quot;, &quot;patch&quot;]
+        exclude-patterns:
+          - &quot;github.com/zonedb/zonedb&quot;
+          - &quot;github.com/fastly&quot;
+
+  - package-ecosystem: terraform
+    # specify directories for dependabot to monitor for updating
+    # directories allows the use wildcard and globbing, which is needed because infrastructure contains many layers of subdirectories
+    # https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference#directories-or-directory--
+    directories:
+      - &quot;/infrastructure&quot; # files within the directory
+      - &quot;/infrastructure/**/*&quot; # subdirectories
+    schedule:
+      day: monday
+      interval: weekly
+      time: &quot;13:00&quot; # 5am Pacific
+    open-pull-requests-limit: 10
+    groups:
+      version-bumps:
+        applies-to: version-updates
+        update-types: [&quot;minor&quot;, &quot;patch&quot;]
+</code></pre>
+</div>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
+<script>hljs.highlightAll();</script>
+
+</div>
+</body>
+</html>

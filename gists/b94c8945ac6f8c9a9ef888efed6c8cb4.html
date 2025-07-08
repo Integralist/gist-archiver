@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="terraform-modules">Terraform: Modules</h1>
 
 <p><a href="https://gist.github.com/Integralist/b94c8945ac6f8c9a9ef888efed6c8cb4" target="_blank">View original Gist on GitHub</a></p>
@@ -88,8 +89,10 @@ output &quot;active_foo&quot; {
 </code></pre>
 
 <p>Notice the syntax to reference the module&rsquo;s output variable from within the root module: <code>module.&lt;module_name&gt;.&lt;module_output_variable_name&gt;</code>.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

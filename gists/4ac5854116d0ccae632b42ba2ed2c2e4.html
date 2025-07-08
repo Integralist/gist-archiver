@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="go-generic-slice-map-function">Go: Generic Slice Map function</h1>
 
 <p><a href="https://gist.github.com/Integralist/4ac5854116d0ccae632b42ba2ed2c2e4" target="_blank">View original Gist on GitHub</a></p>
@@ -47,8 +48,10 @@ func Map[T any](s []T, m func(T) T) {
 	}
 }
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

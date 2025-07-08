@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-regex-replace-with-capture-group">[Python regex replace with capture group]</h1>
 
 <p><a href="https://gist.github.com/Integralist/05247b9a12bad8a93c84c74e4784b8a7" target="_blank">View original Gist on GitHub</a></p>
@@ -24,8 +25,10 @@ re.sub('src=&quot;([^&quot;]+)', lambda o: 'src=&quot;{}&amp;platform=mobile_app
 # Alternative that uses f string formatting
 re.sub('src=&quot;([^&quot;]+)', lambda o: f'src=&quot;{o.groups(0)[0]}&amp;platform=mobile_app', html)
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

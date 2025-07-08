@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="bash-print-all-alias">[Bash Print All Alias&rsquo;]</h1>
 
 <p><a href="https://gist.github.com/Integralist/b0f4c62d38761babfd8616694a852024" target="_blank">View original Gist on GitHub</a></p>
@@ -22,8 +23,10 @@ normal=$(tput sgr0)
 # list out all custom defined alias'
 alias list='cat ~/.bashrc | grep &quot;^alias&quot; | gsed -En &quot;s/alias (\w+)=(.+)/${bold}\1\n  ${normal}\2\n/p&quot;'
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

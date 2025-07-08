@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="example-of-how-sass-mixins-when-used-excessively-and-without-thought-can-actually-be-more-of-a-code-smell-than-a-helper">Example of how Sass mixins when used excessively and without thought can actually be more of a code smell than a helper.</h1>
 
 <p><a href="https://gist.github.com/Integralist/5798071" target="_blank">View original Gist on GitHub</a></p>
@@ -37,8 +38,10 @@
 <p>&hellip;which you would use as for example: <code>@include vendor(box-sizing, border-box);</code></p>
 
 <p>Yes this adds prefixes that might not be needed (e.g. border-radius is reasonably well supported in older versions of Firefox and WebKit) but this repeatable content will get chewed up when it comes to GZIP&rsquo;ing.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

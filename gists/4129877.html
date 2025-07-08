@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="extending-placeholder-selectors-within-media-queries">Extending placeholder selectors within media queries</h1>
 
 <p><a href="https://gist.github.com/Integralist/4129877" target="_blank">View original Gist on GitHub</a></p>
@@ -70,8 +71,10 @@
 <p>Recent updates to Sass 3.2.3 has me thinking. And thanks to @micahgodbolt and @ScottKellum, I think we got to the bottom of this. Special thanks to <a href="http://sassmeister.com/" target="_blank">Sass Meister</a> for providing the test bed.</p>
 
 <p>The following example illustrates how a placeholder selector can be extended within a @media query, functionality that previously threw an error in Sass. In the previous versions of Sass, the extended rule needed to be in direct context with the @media query. The functionality that this example illustrates is that if there is a common @media query between the new rule and the extended placeholder, this relationship will inherit.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

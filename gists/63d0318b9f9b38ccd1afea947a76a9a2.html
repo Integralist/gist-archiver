@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="docker-cleanup-remove-prune">[Docker Cleanup Remove Prune]</h1>
 
 <p><a href="https://gist.github.com/Integralist/63d0318b9f9b38ccd1afea947a76a9a2" target="_blank">View original Gist on GitHub</a></p>
@@ -28,8 +29,10 @@ dri() { docker rmi -f $(docker images -q); }
 # remove all &lt;none&gt; images
 drn() { docker rmi -f $(docker images --filter &quot;dangling=true&quot; -q); }
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

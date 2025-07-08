@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="ssh-proxy-http-requests-through-a-ssh-connection-via-socks5-proxy">SSH: Proxy HTTP requests through a SSH connection via SOCKS5 proxy</h1>
 
 <p><a href="https://gist.github.com/Integralist/9302d54e6f1ecb5e8245204315dd9436" target="_blank">View original Gist on GitHub</a></p>
@@ -134,8 +135,10 @@ func (d *sshDialer) Dial(network, addr string) (net.Conn, error) {
 	return d.client.Dial(network, addr)
 }
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

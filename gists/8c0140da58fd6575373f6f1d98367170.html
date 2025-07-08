@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="go-difference-between-url-host-and-request-header-host">Go: difference between URL host and Request Header Host</h1>
 
 <p><a href="https://gist.github.com/Integralist/8c0140da58fd6575373f6f1d98367170" target="_blank">View original Gist on GitHub</a></p>
@@ -35,8 +36,10 @@ Host: www.example.org:8080
 <p>When not connecting through a proxy, the client does not specify a host in the request URI. In this scenario, <code>r.URL.Host</code> is the empty string.</p>
 
 <p>If you are not implementing a proxy, then you should use <code>r.Host</code> to determine the host.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

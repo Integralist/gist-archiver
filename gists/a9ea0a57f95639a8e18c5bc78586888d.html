@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="compiler-understanding-linker-files">Compiler: Understanding linker files</h1>
 
 <p><a href="https://gist.github.com/Integralist/a9ea0a57f95639a8e18c5bc78586888d" target="_blank">View original Gist on GitHub</a></p>
@@ -25,8 +26,10 @@
 <p>A <strong>DLL</strong> can define two kinds of functions: exported and internal. The exported functions are intended to be called by other modules, as well as from within the DLL where they are defined. Internal functions are typically intended to be called only from within the DLL where they are defined.</p>
 
 <p>An <strong>SO</strong> library on Linux doesn&rsquo;t need special export statement to indicate exportable symbols, since all symbols are available to an interrogating process.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

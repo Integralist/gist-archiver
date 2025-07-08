@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="install-more-recent-version-of-siege-https-github-com-joedog-siege-inside-of-a-docker-container">Install more recent version of Siege (<a href="https://github.com/JoeDog/siege" target="_blank">https://github.com/JoeDog/siege</a>) inside of a Docker container</h1>
 
 <p><a href="https://gist.github.com/Integralist/11e10dd3acf972dd97f5c122db531162" target="_blank">View original Gist on GitHub</a></p>
@@ -83,8 +84,10 @@ RUN ulimit -c -m -s -t unlimited
 ENTRYPOINT [&quot;siege&quot;]
 CMD [&quot;--help&quot;]
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

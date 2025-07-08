@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-ttl-cache-decorator">[Python TTL Cache Decorator]</h1>
 
 <p><a href="https://gist.github.com/Integralist/4f7d9498070f530c50d005d16bb019c5" target="_blank">View original Gist on GitHub</a></p>
@@ -184,8 +185,10 @@ class TestPassword(tornado.testing.AsyncTestCase):
                                              mock.call('JWK_CACHE_POPULATION', state='populated', **fields),
                                              mock.call('JWK_CACHE_HIT', state='hit', **fields)]
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

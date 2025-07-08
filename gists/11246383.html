@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="js-tail-call-optimisation">JS Tail Call Optimisation</h1>
 
 <p><a href="https://gist.github.com/Integralist/11246383" target="_blank">View original Gist on GitHub</a></p>
@@ -221,8 +222,10 @@ sum(1, 10); // =&gt; 11
 <p>Notice, however, that the final expression to be evaluated is not <code>+</code>, but <code>sum (viz recur)</code> itself. We don’t need to hang on to any of the variables in this function any more, because the final return value won’t depend on them.</p>
 
 <p><code>recur</code> hints to the Clojure compiler that we don’t need to hold on to the stack, and can re-use that space for other things. This is called a tail-recursive function, and it requires only a single stack frame no matter how deep the recursive calls go.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

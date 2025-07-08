@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="vim-highlight-current-line">[Vim Highlight Current Line]</h1>
 
 <p><a href="https://gist.github.com/Integralist/67b3cff501cbeef421113c39bd86b5c5" target="_blank">View original Gist on GitHub</a></p>
@@ -25,8 +26,10 @@ endfun
 &quot; autocmd VimEnter * call SetCursorLine() &quot; We have to use a last minute event (VimEnter)
                                           &quot; Otherwise the colourscheme overrides our CursorLine
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="sed-replace-content-across-multiple-files">sed replace content across multiple files</h1>
 
 <p><a href="https://gist.github.com/Integralist/354e1267bef43961dd678679f5823669" target="_blank">View original Gist on GitHub</a></p>
@@ -39,8 +40,10 @@ find . -type f -name *.go -exec gsed -i -r -e 's/(github.com\/)fastly(\/customcl
 
 <pre><code class="language-shell">vim $(search &quot;--files=*.go&quot; &quot;metrics\.NewWriter&quot; ./ | cut -d ':' -f 1)
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="create-json-from-yaml">Create JSON from Yaml</h1>
 
 <p><a href="https://gist.github.com/Integralist/4646ab0381d45402bfdd" target="_blank">View original Gist on GitHub</a></p>
@@ -15,8 +16,10 @@
 <h2 id="create-json-from-yaml-md">Create JSON from Yaml.md</h2>
 
 <p><code>ruby -rjson -ryaml -e &quot;puts JSON.generate(YAML.load_file('./stacks/s3.yml'))&quot; | json_pp | pbcopy</code></p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-exception-handling-guidelines">[Python Exception Handling Guidelines]</h1>
 
 <p><a href="https://gist.github.com/Integralist/fee3c008296cb3e0a16ec8fdfcdc371b" target="_blank">View original Gist on GitHub</a></p>
@@ -21,8 +22,10 @@
 <p>When you have deeply nested code modules, then don&rsquo;t try to handle exceptions in-between, just raise the exception (instrument there too) and then let a <em>top level</em> handler catch generalized exceptions to do its own instrumentation (if necessary).</p>
 
 <p>This means it&rsquo;s a good idea for the top level handler to catch a generalized parent exception class type, and have your internal code raise subclass exceptions from that parent class.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

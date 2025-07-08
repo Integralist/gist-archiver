@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="if-a-shell-command-returns-an-exit-status-then-you-ll-find-that-in-a-ci-environment-that-the-job-will-immediately-fail-to-resolve-this-you-should-capture-the-error-and-then-pipe-the-result-and-then-use-pipestatus-instead">If a shell command returns an exit status then you&rsquo;ll find that in a CI environment that the job will immediately fail. To resolve this you should capture the error and then pipe the result and then use PIPESTATUS instead</h1>
 
 <p><a href="https://gist.github.com/Integralist/e4f2fd44affa4bf901e5" target="_blank">View original Gist on GitHub</a></p>
@@ -33,8 +34,10 @@ docker run \
 
 TESTS_RESULT=&quot;$?&quot;
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

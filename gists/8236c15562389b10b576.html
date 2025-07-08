@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="demonstrates-how-to-use-sumo-logic-query-language">Demonstrates how to use Sumo Logic query language</h1>
 
 <p><a href="https://gist.github.com/Integralist/8236c15562389b10b576" target="_blank">View original Gist on GitHub</a></p>
@@ -64,8 +65,10 @@ _collector= Newsbeat | parse &quot;*&quot; as jsonobj | json field=jsonobj &quot
 
 _collector= Newsbeat | parse &quot;*&quot; as jsonobj | json field=jsonobj &quot;event&quot;, &quot;url&quot; as event, url | where component=&quot;newsbeat-article-renderer&quot; | parse regex field=event &quot;(?&lt;a_match&gt;(?i)topics)&quot;
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

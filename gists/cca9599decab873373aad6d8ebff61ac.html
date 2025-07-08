@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="vim-arg-list-and-search-replacement">[Vim arg list and Search Replacement]</h1>
 
 <p><a href="https://gist.github.com/Integralist/cca9599decab873373aad6d8ebff61ac" target="_blank">View original Gist on GitHub</a></p>
@@ -42,8 +43,10 @@
 :argdo %s/\vfrom foo import (B)ar/\l\1/e | update
 :argdo %s/\vfrom foo import (*+)/\l\1/e | update
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

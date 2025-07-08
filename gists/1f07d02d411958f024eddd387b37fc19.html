@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-warrant-cognito">[Python Warrant Cognito]</h1>
 
 <p><a href="https://gist.github.com/Integralist/1f07d02d411958f024eddd387b37fc19" target="_blank">View original Gist on GitHub</a></p>
@@ -116,8 +117,10 @@ u = Cognito(user_pool_id, client_id,
 response = u.check_token(renew=False)  # leave off `renew` if you want Warrant to attempt to refresh expired tokens
 
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

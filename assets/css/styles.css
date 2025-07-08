@@ -126,8 +126,85 @@ code {
 .markdown-content h2 { font-size: 1.4em; }
 .markdown-content h3 { font-size: 1.2em; }
 
+/* GitHub-style markdown alerts (e.g., [!NOTE]) */
+.markdown-content .markdown-alert {
+    padding: 1em 1.5em;
+    margin-left: 0;
+    margin-right: 0;
+    border-left-width: 0.25em;
+    border-left-style: solid;
+    border-radius: 6px;
+    font-size: 90%;
+}
+
+.markdown-content .markdown-alert > p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.markdown-content .markdown-alert > p:not(:first-child) {
+    margin-top: 1em;
+}
+
+.markdown-content .markdown-alert::before {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.5em;
+    font-size: 1em;
+}
+
+/* Note */
+.markdown-content .markdown-alert-note {
+    border-color: #0969da;
+    background-color: #ddf4ff;
+}
+.markdown-content .markdown-alert-note::before {
+    content: "ℹ️ Note";
+    color: #0969da;
+}
+
+/* Tip */
+.markdown-content .markdown-alert-tip {
+    border-color: #1f883d;
+    background-color: #dcfce6;
+}
+.markdown-content .markdown-alert-tip::before {
+    content: "💡 Tip";
+    color: #1f883d;
+}
+
+/* Important */
+.markdown-content .markdown-alert-important {
+    border-color: #8250df;
+    background-color: #f0eaff;
+}
+.markdown-content .markdown-alert-important::before {
+    content: "❗ Important";
+    color: #8250df;
+}
+
+/* Warning */
+.markdown-content .markdown-alert-warning {
+    border-color: #9a6700;
+    background-color: #fff8c5;
+}
+.markdown-content .markdown-alert-warning::before {
+    content: "⚠️ Warning";
+    color: #9a6700;
+}
+
+/* Caution */
+.markdown-content .markdown-alert-caution {
+    border-color: #cf222e;
+    background-color: #ffebe9;
+}
+.markdown-content .markdown-alert-caution::before {
+    content: "🛑 Caution";
+    color: #cf222e;
+}
+
 .hidden {
-    display: none !important;
+		display: none !important;
 }
 
 #filterInput {

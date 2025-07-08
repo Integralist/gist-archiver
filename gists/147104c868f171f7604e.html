@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="aws-assume-role">AWS Assume Role</h1>
 
 <p><a href="https://gist.github.com/Integralist/147104c868f171f7604e" target="_blank">View original Gist on GitHub</a></p>
@@ -53,8 +54,10 @@ export AWS_SESSION_TOKEN=$(echo $temp_role | jq .Credentials.SessionToken | xarg
 
 env | grep -i AWS_
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-garbage-collection-circular-references">[Python Garbage Collection Circular References]</h1>
 
 <p><a href="https://gist.github.com/Integralist/3c64fc7b72039be9770db8a6eed346b4" target="_blank">View original Gist on GitHub</a></p>
@@ -33,8 +34,10 @@ gc.collect()
 gc.garbage
 # &gt;&gt;&gt; [&lt;__main__.A object at 0x29ce750&gt;, {'ref': &lt;__main__.A object at 0x29ce750&gt;}]
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

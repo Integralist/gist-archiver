@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="ruby-pass-a-block-to-a-function-that-has-zero-arity-i-e-don-t-define-block-inside-of-our-initialize-method-the-point-of-this-demonstration-is-that-you-are-able-to-pass-a-block-through-to-another-method-whilst-not-initially-defining-an-argument-for-the-block-to-be-passed-by-this-way-we-gain-better-performance-calling-a-proc-is-very-slow-compared-to-yielding-and-regardless-we-re-not-able-to-pass-a-yield-through-to-another-method">Ruby: pass a block to a function that has zero arity (i.e. don&rsquo;t define &amp;block inside of our initialize method). The point of this demonstration is that you are able to pass a block through to another method whilst not initially defining an argument for the block to be passed by. This way we gain better performance (calling a proc is very slow compared to yielding), and regardless we&rsquo;re not able to pass a yield through to another method.</h1>
 
 <p><a href="https://gist.github.com/Integralist/b79b7a7706cc150b457c" target="_blank">View original Gist on GitHub</a></p>
@@ -35,8 +36,10 @@ Foo.new { puts &quot;hai&quot; }
 </blockquote>
 
 <p>Very nice!</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

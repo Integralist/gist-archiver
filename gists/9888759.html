@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="git-reset-soft-mixed-hard">git reset &ndash;soft/&ndash;mixed/&ndash;hard</h1>
 
 <p><a href="https://gist.github.com/Integralist/9888759" target="_blank">View original Gist on GitHub</a></p>
@@ -51,8 +52,10 @@ git reset --hard B  == move HEAD to B but completely delete C (you've lost those
 </code></pre>
 
 <p>Then your changes will still exist, but will just be unstaged (as &ndash;mixed is the default behaviour). You can now <code>git add --patch</code> cleanly.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="macos-view-shutdown-logs">macOS: view shutdown logs</h1>
 
 <p><a href="https://gist.github.com/Integralist/4a2137c733156fbfd7656d72afb5b8d8" target="_blank">View original Gist on GitHub</a></p>
@@ -18,8 +19,10 @@
 
 <pre><code class="language-shell">log show --predicate 'eventMessage contains &quot;Previous shutdown cause&quot;' --last 24h
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

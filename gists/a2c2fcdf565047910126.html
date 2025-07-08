@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="monads-in-javascript-and-the-power-of-composability">Monads in JavaScript and the power of composability</h1>
 
 <p><a href="https://gist.github.com/Integralist/a2c2fcdf565047910126" target="_blank">View original Gist on GitHub</a></p>
@@ -335,8 +336,10 @@ var grandchildren = compose(bind(children), bind(children));
 grandchildren(unit(div))
 // -&gt; [&lt;h1&gt;…&lt;/h1&gt;, &lt;p&gt;…&lt;/p&gt;, ...]
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

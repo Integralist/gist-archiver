@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Using ETags in your API </title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
+<h1 id="using-etags-in-your-api">Using ETags in your API</h1>
+
+<p><a href="https://gist.github.com/Integralist/8061d6381b57d5316d2789feb4b829d1" target="_blank">View original Gist on GitHub</a></p>
+
+<p><strong>Tags:</strong> #etag #api</p>
+
+<h2 id="api-etags-md">API ETags.md</h2>
+
+<p>I like to include ETags (<a href="https://datatracker.ietf.org/doc/html/rfc7232#section-2.3" target="_blank">RFC 7232</a>) in an API as a way to distinguish between “<em>Which resource am I targeting?</em>” (e.g. <code>id</code>) and “<em>Which version of the resource am I changing?</em>” (e.g. <code>etag</code>).</p>
+
+<p>The <code>id</code> never changes while the <code>etag</code> changes every time the resource is modified.</p>
+
+<p>The problem I&rsquo;m trying to solve is both &ldquo;race conditions&rdquo; and &ldquo;lost updates&rdquo;.</p>
+
+<p>For example, a customer has two employees (or automated systems) both looking to make modifications to API-based data. They get the same data at the same time, then attempt to update that data, but the changes they each attempt to make overlaps with each other (maybe user A changes the <code>name</code> field in the data, while user B deletes the <code>name</code> field). This is a problem because the outcome is non-deterministic and user A&rsquo;s changes might be applied last which means the <code>name</code> field is put back instead of deleted.</p>
+
+<p>Supporting ETags requires the API user to provide an <code>If-Match</code> request header with the relevant ETag value and if the tag doesn’t match what is currently stored in the database (which the API communicates with to get the data), then the request is rejected with a <code>412 Precondition Failed</code> (<a href="https://datatracker.ietf.org/doc/html/rfc9110#name-412-precondition-failed" target="_blank">RFC 9110</a>).</p>
+</div>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
+<script>hljs.highlightAll();</script>
+
+</div>
+</body>
+</html>

@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-download-youtube-videos">Python: download YouTube Videos</h1>
 
 <p><a href="https://gist.github.com/Integralist/53303137d6dbb4ecc80a0384f29eb051" target="_blank">View original Gist on GitHub</a></p>
@@ -31,8 +32,10 @@ for video in videos:
         file_extension='mp4',
     ).order_by('resolution').desc().first().download()
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

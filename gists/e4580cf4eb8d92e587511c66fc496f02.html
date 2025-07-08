@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="extract-mp4-from-m3u8">Extract mp4 from m3u8</h1>
 
 <p><a href="https://gist.github.com/Integralist/e4580cf4eb8d92e587511c66fc496f02" target="_blank">View original Gist on GitHub</a></p>
@@ -18,8 +19,10 @@
 
 <pre><code class="language-shell">ffmpeg -i https://123.streamlock.net/obitus_vods/_definst_/mp4:obitusvods/vivedia-wowza-vod/vb/394110_2020-07-31_2233BEC.mp4/playlist.m3u8 -c copy -bsf:a aac_adtstoasc output.mp4
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

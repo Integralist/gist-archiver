@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="awk-search-and-sum-columns">[awk search and sum columns]</h1>
 
 <p><a href="https://gist.github.com/Integralist/73753be0eb5c35bd3ae1e234f3f77dde" target="_blank">View original Gist on GitHub</a></p>
@@ -21,8 +22,10 @@
 # you can also ignore a line before summing...
 ls -l | awk '/^total/{next} {sum += $5}; END {print sum}'
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

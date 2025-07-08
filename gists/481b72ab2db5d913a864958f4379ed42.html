@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="redirect-stdout-and-stderr">Redirect stdout and stderr</h1>
 
 <p><a href="https://gist.github.com/Integralist/481b72ab2db5d913a864958f4379ed42" target="_blank">View original Gist on GitHub</a></p>
@@ -32,8 +33,10 @@
 <p>It then redirects <code>stderr</code> (2) to wherever <code>stdout</code> is pointing.</p>
 
 <p>At first, <code>2&gt;1</code> may look like a good way to redirect <code>stderr</code> to <code>stdout</code>. However, it will actually be interpreted as &ldquo;redirect stderr to a file named 1&rdquo;. <code>&amp;</code> indicates that what follows is a file descriptor and not a filename. So the construct becomes: <code>2&gt;&amp;1</code>.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

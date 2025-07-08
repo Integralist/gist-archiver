@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="trap-exit-and-error-defer-cleanup-execution-when-bash-script-fails">[Trap exit and error (defer cleanup execution when bash script fails)]</h1>
 
 <p><a href="https://gist.github.com/Integralist/74fffc52bb68e2bcd738" target="_blank">View original Gist on GitHub</a></p>
@@ -78,8 +79,10 @@ asdasdasd # would cause ERR to fire and thus cleanup function would get extra ar
 
 # otherwise the script would just exit naturally and so the EXIT signal would be handled.
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

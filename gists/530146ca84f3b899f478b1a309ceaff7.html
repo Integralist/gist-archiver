@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-profiling-context-management">[Python profiling context management]</h1>
 
 <p><a href="https://gist.github.com/Integralist/530146ca84f3b899f478b1a309ceaff7" target="_blank">View original Gist on GitHub</a></p>
@@ -59,8 +60,10 @@ def time_it(name='default_timer', stream=sys.stdout):
     yield
     stream.write('time_it ({}) - {}\n'.format(name, timeit.default_timer() - start))
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

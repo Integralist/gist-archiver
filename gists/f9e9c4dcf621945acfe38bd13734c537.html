@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="monitor-tcp-traffic-from-nginx">[Monitor TCP traffic from NGINX]</h1>
 
 <p><a href="https://gist.github.com/Integralist/f9e9c4dcf621945acfe38bd13734c537" target="_blank">View original Gist on GitHub</a></p>
@@ -18,8 +19,10 @@
 
 <pre><code class="language-shell">tcpdump -vvv -s 0 -l -n port 53 -XX
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

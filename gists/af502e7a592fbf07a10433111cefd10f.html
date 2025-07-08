@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="writing-a-http-response">Writing a HTTP Response</h1>
 
 <p><a href="https://gist.github.com/Integralist/af502e7a592fbf07a10433111cefd10f" target="_blank">View original Gist on GitHub</a></p>
@@ -117,8 +118,10 @@ fmt.Fprintf(w, &quot;Hi, my name is %s and I'm %d years old.&quot;, name, age)
 <p>However, it is more efficient to let the json package know that you have an <code>io.Writer</code>, and ultimately you want to send the result to that. That way it is unnecessary to first generate the JSON text in a buffer, which you just write into your response and then discard. You can create a new <code>json.Encoder</code> by calling <code>json.NewEncoder()</code> to which you can pass your <code>http.ResponseWriter</code> as an <code>io.Writer</code>, and calling <code>Encoder.Encode()</code> after that will directly write the JSON result into your response writer.</p>
 
 <p>One disadvantage here is that if generating the JSON response fails, you might have a partially sent / committed response which you cannot take back. If this is a problem for you, you don&rsquo;t really have a choice other than generating the response in a buffer, and if marshaling succeeds, then you may write the complete response at once.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

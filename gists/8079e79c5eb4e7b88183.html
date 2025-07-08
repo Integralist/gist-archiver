@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="example-script-that-uses-the-trick-typically-used-to-convert-an-object-to-a-proc-e-g-https-gist-github-com-integralist-11206577-to-convert-a-method-retrieved-using-method-to-a-proc-so-it-can-be-utilised-by-another-method">Example script that uses the <code>&amp;</code> trick (typically used to convert an object to a proc; e.g. <a href="https://gist.github.com/Integralist/11206577" target="_blank">https://gist.github.com/Integralist/11206577</a>) to convert a method (retrieved using <code>method()</code>) to a proc so it can be utilised by another method</h1>
 
 <p><a href="https://gist.github.com/Integralist/8079e79c5eb4e7b88183" target="_blank">View original Gist on GitHub</a></p>
@@ -26,8 +27,10 @@ hello                  # =&gt; nil
 hello { &quot;world&quot; }      # =&gt; &quot;world&quot;
 hello(&amp;method(:world)) # =&gt; &quot;world&quot;
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

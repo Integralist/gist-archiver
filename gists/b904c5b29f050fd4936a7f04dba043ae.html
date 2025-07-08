@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="fastly-vcl-multiplication">[Fastly VCL Multiplication]</h1>
 
 <p><a href="https://gist.github.com/Integralist/b904c5b29f050fd4936a7f04dba043ae" target="_blank">View original Gist on GitHub</a></p>
@@ -25,8 +26,10 @@ log var.start-nano;
 set req.http.X-Start-in-Nanoseconds = var.start-nano;
 
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

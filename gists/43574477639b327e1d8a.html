@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="demonstrating-the-set-up-of-coreos-and-how-to-utilise-etcd-along-with-systemd-and-fleet">Demonstrating the set-up of CoreOS and how to utilise Etcd along with Systemd and Fleet</h1>
 
 <p><a href="https://gist.github.com/Integralist/43574477639b327e1d8a" target="_blank">View original Gist on GitHub</a></p>
@@ -384,8 +385,10 @@ ExecStart=/usr/bin/bash -c &quot;while true; do echo 'Hello Cluster'; sleep 1; d
 <pre><code>Unit hello-cluster.service inactive
 Unit hello-cluster.service launched on 5fcf399b.../172.17.8.101
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

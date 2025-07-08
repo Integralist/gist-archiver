@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="git-generate-change-log-between-two-tags">Git: Generate change log between two tags</h1>
 
 <p><a href="https://gist.github.com/Integralist/e27f16821806aa8037c442d805fc2e44" target="_blank">View original Gist on GitHub</a></p>
@@ -35,8 +36,10 @@ changes=$(git log --pretty=&quot;- %s&quot; &quot;$latest_tag&quot;...&quot;$sec
 printf &quot;# \`v$release_version\`\n\n## CHANGES (commits: $(echo &quot;$changes&quot; | wc -l | xargs))\n\n$changes\n&quot; &gt; release_notes.md
 
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Simple Fastly Terraform Subscription </title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
+<h1 id="simple-fastly-terraform-subscription">Simple Fastly Terraform Subscription</h1>
+
+<p><a href="https://gist.github.com/Integralist/0c765162e5faf3c31a6378b087684d4f" target="_blank">View original Gist on GitHub</a></p>
+
+<p><strong>Tags:</strong> #tls #fastly #iac</p>
+
+<h2 id="main-tf">main.tf</h2>
+
+<pre><code class="language-hcl">terraform {
+  required_providers {
+    fastly = {
+      source  = &quot;fastly/fastly&quot;
+      version = &quot;7.0.0&quot;
+    }
+  }
+  required_version = &quot;&gt;= 1.0&quot;
+}
+
+# data &quot;fastly_tls_configuration&quot; &quot;http3_tls13&quot; {
+# 	id = &quot;QqO0FM8CvrMCSr94yODlTw&quot;
+# }
+#
+# output &quot;tls_config&quot; {
+# 	value = data.fastly_tls_configuration.http3_tls13
+# }
+
+resource &quot;fastly_tls_subscription&quot; &quot;fastly_dev&quot; {
+  domains               = [&quot;www.fastly-dev.com&quot;]
+  certificate_authority = &quot;certainly&quot;
+  configuration_id      = &quot;QqO0FM8CvrMCSr94yODlTw&quot;
+}
+
+resource &quot;fastly_service_vcl&quot; &quot;fastly_dev&quot; {
+  name = &quot;fastly_dev&quot;
+
+  domain {
+    name = &quot;www.fastly-dev.com&quot;
+  }
+
+  backend {
+    address           = &quot;www.fastly-debug.com&quot;
+    name              = &quot;fastly_debug&quot;
+    override_host     = &quot;www.fastly-debug.com&quot;
+    port              = 443
+    ssl_cert_hostname = &quot;fastly-debug.com&quot;
+    ssl_sni_hostname  = &quot;fastly-debug.com&quot;
+    use_ssl           = true
+  }
+
+  force_destroy = true
+}
+</code></pre>
+</div>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
+<script>hljs.highlightAll();</script>
+
+</div>
+</body>
+</html>

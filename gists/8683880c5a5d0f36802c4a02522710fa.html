@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="bash-search-find-and-filter-then-execute">[Bash search find and filter, then execute]</h1>
 
 <p><a href="https://gist.github.com/Integralist/8683880c5a5d0f36802c4a02522710fa" target="_blank">View original Gist on GitHub</a></p>
@@ -72,8 +73,10 @@ $ find -E . -iregex '.+(pipfile|requirements).+' -print -exec egrep 'bf[_-]torna
 # the output will be paths like './webapp_waf/nginx.conf.j2' so we use the cut command to extract the service name (e.g. webapp_waf)
 $ time find . -type f ! -path '*.git/*' ! -path '*.venv*' ! -path '* *' ! -name '*.md' ! -name '*.json' ! -name '*.yml' | xargs grep -l -i nginx | sort | uniq | sort | cut -d / -f 2 | uniq | sort
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

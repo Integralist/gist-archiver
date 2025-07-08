@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="go-docker-go-tinygo-application">Go: Docker Go/TinyGo Application</h1>
 
 <p><a href="https://gist.github.com/Integralist/cbb09aef4897d2a6a2c03499f8e03064" target="_blank">View original Gist on GitHub</a></p>
@@ -99,8 +100,10 @@ RUN go mod download
 RUN mkdir bin/
 RUN tinygo build -target=wasi -wasm-abi=generic -gc=conservative -scheduler=asyncify -o bin/main.wasm ./src
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

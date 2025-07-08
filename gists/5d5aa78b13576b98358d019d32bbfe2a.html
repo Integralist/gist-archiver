@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="process-substitution">[Process Substitution]</h1>
 
 <p><a href="https://gist.github.com/Integralist/5d5aa78b13576b98358d019d32bbfe2a" target="_blank">View original Gist on GitHub</a></p>
@@ -28,8 +29,10 @@
 </code></pre>
 
 <p><code>&lt;(list)</code> connects the output of list with a file in <code>/dev/fd</code>, if supported by the system, otherwise a named pipe (FIFO) is used (which also depends on support by the system; neither manual says what happens if both mechanisms are not supported, presumably it aborts with an error). The name of the file is then passed as argument on the command line.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

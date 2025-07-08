@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="go-structured-logging">Go: Structured Logging</h1>
 
 <p><a href="https://gist.github.com/Integralist/09ff73d309af7852864dfe709c53f12d" target="_blank">View original Gist on GitHub</a></p>
@@ -91,8 +92,10 @@ func main() {
 	logger.LogAttrs(ctx, slog.LevelInfo, &quot;some_event_2&quot;)
 }
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

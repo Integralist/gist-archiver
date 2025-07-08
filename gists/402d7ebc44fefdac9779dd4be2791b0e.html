@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-tornado-request-performance">[Python Tornado Request Performance]</h1>
 
 <p><a href="https://gist.github.com/Integralist/402d7ebc44fefdac9779dd4be2791b0e" target="_blank">View original Gist on GitHub</a></p>
@@ -44,8 +45,10 @@
 <p>According to our metrics it looks like the internal API request takes ~250ms, so it would only take a backlog of 4 to reach the tornado application&rsquo;s configured 1s timeout.</p>
 
 <p>Where we&rsquo;ve tested using aiohttp and found better performance &lsquo;out-of-the-box&rsquo;, what&rsquo;s most likely happening is that aiohttp provides no mechanism to <em>control concurrency</em>, which appears useful in this specific case, but is ultimately not what we want, because we don&rsquo;t want the application to be able to DoS downstream dependencies. Granted, aiohttp might be actually be more performant. But it doesn&rsquo;t appear as though we&rsquo;re resource starved and so further configuration tweaking should be investigated before switching.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

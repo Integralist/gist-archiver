@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="shell-single-line-ruby-script-in-shell">Shell: single line Ruby script in shell</h1>
 
 <p><a href="https://gist.github.com/Integralist/abbffe4c06712f46db1bcffdd82ef652" target="_blank">View original Gist on GitHub</a></p>
@@ -18,8 +19,10 @@
 
 <pre><code class="language-ruby">cat tokens.txt | xargs -I % ruby -e 'require &quot;digest&quot;; puts Digest::SHA256.hexdigest(&quot;%&quot;)'
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

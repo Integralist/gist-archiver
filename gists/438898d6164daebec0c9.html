@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="aws-ec2-ssh-access-and-creating-new-ami">AWS EC2 SSH Access and creating new AMI</h1>
 
 <p><a href="https://gist.github.com/Integralist/438898d6164daebec0c9" target="_blank">View original Gist on GitHub</a></p>
@@ -66,8 +67,10 @@ ls -l /mnt
 <p>Now we need to register our new AMI (done via the AWS Console): &ldquo;Register New AMI&rdquo; under EC2 &gt; AMIs
 Then specify the locatation in S3: <code>{S3_buckname}/{path_to_manifest_xml}</code>
 Now from here we can launch an instance from this new AMI.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

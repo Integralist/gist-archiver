@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="deployment-types">[Deployment Types]</h1>
 
 <p><a href="https://gist.github.com/Integralist/414fc20834cf953ee725f930e74d8acf" target="_blank">View original Gist on GitHub</a></p>
@@ -27,8 +28,10 @@
 <h2 id="blue-green-deployments">Blue Green Deployments</h2>
 
 <p>Blue-green deployments approach slow and controlled releases by ensuring the operator has two nearly identical environments, blue and green. At any time, one of the environments is “live” and receiving traffic. For the sake of example, let’s assume we have a “live” blue environment. In order to release a new software version, the operator deploys the new version to the non-live green environment. Afterwards, the operator re-routes traffic from the blue environment to the green environment. Once complete, the green environment is now “live” receiving all traffic, while the blue environment is now idle.  Blue-green deployments also give a means of rapid rollback - if anything goes wrong, the operator can switch back to the previous environment.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

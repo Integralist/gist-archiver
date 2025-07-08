@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="server-sent-events-in-ruby">Server-Sent Events in Ruby</h1>
 
 <p><a href="https://gist.github.com/Integralist/e4cc5e0816fbb6b64142" target="_blank">View original Gist on GitHub</a></p>
@@ -91,8 +92,10 @@ evtSource.onerror = function(e) {
 
 <pre><code class="language-shell">curl -v -H &quot;Content-Type: application/json&quot; -X POST -d '{&quot;foo&quot;:&quot;bar&quot;}' http://127.0.0.1:9292/update
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

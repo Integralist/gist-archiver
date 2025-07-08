@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="http-routing-in-go">HTTP routing in Go</h1>
 
 <p><a href="https://gist.github.com/Integralist/d7766801960dfe275bfd3bfe30359966" target="_blank">View original Gist on GitHub</a></p>
@@ -99,8 +100,10 @@
 <p>While I like the idea of just using the standard library, and the path-shifting technique is quite clever, I strongly prefer seeing my URLs all in one place – This approach spreads the logic across many handlers, so it&rsquo;s difficult to see what handles what. It&rsquo;s also quite a lot of code, some of which is error prone.</p>
 
 <p>On balance, I find it too verbose and think it&rsquo;d be difficult for people reading the code to quickly answer the question, &ldquo;given this HTTP method and URL, what happens?&rdquo;</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

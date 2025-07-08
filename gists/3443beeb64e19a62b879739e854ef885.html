@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="terraform-the-problem-with-terraform-s-schema-typeset">Terraform: The problem with Terraform&rsquo;s schema.TypeSet</h1>
 
 <p><a href="https://gist.github.com/Integralist/3443beeb64e19a62b879739e854ef885" target="_blank">View original Gist on GitHub</a></p>
@@ -25,8 +26,10 @@
 <p>This is why if you update a field inside a <code>schema.TypeSet</code> in Terraform, and you run a <code>terraform plan</code> you&rsquo;ll see the entire resource marked as needing to be deleted and recreated.</p>
 
 <p>Official GitHub discussion: <a href="https://github.com/hashicorp/terraform/pull/2336#issuecomment-115744243" target="_blank">https://github.com/hashicorp/terraform/pull/2336#issuecomment-115744243</a></p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

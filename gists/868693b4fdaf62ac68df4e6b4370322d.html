@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-generator-expressions">Python Generator Expressions</h1>
 
 <p><a href="https://gist.github.com/Integralist/868693b4fdaf62ac68df4e6b4370322d" target="_blank">View original Gist on GitHub</a></p>
@@ -24,8 +25,10 @@ for line in (x for x in open('super-large.txt')):
 for line in (x for x in open('super-large.txt') if int(x) % 100):
     pass  # execute once every 100 lines (instead of every line)
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

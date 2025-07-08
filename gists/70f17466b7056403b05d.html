@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="curl-performance-timing">[curl performance timing]</h1>
 
 <p><a href="https://gist.github.com/Integralist/70f17466b7056403b05d" target="_blank">View original Gist on GitHub</a></p>
@@ -46,8 +47,10 @@ ntimes 100 -- curl -w  &quot;%{time_starttransfer}\n&quot; -o /dev/null -s http:
                  time_total:  %{time_total}\n
 \n
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

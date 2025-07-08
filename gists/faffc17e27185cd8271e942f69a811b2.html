@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="golang-prevent-directory-listing-with-static-fileserver">[Golang Prevent Directory Listing with Static FileServer]</h1>
 
 <p><a href="https://gist.github.com/Integralist/faffc17e27185cd8271e942f69a811b2" target="_blank">View original Gist on GitHub</a></p>
@@ -31,8 +32,10 @@ func main() {
 	log.Println(http.ListenAndServe(&quot;:8080&quot;, nil))
 }
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

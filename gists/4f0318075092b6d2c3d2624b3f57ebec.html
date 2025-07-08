@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="fastly-edge-dictionaries-api-examples">[Fastly Edge Dictionaries API Examples]</h1>
 
 <p><a href="https://gist.github.com/Integralist/4f0318075092b6d2c3d2624b3f57ebec" target="_blank">View original Gist on GitHub</a></p>
@@ -124,8 +125,10 @@ curl -s -H &quot;$api_token&quot; &quot;$api_host/service/$myservice/dictionary/
 # dict_val=&quot;true&quot;
 # curl -s -H &quot;$api_token&quot; -X PATCH -d &quot;item_value=$dict_val&quot; &quot;$api_host/service/$myservice/dictionary/$dict_id/item/$dict_key&quot; | jq
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

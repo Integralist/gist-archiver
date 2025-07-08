@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="made-a-super-quick-bookmarklet-for-displaying-the-current-screen-dimensions-for-chrome">Made a super quick bookmarklet for displaying the current screen dimensions for Chrome</h1>
 
 <p><a href="https://gist.github.com/Integralist/4713288" target="_blank">View original Gist on GitHub</a></p>
@@ -29,8 +30,10 @@
 javascript:(function(w,d){var el=d.createElement(&quot;div&quot;);el.setAttribute(&quot;style&quot;,&quot;position: fixed; right: 1em; top: 0; background-color: red; color: white; padding: 5px; z-index: 1000;&quot;);el.innerHTML=d.documentElement.clientWidth;d.body.appendChild(el);w.addEventListener(&quot;resize&quot;,function(){el.innerHTML=d.documentElement.clientWidth},false)})(window,window.document);
 */
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

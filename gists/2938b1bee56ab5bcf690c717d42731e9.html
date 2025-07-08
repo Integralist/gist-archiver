@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="ruby-webmock-example">Ruby WebMock Example</h1>
 
 <p><a href="https://gist.github.com/Integralist/2938b1bee56ab5bcf690c717d42731e9" target="_blank">View original Gist on GitHub</a></p>
@@ -40,8 +41,10 @@ WebMock.stub_request(:any, endpoint).to_return(:body =&gt; &quot;something else&
 
 p Faraday.get(endpoint).body
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

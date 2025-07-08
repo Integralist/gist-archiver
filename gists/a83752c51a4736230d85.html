@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="ruby-faraday-ssl">Ruby Faraday SSL</h1>
 
 <p><a href="https://gist.github.com/Integralist/a83752c51a4736230d85" target="_blank">View original Gist on GitHub</a></p>
@@ -26,8 +27,10 @@ connection = Faraday.new &quot;https://some.domain.co.uk:443&quot;, :ssl =&gt; {
 response = connection.get &quot;my/endpoint/for/some/domain&quot;
 body = response.body
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="sass-avoiding-if-conditionals">[Sass: avoiding @if conditionals]</h1>
 
 <p><a href="https://gist.github.com/Integralist/5361793" target="_blank">View original Gist on GitHub</a></p>
@@ -94,8 +95,10 @@ $gutter: 8px;
 <p>The &lsquo;issue&rsquo; would be when you miss an argument (as per the <code>border</code> example above) then having us set <code>inherit</code> on a property might break your CSS if you&rsquo;ve already set a value on that property somewhere else in your code base.</p>
 
 <p>The &lsquo;concern&rsquo; is setting a value of <code>inherit</code> is an extra line of CSS code. But that&rsquo;s the trade-off between slightly larger compiled code compared to the easier maintenance.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

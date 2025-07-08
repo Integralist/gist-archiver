@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="ruby-google-calendar-api">Ruby Google Calendar API</h1>
 
 <p><a href="https://gist.github.com/Integralist/cc6d9574ae6598cf78c5" target="_blank">View original Gist on GitHub</a></p>
@@ -62,8 +63,10 @@ event = Google::Apis::CalendarV3::Event.new({
 result = service.insert_event(calendar_id, event)
 puts &quot;Event created: #{result.html_link}&quot;
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

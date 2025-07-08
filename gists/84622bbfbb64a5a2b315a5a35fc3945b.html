@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-exception-stack-trace-debugging">Python Exception Stack Trace Debugging</h1>
 
 <p><a href="https://gist.github.com/Integralist/84622bbfbb64a5a2b315a5a35fc3945b" target="_blank">View original Gist on GitHub</a></p>
@@ -28,8 +29,10 @@ finally:
 # log the stack
 stack = ''.join(traceback.format_exception(exc_cls, exc_val, exc_traceback))
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="gpg-security-best-practice">[GPG Security Best Practice]</h1>
 
 <p><a href="https://gist.github.com/Integralist/f7e17034800b65b51eb7e9807720025a" target="_blank">View original Gist on GitHub</a></p>
@@ -111,8 +112,10 @@ rmdir /tmp/gpg
 <ol>
 <li><code>gpg --list-secret-keys</code>: see how the third line begins with <code>sec#</code>, not <code>sec</code>? The pound sign means the signing subkey is not in the keypair located in the keyring.</li>
 </ol>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="python-tornado-initialization-and-multi-process-mode">[Python Tornado Initialization and Multi-Process Mode]</h1>
 
 <p><a href="https://gist.github.com/Integralist/d1c839f78041a64acd0113fdbaa2a3f1" target="_blank">View original Gist on GitHub</a></p>
@@ -44,8 +45,10 @@ server = HTTPServer(App())
 server.bind(app_settings['port'])
 server.start(0)  # multi process mode (one process per cpu)
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

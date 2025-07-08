@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="ruby-meta-programming">Ruby Meta Programming</h1>
 
 <p><a href="https://gist.github.com/Integralist/a29212a8eb10bc8154b7" target="_blank">View original Gist on GitHub</a></p>
@@ -401,8 +402,10 @@ Foo.new.a # =&gt; I'm A (an instance method)
 <pre><code class="language-ruby">type = &quot;baz&quot;
 Foo::Bar.const_get(type.capitalize).new # =&gt; new instance of Foo::Bar::Baz
 </code></pre>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

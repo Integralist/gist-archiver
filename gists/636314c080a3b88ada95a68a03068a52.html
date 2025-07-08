@@ -8,6 +8,7 @@
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
 <h1 id="interface-value-vs-interface-type">Interface Value vs Interface Type</h1>
 
 <p><a href="https://gist.github.com/Integralist/636314c080a3b88ada95a68a03068a52" target="_blank">View original Gist on GitHub</a></p>
@@ -84,8 +85,10 @@ func describe(i I) {
 </code></pre>
 
 <p>When we assign to <code>i</code> which is the interface <code>I</code>, we&rsquo;ll find that <code>i</code> ultimately holds the expected value (e.g. either a struct <code>T</code> or a float <code>F</code>) but the &lsquo;type&rsquo; associated with the <code>i</code> variable <em>isn&rsquo;t</em> actually the <code>I</code> interface (which you <em>might</em> have expected) it&rsquo;s actually the type of the value that was assigned.</p>
+</div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
 <script>hljs.highlightAll();</script>
 
 </div>

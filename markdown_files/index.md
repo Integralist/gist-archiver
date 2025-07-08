@@ -1,5 +1,9 @@
 # Gists Archive
 
+- [Base62 encoding and decoding ](./gists/a9d4c67d7c2c38d7a542306966fc5e23.md)
+- [Using ETags in your API ](./gists/8061d6381b57d5316d2789feb4b829d1.md)
+- [Dependabot ](./gists/e3504366d1202c7e0af8a2518422a2fc.md)
+- [Simple Fastly Terraform Subscription ](./gists/0c765162e5faf3c31a6378b087684d4f.md)
 - [Homebrew: custom version install ](./gists/36dcf9fa921f6caa58990525e474d1a3.md)
 - [Go: httpx.WriteJSON ](./gists/c528f499d892cb0d74f7e037d5856358.md)
 - [Go: 1.23 iter.Seq/iter.Seq2 iterators ](./gists/38ade4cd75f1efe01acd0738d01470cd.md)
@@ -188,7 +192,7 @@
 - [PHP: setup Composer with local code ](./gists/ec8ec475cc168620355bdca28d928e56.md)
 - [Go: type asserting/coercing ](./gists/3097838786e069c33afe668ae767a367.md)
 - [Go: embed static file inside of compiled binary ](./gists/ef5eb39ec34f5b8734bd81958be3a5e1.md)
-- [Go: custom http client ](./gists/8a9cb8924f75ae42487fd877b03360e2.md)
+- [Go: timeouts and custom http client ](./gists/8a9cb8924f75ae42487fd877b03360e2.md)
 - [Git: multiple branches ](./gists/baa244ccb85f1e67044136f6e2f71001.md)
 - [Go: nested struct embedding ](./gists/0058659d37c2bf0691cc7bde8c9579c3.md)
 - [Go: reverse slice loop ](./gists/525f7cf4683e67fc90f1e2b7a917cbfe.md)
