@@ -25,6 +25,10 @@ open index.html
 make build
 ```
 
+## Documentation
+
+Detailed documentation on how the code works can be found in the [./docs/index.md](./docs/index.md) file.
+
 ## CI
 
 I have a [GitHub Actions workflow](.github/workflows/daily-build.yml) that pulls
