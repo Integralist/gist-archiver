@@ -519,7 +519,7 @@
 - [[Python Multiple Characters String Replacement] ](./gists/8f7e646ffa87f0e16ea6ec05974bc5db.md)
 - [[Tornado AsyncHTTPClient - No Web Server] ](./gists/fd603239cacbb3d3d317950905b76096.md)
 - [[Tiny Docker Builds] ](./gists/a654cfef4d2e7713d89a5d1624f6453f.md)
-- [[Go Server Boilerplate] ](./gists/7d9b10e7f691605792cc182910eb070f.md)
+- [Go: Server Boilerplate ](./gists/7d9b10e7f691605792cc182910eb070f.md)
 - [[Project Management] ](./gists/0fd4f4b627ce3aef0278862bd16e4b71.md)
 - [[Python's Pipenv] ](./gists/9e0c5ee9c2cc2568dd1961bf370716c9.md)
 - [[Python Warrant Cognito] ](./gists/1f07d02d411958f024eddd387b37fc19.md)
