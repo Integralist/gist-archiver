@@ -209,7 +209,27 @@ This approach keeps the main <code>go.mod</code> and <code>go.sum</code> clean o
 <p>Now, this isn&rsquo;t the end of the world as the <code>tools</code> directive is still at the top of the <code>tools.mod</code> and is very clear as to what &ldquo;tools&rdquo; are installed, but yeah, you&rsquo;ll also see a bunch of <code>require</code> directives (related to your main Go project) as well, unfortunately.</p>
 
 <p>One thing you could do, is only run the <code>go get -u -modfile=tools.mod tool</code> command, which would keep your <code>tools.mod</code> clean, and would only update <code>tools.sum</code> with the relevant updated dependencies. The problem with that is the old dependencies aren&rsquo;t cleaned out. e.g. if you updated tool &ldquo;foo&rdquo; from version 1.0 to 2.0 then both versions appear in your <code>tools.sum</code> (this is why we have <code>go mod tidy</code> to ensure only 2.0 is present in the <code>tools.sum</code>). So one approach would simple be to manually clean up the <code>go.sum</code> everytime after running <code>go get -u -modfile=tools.mod tool</code> &ndash; it&rsquo;s not that difficult as you just look for the new tool version added and remove the old one, but it&rsquo;s a manual process and that sucks).</p>
+
+<p><strong>UPDATE Aug 2025:</strong><br />
+I was having issues with importing a public package (e.g. <code>pkg/package_name</code>) from within my own module. It was related to compiling a Protobuf schema into a <code>.go</code> stub file that I wanted to import and use within my own module&rsquo;s code. And I found the following approach helped me to avoid an issue where <code>go mod tidy</code> wanted me to <code>go get</code> my own package (which didn&rsquo;t make any sense to me). The way I avoid that was to copy my tools.mod and tools.sum into a temp directory and then <code>cd</code> there and run <code>go mod tidy</code> and it appeared to work fine. What&rsquo;s weird is I&rsquo;m pretty sure I tried this approach before and it didn&rsquo;t work as far as keeping out my main application&rsquo;s dependencies from the tools dependencies. So this might be the way to go.</p>
 </blockquote>
+
+<pre><code class="language-Makefile">.PHONY: tools-update
+tools-update: ## Update dev tools
+	@$(foreach tool,$(TOOLS), \
+		echo &quot;updating $(tool)&quot;; \
+		go get -u -modfile=tools.mod -tool &quot;$(tool)&quot;@latest; \
+	)
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	@echo &quot;Tidying tool dependencies...&quot;
+	@mkdir -p .tmp_tools
+	@cp tools.mod .tmp_tools/go.mod
+	@if [ -f tools.sum ]; then cp tools.sum .tmp_tools/go.sum; fi
+	@cd .tmp_tools &amp;&amp; go mod tidy
+	@mv .tmp_tools/go.mod tools.mod
+	@if [ -f .tmp_tools/go.sum ]; then mv .tmp_tools/go.sum tools.sum; fi
+	@rm -rf .tmp_tools
+</code></pre>
 
 <h2 id="tools-go">tools.go</h2>
 
