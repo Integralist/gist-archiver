@@ -4,3 +4,4 @@ This documentation provides an overview of the Gist Archiver's components and ho
 
 - [Go Backend](./go-backend.md): Explains the Go application that fetches and processes Gists.
 - [Frontend](./frontend.md): Details the JavaScript used for client-side filtering and UI.
+- [Search Guide](./search-guide.md): Explains how the client-side search functionality works.

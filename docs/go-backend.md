@@ -1,28 +1,3 @@
-# Go Backend (`main.go`)
-
-The Go application is the core of the Gist Archiver. It's a command-line tool responsible for fetching all of a user's public Gists from the GitHub API, processing them, and generating static HTML and Markdown files.
-
-## Key Responsibilities
-
-1.  **Fetch Gists**: It retrieves a list of all public Gists for a specified GitHub user. It handles pagination to ensure all Gists are fetched.
-2.  **Process Gists**: For each Gist, it fetches detailed information, including file contents.
-3.  **Extract Tags**: It parses Gist descriptions to find hashtags (e.g., `#go`, `#javascript`) and associates them with the Gist.
-4.  **Generate Markdown**: It creates a single composite Markdown file for each Gist, combining all of its files into one page. It also adds metadata like the Gist title, creation date, and a link back to the original Gist on GitHub.
-5.  **Generate Index**: It creates a main `index.md` and `index.html` file that lists all the archived Gists, linking to their respective generated pages.
-
-## How It Works
-
-The application flow is managed in `main.go`:
-
-- It uses goroutines and channels for concurrent fetching of Gist details to speed up the process (`fetchAndProcessGistDetails`). A semaphore (`fetchSemaphore`) is used to limit the number of concurrent API requests.
-- The `GistDetail` struct holds the comprehensive data for a single Gist, including its files and extracted tags.
-- `generateGistMarkdownFile` is responsible for creating the content of the Markdown file for a single Gist. It includes the Gist's title, content from all its files, and syntax highlighting hints for code blocks.
-- `processSingleGist` orchestrates the processing of one Gist: extracting tags, generating the Markdown file, and sending an `IndexEntry` to a channel for later aggregation.
-- Finally, `generateIndexFiles` takes all the `IndexEntry` items and builds the main index files.
-
-## Project Structure Conventions
-
-The code follows standard Go project layout conventions, although most of the logic is currently in `main.go`. For more complex versions, this logic would be broken out into `internal` packages as described in `CONVENTIONS.md`.
 # Go Backend Architecture
 
 This document details the Go application that fetches and processes Gists.
@@ -34,7 +9,7 @@ This document details the Go application that fetches and processes Gists.
 The Go backend is the core of the Gist Archiver. It is a command-line application responsible for:
 - Fetching all public gists for a specific GitHub user.
 - Processing each gist's content into both Markdown and HTML formats.
-- Generating a static HTML website for browsing the archived content.
+- Generating a static HTML website for browsing the archived content, including a client-side search index.
 
 The application is built with concurrency in mind to efficiently handle multiple API requests and file processing tasks simultaneously.
 
@@ -85,6 +60,7 @@ This package is responsible for generating all static files. Its key functions a
 -   **Markdown Generation**: Creates a composite Markdown file for each gist, combining all of its file contents with metadata.
 -   **HTML Conversion**: Converts the generated Markdown into static HTML pages, including syntax highlighting for code blocks via `gomarkdown`.
 -   **Index File Creation**: Generates `index.md` and `index.html` to list all archived gists, sorted by date.
+-   **Search Index Generation**: Creates a JSON file containing the data needed for the client-side search. This index is consumed by Lunr.js on the frontend.
 
 ---
 
@@ -92,14 +68,14 @@ This package is responsible for generating all static files. Its key functions a
 
 The application's execution is orchestrated in `cmd/archiver/main.go` and relies heavily on goroutines and channels for concurrency.
 
-1.  **Initialization**: The `main` function starts by creating the necessary output directories (`/gists` and `/markdown_files`).
+1.  **Initialization**: The `main` function starts by creating the necessary output directories.
 2.  **Channels**: Two buffered channels are created to manage the flow of data between concurrent stages:
     -   `gistDetailChan`: To pass `GistDetail` objects from the API fetcher to the file processors.
     -   `indexEntryChan`: To pass `IndexEntry` objects from the processors to the final index generator.
 3.  **Goroutines**: The application launches several goroutines to work in parallel:
-    -   A single **fetcher goroutine** (`client.FetchAndProcessGistDetails`) fetches gist details from the GitHub API and sends them into `gistDetailChan`. Once all gists are fetched, it closes this channel.
-    -   A pool of **processor goroutines** (`filegen.ProcessSingleGist`) reads from `gistDetailChan`. Each worker processes one gist at a time (generating its Markdown and HTML pages) and sends an `IndexEntry` into `indexEntryChan`. The number of workers is based on the number of available CPU cores.
-    -   A single **indexer goroutine** collects all `IndexEntry` items from `indexEntryChan`. Once the channel is closed (signaling that all gists have been processed), it sorts the entries by date and generates the final `index.html` and `index.md` files.
-4.  **Synchronization**: `sync.WaitGroup` is used to ensure that all steps complete in the correct order. The main function waits for fetching to complete, then for processing to complete, and finally for indexing to complete before exiting.
+    -   A single **fetcher goroutine** fetches gist details from the GitHub API and sends them into `gistDetailChan`. Once all gists are fetched, it closes this channel.
+    -   A pool of **processor goroutines** reads from `gistDetailChan`. Each worker processes one gist at a time (generating its Markdown and HTML pages) and sends an `IndexEntry` into `indexEntryChan`.
+    -   A single **indexer goroutine** collects all `IndexEntry` items from `indexEntryChan`. Once the channel is closed, it sorts the entries by date and generates the final `index.html`, `index.md`, and search index files.
+4.  **Synchronization**: `sync.WaitGroup` is used to ensure that all steps complete in the correct order. The main function waits for fetching, processing, and indexing to complete before exiting.
 
 This concurrent model allows the application to overlap network I/O (fetching gists) with CPU-bound work (processing files), significantly speeding up the archival process.

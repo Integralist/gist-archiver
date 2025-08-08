@@ -25,6 +25,14 @@ open index.html
 make build
 ```
 
+## Search
+
+The user interface includes a powerful client-side search feature powered by [Lunr.js](https://lunrjs.com/). It supports:
+- **Prefix matching**: Find gists as you type.
+- **Word stemming**: Searching for `iterate` will also find gists with `iteration` or `iterating`.
+
+For more details, see the [search guide](./docs/search-guide.md).
+
 ## Documentation
 
 Detailed documentation on how the code works can be found in the [./docs/index.md](./docs/index.md) file.
