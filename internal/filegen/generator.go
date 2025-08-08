@@ -226,7 +226,7 @@ func GenerateIndexFiles(entries []model.IndexEntry, searchEntries []model.Search
 				dateAndTags += fmt.Sprintf("<br><small class=\"date\"><b>Created:</b> %s</small>", entry.Date.Format("January 2, 2006"))
 			}
 			if entry.Tags != "" {
-				dateAndTags += fmt.Sprintf("<br><small class=\"date\"><b>Tags:</b> %s</small>", entry.Tags)
+				dateAndTags += fmt.Sprintf("<small class=\"date\"><b>Tags:</b> %s</small>", entry.Tags)
 			}
 			htmlIndexContent.WriteString(fmt.Sprintf("<li class=\"gist-entry\" id=\"gist-%s\"><a href=\"%s\">%s</a>%s</li>\n", entry.GistID, entry.HTMLPath, entry.Title, dateAndTags))
 		}
