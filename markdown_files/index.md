@@ -329,7 +329,7 @@
 - [run a macro multiple times ](./gists/aa43fe5318318f77a3ae1c4b81c4cf6a.md)
 - [use control key in norm Ex command ](./gists/0647b5947005d1faeb2d78f79e5b688d.md)
 - [Search, filter, cut, sort and get uniques + tee contents ](./gists/69dc115cc31d253961645c8139f25269.md)
-- [sed replace content across multiple files ](./gists/354e1267bef43961dd678679f5823669.md)
+- [find and replace content across multiple files ](./gists/354e1267bef43961dd678679f5823669.md)
 - [Pretty Print Dictionary ](./gists/4493c6f895c6771b13d0324949c08977.md)
 - [GitHub Open-Source Pull Request Flow ](./gists/9822f59cbb60f5de0f79a6cbd79ad9ab.md)
 - [IO Packages ](./gists/3b6aa81b784b37cf90d177933b5791f7.md)
