@@ -2,14 +2,14 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>[Extend expired GPG key] </title>
+<title>Extend expired GPG key </title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
 </head>
 <body>
 <div class="container">
 <a href="../index.html" class="back-link">&laquo; Back to Index</a>
 <div class="markdown-content">
-<h1 id="extend-expired-gpg-key">[Extend expired GPG key]</h1>
+<h1 id="extend-expired-gpg-key">Extend expired GPG key</h1>
 
 <p><a href="https://gist.github.com/Integralist/94a73bb9f3b15ccb824881d3ddb7ec6f" target="_blank">View original Gist on GitHub</a></p>
 
@@ -29,17 +29,17 @@ gpg&gt; list
 # set new expiry for the primary key (which is the default and is equivalent to &quot;key 0&quot;)
 gpg&gt; expire
 
-# you can also select the subkey (you'll see an asterisk now next to the subkey)
+# you can also select the subkey (once you type this you'll see an asterisk next to the subkey)
 gpg&gt; key 1
 
 # set new expiry for the subkey
 gpg&gt; expire
 
-# now exit the interactive shell and make sure to save your changes
-gpg&gt; quit
-
-# alternatively you can save before you quit
+# this will save your changes and quit
 gpg&gt; save
+
+# you can also quit without saving if you need to
+gpg&gt; quit
 </code></pre>
 </div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
