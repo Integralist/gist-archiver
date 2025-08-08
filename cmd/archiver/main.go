@@ -28,6 +28,7 @@ func main() {
 
 	gistDetailChan := make(chan model.GistDetail, config.MaxConcurrentFetches)
 	indexEntryChan := make(chan model.IndexEntry, runtime.NumCPU()*2)
+	searchIndexEntryChan := make(chan model.SearchIndexEntry, runtime.NumCPU()*2)
 
 	var fetchWg sync.WaitGroup
 	var processWg sync.WaitGroup
@@ -47,18 +48,35 @@ func main() {
 		go func(workerID int) {
 			defer processWg.Done()
 			for gist := range gistDetailChan {
-				filegen.ProcessSingleGist(gist, indexEntryChan)
+				filegen.ProcessSingleGist(gist, indexEntryChan, searchIndexEntryChan)
 			}
 		}(i)
 	}
 
 	var collectedIndexEntries []model.IndexEntry
+	var searchIndexEntries []model.SearchIndexEntry
 	var indexWg sync.WaitGroup
 	indexWg.Add(1)
 	go func() {
 		defer indexWg.Done()
-		for entry := range indexEntryChan {
-			collectedIndexEntries = append(collectedIndexEntries, entry)
+		for {
+			select {
+			case entry, ok := <-indexEntryChan:
+				if !ok {
+					indexEntryChan = nil
+				} else {
+					collectedIndexEntries = append(collectedIndexEntries, entry)
+				}
+			case searchEntry, ok := <-searchIndexEntryChan:
+				if !ok {
+					searchIndexEntryChan = nil
+				} else {
+					searchIndexEntries = append(searchIndexEntries, searchEntry)
+				}
+			}
+			if indexEntryChan == nil && searchIndexEntryChan == nil {
+				break
+			}
 		}
 		log.Printf("Collected %d index entries.", len(collectedIndexEntries))
 
@@ -72,7 +90,7 @@ func main() {
 			return collectedIndexEntries[j].Date.Before(collectedIndexEntries[i].Date)
 		})
 		log.Println("Index entries sorted by date (newest first).")
-		filegen.GenerateIndexFiles(collectedIndexEntries)
+		filegen.GenerateIndexFiles(collectedIndexEntries, searchIndexEntries)
 	}()
 
 	fetchWg.Wait()
@@ -82,6 +100,7 @@ func main() {
 	log.Println("All gist processing workers have completed.")
 
 	close(indexEntryChan)
+	close(searchIndexEntryChan)
 	log.Println("Index entry channel closed.")
 
 	indexWg.Wait()

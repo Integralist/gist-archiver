@@ -17,8 +17,8 @@ const (
 	MaxConcurrentFetches = 10
 
 	JsSubDir            = "js"
-	JsFilterFileName    = "filter.js"
 	JsTagsFileName      = "tags.js"
 	JsHighlightFileName = "highlight.min.js"
 	JsNotesFileName     = "notes.js"
+	JsSearchFileName    = "search.js"
 )

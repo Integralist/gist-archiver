@@ -1,3 +1,4 @@
+.PHONY: build
 build:
 	@# In GitHub Actions you can't name a repo secret `GITHUB_TOKEN`.
 	@# Hence I've had to rename that to `API_TOKEN_GITHUB` here.

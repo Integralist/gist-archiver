@@ -52,9 +52,17 @@ type GistOwner struct {
 }
 
 type IndexEntry struct {
+	GistID       string
 	Title        string
 	MarkdownPath string
 	HTMLPath     string
 	Date         time.Time
 	Tags         string
+}
+
+type SearchIndexEntry struct {
+	ID      string `json:"id"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	Tags    string `json:"tags"`
 }
