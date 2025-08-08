@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const tagName = link.dataset.tag;
       if (!tagName) return;
 
-      triggerSearch(`#${tagName}`);
+      triggerSearch(`tags:${tagName}`);
 
       const firstGistLi = document.querySelector(gistListSelector);
       if (firstGistLi) {
