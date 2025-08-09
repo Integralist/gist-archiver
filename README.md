@@ -25,9 +25,15 @@ open index.html
 make build
 ```
 
-## Search
+## CI
 
-The user interface includes a powerful client-side search feature powered by [Lunr.js](https://lunrjs.com/). It supports:
+I have a [GitHub Actions workflow](.github/workflows/daily-build.yml) that pulls
+the latest public gists daily.
+
+## Features
+
+The user interface includes a client-side search feature powered by [Lunr.js](https://lunrjs.com/). It supports:
+
 - **Prefix matching**: Find gists as you type.
 - **Word stemming**: Searching for `iterate` will also find gists with `iteration` or `iterating`.
 
@@ -36,11 +42,6 @@ For more details, see the [search guide](./docs/search-guide.md).
 ## Documentation
 
 Detailed documentation on how the code works can be found in the [./docs/index.md](./docs/index.md) file.
-
-## CI
-
-I have a [GitHub Actions workflow](.github/workflows/daily-build.yml) that pulls
-the latest public gists daily.
 
 ## Gist Struture
 
