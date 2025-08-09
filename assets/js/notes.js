@@ -7,6 +7,20 @@ document.addEventListener('DOMContentLoaded', () => {
     '[!CAUTION]': 'caution',
   };
 
+  /**
+   * Checks if a paragraph's content starts with a known alert keyword.
+   * @param {string} html - The innerHTML of the paragraph element.
+   * @returns {{type: string, keyword: string}|null} The alert type and keyword, or null if no match.
+   */
+  function findAlertType(html) {
+    for (const [keyword, type] of Object.entries(alertTypes)) {
+      if (html.startsWith(keyword)) {
+        return { type, keyword };
+      }
+    }
+    return null;
+  }
+
   const contentContainer = document.querySelector('.markdown-content');
   if (!contentContainer) {
     return;
@@ -20,11 +34,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // A single blockquote from the original markdown can contain multiple "alert" sections.
+    // This script iterates through the blockquote's children and moves them into
+    // new, properly styled blockquote elements when an alert keyword is found.
     const children = Array.from(quote.children);
     let currentAlertBlock = null;
 
     children.forEach(child => {
-      // We only check for alert keywords in paragraphs.
+      // An alert can only be triggered by a paragraph. If we encounter other elements
+      // (like lists or nested blockquotes) while inside an alert, append them.
       if (child.tagName !== 'P') {
         if (currentAlertBlock) {
           currentAlertBlock.appendChild(child);
@@ -33,31 +51,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const p_html = child.innerHTML.trim();
-      let foundAlertType = null;
-      let keyword = null;
+      const alertInfo = findAlertType(p_html);
 
-      for (const [key, value] of Object.entries(alertTypes)) {
-        if (p_html.startsWith(key)) {
-          foundAlertType = value;
-          keyword = key;
-          break;
-        }
-      }
-
-      if (foundAlertType) {
-        // This paragraph starts a new alert. Create a new blockquote for it.
+      if (alertInfo) {
+        // This paragraph starts a new alert. Create a new, styled blockquote for it.
+        // This new block will become the active container for this and subsequent elements.
         currentAlertBlock = document.createElement('blockquote');
-        currentAlertBlock.classList.add('markdown-alert', `markdown-alert-${foundAlertType}`);
+        currentAlertBlock.classList.add('markdown-alert', `markdown-alert-${alertInfo.type}`);
         
-        // Insert the new, styled blockquote before the original one.
+        // Insert the new alert block before the original, unstyled blockquote.
         quote.parentNode.insertBefore(currentAlertBlock, quote);
         
         // Clean the alert keyword from the paragraph's content.
-        child.innerHTML = p_html.substring(keyword.length).trim();
+        child.innerHTML = p_html.substring(alertInfo.keyword.length).trim();
       }
 
       if (currentAlertBlock) {
-        // If we are processing an alert, move the current child element into it.
+        // If we are in an active alert block, move the current child element into it.
+        // This moves elements from the original blockquote to the new styled one.
         currentAlertBlock.appendChild(child);
       }
     });

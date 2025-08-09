@@ -440,7 +440,7 @@
 - [[Vim Highlight Current Line] ](./gists/67b3cff501cbeef421113c39bd86b5c5.md)
 - [[Vim open current line in GitHub UI] ](./gists/4eb10817e06a69bd511f14d2370e2d45.md)
 - [[Lazy Load NVM] ](./gists/27d19b9f1fd50699264e40bc1be89247.md)
-- [[Generate unique ID - UID] ](./gists/024582e886a039a022cc7359dfc6f8e3.md)
+- [Generate UUID (Universally Unique Identifier) ](./gists/024582e886a039a022cc7359dfc6f8e3.md)
 - [[Generate SSH Key] ](./gists/edda7d0af6a26f2413433003a10fceb5.md)
 - [[Docker Cleanup Remove Prune] ](./gists/63d0318b9f9b38ccd1afea947a76a9a2.md)
 - [[Simple Vim TODO list] ](./gists/df829fd78bda3d593fa00e67e10f8436.md)

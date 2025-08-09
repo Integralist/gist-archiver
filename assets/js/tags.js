@@ -4,6 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const filterInputId = 'filterInput';
   const gistListSelector = '#gistList li';
 
+  /**
+   * Finds plain text tags (e.g., #go) within designated containers
+   * and converts them into clickable anchor tags for filtering.
+   */
   function convertPlainTextTagsToDynamicLinks() {
     const tagContainers = document.querySelectorAll(tagContainerSelector);
 
@@ -25,6 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /**
+   * Programmatically sets the value of the search input and triggers
+   * the 'input' event to activate the search functionality in search.js.
+   * @param {string} query - The search query to trigger.
+   */
   function triggerSearch(query) {
     const filterInputElement = document.getElementById(filterInputId);
     if (filterInputElement) {
@@ -49,14 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       triggerSearch(`tags:${tagName}`);
 
-      const firstGistLi = document.querySelector(gistListSelector);
-      if (firstGistLi) {
-        const gistListElement = document.getElementById('gistList');
-        if (gistListElement) {
-          gistListElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else {
-          firstGistLi.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+      // After filtering, scroll the top of the gist list into view.
+      const gistListElement = document.getElementById('gistList');
+      if (gistListElement) {
+        gistListElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
   });

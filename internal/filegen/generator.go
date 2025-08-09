@@ -20,7 +20,7 @@ import (
 )
 
 // generateGistMarkdownFile creates the content for a single gist's markdown file.
-func generateGistMarkdownFile(gist model.GistDetail) (string, error) {
+func generateGistMarkdownFile(gist model.GistDetail) (string, []byte, error) {
 	var mdPageContent strings.Builder
 	title := gist.GetTitle()
 	tagsStart := strings.Index(title, "#")
@@ -83,40 +83,19 @@ func generateGistMarkdownFile(gist model.GistDetail) (string, error) {
 	mdFilenameForTempStore := gist.ID + ".md"
 	filePath := filepath.Join(config.MarkdownOutputDir, config.GistsMdSubDir, mdFilenameForTempStore)
 
+	mdBytes := []byte(mdPageContent.String())
+
 	if err := os.MkdirAll(filepath.Dir(filePath), 0o755); err != nil {
-		return "", fmt.Errorf("failed to create directory %s: %w", filepath.Dir(filePath), err)
+		return "", nil, fmt.Errorf("failed to create directory %s: %w", filepath.Dir(filePath), err)
 	}
-	if err := os.WriteFile(filePath, []byte(mdPageContent.String()), 0o644); err != nil {
-		return "", fmt.Errorf("failed to write composite markdown file %s: %w", filePath, err)
+	if err := os.WriteFile(filePath, mdBytes, 0o644); err != nil {
+		return "", nil, fmt.Errorf("failed to write composite markdown file %s: %w", filePath, err)
 	}
-	return filepath.Join(config.GistsMdSubDir, mdFilenameForTempStore), nil
+	return filepath.Join(config.GistsMdSubDir, mdFilenameForTempStore), mdBytes, nil
 }
 
-// ProcessSingleGist handles markdown/HTML generation for one gist and sends an entry for the index.
-func ProcessSingleGist(gist model.GistDetail, indexEntryChan chan<- model.IndexEntry, searchIndexEntryChan chan<- model.SearchIndexEntry) {
-	title := gist.GetTitle()
-	tagsStart := strings.Index(title, "#")
-	if tagsStart >= 0 {
-		gist.Tags = title[tagsStart:]
-		title = title[:tagsStart]
-	}
-	relativeMdPath, err := generateGistMarkdownFile(gist)
-	if err != nil {
-		log.Printf("Error generating composite markdown for gist %s (%s): %v. Skipping.", gist.ID, title, err)
-		return
-	}
-
-	htmlFilenameInGistsDir := strings.Replace(filepath.Base(relativeMdPath), ".md", ".html", 1)
-	relativeHTMLPath := filepath.Join(config.GistsHtmlSubDir, htmlFilenameInGistsDir)
-	fullGistHTMLPath := filepath.Join(config.WebDeployDir, relativeHTMLPath)
-
-	fullGistCompositeMdPath := filepath.Join(config.MarkdownOutputDir, relativeMdPath)
-	mdInput, err := os.ReadFile(fullGistCompositeMdPath)
-	if err != nil {
-		log.Printf("Error reading composite gist markdown for HTML conversion %s: %v", fullGistCompositeMdPath, err)
-		return
-	}
-
+// generateGistHTML converts markdown content to a full HTML page and writes it to a file.
+func generateGistHTML(mdInput []byte, title, fullGistHTMLPath string) error {
 	var gistHTMLBuffer bytes.Buffer
 	gistHTMLBuffer.WriteString("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n")
 	gistHTMLBuffer.WriteString(fmt.Sprintf("<title>%s</title>\n", title))
@@ -144,11 +123,34 @@ func ProcessSingleGist(gist model.GistDetail, indexEntryChan chan<- model.IndexE
 	gistHTMLBuffer.WriteString("\n</div>\n</body>\n</html>")
 
 	if err := os.MkdirAll(filepath.Dir(fullGistHTMLPath), 0o755); err != nil {
-		log.Printf("Failed to create directory for HTML gist file %s: %v", fullGistHTMLPath, err)
-		return
+		return fmt.Errorf("failed to create directory for HTML gist file %s: %w", filepath.Dir(fullGistHTMLPath), err)
 	}
 	if err := os.WriteFile(fullGistHTMLPath, gistHTMLBuffer.Bytes(), 0o644); err != nil {
-		log.Printf("Error writing HTML for gist %s: %v", fullGistHTMLPath, err)
+		return fmt.Errorf("error writing HTML for gist %s: %w", fullGistHTMLPath, err)
+	}
+	return nil
+}
+
+// ProcessSingleGist handles markdown/HTML generation for one gist and sends an entry for the index.
+func ProcessSingleGist(gist model.GistDetail, indexEntryChan chan<- model.IndexEntry, searchIndexEntryChan chan<- model.SearchIndexEntry) {
+	title := gist.GetTitle()
+	tagsStart := strings.Index(title, "#")
+	if tagsStart >= 0 {
+		gist.Tags = title[tagsStart:]
+		title = title[:tagsStart]
+	}
+	relativeMdPath, mdInput, err := generateGistMarkdownFile(gist)
+	if err != nil {
+		log.Printf("Error generating composite markdown for gist %s (%s): %v. Skipping.", gist.ID, title, err)
+		return
+	}
+
+	htmlFilename := strings.Replace(filepath.Base(relativeMdPath), ".md", ".html", 1)
+	relativeHTMLPath := filepath.Join(config.GistsHtmlSubDir, htmlFilename)
+	fullGistHTMLPath := filepath.Join(config.WebDeployDir, relativeHTMLPath)
+
+	if err := generateGistHTML(mdInput, title, fullGistHTMLPath); err != nil {
+		log.Printf("Error generating HTML for gist %s: %v", gist.ID, err)
 		return
 	}
 	log.Printf("Processed gist: %s (%s) -> HTML: %s", gist.ID, title, fullGistHTMLPath)

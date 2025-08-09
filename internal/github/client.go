@@ -30,6 +30,11 @@ type Client struct {
 
 // NewClient creates a new GitHub API client.
 func NewClient(baseURL, username, token string, gistsPerPage, maxConcurrentFetches int) *Client {
+	if token != "" {
+		log.Printf("🎉 Using GitHub API Token")
+	} else {
+		log.Printf("⚠️ No GitHub API Token found")
+	}
 	return &Client{
 		BaseURL:              baseURL,
 		Username:             username,
@@ -39,36 +44,44 @@ func NewClient(baseURL, username, token string, gistsPerPage, maxConcurrentFetch
 	}
 }
 
-func (c *Client) makeAPIRequest(url string, target any) error {
+// doAPIRequest is a helper that handles the common logic for making a GitHub API request.
+func (c *Client) doAPIRequest(url string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return fmt.Errorf("failed to create request: %w", err)
+		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("User-Agent", "go-gist-archiver/1.6")
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 
 	if c.Token != "" {
-		log.Printf("🎉 Using GitHub API Token")
 		req.Header.Set("Authorization", "Bearer "+c.Token)
-	} else {
-		log.Printf("⚠️ No GitHub API Token found")
 	}
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to make request to %s: %w", url, err)
+		return nil, fmt.Errorf("failed to make request to %s: %w", url, err)
 	}
-	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusForbidden && strings.Contains(resp.Header.Get("X-RateLimit-Remaining"), "0") {
 		log.Printf("Rate limit hit for URL %s. Status: %s", url, resp.Status)
-		return fmt.Errorf("rate limit hit for %s. X-RateLimit-Remaining: %s, X-RateLimit-Reset: %s", url, resp.Header.Get("X-RateLimit-Remaining"), resp.Header.Get("X-RateLimit-Reset"))
+		return nil, fmt.Errorf("rate limit hit for %s. X-RateLimit-Remaining: %s, X-RateLimit-Reset: %s", url, resp.Header.Get("X-RateLimit-Remaining"), resp.Header.Get("X-RateLimit-Reset"))
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("api request to %s failed with status %s: %s", url, resp.Status, string(bodyBytes))
+		resp.Body.Close()
+		return nil, fmt.Errorf("api request to %s failed with status %s: %s", url, resp.Status, string(bodyBytes))
 	}
+
+	return resp, nil
+}
+
+func (c *Client) makeAPIRequest(url string, target any) error {
+	resp, err := c.doAPIRequest(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
 
 	if target != nil {
 		if err := json.NewDecoder(resp.Body).Decode(target); err != nil {
@@ -79,32 +92,11 @@ func (c *Client) makeAPIRequest(url string, target any) error {
 }
 
 func (c *Client) makeAPIRequestForGistList(url string, target any) (string, error) {
-	req, err := http.NewRequest("GET", url, nil)
+	resp, err := c.doAPIRequest(url)
 	if err != nil {
-		return "", fmt.Errorf("failed to create request: %w", err)
-	}
-	req.Header.Set("User-Agent", "go-gist-archiver/1.6")
-	req.Header.Set("Accept", "application/vnd.github.v3+json")
-
-	if c.Token != "" {
-		req.Header.Set("Authorization", "Bearer "+c.Token)
-	}
-
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("failed to make request to %s: %w", url, err)
+		return "", err
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusForbidden && strings.Contains(resp.Header.Get("X-RateLimit-Remaining"), "0") {
-		log.Printf("Rate limit hit for URL %s. Status: %s", url, resp.Status)
-		return "", fmt.Errorf("rate limit hit for %s. X-RateLimit-Remaining: %s, X-RateLimit-Reset: %s", url, resp.Header.Get("X-RateLimit-Remaining"), resp.Header.Get("X-RateLimit-Reset"))
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("api request to %s failed with status %s: %s", url, resp.Status, string(bodyBytes))
-	}
 
 	if target != nil {
 		if err := json.NewDecoder(resp.Body).Decode(target); err != nil {
