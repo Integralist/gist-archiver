@@ -7,4 +7,5 @@ This package is responsible for generating all static files, including Markdown 
 -   **Markdown Generation**: Creates composite Markdown files for each gist, combining file contents with metadata.
 -   **HTML Conversion**: Converts the generated Markdown files into static HTML pages.
 -   **Index File Creation**: Generates `index.md` and `index.html` to list all archived gists.
+-   **Search Index Generation**: Creates and embeds a search index into `index.html` for client-side search functionality.
 -   **Utilities**: Provides helper functions, such as identifying whether a file is a Markdown file.

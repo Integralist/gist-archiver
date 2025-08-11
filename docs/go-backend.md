@@ -12,7 +12,7 @@ This diagram illustrates a three-stage concurrent pipeline: Fetch, Process, and 
 - It initializes several channels:
   - gistDetailChan: To pass fully-detailed gist objects from the fetcher to the processors.
   - indexEntryChan: To pass index metadata for the main index.md file.
-  - searchIndexEntryChan: To pass data for the search-index.json file.
+  - searchIndexEntryChan: To pass data for the client-side search index, which is embedded in index.html.
 - It also creates a sync.WaitGroup to know when all processing is complete.
 
 2. Stage 1: Fetching Gists (Concurrent Fetchers):
@@ -50,7 +50,7 @@ graph TD
         G --> H{Collect results from index channels};
         H --> I[filegen.GenerateIndexFiles];
         I --> J([Final: index.md]);
-        I --> K([Final: search-index.json]);
+        I --> K([Final: index.html with embedded search data]);
     end
 
     subgraph "<b>Fetcher Goroutine</b>"
@@ -133,7 +133,7 @@ This package defines all the primary data structures (structs) used throughout t
 
 This package provides a client for interacting with the GitHub Gists API. Its responsibilities include:
 
-- Making authenticated API requests using a personal access token.
+- Making authenticated or unauthenticated requests to the GitHub API.
 - Fetching the list of all public gists for a user, handling API pagination.
 - Fetching the detailed content for each individual gist.
 - Managing concurrent API requests to improve performance.
@@ -145,7 +145,7 @@ This package is responsible for generating all static files. Its key functions a
 - **Markdown Generation**: Creates a composite Markdown file for each gist, combining all of its file contents with metadata.
 - **HTML Conversion**: Converts the generated Markdown into static HTML pages, including syntax highlighting for code blocks via `gomarkdown`.
 - **Index File Creation**: Generates `index.md` and `index.html` to list all archived gists, sorted by date.
-- **Search Index Generation**: Creates a JSON file containing the data needed for the client-side search. This index is consumed by Lunr.js on the frontend.
+- **Search Index Generation**: Creates a JSON data structure containing the data needed for the client-side search. This data is embedded directly into index.html to be consumed by Lunr.js on the frontend.
 
 ______________________________________________________________________
 
@@ -156,11 +156,12 @@ The application's execution is orchestrated in `cmd/archiver/main.go` and relies
 1. **Initialization**: The `main` function starts by creating the necessary output directories.
 1. **Channels**: Two buffered channels are created to manage the flow of data between concurrent stages:
    - `gistDetailChan`: To pass `GistDetail` objects from the API fetcher to the file processors.
-   - `indexEntryChan`: To pass `IndexEntry` objects from the processors to the final index generator.
+   - `indexEntryChan`: To pass `IndexEntry` objects from the processors to the final index aggregator.
+   - `searchIndexEntryChan`: To pass `SearchIndexEntry` objects for the client-side search index.
 1. **Goroutines**: The application launches several goroutines to work in parallel:
    - A single **fetcher goroutine** fetches gist details from the GitHub API and sends them into `gistDetailChan`. Once all gists are fetched, it closes this channel.
    - A pool of **processor goroutines** reads from `gistDetailChan`. Each worker processes one gist at a time (generating its Markdown and HTML pages) and sends an `IndexEntry` into `indexEntryChan`.
-   - A single **indexer goroutine** collects all `IndexEntry` items from `indexEntryChan`. Once the channel is closed, it sorts the entries by date and generates the final `index.html`, `index.md`, and search index files.
+   - A single **aggregator goroutine** collects all `IndexEntry` and `SearchIndexEntry` items from their respective channels. Once the channels are closed, it sorts the index entries by date and generates the final `index.html` (with embedded search data) and `index.md` files.
 1. **Synchronization**: `sync.WaitGroup` is used to ensure that all steps complete in the correct order. The main function waits for fetching, processing, and indexing to complete before exiting.
 
 This concurrent model allows the application to overlap network I/O (fetching gists) with CPU-bound work (processing files), significantly speeding up the archival process.
