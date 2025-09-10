@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>humanlog.io config file</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
+<h1 id="humanlog-io-config-file">humanlog.io config file</h1>
+
+<p><a href="https://gist.github.com/Integralist/8baf2fa15d7dfdf04b8a3e5818eda71e" target="_blank">View original Gist on GitHub</a></p>
+
+<h2 id="readme-md">README.md</h2>
+
+<p>The config file is stored here:</p>
+
+<pre><code>~/.config/humanlog/config.json
+</code></pre>
+
+<p>The only thing I really configure is <code>formatter.themes.dark.levels.debug.foreground.html_hex_color</code>, which I set to <code>#8CBBFF</code>:</p>
+
+<blockquote>
+<p>[!TIP]
+You can view via <code>humanlog config show</code>.</p>
+</blockquote>
+
+<pre><code class="language-json">{
+	&quot;version&quot;: 2,
+	&quot;formatter&quot;: {
+		&quot;themes&quot;: {
+			&quot;light&quot;: {
+				&quot;key&quot;: {
+					&quot;foreground&quot;: {
+						&quot;html_hex_color&quot;: &quot;#146e23&quot;
+					}
+				},
+				&quot;value&quot;: {
+					&quot;foreground&quot;: {
+						&quot;html_hex_color&quot;: &quot;#878376&quot;
+					}
+				},
+				&quot;time&quot;: {
+					&quot;foreground&quot;: {
+						&quot;html_hex_color&quot;: &quot;#565454&quot;
+					}
+				},
+				&quot;msg&quot;: {
+					&quot;foreground&quot;: {
+						&quot;html_hex_color&quot;: &quot;#000000&quot;
+					}
+				},
+				&quot;levels&quot;: {
+					&quot;debug&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#d33682&quot;
+						}
+					},
+					&quot;info&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;warn&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#ff8800&quot;
+						}
+					},
+					&quot;error&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#d82626&quot;
+						}
+					},
+					&quot;panic&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#d82626&quot;
+						},
+						&quot;background&quot;: {
+							&quot;html_hex_color&quot;: &quot;#ffffff&quot;
+						}
+					},
+					&quot;fatal&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#d82626&quot;
+						},
+						&quot;background&quot;: {
+							&quot;html_hex_color&quot;: &quot;#ffff00&quot;
+						}
+					},
+					&quot;unknown&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#a9a9a9&quot;
+						}
+					}
+				},
+				&quot;absent_msg&quot;: {
+					&quot;foreground&quot;: {
+						&quot;html_hex_color&quot;: &quot;#a9a9a9&quot;
+					}
+				},
+				&quot;absent_time&quot;: {
+					&quot;foreground&quot;: {
+						&quot;html_hex_color&quot;: &quot;#a9a9a9&quot;
+					}
+				},
+				&quot;logs&quot;: {
+					&quot;key&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#146e23&quot;
+						}
+					},
+					&quot;value&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#878376&quot;
+						}
+					},
+					&quot;time&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#565454&quot;
+						}
+					},
+					&quot;msg&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#000000&quot;
+						}
+					},
+					&quot;levels&quot;: {
+						&quot;debug&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#d33682&quot;
+							}
+						},
+						&quot;info&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+							}
+						},
+						&quot;warn&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#ff8800&quot;
+							}
+						},
+						&quot;error&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#d82626&quot;
+							}
+						},
+						&quot;panic&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#d82626&quot;
+							},
+							&quot;background&quot;: {
+								&quot;html_hex_color&quot;: &quot;#ffffff&quot;
+							}
+						},
+						&quot;fatal&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#d82626&quot;
+							},
+							&quot;background&quot;: {
+								&quot;html_hex_color&quot;: &quot;#ffff00&quot;
+							}
+						},
+						&quot;unknown&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#a9a9a9&quot;
+							}
+						}
+					},
+					&quot;absent_msg&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#a9a9a9&quot;
+						}
+					},
+					&quot;absent_time&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#a9a9a9&quot;
+						}
+					}
+				},
+				&quot;spans&quot;: {
+					&quot;trace_id&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;span_id&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;trace_state&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;parent_span_id&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;name&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#000000&quot;
+						}
+					},
+					&quot;kind&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;service_name&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;scope_name&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;scope_version&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;time&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#565454&quot;
+						}
+					},
+					&quot;duration&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;resource_key&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#146e23&quot;
+						}
+					},
+					&quot;resource_val&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#878376&quot;
+						}
+					},
+					&quot;attribute_key&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#146e23&quot;
+						}
+					},
+					&quot;attribute_val&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#878376&quot;
+						}
+					},
+					&quot;status_message&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;status_code&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;event_time&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;event_name&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;event_key&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;event_val&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;link_trace_id&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;link_span_id&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;link_trace_state&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;link_key&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;link_val&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;absent_parent_span_id&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#a9a9a9&quot;
+						}
+					}
+				},
+				&quot;tables&quot;: {
+					&quot;column_name&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;column_type&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					},
+					&quot;value&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#1b645e&quot;
+						}
+					}
+				}
+			},
+			&quot;dark&quot;: {
+				&quot;key&quot;: {
+					&quot;foreground&quot;: {
+						&quot;html_hex_color&quot;: &quot;#48df61&quot;
+					}
+				},
+				&quot;value&quot;: {
+					&quot;foreground&quot;: {
+						&quot;html_hex_color&quot;: &quot;#8c887c&quot;
+					}
+				},
+				&quot;time&quot;: {
+					&quot;foreground&quot;: {
+						&quot;html_hex_color&quot;: &quot;#9e9e9e&quot;
+					}
+				},
+				&quot;msg&quot;: {
+					&quot;foreground&quot;: {
+						&quot;html_hex_color&quot;: &quot;#ffffff&quot;
+					}
+				},
+				&quot;levels&quot;: {
+					&quot;debug&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#8CBBFF&quot;
+						}
+					},
+					&quot;info&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;warn&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#ff8800&quot;
+						}
+					},
+					&quot;error&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#ff6a6a&quot;
+						}
+					},
+					&quot;panic&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#ff6a6a&quot;
+						},
+						&quot;background&quot;: {
+							&quot;html_hex_color&quot;: &quot;#ffffff&quot;
+						}
+					},
+					&quot;fatal&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#ff6a6a&quot;
+						},
+						&quot;background&quot;: {
+							&quot;html_hex_color&quot;: &quot;#ffff00&quot;
+						}
+					},
+					&quot;unknown&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#a9a9a9&quot;
+						}
+					}
+				},
+				&quot;absent_msg&quot;: {
+					&quot;foreground&quot;: {
+						&quot;html_hex_color&quot;: &quot;#a9a9a9&quot;
+					}
+				},
+				&quot;absent_time&quot;: {
+					&quot;foreground&quot;: {
+						&quot;html_hex_color&quot;: &quot;#a9a9a9&quot;
+					}
+				},
+				&quot;logs&quot;: {
+					&quot;key&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#48df61&quot;
+						}
+					},
+					&quot;value&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#8c887c&quot;
+						}
+					},
+					&quot;time&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#9e9e9e&quot;
+						}
+					},
+					&quot;msg&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#ffffff&quot;
+						}
+					},
+					&quot;levels&quot;: {
+						&quot;debug&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#d33682&quot;
+							}
+						},
+						&quot;info&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+							}
+						},
+						&quot;warn&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#ff8800&quot;
+							}
+						},
+						&quot;error&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#ff6a6a&quot;
+							}
+						},
+						&quot;panic&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#ff6a6a&quot;
+							},
+							&quot;background&quot;: {
+								&quot;html_hex_color&quot;: &quot;#ffffff&quot;
+							}
+						},
+						&quot;fatal&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#ff6a6a&quot;
+							},
+							&quot;background&quot;: {
+								&quot;html_hex_color&quot;: &quot;#ffff00&quot;
+							}
+						},
+						&quot;unknown&quot;: {
+							&quot;foreground&quot;: {
+								&quot;html_hex_color&quot;: &quot;#a9a9a9&quot;
+							}
+						}
+					},
+					&quot;absent_msg&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#a9a9a9&quot;
+						}
+					},
+					&quot;absent_time&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#a9a9a9&quot;
+						}
+					}
+				},
+				&quot;spans&quot;: {
+					&quot;trace_id&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;span_id&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;trace_state&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;parent_span_id&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;name&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;kind&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;service_name&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;scope_name&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;scope_version&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;time&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;duration&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;resource_key&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;resource_val&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;attribute_key&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;attribute_val&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;status_message&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;status_code&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;event_time&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;event_name&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;event_key&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;event_val&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;link_trace_id&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;link_span_id&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;link_trace_state&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;link_key&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;link_val&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;absent_parent_span_id&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#888888&quot;
+						}
+					}
+				},
+				&quot;tables&quot;: {
+					&quot;column_name&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;column_type&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					},
+					&quot;value&quot;: {
+						&quot;foreground&quot;: {
+							&quot;html_hex_color&quot;: &quot;#2aa198&quot;
+						}
+					}
+				}
+			}
+		},
+		&quot;sort_longest&quot;: true,
+		&quot;skip_unchanged&quot;: true,
+		&quot;time&quot;: {
+			&quot;format&quot;: &quot;Jan _2 15:04:05.000&quot;
+		},
+		&quot;terminal_color_mode&quot;: 0
+	},
+	&quot;parser&quot;: {
+		&quot;timestamp&quot;: {
+			&quot;field_names&quot;: [
+				&quot;time&quot;,
+				&quot;ts&quot;,
+				&quot;@timestamp&quot;,
+				&quot;timestamp&quot;,
+				&quot;Timestamp&quot;
+			]
+		},
+		&quot;message&quot;: {
+			&quot;field_names&quot;: [
+				&quot;message&quot;,
+				&quot;msg&quot;,
+				&quot;Body&quot;
+			]
+		},
+		&quot;level&quot;: {
+			&quot;field_names&quot;: [
+				&quot;level&quot;,
+				&quot;lvl&quot;,
+				&quot;loglevel&quot;,
+				&quot;severity&quot;,
+				&quot;SeverityText&quot;
+			]
+		}
+	},
+	&quot;runtime&quot;: {
+		&quot;interrupt&quot;: false,
+		&quot;skip_check_for_updates&quot;: false,
+		&quot;features&quot;: {},
+		&quot;experimental_features&quot;: {
+			&quot;release_channel&quot;: &quot;main&quot;,
+			&quot;serve_localhost&quot;: {
+				&quot;port&quot;: 32764,
+				&quot;engine&quot;: &quot;advanced&quot;,
+				&quot;engine_config&quot;: {
+					&quot;path&quot;: &quot;~/.state/humanlog/data/db.humanlog&quot;
+				},
+				&quot;show_in_systray&quot;: true,
+				&quot;log_dir&quot;: &quot;~/.state/humanlog/logs&quot;,
+				&quot;otlp&quot;: {
+					&quot;grpc_port&quot;: 4317,
+					&quot;http_port&quot;: 4318
+				}
+			}
+		}
+	}
+}
+</code></pre>
+</div>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
+<script>hljs.highlightAll();</script>
+
+</div>
+</body>
+</html>

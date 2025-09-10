@@ -679,6 +679,39 @@ graph LR
     minerva &lt;-- 1\. acquire TLS config data&lt;br&gt;every 30 seconds --&gt; neptune
     minerva -- 2\. store data to disk --&gt; tlsconfig
 </code></pre>
+
+<p>Fastly production decision:</p>
+
+<pre><code class="language-mermaid">flowchart TD
+
+    A{&quot;Does the data have a TTL?&quot;} --&gt;|Yes| B[Ephemeral]
+    A --&gt;|No| C[Durable]
+
+    %% Ephemeral branch
+    B --&gt; D{&quot;What type of cached content is it?&quot;}
+    D --&gt; |HTTP responses| Q{Which platform product} 
+    Q --&gt;|Delivery| E[Varnish]
+    Q --&gt;|Compute| F[&quot;HTTP Cache API (*)&quot;]
+    D --&gt; |Everything else| G{&quot;What caching features are required?&quot;}
+
+    G --&gt;|Insert, retrieve, purge| H[&quot;Simple Cache API (*)&quot;]
+    G --&gt;|&quot;Cache revalidations, request collapsing, streaming miss etc.&quot;| I[&quot;Core Cache API (*)&quot;]
+
+    %% Durable branch
+    C --&gt; J{&quot;What type of data is it?&quot;}
+
+    J --&gt;|Sensitive customer data| K[&quot;Secret Store (+)&quot;]
+    J --&gt;|Customer config data| L[&quot;Config Store (+)&quot;]
+    J --&gt;|Everything else| S{What size restrictions are there?}
+    S --&gt;|&lt; 100MB| M[&quot;KV Store (+)&quot;]
+    S --&gt;|&gt; 100MB| N[&quot;Object Storage (+)&quot;]
+
+    %% Notes
+    subgraph Legend
+      O[&quot;(*) Included with Compute&quot;]
+      P[&quot;(+) Has to be purchased separately&quot;]
+    end
+</code></pre>
 </div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
 <script src="../assets/js/highlight.min.js"></script>
