@@ -23,7 +23,7 @@ jobs:
       - name: Run Go program
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        run: go run ./main.go
+        run: go run ./cmd/archiver/main.go
 
       - name: Commit and push changes
         run: |
