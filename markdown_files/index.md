@@ -1,5 +1,6 @@
 # Gists Archive
 
+- [Trapping Shell Signals ](./gists/29024a8de49dcdf5ba9b24927e15cf05.md)
 - [humanlog.io config file](./gists/8baf2fa15d7dfdf04b8a3e5818eda71e.md)
 - [PR Reviews](./gists/0a714206cb2d3a7399ac7b1e6cdea69b.md)
 - [Search Tips ](./gists/fad3f3a20b9be166bd0b0248e8e1a665.md)
@@ -906,7 +907,6 @@
 - [Ruby Faraday SSL](./gists/a83752c51a4736230d85.md)
 - [Get HTTP Status Code](./gists/c94349404471165b8f8a.md)
 - [Sinatra Reloader](./gists/4708a79785466a800b90.md)
-- [Bankers Dilemma](./gists/151e15da5f74c9b4ea0e.md)
 - [Bankers Dilemma](./gists/151e15da5f74c9b4ea0e.md)
 - [Ruby Namespace Concern](./gists/7968aefac0f35f914484.md)
 - [Designing Systems and Applications](./gists/39e4c5ee5a226d5dc0e2.md)
