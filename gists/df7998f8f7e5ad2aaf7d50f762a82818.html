@@ -61,6 +61,30 @@ func doSomething() error {
 	}
 	return errors.New(&quot;unable to perform the task, max retries exceeded&quot;)
 }
+
+// Alternative implementation
+
+func (s *service) CreateVersion(ctx context.Context, customerID, configID string, cloneVersion *int, comment string) (*ConfigVersion, error) {
+      const maxRetries = 3
+
+      for attempt := 0; attempt &lt; maxRetries; attempt++ {
+          version, err := s.createVersionAttempt(ctx, customerID, configID, cloneVersion, comment)
+          if err == nil {
+              return version, nil
+          }
+
+          // Retry only on duplicate errors (race condition)
+          if !errors.Is(err, errorsx.ErrDuplicate) {
+              return nil, err
+          }
+
+          // Exponential backoff: 10ms, 20ms, 40ms
+          backoff := time.Duration(10 * (1 &lt;&lt; attempt)) * time.Millisecond
+          time.Sleep(backoff)
+      }
+
+      return nil, fmt.Errorf(&quot;failed to create version after %d attempts: %w&quot;, maxRetries, errorsx.ErrDuplicate)
+}
 </code></pre>
 </div>
 <link rel="stylesheet" href="../assets/css/highlights/github.min.css">
