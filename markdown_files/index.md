@@ -1,5 +1,6 @@
 # Gists Archive
 
+- [Go Fuzz Testing](./gists/9fc9853ca099ff9164ab63388d461784.md)
 - [Trapping Shell Signals ](./gists/29024a8de49dcdf5ba9b24927e15cf05.md)
 - [humanlog.io config file](./gists/8baf2fa15d7dfdf04b8a3e5818eda71e.md)
 - [PR Reviews](./gists/0a714206cb2d3a7399ac7b1e6cdea69b.md)
@@ -314,7 +315,7 @@
 - [Simple Log Example with Configuration Overrides ](./gists/fb0f263c624280eb3bca291ee8f0ed6b.md)
 - [Valid URL Paths ](./gists/9537a46eea1b731dfa331f850ff8b8b0.md)
 - [Simple XHR function ](./gists/a66a29561f6544297a5ad41a8208193c.md)
-- [Fuzz Testing ](./gists/2ecc27597cc609fcb7e4c13c8b9a1dae.md)
+- [Fuzz Testing](./gists/2ecc27597cc609fcb7e4c13c8b9a1dae.md)
 - [Compile Curl ](./gists/1048649a5c00fae8d7f9841d07c728db.md)
 - [NSQ Questions ](./gists/c88f6dca57f3bc327403c9e042e11ff2.md)
 - [Copying Files and Directories ](./gists/b097d008e86699ec990bd5f5dfd2e672.md)

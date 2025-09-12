@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Go Fuzz Testing</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
+<h1 id="go-fuzz-testing">Go Fuzz Testing</h1>
+
+<p><a href="https://gist.github.com/Integralist/9fc9853ca099ff9164ab63388d461784" target="_blank">View original Gist on GitHub</a></p>
+
+<h2 id="makefile">Makefile</h2>
+
+<pre><code class="language-makefile">.PHONY: test-fuzz
+test-fuzz: ## Run fuzz tests
+ifeq ($(strip $(GO_FUZZARGS)),)
+	@status=0; \
+	for pkg in $$(go list ./...); do \
+		for test in $$(go test -list=^Fuzz $$pkg | grep '^Fuzz'); do \
+			echo &quot;&gt;&gt;&gt; Fuzzing $$pkg $$test&quot;; \
+			if ! go test -fuzz=$$test -fuzztime=10s $$pkg; then \
+				echo &quot;❌ FAIL: $$pkg $$test&quot;; \
+				status=1; \
+			fi; \
+		done; \
+	done; \
+	exit $$status
+else
+	@# Running tests with fuzz arguments
+	go test -v -run='^$$' $(GO_FUZZARGS)
+endif
+</code></pre>
+</div>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
+<script>hljs.highlightAll();</script>
+
+</div>
+</body>
+</html>
