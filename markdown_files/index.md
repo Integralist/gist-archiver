@@ -1,5 +1,6 @@
 # Gists Archive
 
+- [DNS Tools: nslookup vs dig vs whois](./gists/7b81d335f4555913567c35f8420ee973.md)
 - [Go Fuzz Testing](./gists/9fc9853ca099ff9164ab63388d461784.md)
 - [Trapping Shell Signals ](./gists/29024a8de49dcdf5ba9b24927e15cf05.md)
 - [humanlog.io config file](./gists/8baf2fa15d7dfdf04b8a3e5818eda71e.md)

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>DNS Tools: nslookup vs dig vs whois</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="../assets/css/styles.css">
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">&laquo; Back to Index</a>
+<div class="markdown-content">
+<h1 id="dns-tools-nslookup-vs-dig-vs-whois">DNS Tools: nslookup vs dig vs whois</h1>
+
+<p><a href="https://gist.github.com/Integralist/7b81d335f4555913567c35f8420ee973" target="_blank">View original Gist on GitHub</a></p>
+
+<h2 id="dns-tools-md">DNS Tools.md</h2>
+
+<h2 id="quick-reference-table">Quick Reference Table</h2>
+
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Primary Question it Answers</th>
+<th>Best For&hellip;</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>ping</code></td>
+<td>&ldquo;Are you online and can I reach you?&rdquo;</td>
+<td>Basic connectivity checks</td>
+</tr>
+
+<tr>
+<td><code>nslookup</code></td>
+<td>&ldquo;What&rsquo;s the IP address for this domain?&rdquo;</td>
+<td>Quick, simple DNS lookups, especially on Windows</td>
+</tr>
+
+<tr>
+<td><code>host</code></td>
+<td>&ldquo;What&rsquo;s the IP/MX record for this domain?&rdquo;</td>
+<td>Clean, easy-to-read DNS lookups</td>
+</tr>
+
+<tr>
+<td><code>dig</code></td>
+<td>&ldquo;Give me all the DNS details for this domain.&rdquo;</td>
+<td>Detailed DNS troubleshooting and scripting</td>
+</tr>
+
+<tr>
+<td><code>whois</code></td>
+<td>&ldquo;Who owns this domain?&rdquo;</td>
+<td>Finding domain registration and ownership info</td>
+</tr>
+
+<tr>
+<td><code>traceroute</code></td>
+<td>&ldquo;What network path do my packets take to reach you?&rdquo;</td>
+<td>Diagnosing latency and routing problems</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="nslookup-the-quick-simple-dns-checker"><code>nslookup</code>: The Quick &amp; Simple DNS Checker</h2>
+
+<p><code>nslookup</code> (Name Server Lookup) is the classic tool for quick, interactive DNS queries. It&rsquo;s available by default on both Windows and Unix-like systems.</p>
+
+<p>When to Use <code>nslookup</code>:</p>
+
+<ul>
+<li>Quickly find an IP address for a domain (A record).</li>
+<li>Find the domain name for an IP address (reverse DNS/PTR record).</li>
+<li>Simple checks where you don&rsquo;t need extensive detail.</li>
+<li>When you&rsquo;re on a Windows machine where <code>dig</code> isn&rsquo;t installed by default.</li>
+</ul>
+
+<pre><code class="language-shell"># Find the IP address for google.com
+nslookup google.com
+
+# --- Output ---
+# Server:		192.168.1.1
+# Address:	192.168.1.1#53
+#
+# Non-authoritative answer:
+# Name:	google.com
+# Address: 142.250.178.78
+</code></pre>
+
+<h2 id="dig-the-detailed-dns-detective"><code>dig</code>: The Detailed DNS Detective 🕵️</h2>
+
+<p><code>dig</code> (Domain Information Groper) is the preferred tool for network administrators and anyone needing detailed DNS information. It provides verbose, easy-to-parse output and offers much more control over your queries. It&rsquo;s the standard on most Linux/macOS systems.</p>
+
+<p>When to Use <code>dig</code>:</p>
+
+<ul>
+<li>Troubleshooting complex DNS issues.</li>
+<li>When you need detailed information, such as the record&rsquo;s Time To Live (TTL), query flags, and the responding server.</li>
+<li>Querying for specific record types like <code>MX</code> (mail exchange), <code>TXT</code> (text), <code>CNAME</code> (canonical name), etc.</li>
+<li>Scripting DNS lookups, as its output is predictable and easy to process.</li>
+</ul>
+
+<pre><code class="language-shell"># Get detailed info for google.com's MX (mail) records
+dig google.com MX
+
+# --- Partial Output ---
+# ;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 5968
+# ;; flags: qr rd ra; QUERY: 1, ANSWER: 5, AUTHORITY: 0, ADDITIONAL: 1
+#
+# ;; QUESTION SECTION:
+# ;google.com.			IN	MX
+#
+# ;; ANSWER SECTION:
+# google.com.		600	IN	MX	10 smtp.google.com.
+# google.com.		600	IN	MX	20 alt1.smtp.google.com.
+# google.com.		600	IN	MX	30 alt2.smtp.google.com.
+# google.com.		600	IN	MX	40 alt3.smtp.google.com.
+# google.com.		600	IN	MX	50 alt4.smtp.google.com.
+#
+# ;; Query time: 15 msec
+# ;; SERVER: 192.168.1.1#53(192.168.1.1)
+</code></pre>
+
+<h2 id="whois-the-domain-ownership-investigator"><code>whois</code>: The Domain Ownership Investigator</h2>
+
+<p><code>whois</code> queries a public database to retrieve registration information about a domain name or IP address. It tells you who owns the domain, not how to connect to it.</p>
+
+<p>When to Use <code>whois</code>:</p>
+
+<ul>
+<li>To find the registered owner and contact information for a domain.</li>
+<li>To check a domain&rsquo;s registration and expiration dates.</li>
+<li>To identify the domain registrar (e.g., GoDaddy, Namecheap).</li>
+<li>To find abuse contacts for reporting spam or malicious activity.</li>
+</ul>
+
+<pre><code class="language-shell"># Find registration info for google.com
+whois google.com
+
+# --- Partial Output ---
+#    Domain Name: GOOGLE.COM
+#    Registry Domain ID: 2138514_DOMAIN_COM-VRSN
+#    Registrar WHOIS Server: whois.markmonitor.com
+#    Registrar URL: http://www.markmonitor.com
+#    Updated Date: 2019-09-09T15:39:04Z
+#    Creation Date: 1997-09-15T04:00:00Z
+#    Registry Expiry Date: 2028-09-14T04:00:00Z
+#    Registrar: MarkMonitor Inc.
+#    Registrant Organization: Google LLC
+#    Registrant State/Province: CA
+#    Registrant Country: US
+</code></pre>
+
+<h2 id="host"><code>host</code></h2>
+
+<p>The <code>host</code> command is a simple, user-friendly utility for performing DNS lookups. It&rsquo;s a great middle-ground between the basic <code>nslookup</code> and the verbose <code>dig</code>.</p>
+
+<p>When to use <code>host</code>:</p>
+
+<ul>
+<li>For clean, easy-to-read output for common DNS record types. It&rsquo;s less intimidating than <code>dig</code>.</li>
+</ul>
+
+<pre><code class="language-shell">host google.com
+# --- Output ---
+# google.com has address 142.250.180.14
+# google.com mail is handled by 10 smtp.google.com.
+</code></pre>
+
+<h2 id="ping"><code>ping</code></h2>
+
+<p><code>ping</code> is your first stop for checking basic connectivity. It sends a small packet to a host and waits for a reply, measuring the round-trip time.</p>
+
+<p>When to use <code>ping</code>:</p>
+
+<ul>
+<li>To quickly check if a server is online and reachable over the network. It&rsquo;s the &ldquo;are you there?&rdquo; of networking.</li>
+</ul>
+
+<pre><code class="language-shell">ping google.com
+# --- Output ---
+# PING google.com (142.250.178.78): 56 data bytes
+# 64 bytes from 142.250.178.78: icmp_seq=0 ttl=116 time=14.505 ms
+# 64 bytes from 142.250.178.78: icmp_seq=1 ttl=116 time=14.234 ms
+</code></pre>
+
+<h2 id="traceroute"><code>traceroute</code></h2>
+
+<p><code>traceroute</code> maps the network path (the &ldquo;hops&rdquo;) your packets take to reach a destination host.</p>
+
+<p>When to use <code>traceroute</code>:</p>
+
+<ul>
+<li>When you can&rsquo;t connect to a server or are experiencing high latency. It helps you pinpoint where the connection is failing or slowing down along the path.</li>
+</ul>
+
+<pre><code class="language-shell">traceroute google.com
+# --- Partial Output ---
+# traceroute to google.com (142.250.178.78), 64 hops max, 52 byte packets
+#  1  my-router (192.168.1.1)  2.458 ms  1.321 ms  1.233 ms
+#  2  my-isp-gateway (10.0.0.1)  8.125 ms  7.989 ms  8.341 ms
+#  3  ...
+# 10  some-google-router (108.170.233.107)  15.111 ms  14.887 ms  14.992 ms
+# 11  lhr25s33-in-f14.1e100.net (142.250.178.78)  14.654 ms  14.233 ms  14.321 ms
+</code></pre>
+</div>
+<link rel="stylesheet" href="../assets/css/highlights/github.min.css">
+<script src="../assets/js/highlight.min.js"></script>
+<script src="../assets/js/notes.js" defer></script>
+<script>hljs.highlightAll();</script>
+
+</div>
+</body>
+</html>
